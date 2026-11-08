@@ -15,7 +15,7 @@ classifiers = ["Private :: Do Not Upload"]
 dev = [
   "bandit>=1.8,<2",
   "hatchling==1.33.0",
-  "mypy>=1.15,<2",
+  "mypy>=1.15,<3",
   "pip-audit>=2.9,<3",
   "pytest>=8.3,<10",
   "pytest-cov>=6,<8",
