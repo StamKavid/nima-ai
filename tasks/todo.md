@@ -14,10 +14,22 @@
   - Depends on: page contracts and archive.
   - Acceptance: bounded requests, rate/backoff, archived completed bodies, no false completeness.
   - Verify: `uv run --frozen pytest tests/test_collection.py tests/test_collection_limits.py`.
-- [ ] Expose CLI, verify a bounded live collection, and open a draft PR.
+- [x] Expose CLI, verify a bounded live collection, and open dependent draft PRs.
   - Depends on: collector.
   - Acceptance: actionable JSON summary, honest exit status, no data in Git, green local/hosted checks.
   - Verify: CLI tests, `make check`, `make audit`, opt-in live probe, private PR metadata.
+  - Evidence: 134 tests, 97.94% coverage; 1,118 live records over 23 pages;
+    draft PRs #7 → #8 → #9 with green hosted quality checks. Retarget dependent
+    PRs to main after merging their predecessors; no merge/deploy is authorized.
+
+## Next ingestion increment
+
+- [ ] Specify and implement PostgreSQL observations, immutable versions, and outbox.
+  - Depends on: reviewed collector PRs #7–#9.
+  - Acceptance: atomic page persistence/checkpointing, A→B→A observation history,
+    deterministic replay, and reconciled IDs after real worker termination/restart.
+  - Verify: real PostgreSQL integration tests and process-crash experiments;
+    design/migration review before implementation. Do not expose resume early.
 
 ## Engineering foundation
 

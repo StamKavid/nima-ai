@@ -21,8 +21,9 @@ restored byte-for-byte. An isolated bytecode-cache prefix avoided stale imports.
 
 Local formatting, lint, strict types, package build, Bandit, Gitleaks, skill
 integrity, coverage, and locked-dependency audit passed. The 90% combined
-line/branch coverage floor remains unchanged; the final measured percentage is
-recorded with hosted verification below.
+line/branch coverage floor remains unchanged; measured full-stack coverage is
+97.94%. Each dependent branch was checked locally in a separate worktree:
+page/archive: 84 tests, 97.23%; HTTP collection: 126 tests, 98.04%.
 
 ## Live source evidence
 
@@ -59,6 +60,26 @@ not prove an unchanged source snapshot. Run time is a cooperative I/O budget,
 not an OS-enforced hard deadline. Branch administration controls remain a separate
 open task because the GitHub integration lacks that permission.
 
-Delivery is split into dependent draft PRs for page/archive, HTTP collection,
-and CLI/documentation. Hosted run links are recorded after checking CI; none of
-these PRs is merged or deployed automatically.
+## Hosted verification and delivery
+
+Repository visibility and authenticated user were verified as private and
+`StamKavid` before push. GitHub resolves new author/committer attribution to
+`StamKavid`. Delivery is split into dependent, unmerged draft PRs:
+
+1. [#7: page/archive](https://github.com/StamKavid/nima-ai/pull/7) → `main`.
+2. [#8: HTTP collection](https://github.com/StamKavid/nima-ai/pull/8) → #7's branch.
+3. [#9: CLI/docs](https://github.com/StamKavid/nima-ai/pull/9) → #8's branch.
+
+Retarget each dependent PR to main after its predecessor merges. Review/merge
+authorization remains with the user. No deployment is part of these changes.
+
+The following hosted quality runs passed at the reviewed code boundaries:
+
+- #7 PR run: https://github.com/StamKavid/nima-ai/actions/runs/42520907137
+- #7 push (`da7517b`): https://github.com/StamKavid/nima-ai/actions/runs/42520862857
+- #8 push (`7bccf2e`): https://github.com/StamKavid/nima-ai/actions/runs/42520862835
+- #9 push (`722d8a8`): https://github.com/StamKavid/nima-ai/actions/runs/42520862805
+
+The existing CI's pull-request trigger targets main, so #8/#9 have push checks
+until retargeted. Their branches contain the complete dependency chain. CI gates
+were not changed; further documentation commits receive fresh push checks.
