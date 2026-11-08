@@ -33,6 +33,24 @@ Use synthetic or anonymized fixtures with source provenance. Live government
 APIs are opt-in smoke tests; they must not make ordinary CI depend on government
 uptime. Raw source archives and investigation data stay outside Git.
 
+## Commit identity
+
+Use the actual contributor's verified GitHub email or GitHub noreply address,
+configured locally for this repository. For the current user's automated work:
+
+```bash
+git config --local user.name StamKavid
+git config --local user.email 69797374+StamKavid@users.noreply.github.com
+git var GIT_AUTHOR_IDENT
+git var GIT_COMMITTER_IDENT
+gh api user --jq .login
+```
+
+GitHub identifies a commit author from the commit email; this is separate from
+the account authenticating a push or triggering Actions. Verify resolved author
+and committer accounts after publishing the first commit. Never rewrite shared
+history without reviewing its impact and obtaining authorization.
+
 ## Dependencies and skill updates
 
 Update one dependency or related group at a time. Read release notes, review
