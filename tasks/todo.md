@@ -8,9 +8,9 @@
 - [x] Add locked tooling and integrity-check behavioral tests.
   - Acceptance: clean snapshot passes; drift, missing files, and path escapes fail.
   - Verify: red/green test evidence and `make test`.
-- [ ] Complete local CI-equivalent checks and bootstrap review.
+- [x] Complete local CI-equivalent checks and bootstrap self-review.
   - Acceptance: lint, strict types, tests, build, source security, and advisory audit pass.
-  - Verify: `make check` and `make audit`.
+  - Verify: `make check`, `make audit`, and `docs/verification/bootstrap.md`.
 - [ ] Create the GitHub repository with private visibility and verify it.
   - Acceptance: remote privacy confirmed; intended branch and history pushed.
   - Verify: authenticated repository metadata and remote commit SHA.
