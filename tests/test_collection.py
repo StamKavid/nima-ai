@@ -61,7 +61,7 @@ def test_collects_all_pages_with_exact_query_and_evidence(tmp_path: Path) -> Non
     assert result.status == "complete"
     assert result.collection_complete and result.normalization_complete
     assert result.pages == result.records == result.normalized == 2
-    assert clock.waits == [1.0]
+    assert clock.waits == [3.0]
     assert requests[0].method == "POST"
     assert str(requests[0].url).startswith("https://cerpp.eprocurement.gov.gr/")
     assert json.loads(requests[0].content) == {
@@ -89,7 +89,7 @@ def test_retries_transient_responses_and_archives_each(tmp_path: Path, status: i
     clock = Clock()
     archive = Archive(tmp_path / "raw")
     with httpx.Client(transport=httpx.MockTransport(lambda _: next(replies))) as client:
-        result = collect(QUERY, Limits(), archive, client=client, clock=clock)
+        result = collect(QUERY, Limits(requests_per_minute=60), archive, client=client, clock=clock)
     assert result.status == "complete" and result.attempts == 2
     assert clock.waits == [2.0]
     manifest = json.loads((archive.root / "runs" / result.run_id / "manifest.json").read_bytes())

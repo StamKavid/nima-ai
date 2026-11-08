@@ -158,3 +158,11 @@ def test_oversized_bidder_integer_is_quarantined(tmp_path: Path) -> None:
     ) as client:
         result = collect(QUERY, Limits(), Archive(tmp_path / "raw"), client=client, clock=Clock())
     assert result.status == "quarantined" and result.quarantined == 1
+
+
+def test_rate_limit_without_retry_after_uses_conservative_backoff(tmp_path: Path) -> None:
+    replies = iter([httpx.Response(429), httpx.Response(200, content=body(total=0))])
+    clock = Clock()
+    with httpx.Client(transport=httpx.MockTransport(lambda _: next(replies))) as client:
+        result = collect(QUERY, Limits(), Archive(tmp_path / "raw"), client=client, clock=clock)
+    assert result.status == "complete" and clock.waits == [30.0]

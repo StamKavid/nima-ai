@@ -36,7 +36,7 @@ class Limits:
     max_pages: int = 100
     max_attempts: int = 3
     max_bytes: int = 8 * 1024 * 1024
-    requests_per_minute: float = 60.0
+    requests_per_minute: float = 20.0
     request_timeout: float = 20.0
     run_timeout: float = 300.0
     max_retry_delay: float = 60.0

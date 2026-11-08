@@ -52,6 +52,7 @@ def collect(
     def fetch(page: int) -> bytes:
         for attempt in range(1, limits.max_attempts + 1):
             retry_after = None
+            status = None
             try:
                 raw, status, retry_after = session.request(query, page, attempt)
             except CollectionStopped as exc:
@@ -67,6 +68,8 @@ def collect(
             if attempt == limits.max_attempts:
                 raise CollectionStopped("retry_exhausted")
             delay = retry_delay(retry_after, attempt)
+            if status == 429 and retry_after is None:
+                delay = 30.0 * attempt
             if delay > limits.max_retry_delay:
                 raise CollectionStopped("retry_delay")
             session.wait(delay)
