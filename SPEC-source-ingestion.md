@@ -152,6 +152,7 @@ functions with observable failure behavior. For example:
 ```python
 from decimal import Decimal
 
+
 def net_amount(raw_value: str) -> Decimal:
     return Decimal(raw_value)
 ```
