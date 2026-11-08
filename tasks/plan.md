@@ -1,6 +1,49 @@
 # Delivery plan
 
-## Current increment: Nima investigation foundation
+## Current increment: bounded KIMDIS evidence collection
+
+PR #5 was merged by the user on 2026-11-08. Build the next slice of the accepted
+ingestion spec on `feature/kimdis-evidence-collector`: a CLI that collects one
+explicit date window, preserves completed HTTP response bodies before parsing,
+normalizes records, and reports coverage and failures. PostgreSQL history,
+durable work handoff, and crash-resume remain the following increment.
+
+### Implementation order and acceptance
+
+1. **Page contracts:** decode each response once; validate pagination and preserve
+   per-record quarantine/evidence locations. Existing normalization behavior stays
+   compatible. Verify: source/page behavioral tests.
+2. **Archive:** content-addressed immutable bodies, private directories/files,
+   atomic run manifests, and derived normalized/quarantine JSONL artifacts. An
+   existing corrupt blob or unrelated directory must fail visibly. Verify: real
+   filesystem tests for reuse, corruption, privacy, and path safety.
+3. **HTTP collection:** official fixed endpoint, date/buyer filters, request-rate,
+   response-size, retry, page, and time budgets. Honor bounded Retry-After; do not
+   follow redirects. Archive bounded completed responses including HTTP errors.
+   Verify: HTTPX MockTransport tests for pagination, retries, errors, and budgets.
+4. **CLI and coverage:** expose `python -m nima ingest kimdis` with a JSON summary.
+   Validate options before network access. Successful raw collection with bad rows
+   reports quarantine and exits nonzero; inconsistent/duplicate pagination never
+   claims completeness. Verify: command tests and a bounded live one-day probe.
+5. **Review and publication:** run `make check` and `make audit`, review the diff,
+   push as `StamKavid` to the private repository, and open an unmerged draft PR.
+
+### Boundaries and evidence
+
+The archive stores decoded HTTP entity-body bytes before JSON parsing, not a
+capture of compressed wire bytes. Hash references must resolve to those exact
+archived bytes. Original bodies and derived artifacts remain outside Git.
+Manifests record collection and normalization completeness separately. They are
+run evidence, not a substitute for transactional PostgreSQL checkpoints. A new
+run may reuse body blobs; automatic resume is not exposed in this slice.
+
+Use HTTPX with verified TLS and inherited proxy/CA settings. Documentation:
+https://www.python-httpx.org/quickstart/#streaming-responses and
+https://www.python-httpx.org/advanced/timeouts/ . Official source contract:
+https://cerpp.eprocurement.gov.gr/khmdhs-opendata/help . HTTPX is the only new
+runtime dependency; structured ingestion still has no model dependency.
+
+## Previous completed increment: Nima investigation foundation
 
 The user reaffirmed the company/public-spending investigation concept, supplied
 the original architecture as the project brief, and created `StamKavid/nima-ai`.
