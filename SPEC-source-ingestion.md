@@ -2,9 +2,10 @@
 
 Module: `source-ingestion` in `CAPABILITIES.md`.
 
-Status: draft for user review. This is the first application feature; its
-implementation plan and code follow approval. The repository bootstrap is
-separately authorized by the request to install skills and establish delivery.
+Status: staged direction reaffirmed by the user on 2026-11-08 through the supplied
+architectural brief. Implement the contract-normalization slice first and keep
+collection, persistence, and durability as later verified slices. This spec's
+full acceptance criteria remain open until the complete collector meets them.
 
 ## Objective
 
@@ -62,12 +63,12 @@ make audit
 Proposed application interface, to be implemented after this spec is approved:
 
 ```bash
-uv run python -m hellenic_integrity ingest kimdis \
+uv run python -m nima ingest kimdis \
   --from-date 2026-11-06 --to-date 2026-11-06 \
   --archive-dir data/raw
 
-uv run python -m hellenic_integrity runs show RUN_ID
-uv run python -m hellenic_integrity runs resume RUN_ID
+uv run python -m nima runs show RUN_ID
+uv run python -m nima runs resume RUN_ID
 ```
 
 The PostgreSQL connection is configured through the environment, never a CLI
@@ -130,7 +131,7 @@ fully normalized dataset without resolving or explicitly accounting for them.
 Implementation will grow from the existing package as the feature requires:
 
 ```text
-src/hellenic_integrity/
+src/nima/
   sources/kimdis.py       source-specific request/response handling
   ingestion/             run orchestration and replay
   storage/               raw archive and PostgreSQL persistence
@@ -215,9 +216,14 @@ treat a procurement signal or missing field as proof of wrongdoing.
 - Verify a reliable strategy for old-record changes before claiming an update
   detection SLA. Recent-window polling alone cannot guarantee this.
 
-## Approval gate
+## Current increment and review
 
-The installed `.agents/skills/spec-driven-development/SKILL.md` says:
-"Stop after writing the spec (CRITICAL)." It requires human review before
-implementation planning. This application spec is therefore saved for review;
-no KIMDIS collector implementation or implementation task plan is included yet.
+The user's follow-up confirms the original company/public-spending concept and
+the supplied ingestion-first architectural brief. This authorizes the staged
+implementation direction; it is not approval to merge, deploy, publish findings,
+or incur paid model costs. Review the bounded increments through pull requests.
+
+The first slice decodes and validates one KIMDIS contract response, preserves
+exact money and reported supplier participation, and attaches a raw-response
+hash and source-field references. It does not fetch records, archive responses,
+write PostgreSQL, or claim that the complete ingestion stage is implemented.

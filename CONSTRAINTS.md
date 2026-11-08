@@ -19,7 +19,7 @@ checks below enforce only the properties each tool actually checks.
 | Skill integrity | Zero differences from the pinned snapshot, including shared references | `make skills-check` | Local and CI |
 | Formatting and lint | Zero findings; one consistent style | `make lint` | Local and CI |
 | Types | Zero strict mypy errors in first-party Python | `make typecheck` | Local and CI |
-| Bootstrap tooling tests | At least 90% line/branch combined coverage; the integrity gate's failure paths matter | `make test` | Local and CI |
+| First-party tests | At least 90% line/branch combined coverage across tooling and `nima`; data integrity and failure paths matter | `make test` | Local and CI |
 | Package | Wheel and source distribution build successfully | `make build` | Local and CI |
 | Code security | Zero Bandit findings in first-party code | `make security` | Local and CI |
 | Secret detection | Zero Gitleaks findings; output is redacted | `make secrets` | Local and CI |
@@ -32,15 +32,17 @@ pinned. First-party tools do not execute scripts from the skill bundle.
 
 ## Remote controls
 
-Intended GitHub controls: private visibility, PR-only changes to main, one
+Required visibility: private. Intended GitHub controls: PR-only changes to main, one
 approval, required `quality` check, resolved conversations, and blocked force
-pushes/deletions. These controls are pending remote authentication and host-plan
-support. A workflow file alone does not enforce branch protection.
+pushes/deletions. Private visibility was independently verified for
+`StamKavid/nima-ai` before the initial bootstrap push. Branch controls still
+require verification of integration permissions and host-plan support. A workflow
+file alone does not enforce branch protection.
 
 ## Measurements
 
 Initial bootstrap-tool coverage: 96.43% combined line/branch coverage.
-No runtime performance, data coverage, extraction accuracy, or model-quality
+No production runtime performance, full-source coverage, document extraction accuracy, or model-quality
 baseline has been measured. Add such gates when the relevant capability exists.
 
 ## Exceptions
