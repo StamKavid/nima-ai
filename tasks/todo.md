@@ -17,7 +17,7 @@
 - [ ] Run hosted CI and configure supported main-branch controls.
   - Acceptance: required check succeeds; PR/review controls verified on the host.
   - Verify: Actions run and repository rules metadata.
-- [ ] Save the first application spec for user review.
+- [x] Save the first application spec for user review.
   - Acceptance: objective, commands, structure, testing, boundaries, and success criteria.
   - Verify: spec review; implementation planning follows approval.
 
