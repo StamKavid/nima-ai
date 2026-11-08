@@ -3,9 +3,9 @@ requires = ["hatchling==1.33.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "hellenic-integrity"
+name = "nima-ai"
 version = "0.0.1"
-description = "Engineering foundation for Greek public-record investigation tools"
+description = "Evidence-backed company and public-spending investigation tools for Greece"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = []
@@ -23,7 +23,7 @@ dev = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/hellenic_integrity"]
+packages = ["src/nima"]
 
 [tool.ruff]
 target-version = "py312"
@@ -45,7 +45,7 @@ addopts = "-ra --strict-markers"
 
 [tool.coverage.run]
 branch = true
-source = ["scripts"]
+source = ["scripts", "nima"]
 
 [tool.coverage.report]
 fail_under = 90

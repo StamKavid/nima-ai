@@ -1,7 +1,8 @@
-# Capability map
+# Nima capability map
 
-This map records the research direction accepted in the conversation. It is a
-delivery sequence, not a claim that future modules are implemented or specified.
+The user reaffirmed the original investigation mission and ingestion-first
+architecture on 2026-11-08. This is a delivery sequence, not a claim that future
+modules or model benchmarks are implemented.
 
 | Module ID | Responsibility | Depends on |
 |---|---|---|
@@ -9,11 +10,14 @@ delivery sequence, not a claim that future modules are implemented or specified.
 | source-ingestion | Collect and preserve public-record revisions and documents | engineering-foundation |
 | entity-resolution | Resolve companies and other parties with reviewed evidence | source-ingestion |
 | temporal-graph | Project dated, evidence-backed relationships | entity-resolution |
-| risk-analytics | Sector comparisons and explainable investigation indicators | temporal-graph |
-| investigator-workspace | Search, explore, annotate, and export evidence | risk-analytics |
+| risk-analytics | Peer comparisons, graph motifs, rules, and evaluated ML rankings | temporal-graph |
+| research-assistant | Hybrid retrieval and evidence-cited AI explanations | risk-analytics |
+| investigator-workspace | Explore networks, review leads, and export case evidence | research-assistant |
 
 Build order: engineering-foundation → source-ingestion → entity-resolution →
-temporal-graph → risk-analytics → investigator-workspace.
+temporal-graph → risk-analytics → research-assistant → investigator-workspace.
 
 `SPEC-source-ingestion.md` is the first application specification. Later modules
 receive their own specs when their evidence and interface requirements are clear.
+The model strategy, graph boundaries, and per-stage validation gates are in
+`docs/architecture.md`. The election-accountability idea is outside this project.

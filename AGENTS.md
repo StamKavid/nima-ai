@@ -23,9 +23,21 @@ decisions. The upstream project policy was not copied into this repository.
 - Clarify consequential missing requirements; continue independently on authorized work.
 - Run `make check` and `make audit` before proposing a merge.
 - Review correctness, readability, architecture, security, and performance.
-- Do not merge or deploy without user authorization. Never change remote visibility.
+- Do not merge or deploy without user authorization. Preserve the user-requested
+  private visibility; never publish the project or its source to a public repository.
 - Record incomplete work honestly; a local check is not evidence of hosted CI.
 - Use subagents only when the user or a relevant skill explicitly calls for them.
+
+## Git identity
+
+For this user's automation, authenticated pushes and commit attribution must use
+`StamKavid`. Configure repository-local Git identity with
+`69797374+StamKavid@users.noreply.github.com`; do not inherit an unverified global
+email or change global settings. Check `git var GIT_AUTHOR_IDENT`,
+`git var GIT_COMMITTER_IDENT`, and the authenticated GitHub login before committing.
+After the first push, verify GitHub's resolved author/committer accounts. Other
+contributors and dependency bots retain their own legitimate attribution.
+Published history correction needs a content-identical preview and user approval.
 
 ## Data integrity
 
@@ -44,3 +56,5 @@ decisions. The upstream project policy was not copied into this repository.
 Build ingestion before entity resolution, graph projection, models, or UI.
 No LLM or embedding dependency is required for structured-record ingestion.
 Source freshness is measured per source; KIMDIS documentation describes daily refresh.
+Read `docs/architecture.md` before graph, ML, AI, or insights work. Candidate models
+must be evaluated on versioned Greek-data tasks before production selection.

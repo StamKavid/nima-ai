@@ -22,7 +22,7 @@ typecheck:
 	uv run --frozen mypy
 
 test:
-	uv run --frozen pytest --cov=scripts --cov-report=term-missing --cov-report=xml
+	uv run --frozen pytest --cov=scripts --cov=nima --cov-report=term-missing --cov-report=xml
 
 build:
 	uv build
