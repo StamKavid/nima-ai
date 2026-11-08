@@ -1,7 +1,7 @@
 """Normalize reported KIMDIS contracts without inferring identity or wrongdoing.
 
 Source contract: https://cerpp.eprocurement.gov.gr/khmdhs-opendata/help
-The response hash identifies bytes; collection and durable archival are separate work.
+The response hash identifies the archived decoded HTTP response body.
 """
 
 import hashlib
@@ -179,15 +179,7 @@ def _reject_constant(value: str) -> Never:
     raise InvalidRecord("Non-finite JSON number")
 
 
-def normalize_contract(
-    raw_response: bytes, *, index: int = 0, max_bytes: int = 8 * 1024 * 1024
-) -> Contract:
-    """Normalize one response record, preserving source evidence and unknowns.
-
-    ``index`` selects an item in the response's ``content`` array. Source timestamps
-    remain unqualified text. Currency is known only when every reported line item
-    has the same code. No value is allocated among suppliers.
-    """
+def _decode(raw_response: bytes, max_bytes: int) -> dict[str, object]:
     if len(raw_response) > max_bytes or max_bytes <= 0:
         raise InvalidRecord("Response exceeds the configured size limit")
     try:
@@ -202,10 +194,23 @@ def normalize_contract(
         raise
     except (ValueError, RecursionError, InvalidOperation) as exc:
         raise InvalidRecord(f"Invalid JSON response: {type(exc).__name__}") from exc
-    content = _array(_object(decoded, "response").get("content"), "content")
+    return _object(decoded, "response")
+
+
+def normalize_contract(
+    raw_response: bytes, *, index: int = 0, max_bytes: int = 8 * 1024 * 1024
+) -> Contract:
+    """Normalize a record with exact money, unknowns, and original evidence."""
+    content = _array(_decode(raw_response, max_bytes).get("content"), "content")
     if type(index) is not int or not 0 <= index < len(content):
         raise InvalidRecord("Record index is outside the response")
-    record = _object(content[index], f"content/{index}")
+    return _contract(
+        content[index], Evidence(hashlib.sha256(raw_response).hexdigest(), f"/content/{index}")
+    )
+
+
+def _contract(value: object, evidence: Evidence) -> Contract:
+    record = _object(value, evidence.json_pointer)
     organization = record.get("organization")
     buyer = {} if organization is None else _object(organization, "organization")
     cancelled = record.get("cancelled")
@@ -229,5 +234,78 @@ def normalize_contract(
         source_submitted_at=_text(record.get("submissionDate"), "submissionDate"),
         source_updated_at=_text(record.get("lastUpdateDate"), "lastUpdateDate"),
         references=_references(record),
-        evidence=Evidence(hashlib.sha256(raw_response).hexdigest(), f"/content/{index}"),
+        evidence=evidence,
+    )
+
+
+@dataclass(frozen=True)
+class RecordIssue:
+    reason: str
+    evidence: Evidence
+
+
+@dataclass(frozen=True)
+class Page:
+    number: int
+    size: int
+    total_records: int
+    total_pages: int
+    last: bool
+    record_count: int
+    contracts: tuple[Contract, ...]
+    issues: tuple[RecordIssue, ...]
+    source_ids: tuple[str, ...]
+
+
+def _integer(value: object, field: str, minimum: int = 0) -> int:
+    if type(value) is not int or value < minimum:
+        raise InvalidRecord(f"Invalid pagination at {field}")
+    return value
+
+
+def normalize_page(raw_response: bytes, *, max_bytes: int = 8 * 1024 * 1024) -> Page:
+    """Decode once; reject broken envelopes and quarantine individual bad records."""
+    response = _decode(raw_response, max_bytes)
+    content = _array(response.get("content"), "content")
+    number = _integer(response.get("number"), "number")
+    size = _integer(response.get("size"), "size", 1)
+    total = _integer(response.get("totalElements"), "totalElements")
+    pages = _integer(response.get("totalPages"), "totalPages")
+    last = response.get("last")
+    if (
+        pages != (total + size - 1) // size
+        or number >= max(1, pages)
+        or type(last) is not bool
+        or last != (number == max(0, pages - 1))
+        or len(content) != min(size, max(0, total - number * size))
+    ):
+        raise InvalidRecord("Inconsistent pagination")
+    if "numberOfElements" in response and _integer(
+        response["numberOfElements"], "numberOfElements"
+    ) != len(content):
+        raise InvalidRecord("Inconsistent page record count")
+    digest = hashlib.sha256(raw_response).hexdigest()
+    contracts: list[Contract] = []
+    issues: list[RecordIssue] = []
+    source_ids: list[str] = []
+    for index, value in enumerate(content):
+        evidence = Evidence(digest, f"/content/{index}")
+        if isinstance(value, dict):
+            reference = value.get("referenceNumber")
+            if isinstance(reference, str) and reference.strip():
+                source_ids.append(f"kimdis:{reference}")
+        try:
+            contracts.append(_contract(value, evidence))
+        except InvalidRecord as exc:
+            issues.append(RecordIssue(str(exc), evidence))
+    return Page(
+        number,
+        size,
+        total,
+        pages,
+        last,
+        len(content),
+        tuple(contracts),
+        tuple(issues),
+        tuple(source_ids),
     )
