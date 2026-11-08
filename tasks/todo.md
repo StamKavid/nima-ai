@@ -2,18 +2,18 @@
 
 ## Bounded KIMDIS evidence collector
 
-- [ ] Validate and normalize a complete page in one JSON decode.
+- [x] Validate and normalize a complete page in one JSON decode.
   - Depends on: merged PR #5.
   - Acceptance: strict pagination; valid rows survive quarantined neighbors; exact evidence pointers.
   - Verify: `uv run --frozen pytest tests/test_kimdis_pages.py tests/test_kimdis_contracts.py`.
-- [ ] Preserve bodies and run artifacts in a private content-addressed archive.
+- [x] Preserve bodies and run artifacts in a private content-addressed archive.
   - Depends on: source contracts.
   - Acceptance: atomic writes; immutable reused bodies; corrupt/unrelated paths rejected.
   - Verify: `uv run --frozen pytest tests/test_archive.py`.
-- [ ] Collect bounded pages with visible retries and reconciliation.
+- [x] Collect bounded pages with visible retries and reconciliation.
   - Depends on: page contracts and archive.
   - Acceptance: bounded requests, rate/backoff, archived completed bodies, no false completeness.
-  - Verify: `uv run --frozen pytest tests/test_collector.py`.
+  - Verify: `uv run --frozen pytest tests/test_collection.py tests/test_collection_limits.py`.
 - [ ] Expose CLI, verify a bounded live collection, and open a draft PR.
   - Depends on: collector.
   - Acceptance: actionable JSON summary, honest exit status, no data in Git, green local/hosted checks.

@@ -39,7 +39,7 @@ def _parser() -> argparse.ArgumentParser:
     kimdis.add_argument("--max-pages", type=int, default=100)
     kimdis.add_argument("--max-attempts", type=int, default=3, help="Attempts per page")
     kimdis.add_argument("--max-bytes", type=int, default=8 * 1024 * 1024)
-    kimdis.add_argument("--requests-per-minute", type=float, default=60)
+    kimdis.add_argument("--requests-per-minute", type=float, default=20)
     kimdis.add_argument("--request-timeout", type=float, default=20, help="HTTP inactivity seconds")
     kimdis.add_argument(
         "--run-timeout", type=float, default=300, help="Cooperative run budget seconds"
