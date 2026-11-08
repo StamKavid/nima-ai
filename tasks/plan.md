@@ -26,7 +26,8 @@ durable work handoff, and crash-resume remain the following increment.
    reports quarantine and exits nonzero; inconsistent/duplicate pagination never
    claims completeness. Verify: command tests and a bounded live one-day probe.
 5. **Review and publication:** run `make check` and `make audit`, review the diff,
-   push as `StamKavid` to the private repository, and open an unmerged draft PR.
+   push as `StamKavid` to the private repository, and open unmerged dependent draft
+   PRs for page/archive, HTTP collection, and CLI/documentation. Each gets CI.
 
 ### Boundaries and evidence
 

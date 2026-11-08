@@ -6,6 +6,8 @@ Status: staged direction reaffirmed by the user on 2026-11-08 through the suppli
 architectural brief. Implement the contract-normalization slice first and keep
 collection, persistence, and durability as later verified slices. This spec's
 full acceptance criteria remain open until the complete collector meets them.
+The bounded HTTP/archive/CLI increment implements collection and reconciliation
+without PostgreSQL transactions, durable handoff, or automatic resume.
 
 ## Objective
 
@@ -60,13 +62,17 @@ make check
 make audit
 ```
 
-Proposed application interface, to be implemented after this spec is approved:
+Implemented bounded command (see README for limits and exit codes):
 
 ```bash
 uv run python -m nima ingest kimdis \
   --from-date 2026-11-06 --to-date 2026-11-06 \
   --archive-dir data/raw
+```
 
+Future database-backed inspection/resume commands; not implemented:
+
+```bash
 uv run python -m nima runs show RUN_ID
 uv run python -m nima runs resume RUN_ID
 ```
@@ -172,9 +178,10 @@ terminate and restart a real worker against the archive and database; an injecte
 exception alone does not prove process-crash recovery. Verify both transaction
 rollback and durable replay. Test concurrency once concurrent workers exist.
 
-The current 90% coverage gate applies to bootstrap tooling only. The ingestion
-plan must explicitly extend coverage scope to implemented application modules
-and define data-integrity checks; bootstrap coverage is not product coverage.
+The current 90% line/branch coverage floor includes first-party tooling and all
+implemented `nima` modules. Offline HTTP/archive tests verify collection failure
+paths; live probes report source access separately. Crash/restart acceptance
+still requires real process/database experiments in the next increment.
 
 ## Success criteria
 
