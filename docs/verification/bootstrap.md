@@ -3,6 +3,10 @@
 Date: 2026-11-08. Verification applies to engineering infrastructure, not to
 government-record ingestion or any fraud-detection model.
 
+This historical report predates repository connection and attribution correction.
+See `nima-foundation.md` for the subsequent private remote, source-normalization,
+hosted CI, and identity verification results.
+
 ## Evidence
 
 | Check | Result |

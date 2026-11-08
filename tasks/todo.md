@@ -40,9 +40,9 @@ investigator workspace. These are roadmap items, not implementation tasks.
 - [x] Document graph, model, detector, and investigation milestones.
   - Acceptance: each capability names required data, purpose, and evaluation gate.
   - Verify: source review and five-axis change review.
-- [ ] Push the feature branch and open a draft PR after confirming repository privacy.
+- [x] Push the feature branch and open a draft PR after confirming repository privacy.
   - Acceptance: no public publication; PR has validation and limitations.
-  - Verify: GitHub metadata, remote heads, and hosted CI.
-- [ ] Verify corrected historical and future attribution resolves to `StamKavid`.
+  - Verify: draft PR #5; hosted push and PR checks passed for `c64a5e2`.
+- [x] Verify corrected historical and future attribution resolves to `StamKavid`.
   - Acceptance: approved metadata-only rewrite preserves every bootstrap file tree.
   - Verify: GitHub author/committer metadata and guarded remote update.

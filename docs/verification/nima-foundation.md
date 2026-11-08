@@ -43,6 +43,21 @@ The user approved correcting existing and future attribution after a preview
 proved all six bootstrap file trees identical. A local old-history backup is
 retained; the published update uses an explicit expected-SHA lease.
 
+GitHub verified author and committer `StamKavid` for all six corrected main
+commits and the feature branch. The four automatic dependency PRs were then
+closed by `StamKavid`; no closed PR or dependency branch was reopened or rewritten.
+
+## Hosted feature checks
+
+Draft PR: https://github.com/StamKavid/nima-ai/pull/5
+
+Both hosted checks for feature commit `c64a5e2` passed:
+
+- Push: https://github.com/StamKavid/nima-ai/actions/runs/42517509315
+- Pull request: https://github.com/StamKavid/nima-ai/actions/runs/42517582235
+
+The PR remains unmerged. Follow-up documentation commits receive the same checks.
+
 ## Review and limits
 
 Self-review covered source correctness, immutable record structure, external-input
