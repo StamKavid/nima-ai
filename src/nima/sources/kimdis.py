@@ -97,7 +97,10 @@ def _bidder_count(value: object) -> int | None:
     if type(value) is int and value >= 0:
         return value
     if isinstance(value, str) and value.isascii() and value.isdecimal():
-        return int(value)
+        try:
+            return int(value)
+        except ValueError as exc:
+            raise InvalidRecord("Bidder count exceeds the integer conversion limit") from exc
     raise InvalidRecord("Invalid bidder count at bidsSubmitted")
 
 
