@@ -7,6 +7,7 @@ CREATE TABLE nima.ingest_runs (
     query jsonb NOT NULL CHECK (jsonb_typeof(query) = 'object'),
     connector_version text NOT NULL,
     normalizer_version text NOT NULL,
+    archive_root text NOT NULL,
     next_page integer NOT NULL DEFAULT 0 CHECK (next_page >= 0),
     total_records bigint,
     total_pages integer,
