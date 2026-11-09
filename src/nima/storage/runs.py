@@ -30,7 +30,7 @@ class RunStore(PageStore):
         super().__init__(dsn, archive)
         self.run_id, self.owner, self.limits = run_id, uuid4(), limits
         self._attempt_id: int | None = None
-        self._leased = False
+        self._lease_connection: Connection | None = None
 
     @contextmanager
     def lease(self) -> Iterator[None]:
@@ -42,16 +42,22 @@ class RunStore(PageStore):
         with _connect(self._dsn) as connection:
             if connection.execute("SELECT pg_try_advisory_lock(%s)", (key,)).fetchone() != (True,):
                 raise RunBusy("Run is busy")
-            self._leased = True
+            self._lease_connection = connection
             try:
                 yield
             finally:
-                self._leased = False
+                self._lease_connection = None
+
+    def _require_lease(self) -> Connection:
+        if self._lease_connection is None:
+            raise CheckpointError("An active run lease is required")
+        return self._lease_connection
 
     def takeover(self, query: Query) -> None:
-        if not self._leased:
-            raise CheckpointError("Takeover requires a run lease")
-        with _connect(self._dsn) as connection, connection.transaction():
+        # Claim on the exact connection holding the lock, so a dead lease cannot
+        # reacquire ownership through a different, healthy connection.
+        connection = self._require_lease()
+        with connection.transaction():
             row = connection.execute(
                 """SELECT query, settings, connector_version,
                 normalizer_version, archive_root FROM nima.ingest_runs
@@ -97,7 +103,8 @@ class RunStore(PageStore):
         return cast(tuple[str, datetime] | None, row)
 
     def begin(self, query: Query) -> None:
-        with _connect(self._dsn) as connection, connection.transaction():
+        connection = self._require_lease()
+        with connection.transaction():
             connection.execute(
                 """INSERT INTO nima.ingest_runs
                 (run_id, query, connector_version, normalizer_version, archive_root,

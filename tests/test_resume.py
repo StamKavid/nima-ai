@@ -152,6 +152,8 @@ def test_lost_lease_cannot_bypass_new_writer_token(pg_dsn: str, tmp_path: Path) 
             )
         with new.lease():
             new.takeover(QUERY)
+            with pytest.raises((CheckpointError, psycopg.Error)):
+                old.takeover(QUERY)
             with pytest.raises(CheckpointError):
                 old.commit_page(run, body(), observed_at=datetime.now(UTC), owner=old.owner)
             with pytest.raises(CheckpointError):
