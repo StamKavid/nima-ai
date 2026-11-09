@@ -24,14 +24,14 @@
 
 ## PostgreSQL page persistence (current)
 
-- [ ] Extend and review the accepted persistence contract in SPEC-source-ingestion.md.
+- [x] Extend and review the accepted persistence contract in SPEC-source-ingestion.md.
   - Acceptance: source versions and observations are distinct; transaction, replay,
     archive, checkpoint, and migration invariants are explicit.
-- [ ] Persist one archived page in a real PostgreSQL transaction.
+- [x] Persist one archived page in a real PostgreSQL transaction.
   - Acceptance: immutable content versions, A→B→A observations, quarantine and
     pending outbox events; checkpoint commits atomically; replay is idempotent.
   - Verify: real PostgreSQL tests, SQL constraints, exact source hashes/money.
-- [ ] Verify killed-worker rollback and replay at page commit boundaries.
+- [x] Verify killed-worker rollback and replay at page commit boundaries.
   - Acceptance: killed pre-commit leaves no page effects; killed post-commit
     replays without duplicate observations or outbox work. HTTP resume stays hidden.
   - Verify: subprocess SIGKILL tests with independent database connections.
