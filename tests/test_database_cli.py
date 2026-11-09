@@ -8,6 +8,7 @@ import psycopg
 import pytest
 
 from nima.__main__ import main
+from nima.ingestion.collector import RunError
 from tests.test_cli import arguments
 from tests.test_collection import body
 
@@ -60,3 +61,28 @@ def test_driver_messages_are_redacted(
     output = capsys.readouterr()
     assert json.loads(output.out)["failure"] == "database"
     assert "private" not in output.out + output.err
+
+
+def test_missing_schema_and_unknown_run_have_explicit_failures(
+    pg_dsn: str, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("NIMA_DATABASE_URL", pg_dsn)
+    run_id = "00000000000000000000000000000001"
+    assert main(["runs", "show", run_id]) == 1
+    assert json.loads(capsys.readouterr().out)["failure"] == "database_schema"
+    assert main(["db", "migrate"]) == 0
+    capsys.readouterr()
+    assert main(["runs", "show", run_id]) == 1
+    assert json.loads(capsys.readouterr().out)["failure"] == "run_unavailable"
+
+
+def test_failed_collection_keeps_an_inspectable_run_id(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def fail(*args: object, **kwargs: object) -> None:
+        raise RunError("1234", "database")
+
+    monkeypatch.setattr("nima.__main__.collect", fail)
+    assert main(arguments(tmp_path)) == 1
+    output = json.loads(capsys.readouterr().out)
+    assert output["run_id"] == "1234" and output["failure"] == "database"

@@ -9,7 +9,7 @@ import psycopg
 import pytest
 
 from nima.ingestion.archive import Archive
-from nima.ingestion.collector import collect
+from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits
 from nima.storage.postgres import CheckpointError, PageStore, migrate
 from nima.storage.runs import inspect_run
@@ -117,3 +117,91 @@ def test_quarantine_counts_come_from_committed_pages(
     assert state["collection_complete"] is complete
     assert state["quarantined"] == 1 and state["unidentified"] == unknown
     assert state["normalization_complete"] is False
+
+
+@pytest.mark.parametrize("stage", ["INSERT", "UPDATE"])
+def test_journal_failure_cannot_claim_success(pg_dsn: str, tmp_path: Path, stage: str) -> None:
+    from psycopg import sql
+
+    migrate(pg_dsn)
+    with psycopg.connect(pg_dsn, autocommit=True) as connection:
+        connection.execute("""CREATE FUNCTION nima.test_fail() RETURNS trigger
+            LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'sensitive source text'; END; $$""")
+        connection.execute(
+            sql.SQL(
+                "CREATE TRIGGER test_fail BEFORE {} ON nima.http_attempts "
+                "FOR EACH ROW EXECUTE FUNCTION nima.test_fail()"
+            ).format(sql.SQL(stage))
+        )
+    requests = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        return httpx.Response(200, content=body(total=1))
+
+    with (
+        httpx.Client(transport=httpx.MockTransport(handle)) as client,
+        pytest.raises(RunError) as stopped,
+    ):
+        collect(
+            QUERY,
+            Limits(),
+            Archive(tmp_path / "raw"),
+            client=client,
+            clock=Clock(),
+            database_dsn=pg_dsn,
+        )
+    assert str(stopped.value) == "database" and stopped.value.run_id
+    state = inspect_run(pg_dsn, UUID(stopped.value.run_id))
+    assert state["pages"] == 0 and state["collection_complete"] is False
+    assert len(requests) == (0 if stage == "INSERT" else 1)
+    assert state["pending_attempts"] == (0 if stage == "INSERT" else 1)
+
+
+def test_unmigrated_database_is_rejected_before_http(pg_dsn: str, tmp_path: Path) -> None:
+    from nima.storage.postgres import MigrationError
+
+    def no_http(_: httpx.Request) -> httpx.Response:
+        pytest.fail("Unmigrated database allowed HTTP access")
+
+    with (
+        httpx.Client(transport=httpx.MockTransport(no_http)) as client,
+        pytest.raises(MigrationError),
+    ):
+        collect(
+            QUERY,
+            Limits(),
+            Archive(tmp_path / "raw"),
+            client=client,
+            clock=Clock(),
+            database_dsn=pg_dsn,
+        )
+
+
+@pytest.mark.parametrize("interrupted", [False, True])
+def test_unfinished_body_outcomes_are_recorded(
+    pg_dsn: str, tmp_path: Path, interrupted: bool
+) -> None:
+    migrate(pg_dsn)
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        if interrupted:
+            raise KeyboardInterrupt
+        raise httpx.ReadTimeout("private diagnostic", request=request)
+
+    with httpx.Client(transport=httpx.MockTransport(handle)) as client:
+        summary = collect(
+            QUERY,
+            Limits(max_attempts=1),
+            Archive(tmp_path / "raw"),
+            client=client,
+            clock=Clock(),
+            database_dsn=pg_dsn,
+        )
+    state = inspect_run(pg_dsn, UUID(summary.run_id))
+    assert state["status"] == ("interrupted" if interrupted else "failed")
+    assert state["pending_attempts"] == 0 and state["collection_complete"] is False
+    with psycopg.connect(pg_dsn) as connection:
+        receipt = connection.execute("SELECT receipt FROM nima.http_attempts").fetchone()
+        assert receipt is not None and receipt[0]["body_complete"] is False
+        assert "private diagnostic" not in str(receipt)
