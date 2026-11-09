@@ -41,7 +41,7 @@
     SIGKILL/replay tests; hosted push run 42685054456 passed at ea14a23.
     Final-head checks are recorded in the PR before marking it ready.
 
-## Durable HTTP collection and inspection (current)
+## Durable HTTP collection and inspection (completed)
 
 - [x] Add checksum-verified migration 0002 and prove populated v1 upgrade.
 - [x] Journal HTTP attempts and atomically persist accepted pages through the collector.
@@ -58,7 +58,10 @@
 - [x] Exclude active workers and fence stale writers during takeover.
 - [x] Replay pending responses, revalidate source prefixes, and continue without duplicates.
 - [x] Prove multi-page worker kill/restart and drift/corruption failure behavior.
-- [ ] Expose resume CLI, complete checks/audit and publish an unmerged main-targeted PR.
+- [x] Expose resume CLI, complete checks/audit and publish an unmerged main-targeted PR.
+  - Evidence: PR #13 targets main; 187 tests, 96.64% local coverage, real
+    SIGKILL/restart and lease-loss tests, offline 1,118-record recovery. Push run
+    42697311110 passed at e42b2f6; final-head hosted links are recorded in the PR.
 
 ## Following ingestion slices
 
