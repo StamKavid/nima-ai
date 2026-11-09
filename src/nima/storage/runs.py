@@ -1,4 +1,9 @@
-"""Durable fresh-run journals and read-only SQL inspection; no HTTP resume."""
+"""Durable fresh-run journals and read-only SQL inspection; no HTTP resume.
+
+SQL aggregate/JSON/array semantics: https://www.postgresql.org/docs/17/functions-aggregate.html
+https://www.postgresql.org/docs/17/functions-json.html
+https://www.postgresql.org/docs/17/functions-array.html
+"""
 
 from dataclasses import asdict
 from typing import cast

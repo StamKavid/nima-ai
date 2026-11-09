@@ -6,8 +6,9 @@ Status: staged direction reaffirmed by the user on 2026-11-08 through the suppli
 architectural brief. Implement the contract-normalization slice first and keep
 collection, persistence, and durability as later verified slices. This spec's
 full acceptance criteria remain open until the complete collector meets them.
-The bounded HTTP/archive/CLI increment implements collection and reconciliation
-without PostgreSQL transactions, durable handoff, or automatic resume.
+The bounded collector now supports opt-in PostgreSQL transactions, durable HTTP
+attempts and pending outbox work, plus read-only run inspection. Automatic HTTP
+resume and downstream work delivery remain separate increments.
 
 ## Objective
 
@@ -70,10 +71,15 @@ uv run python -m nima ingest kimdis \
   --archive-dir data/raw
 ```
 
-Future database-backed inspection/resume commands; not implemented:
+Database-backed inspection (NIMA_DATABASE_URL required):
 
 ```bash
 uv run python -m nima runs show RUN_ID
+```
+
+Future resume command; not implemented:
+
+```bash
 uv run python -m nima runs resume RUN_ID
 ```
 

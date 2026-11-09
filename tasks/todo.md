@@ -22,7 +22,7 @@
     PRs #7–#9 and integration #10 merged by the user; #10 brought the complete
     collector into main. New PRs target main directly; no automatic merge/deploy.
 
-## PostgreSQL page persistence (current)
+## PostgreSQL page persistence (completed)
 
 - [x] Extend and review the accepted persistence contract in SPEC-source-ingestion.md.
   - Acceptance: source versions and observations are distinct; transaction, replay,
@@ -43,10 +43,10 @@
 
 ## Durable HTTP collection and inspection (current)
 
-- [ ] Add checksum-verified migration 0002 and prove populated v1 upgrade.
-- [ ] Journal HTTP attempts and atomically persist accepted pages through the collector.
-- [ ] Expose opt-in database ingestion, explicit migration, and read-only run inspection.
-- [ ] Verify real process interruption, SQL failures, redaction and coverage reconstruction.
+- [x] Add checksum-verified migration 0002 and prove populated v1 upgrade.
+- [x] Journal HTTP attempts and atomically persist accepted pages through the collector.
+- [x] Expose opt-in database ingestion, explicit migration, and read-only run inspection.
+- [x] Verify real process interruption, SQL failures, redaction and coverage reconstruction.
 - [ ] Complete checks/audit and open one unmerged main-targeted PR.
 
 ## Following ingestion slices
