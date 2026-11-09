@@ -35,8 +35,11 @@
   - Acceptance: killed pre-commit leaves no page effects; killed post-commit
     replays without duplicate observations or outbox work. HTTP resume stays hidden.
   - Verify: subprocess SIGKILL tests with independent database connections.
-- [ ] Complete checks and publish one unmerged PR directly to main.
+- [x] Complete checks and publish one unmerged PR directly to main.
   - Verify: make check, make audit, hosted quality, private visibility/attribution.
+  - Evidence: PR #11 targets main; 151 tests, 98.23% coverage, real PostgreSQL
+    SIGKILL/replay tests; hosted push run 42685054456 passed at ea14a23.
+    Final-head checks are recorded in the PR before marking it ready.
 
 ## Following ingestion slices
 
