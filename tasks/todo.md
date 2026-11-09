@@ -54,15 +54,15 @@
 
 ## Safe database-run resume (current)
 
-- [ ] Restore immutable run settings and verify archived page bodies.
-- [ ] Exclude active workers and fence stale writers during takeover.
-- [ ] Replay pending responses, revalidate source prefixes, and continue without duplicates.
-- [ ] Prove multi-page worker kill/restart and drift/corruption failure behavior.
+- [x] Restore immutable run settings and verify archived page bodies.
+- [x] Exclude active workers and fence stale writers during takeover.
+- [x] Replay pending responses, revalidate source prefixes, and continue without duplicates.
+- [x] Prove multi-page worker kill/restart and drift/corruption failure behavior.
 - [ ] Expose resume CLI, complete checks/audit and publish an unmerged main-targeted PR.
 
 ## Following ingestion slices
 
-- [ ] Add safe HTTP run resume and restart reconciliation after durable inspection.
+- [x] Add safe HTTP run resume and restart reconciliation after durable inspection.
   - Depends on: reviewed page persistence.
   - Verify: full multi-page worker termination/restart, source-page drift handling,
     durable attempt history, and final completeness reconstruction.

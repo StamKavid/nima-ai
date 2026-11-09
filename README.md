@@ -9,7 +9,7 @@ The product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
 Current code implements bounded KIMDIS contract collection, a private raw-evidence
 archive, typed normalization, optional PostgreSQL collection, and durable run inspection.
-HTTP resume, entity resolution, graph projection, trained
+Entity resolution, graph projection, trained
 models, and the investigation workspace are subsequent milestones.
 An investigative signal is not a finding of wrongdoing.
 
@@ -93,8 +93,9 @@ no `Retry-After`. A retry requiring more than the configured budget stops visibl
 Timeouts are checked between waits, response chunks, and pages. A blocking read
 may overrun the cooperative budget by an inactivity timeout; filesystem I/O has
 no hard deadline. Manifests use atomic writes but are **not database checkpoints**.
-There is no automatic resume: after interruption, start a fresh bounded run and
-retain the prior run's evidence. Offset pagination can drift without observable
+Archive-only runs require a fresh bounded collection after interruption. Managed
+PostgreSQL runs support explicit `runs resume RUN_ID`; automatic scheduling/retry
+across invocations is not implemented. Offset pagination can drift without observable
 count changes; successful reconciliation is not a point-in-time snapshot proof.
 
 ## Normalization API
@@ -151,12 +152,41 @@ errors stop collection and preserve its run ID in the sanitized failure output.
 Inspection does not read archive bodies or refresh source records, so it cannot
 establish archive integrity or current source freshness.
 
-Run resume, supplier/buyer relational projections and outbox delivery remain
-following increments. Resume will need pending-response replay and revalidation
-of already committed source pages before trusting their offsets.
-SIGKILL tests verify the page transaction boundary; they do not prove HTTP resume
-or database-server/storage-device crash recovery. Keep connection strings in
-environment/memory and redact driver errors before exposing them in an interface.
+Supplier/buyer relational projections and outbox delivery remain following
+increments. SIGKILL/restart tests cover collector recovery and the page transaction
+boundary; database-server/storage-device crash recovery remains unproven. Keep
+connection strings in environment/memory and redact driver errors before exposing
+them in an interface.
+
+Resume a managed run with its original query, limits, versions and archive:
+
+```bash
+uv run --frozen python -m nima runs resume RUN_ID
+```
+
+Fresh/resumed workers hold a session advisory lease; an active writer produces
+`run_busy`. Ownership claims use that exact connection, and writer UUID checks
+fence stale page/attempt/finalization writes after takeover. Drain older pre-lease
+application workers before upgrading. No new schema migration is needed.
+
+Resume verifies saved body hashes, reconstructs the SQL checkpoint, and recovers
+the earliest complete successful response for the next uncommitted page. It
+revalidates the committed prefix and that pending response against source page
+metadata and ordered source fingerprints before continuing. Saved responses keep
+original bytes and observation times; verification does not duplicate observations
+or outbox events. Detected drift returns `source_changed` without accepting new
+pages. Start a fresh bounded run if the source or required options have changed.
+
+Each explicit resume gets a new original time/retry budget; its total page limit
+stays fixed. Fully committed runs verify archives/reconcile without source HTTP;
+use a new collection to measure freshness. Unknown old started attempts remain
+unknown. `active_pending_attempts` counts current-owner unfinished attempts and
+still does not establish worker liveness.
+
+Resume updates SQL and raw evidence. Initial file manifests/JSONL are preserved
+as initial-invocation projections and may be incomplete after a crash; they are
+not complete resumed exports. Use SQL/`runs show` for resumed state. Revalidation
+cannot establish a point-in-time snapshot from offset-based source pagination.
 
 For full tests on Linux, start a disposable database (Docker required):
 

@@ -1,8 +1,9 @@
-"""Durable fresh-run journals and read-only SQL inspection; no HTTP resume.
+"""Run journals, session leases, saved options and read-only SQL inspection.
 
 SQL aggregate/JSON/array semantics: https://www.postgresql.org/docs/17/functions-aggregate.html
 https://www.postgresql.org/docs/17/functions-json.html
 https://www.postgresql.org/docs/17/functions-array.html
+https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
 """
 
 import hashlib

@@ -7,8 +7,8 @@ architectural brief. Implement the contract-normalization slice first and keep
 collection, persistence, and durability as later verified slices. This spec's
 full acceptance criteria remain open until the complete collector meets them.
 The bounded collector now supports opt-in PostgreSQL transactions, durable HTTP
-attempts and pending outbox work, plus read-only run inspection. Automatic HTTP
-resume and downstream work delivery remain separate increments.
+attempts and pending outbox work, plus read-only run inspection. HTTP resume is
+explicit and verified separately from downstream work delivery.
 
 ## Objective
 
@@ -77,7 +77,7 @@ Database-backed inspection (NIMA_DATABASE_URL required):
 uv run python -m nima runs show RUN_ID
 ```
 
-Future resume command; not implemented:
+Explicit managed-run resume (original query/limits and NIMA_DATABASE_URL):
 
 ```bash
 uv run python -m nima runs resume RUN_ID
@@ -225,9 +225,9 @@ refresh source data; source coverage and archive integrity are separate properti
 
 A read-only inspection command exits zero when the run is found, even if its
 collection failed. Missing configuration/invalid IDs exit 2; missing or unsupported
-runs, database/schema failures exit nonzero. HTTP resume remains unavailable until
-pending-response replay and source-drift verification pass real multi-page restart
-tests; an old offset checkpoint alone is not enough to resume safely.
+runs, database/schema failures exit nonzero. HTTP resume now requires the recovery contract below, including pending-response
+replay and source-drift verification; an old offset checkpoint alone is not enough
+to resume safely.
 
 ## Safe resume contract
 

@@ -1,6 +1,7 @@
 """Resume uses saved evidence, a worker lease, and source-prefix validation."""
 
 import json
+import shutil
 from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
@@ -179,3 +180,48 @@ def test_lost_lease_cannot_bypass_new_writer_token(pg_dsn: str, tmp_path: Path) 
                         "body_complete": False,
                     }
                 )
+
+
+@pytest.mark.parametrize("bad", ["integer", "number", "version"])
+def test_incompatible_saved_options_do_not_reach_source(
+    pg_dsn: str, tmp_path: Path, bad: str
+) -> None:
+    migrate(pg_dsn)
+    run = uuid4()
+    writer = RunStore(pg_dsn, Archive(tmp_path / "raw"), run, Limits())
+    with writer.lease():
+        writer.begin(QUERY)
+    with psycopg.connect(pg_dsn, autocommit=True) as connection:
+        if bad == "version":
+            connection.execute("UPDATE nima.ingest_runs SET normalizer_version = 'unsupported'")
+        else:
+            key, value = ("max_pages", '"bad"') if bad == "integer" else ("run_timeout", "true")
+            connection.execute(
+                "UPDATE nima.ingest_runs SET settings = jsonb_set(settings, %s, %s::jsonb)",
+                ([key], value),
+            )
+
+    def no_http(_: httpx.Request) -> httpx.Response:
+        pytest.fail("Incompatible saved options reached source")
+
+    with (
+        httpx.Client(transport=httpx.MockTransport(no_http)) as client,
+        pytest.raises((CheckpointError, RunError)),
+    ):
+        resume(pg_dsn, run, client=client, clock=Clock())
+
+
+def test_missing_archive_root_is_not_silently_recreated(pg_dsn: str, tmp_path: Path) -> None:
+    migrate(pg_dsn)
+    run = uuid4()
+    writer = RunStore(pg_dsn, Archive(tmp_path / "raw"), run, Limits())
+    with writer.lease():
+        writer.begin(QUERY)
+    shutil.rmtree(writer.archive.root)
+
+    def no_http(_: httpx.Request) -> httpx.Response:
+        pytest.fail("Missing original archive allowed source access")
+
+    with httpx.Client(transport=httpx.MockTransport(no_http)) as client, pytest.raises(RunError):
+        resume(pg_dsn, run, client=client, clock=Clock())
+    assert not writer.archive.root.exists()
