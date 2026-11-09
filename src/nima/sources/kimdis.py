@@ -258,6 +258,26 @@ class Page:
     contracts: tuple[Contract, ...]
     issues: tuple[RecordIssue, ...]
     source_ids: tuple[str, ...]
+    record_hashes: tuple[str, ...]
+
+
+def _source_hash(value: object) -> str:
+    """Hash parsed source content, retaining types and exact decimal precision."""
+
+    def tagged(item: object) -> object:
+        if isinstance(item, Decimal):
+            return ["decimal", str(item)]
+        if isinstance(item, dict):
+            return [
+                "object",
+                [[key, tagged(val)] for key, val in sorted(_object(item, "fingerprint").items())],
+            ]
+        if isinstance(item, list):
+            return ["array", [tagged(val) for val in item]]
+        return ["scalar", item]
+
+    canonical = json.dumps(tagged(value), ensure_ascii=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode()).hexdigest()
 
 
 def _integer(value: object, field: str, minimum: int = 0) -> int:
@@ -311,4 +331,5 @@ def normalize_page(raw_response: bytes, *, max_bytes: int = 8 * 1024 * 1024) -> 
         tuple(contracts),
         tuple(issues),
         tuple(source_ids),
+        tuple(_source_hash(value) for value in content),
     )
