@@ -63,18 +63,27 @@ def test_drift_blocks_continuation_and_preserves_checkpoint(pg_dsn: str, tmp_pat
     with writer.lease():
         writer.begin(QUERY)
         writer.commit_page(run, body(), observed_at=datetime.now(UTC), owner=writer.owner)
-    with httpx.Client(
-        transport=httpx.MockTransport(
-            lambda _: httpx.Response(200, content=body(title="Changed source"))
+    requests: list[int] = []
+
+    def changed(request: httpx.Request) -> httpx.Response:
+        number = int(request.url.params["page"])
+        requests.append(number)
+        return httpx.Response(
+            200, content=body(page=number, title="Changed source" if number == 0 else "Synthetic")
         )
-    ) as client:
+
+    with httpx.Client(transport=httpx.MockTransport(changed)) as client:
         result = resume(pg_dsn, run, client=client, clock=Clock())
+    assert requests == [0]
     assert result.failure == "source_changed" and not result.collection_complete
     assert inspect_run(pg_dsn, run)["next_page"] == 1
     assert counts(pg_dsn) == (1, 1, 1, 1)
 
 
-def test_pending_response_keeps_original_bytes_and_time(pg_dsn: str, tmp_path: Path) -> None:
+@pytest.mark.parametrize("changed", [False, True])
+def test_pending_response_keeps_original_bytes_and_time(
+    pg_dsn: str, tmp_path: Path, changed: bool
+) -> None:
     migrate(pg_dsn)
     run = uuid4()
     writer = RunStore(pg_dsn, Archive(tmp_path / "raw"), run, Limits())
@@ -95,12 +104,17 @@ def test_pending_response_keeps_original_bytes_and_time(pg_dsn: str, tmp_path: P
 
     def handle(request: httpx.Request) -> httpx.Response:
         page = int(request.url.params["page"])
-        return httpx.Response(
-            200, content=json.dumps(json.loads(body(page=page)), indent=2).encode()
-        )
+        source = json.loads(body(page=page))
+        if changed:
+            source["content"][0]["title"] = "Changed pending source"
+        return httpx.Response(200, content=json.dumps(source, indent=2).encode())
 
     with httpx.Client(transport=httpx.MockTransport(handle)) as client:
         result = resume(pg_dsn, run, client=client, clock=Clock())
+    if changed:
+        assert result.failure == "source_changed" and result.attempts == 2
+        assert counts(pg_dsn) == (0, 0, 0, 0)
+        return
     assert result.status == "complete" and result.attempts == 3
     with psycopg.connect(pg_dsn) as connection:
         assert connection.execute(

@@ -86,3 +86,30 @@ def test_failed_collection_keeps_an_inspectable_run_id(
     assert main(arguments(tmp_path)) == 1
     output = json.loads(capsys.readouterr().out)
     assert output["run_id"] == "1234" and output["failure"] == "database"
+
+
+def test_resume_command_reconciles_a_completed_run(
+    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setenv("NIMA_DATABASE_URL", pg_dsn)
+    assert main(["db", "migrate"]) == 0
+    capsys.readouterr()
+    real_client = httpx.Client
+    monkeypatch.setattr(
+        "nima.__main__.httpx.Client",
+        lambda: real_client(
+            transport=httpx.MockTransport(lambda _: httpx.Response(200, content=body(total=1)))
+        ),
+    )
+    assert main([*arguments(tmp_path), "--database"]) == 0
+    run_id = json.loads(capsys.readouterr().out)["run_id"]
+
+    def no_source(_: httpx.Request) -> httpx.Response:
+        pytest.fail("Completed run was refreshed during resume")
+
+    monkeypatch.setattr(
+        "nima.__main__.httpx.Client", lambda: real_client(transport=httpx.MockTransport(no_source))
+    )
+    assert main(["runs", "resume", run_id]) == 0
+    state = json.loads(capsys.readouterr().out)
+    assert state["collection_complete"] is True and state["records"] == 1

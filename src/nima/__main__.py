@@ -14,6 +14,7 @@ import psycopg
 from nima.ingestion.archive import Archive, ArchiveError
 from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits, Query
+from nima.ingestion.resume import resume
 from nima.storage.postgres import CheckpointError, MigrationError, migrate
 from nima.storage.runs import inspect_run
 
@@ -34,12 +35,12 @@ def _parser() -> argparse.ArgumentParser:
     ingest = commands.add_parser("ingest")
     database = commands.add_parser("db").add_subparsers(dest="operation", required=True)
     database.add_parser("migrate", help="Explicitly apply database migrations")
-    show = (
-        commands.add_parser("runs")
-        .add_subparsers(dest="operation", required=True)
-        .add_parser("show", help="Inspect durable counts; worker liveness is unknown")
-    )
-    show.add_argument("run_id", type=UUID)
+    runs = commands.add_parser("runs").add_subparsers(dest="operation", required=True)
+    for operation, help_text in (
+        ("show", "Inspect durable counts; worker liveness is unknown"),
+        ("resume", "Resume with original options and source verification"),
+    ):
+        runs.add_parser(operation, help=help_text).add_argument("run_id", type=UUID)
     kimdis = ingest.add_subparsers(dest="source", required=True).add_parser(
         "kimdis",
         help="Collect one explicit KIMDIS date window; no automatic resume",
@@ -92,8 +93,14 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"status": "migrated"}))
             return 0
         if args.command == "runs":
-            print(json.dumps(inspect_run(_database_url(), args.run_id), ensure_ascii=False))
-            return 0
+            if args.operation == "show":
+                print(json.dumps(inspect_run(_database_url(), args.run_id), ensure_ascii=False))
+                return 0
+            resume_dsn = _database_url()
+            with httpx.Client() as client:
+                summary = resume(resume_dsn, args.run_id, client=client)
+            print(json.dumps(asdict(summary), ensure_ascii=False, allow_nan=False))
+            return {"complete": 0, "quarantined": 3, "interrupted": 130}.get(summary.status, 1)
         query = Query(args.from_date, args.to_date, tuple(args.buyer_id))
         limits = Limits(
             args.max_pages,
