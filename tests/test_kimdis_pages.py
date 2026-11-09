@@ -69,6 +69,13 @@ def test_nested_source_types_are_fingerprinted_without_tag_collisions() -> None:
     assert first.record_hashes != changed.record_hashes
 
 
+def test_excessive_canonical_depth_is_a_structured_source_failure() -> None:
+    nested = b"[" * 700 + b"0" + b"]" * 700
+    raw = page_body(record()).replace(b'"0.10"', b'"0.10", "extra":' + nested)
+    with pytest.raises(InvalidRecord):
+        normalize_page(raw)
+
+
 def test_non_object_rows_and_missing_ids_remain_quarantined() -> None:
     page = normalize_page(page_body(42, {"title": "Missing ID"}, record()))
     assert len(page.issues) == 2

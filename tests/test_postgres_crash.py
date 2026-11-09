@@ -1,5 +1,6 @@
 """SIGKILL a real worker before/after SQL commit, then replay archived evidence."""
 
+import hashlib
 import os
 import subprocess
 import sys
@@ -13,7 +14,7 @@ import psycopg
 import pytest
 from psycopg.conninfo import make_conninfo
 
-from tests.test_collection import QUERY, body
+from tests.test_collection import QUERY
 from tests.test_page_store import counts, store
 
 WORKER = """
@@ -97,7 +98,11 @@ def test_killed_worker_replay_is_atomic(pg_dsn: str, tmp_path: Path, boundary: s
                     observer.execute("DROP TRIGGER test_wait ON nima.ingest_runs")
                 expected = (0, 0, 0, 0) if boundary == "before" else (1, 1, 1, 1)
                 assert counts(pg_dsn) == expected
-                assert database.commit_page(run, body(total=1), observed_at=datetime.now(UTC)) == (
+                blobs = list(database.archive.root.glob("objects/*/*.body"))
+                assert len(blobs) == 1
+                archived = blobs[0].read_bytes()
+                assert blobs[0].stem == hashlib.sha256(archived).hexdigest()
+                assert database.commit_page(run, archived, observed_at=datetime.now(UTC)) == (
                     boundary == "before"
                 )
                 assert counts(pg_dsn) == (1, 1, 1, 1)

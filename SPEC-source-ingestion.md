@@ -156,7 +156,8 @@ Version identity is (source ID, normalizer version, canonical source-record hash
 Hash the entire parsed source record, including fields the normalizer does not
 project. A typed canonical encoding distinguishes source strings/numbers and
 preserves Decimal precision; object key order and unrelated page neighbors do
-not affect it. Raw-body hashes/pointers retain original lexical evidence.
+not affect it. Reject source nesting deeper than 128 levels before fingerprinting
+can exhaust the call stack. Raw-body hashes/pointers retain original lexical evidence.
 Version JSON excludes page evidence and stores exact amounts as decimal strings.
 Observations bind each run/page/original row index to its version and observation
 time. A→B→A reuses version A but retains three ordered observation events.

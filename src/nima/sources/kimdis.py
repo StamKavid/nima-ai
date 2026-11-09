@@ -264,16 +264,21 @@ class Page:
 def _source_hash(value: object) -> str:
     """Hash parsed source content, retaining types and exact decimal precision."""
 
-    def tagged(item: object) -> object:
+    def tagged(item: object, depth: int = 0) -> object:
+        if depth > 128:
+            raise InvalidRecord("Source content exceeds canonical depth limit")
         if isinstance(item, Decimal):
             return ["decimal", str(item)]
         if isinstance(item, dict):
             return [
                 "object",
-                [[key, tagged(val)] for key, val in sorted(_object(item, "fingerprint").items())],
+                [
+                    [key, tagged(val, depth + 1)]
+                    for key, val in sorted(_object(item, "fingerprint").items())
+                ],
             ]
         if isinstance(item, list):
-            return ["array", [tagged(val) for val in item]]
+            return ["array", [tagged(val, depth + 1) for val in item]]
         return ["scalar", item]
 
     canonical = json.dumps(tagged(value), ensure_ascii=True, separators=(",", ":"))
