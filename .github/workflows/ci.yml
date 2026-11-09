@@ -18,6 +18,19 @@ jobs:
     name: quality
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17-bookworm@sha256:665dc7b37ac52a17e298511414c21d23ffa4e6a6ef6225b3e5d59c7afb35e994
+        env:
+          POSTGRES_DB: nima_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d nima_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      NIMA_TEST_DSN: host=127.0.0.1 port=5432 dbname=nima_test user=postgres
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

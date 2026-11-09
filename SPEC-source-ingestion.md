@@ -132,6 +132,63 @@ Collection completeness and normalization completeness are separate states. A
 run containing quarantined rows must disclose the counts and cannot present a
 fully normalized dataset without resolving or explicitly accounting for them.
 
+## Archived-page persistence contract (2026-11-09)
+
+This implements the approved PostgreSQL data model above before HTTP resume.
+Use PostgreSQL 17 and pinned Psycopg 3.3.8 with parameterized SQL. Connection
+strings stay in process memory/environment; never put credentials in arguments,
+logs, or source control. Development tests use an isolated, disposable database.
+
+`PageStore.start_run(run_id, query)` fixes the query and connector version.
+`PageStore.commit_page(run_id, raw_body, observed_at=aware_time)` archives and
+validates a response, then commits page metadata, valid-record versions and
+observations, quarantine entries, pending outbox events, and `next_page` together.
+Returns true for a new page and false for identical committed-page replay.
+Run UUID/page number is the stable page identity. Changed bytes at a committed
+page or a page gap are errors; the original committed page is never replaced.
+
+Lock the run row while committing; reject changed pagination shape and duplicate
+valid source IDs within a run. A checkpoint means the page transaction committed;
+it does not assert complete source coverage. Unknown IDs/bad rows remain in
+quarantine, and no fully normalized or snapshot-isolated claim follows.
+
+Version identity is (source ID, normalizer version, canonical source-record hash).
+Hash the entire parsed source record, including fields the normalizer does not
+project. A typed canonical encoding distinguishes source strings/numbers and
+preserves Decimal precision; object key order and unrelated page neighbors do
+not affect it. Raw-body hashes/pointers retain original lexical evidence.
+Version JSON excludes page evidence and stores exact amounts as decimal strings.
+Observations bind each run/page/original row index to its version and observation
+time. A→B→A reuses version A but retains three ordered observation events.
+
+All successful normalized observations enqueue `record.observed` in the same
+transaction, including unchanged records in a new run. Replay of a committed
+page produces no duplicate observations/outbox entries. Events reference their
+observation; an eventual consumer must be idempotent. Delivery/acknowledgement and
+buyer/supplier relational projections are separate following slices.
+
+An additive, packaged SQL migration has a stored SHA-256 checksum and version.
+Migration is explicit, transactional, serialized, and rejects unknown or changed
+migration history. No destructive down migration or automatic startup migration.
+Version/observation updates and deletes are rejected. Deployment roles/backups,
+production storage/retention, and major-version upgrades receive separate review.
+
+Filesystem writes precede SQL, so rollback may leave an unreferenced blob. A
+checkpoint never advances independently of its records/outbox. No transaction
+spans filesystem and SQL. Test real SIGKILL before/after commit and replay through
+a fresh connection. This acceptance proves the page API, not multi-page HTTP
+resume; keep `runs resume` unavailable until the orchestrator is tested.
+
+Verify locally with a disposable PostgreSQL service and
+`NIMA_TEST_DSN='host=127.0.0.1 port=55432 dbname=nima_test user=postgres' make check`.
+Tests must fail clearly if the test database is unavailable; no database mocks or
+skips replace integration coverage. Existing `make audit` remains required.
+
+Official patterns: https://www.psycopg.org/psycopg3/docs/basic/transactions.html ,
+https://www.psycopg.org/psycopg3/docs/basic/params.html ,
+https://www.postgresql.org/docs/17/explicit-locking.html , and
+https://www.postgresql.org/docs/17/ddl-constraints.html .
+
 ## Project structure
 
 Implementation will grow from the existing package as the feature requires:

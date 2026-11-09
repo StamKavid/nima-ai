@@ -1,6 +1,34 @@
 # Delivery plan
 
-## Current increment: bounded KIMDIS evidence collection
+## Current increment: atomic archived-page persistence
+
+PR #10 is merged into main (`e2314cd`). Continue the already-approved
+PostgreSQL portion of SPEC-source-ingestion.md on `feature/postgres-page-persistence`.
+This slice persists one archived KIMDIS page atomically: versions, observations,
+quarantine, pending outbox events, and the next-page checkpoint. It does not expose
+HTTP resume or claim full ingestion completion. Production hosting remains deferred.
+
+1. Extend the accepted spec with transaction/schema details and review invariants.
+   Choose direct Psycopg 3 SQL and a numbered, checksum-verified additive migration.
+2. Write failing tests against disposable real PostgreSQL 17 databases. Add the
+   isolated service to CI without weakening existing quality or coverage gates.
+3. Implement migration and source-content fingerprints, then persist one page in
+   one transaction. Prove A→B→A history, unchanged observations, exact money,
+   idempotent replay, changed-page rejection, quarantine, and gap rejection.
+4. Kill a real child worker before/after page commit and verify rollback/durable
+   replay using a new connection. This proves page persistence, not HTTP resume.
+5. Review, run make check/make audit, push as StamKavid to the private repository,
+   and open one PR targeting main directly. Do not merge/deploy automatically.
+
+A run row lock serializes page commits. A page identity is (run UUID, page number);
+its first committed body cannot be replaced. Source-content versions exclude page
+position/evidence so unrelated neighboring changes cannot create false versions.
+Observation identity is (run, page, original record index); outbox references that
+identity and is created in the same transaction. Filesystem objects precede SQL;
+a failed SQL transaction may leave an unreferenced blob but never a committed
+checkpoint whose page transaction rolled back. Recovery must verify archived bytes.
+
+## Previous increment: bounded KIMDIS evidence collection
 
 PR #5 was merged by the user on 2026-11-08. Build the next slice of the accepted
 ingestion spec on `feature/kimdis-evidence-collector`: a CLI that collects one
