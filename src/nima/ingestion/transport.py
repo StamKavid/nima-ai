@@ -7,7 +7,7 @@ from typing import Protocol
 
 import httpx
 
-from nima.ingestion.archive import Archive
+from nima.ingestion.archive import Archive, ArchiveError
 from nima.ingestion.config import ENDPOINT, Limits, Query
 
 
@@ -119,6 +119,12 @@ class Session:
                 receipt.update(sha256=self.archive.store(raw), bytes=len(raw), body_complete=True)
                 self.remaining()
                 return raw, response.status_code, response.headers.get("retry-after")
+        except ArchiveError:
+            receipt["failure"] = "archive_invalid"
+            raise
+        except OSError:
+            receipt["failure"] = "archive_io"
+            raise
         except (httpx.TransportError, httpx.DecodingError) as exc:
             receipt["failure"] = type(exc).__name__
             raise CollectionStopped("transport") from exc

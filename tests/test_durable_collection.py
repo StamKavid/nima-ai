@@ -205,3 +205,38 @@ def test_unfinished_body_outcomes_are_recorded(
         receipt = connection.execute("SELECT receipt FROM nima.http_attempts").fetchone()
         assert receipt is not None and receipt[0]["body_complete"] is False
         assert "private diagnostic" not in str(receipt)
+
+
+@pytest.mark.parametrize("failure", ["corrupt_blob", "derived_output"])
+def test_archive_failures_preserve_inspectable_sql_state(
+    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, failure: str
+) -> None:
+    migrate(pg_dsn)
+    archive = Archive(tmp_path / "raw")
+    raw = body(total=1)
+    if failure == "corrupt_blob":
+        digest = archive.store(raw)
+        (archive.root / "objects" / digest[:2] / f"{digest}.body").write_bytes(b"corrupt")
+    else:
+
+        def fail(*args: object) -> None:
+            raise OSError("private path diagnostic")
+
+        monkeypatch.setattr(archive, "append", fail)
+    with (
+        httpx.Client(
+            transport=httpx.MockTransport(lambda _: httpx.Response(200, content=raw))
+        ) as client,
+        pytest.raises(RunError) as stopped,
+    ):
+        collect(QUERY, Limits(), archive, client=client, clock=Clock(), database_dsn=pg_dsn)
+    state = inspect_run(pg_dsn, UUID(stopped.value.run_id))
+    assert stopped.value.reason == (
+        "archive_invalid" if failure == "corrupt_blob" else "archive_io"
+    )
+    assert state["pages"] == (0 if failure == "corrupt_blob" else 1)
+    assert state["collection_complete"] is False
+    if failure == "corrupt_blob":
+        with psycopg.connect(pg_dsn) as connection:
+            receipt = connection.execute("SELECT receipt FROM nima.http_attempts").fetchone()
+            assert receipt is not None and receipt[0]["failure"] == "archive_invalid"
