@@ -7,8 +7,8 @@ architectural brief. Implement the contract-normalization slice first and keep
 collection, persistence, and durability as later verified slices. This spec's
 full acceptance criteria remain open until the complete collector meets them.
 The bounded collector now supports opt-in PostgreSQL transactions, durable HTTP
-attempts and pending outbox work, plus read-only run inspection. Automatic HTTP
-resume and downstream work delivery remain separate increments.
+attempts and pending outbox work, plus read-only run inspection. HTTP resume is
+explicit and verified separately from downstream work delivery.
 
 ## Objective
 
@@ -77,7 +77,7 @@ Database-backed inspection (NIMA_DATABASE_URL required):
 uv run python -m nima runs show RUN_ID
 ```
 
-Future resume command; not implemented:
+Explicit managed-run resume (original query/limits and NIMA_DATABASE_URL):
 
 ```bash
 uv run python -m nima runs resume RUN_ID
@@ -225,9 +225,47 @@ refresh source data; source coverage and archive integrity are separate properti
 
 A read-only inspection command exits zero when the run is found, even if its
 collection failed. Missing configuration/invalid IDs exit 2; missing or unsupported
-runs, database/schema failures exit nonzero. HTTP resume remains unavailable until
-pending-response replay and source-drift verification pass real multi-page restart
-tests; an old offset checkpoint alone is not enough to resume safely.
+runs, database/schema failures exit nonzero. HTTP resume now requires the recovery contract below, including pending-response
+replay and source-drift verification; an old offset checkpoint alone is not enough
+to resume safely.
+
+## Safe resume contract
+
+`uv run python -m nima runs resume RUN_ID` resumes only managed database runs.
+Read NIMA_DATABASE_URL from the environment; do not accept new query/archive/limit
+flags. Validate the saved options, connector/normalizer versions and schema.
+Require the original recognized archive to exist and verify each body hash within
+its byte limit. Missing/corrupt evidence fails before fetching continuation pages.
+
+Hold a nonblocking PostgreSQL session advisory lock for the whole invocation,
+including fresh managed collection. A competing worker gets `run_busy` before
+changing owner/status or requesting source pages. Under the run row lock, fence
+the prior owner with a new UUID token. All page/attempt/finalization writes check
+that token. A lost lock connection cannot let a stale writer overwrite a new one.
+Drain pre-lease application workers before upgrading; do not infer their liveness.
+
+Reconstruct coverage from committed page bytes/SQL checkpoints. For an incomplete
+run, re-fetch every committed page and compare pagination plus ordered full-source
+record fingerprints. Whitespace/object-key formatting alone may differ. A detected
+change fails with `source_changed`, retains both responses, and accepts no new pages.
+If a finished 200 collect response exists for the next uncommitted page, choose the
+earliest, verify its archive hash, revalidate it, then commit its original bytes and
+observation time. Verification responses do not create new observations/versions.
+Started attempts with unknown outcome are never fabricated or silently rewritten.
+
+An already fully committed run needs archive verification and reconciliation but
+no source HTTP calls; this completes interrupted finalization without pretending
+to refresh source data. Unchanged replay creates no duplicate observations/outbox.
+Each user-invoked resume receives a new original time/retry budget; total run page
+limit stays fixed. Saved page-limit/permanent data issues may require a fresh run.
+Completed historical runs need a new collection to measure current source freshness.
+
+The same transaction/coverage/retry path handles fresh and resumed pages. Resume
+updates SQL and raw blobs; original file manifests/derived JSONL remain projections
+of the initial invocation and are not complete resumed exports. Inspection reports
+all attempts, historical unknowns, and current-owner pending attempts separately.
+Revalidation is observational consistency, not a point-in-time source snapshot.
+No scheduler, automatic retries across invocations, or deployment is included.
 
 ## Project structure
 
