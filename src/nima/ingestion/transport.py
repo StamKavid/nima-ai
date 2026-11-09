@@ -51,6 +51,7 @@ class Session:
         self.previous: float | None = None
         self.responses: list[dict[str, object]] = []
         self.journal: AttemptJournal | None = None
+        self.phase = "collect"
 
     def remaining(self) -> float:
         remaining = self.deadline - self.clock.monotonic()
@@ -78,6 +79,7 @@ class Session:
             "attempt": attempt,
             "observed_at": datetime.now(UTC).isoformat(),
             "body_complete": False,
+            "phase": self.phase,
         }
         self.responses.append(receipt)
         if self.journal is not None:

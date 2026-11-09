@@ -7,6 +7,7 @@ renames are fsynced; run manifests are evidence, not transactional checkpoints.
 import hashlib
 import json
 import os
+import re
 import tempfile
 from pathlib import Path
 from uuid import uuid4
@@ -98,6 +99,18 @@ class Archive:
         else:
             _write(path, body, immutable=True)
         return digest
+
+    def read(self, digest: str, *, max_bytes: int) -> bytes:
+        """Read only bounded, hash-verified evidence without following symlinks."""
+        if re.fullmatch(r"[0-9a-f]{64}", digest) is None or max_bytes <= 0:
+            raise ArchiveError("Invalid evidence reference or byte limit")
+        path = self.root / "objects" / digest[:2] / f"{digest}.body"
+        _no_symlinks(path)
+        with path.open("rb") as stream:
+            body = stream.read(max_bytes + 1)
+        if len(body) > max_bytes or hashlib.sha256(body).hexdigest() != digest:
+            raise ArchiveError("Evidence exceeds its limit or does not match its hash")
+        return body
 
     def start_run(self, manifest: dict[str, object]) -> Path:
         run = self.root / "runs" / uuid4().hex

@@ -10,6 +10,20 @@ import pytest
 from nima.ingestion.archive import Archive, ArchiveError
 
 
+def test_recovery_reads_are_bounded_and_hash_verified(tmp_path: Path) -> None:
+    archive = Archive(tmp_path / "archive")
+    digest = archive.store(b"original")
+    assert archive.read(digest, max_bytes=8) == b"original"
+    with pytest.raises(ArchiveError):
+        archive.read(digest, max_bytes=7)
+    with pytest.raises(ArchiveError):
+        archive.read("../../escape", max_bytes=8)
+    blob = archive.root / "objects" / digest[:2] / f"{digest}.body"
+    blob.write_bytes(b"changed")
+    with pytest.raises(ArchiveError):
+        archive.read(digest, max_bytes=8)
+
+
 def test_exact_bodies_are_reused_and_runs_are_distinct(tmp_path: Path) -> None:
     archive = Archive(tmp_path / "archive")
     body = b'{"title":"original bytes"}\n'

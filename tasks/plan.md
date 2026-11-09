@@ -1,6 +1,33 @@
 # Delivery plan
 
-## Current increment: durable HTTP collection and run inspection
+## Current increment: safe database-run resume
+
+PR #12 is merged (`c80efc5`). Continue the accepted ingestion recovery contract on
+`feature/safe-run-resume`. Add explicit `runs resume RUN_ID`, using the original
+query, limits, versions and archive. No new dependency or schema migration.
+
+1. Add bounded hash-verified archive reads; session advisory leases for both fresh
+   and resumed managed runs; claim a new writer token under the run row lock.
+2. Restore coverage from committed SQL page evidence. Replay the earliest finished
+   successful collect response for the next uncommitted page, preserving its time.
+   Revalidate all committed pages and that pending page against current source
+   metadata/ordered full-record fingerprints before adding pages to an incomplete run.
+3. Continue through the same collector acceptance/retry path, without duplicated
+   observations/outbox. Journal verification requests separately. Each explicit
+   invocation gets a fresh original time/retry budget; the total page limit stays fixed.
+4. Expose CLI only after tests cover real SIGKILL/restart, pending-body replay,
+   changed sources, missing/corrupt archives, active-worker exclusion and stale-token
+   fencing. Complete archived runs reconcile without source requests.
+5. Run checks/audit, review, and open one unmerged PR directly to main. Keep original
+   file manifests/JSONL as initial-invocation projections; resumed truth is SQL.
+
+Offset revalidation detects observed drift, not snapshot isolation. Unknown
+historical started attempts remain unknown; distinguish them from current-owner
+pending requests. Sessions hold an advisory lock while running; writer tokens
+fence stale writers if the lock connection disappears. Drain older pre-lease
+workers before using resume. Production deployment remains outside this change.
+
+## Previous increment: durable HTTP collection and run inspection
 
 PR #11 is merged into main (`65b08ea`). On `feature/durable-kimdis-runs`, connect
 the existing collector to the accepted PostgreSQL persistence contract. First

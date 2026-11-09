@@ -52,6 +52,14 @@
     inspection tests and offline 1,118-record replay. Hosted push run 42690122843
     passed at 7a861f0; final-head check links are recorded in the PR.
 
+## Safe database-run resume (current)
+
+- [ ] Restore immutable run settings and verify archived page bodies.
+- [ ] Exclude active workers and fence stale writers during takeover.
+- [ ] Replay pending responses, revalidate source prefixes, and continue without duplicates.
+- [ ] Prove multi-page worker kill/restart and drift/corruption failure behavior.
+- [ ] Expose resume CLI, complete checks/audit and publish an unmerged main-targeted PR.
+
 ## Following ingestion slices
 
 - [ ] Add safe HTTP run resume and restart reconciliation after durable inspection.
