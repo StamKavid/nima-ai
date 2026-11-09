@@ -47,7 +47,10 @@
 - [x] Journal HTTP attempts and atomically persist accepted pages through the collector.
 - [x] Expose opt-in database ingestion, explicit migration, and read-only run inspection.
 - [x] Verify real process interruption, SQL failures, redaction and coverage reconstruction.
-- [ ] Complete checks/audit and open one unmerged main-targeted PR.
+- [x] Complete checks/audit and open one unmerged main-targeted PR.
+  - Evidence: PR #12 targets main; 172 tests, 97.42% coverage; real SIGKILL
+    inspection tests and offline 1,118-record replay. Hosted push run 42690122843
+    passed at 7a861f0; final-head check links are recorded in the PR.
 
 ## Following ingestion slices
 
