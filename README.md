@@ -8,8 +8,8 @@ time inspectable and reproducible.
 The product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
 Current code implements bounded KIMDIS contract collection, a private raw-evidence
-archive, and typed normalization with explicit coverage reporting. PostgreSQL
-revision history, crash-resume, entity resolution, graph projection, trained
+archive, typed normalization, and an independent transactional PostgreSQL page API.
+HTTP run inspection/resume, entity resolution, graph projection, trained
 models, and the investigation workspace are subsequent milestones.
 An investigative signal is not a finding of wrongdoing.
 
@@ -28,7 +28,8 @@ The practical deliverable is a reviewable case with an evidence trail. Read the
 
 ## Development
 
-Python 3.12 and [uv](https://docs.astral.sh/uv/) are required.
+Python 3.12 and [uv](https://docs.astral.sh/uv/) are required. Full checks also
+require disposable local PostgreSQL 17; configure `NIMA_TEST_DSN` as below.
 
 ```bash
 make setup
@@ -109,6 +110,50 @@ prediction. It does not allocate a joint contract's full value to each supplier.
 `normalize_page` decodes once, validates pagination, and quarantines malformed
 rows with original evidence locations. The full ingestion milestone is specified in
 [SPEC-source-ingestion.md](SPEC-source-ingestion.md).
+
+## PostgreSQL page persistence
+
+`nima.storage.postgres.migrate(dsn)` explicitly applies the checksum-verified
+additive schema. `PageStore(dsn, archive).start_run(run_id, query)` fixes a run's
+query, connector/normalizer versions, and archive location. Its `commit_page`
+method accepts original response bytes and an aware `observed_at` timestamp.
+It archives before SQL, then commits versions, observations, quarantine, pending
+outbox work, and the next-page checkpoint in one transaction. Identical replay
+returns false; changed committed evidence or page gaps raise `CheckpointError`.
+
+Source versions hash the full source record and exclude page position/evidence.
+Observations retain run/page/index/time, so A→B→A reuses version A and preserves
+all three observations. Monetary values remain exact decimal strings in JSONB.
+Join observations to `run_pages` for the raw hash and original `/content/<index>`
+pointer. The archive root is fixed per run. SQL triggers reject evidence edits.
+
+The existing HTTP command remains archive-only. Database orchestration, HTTP
+attempt history, run inspection/resume, supplier/buyer relational projections,
+outbox delivery, and complete-run reconciliation are following increments.
+SIGKILL tests verify the page transaction boundary; they do not prove HTTP resume
+or database-server/storage-device crash recovery. Keep connection strings in
+environment/memory and redact driver errors before exposing them in an interface.
+
+For full tests on Linux, start a disposable database (Docker required):
+
+```bash
+docker run --rm -d --name nima-postgres-test \
+  -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=nima_test \
+  -p 127.0.0.1:55432:5432 \
+  postgres:17-bookworm@sha256:665dc7b37ac52a17e298511414c21d23ffa4e6a6ef6225b3e5d59c7afb35e994
+docker exec nima-postgres-test pg_isready -U postgres -d nima_test
+export NIMA_TEST_DSN='host=127.0.0.1 port=55432 dbname=nima_test user=postgres'
+make check
+make audit
+docker stop nima-postgres-test
+```
+
+Wait for `pg_isready` to succeed before testing. This passwordless service is
+loopback-bound and disposable. Tests require the base database name `nima_test`
+and a role allowed to create/drop databases; each test creates and removes only
+its own UUID-named database. Missing test configuration fails visibly. CI runs
+the same tests with a digest-pinned PostgreSQL service. Production roles, encrypted
+remote connections, backups, and retention are decided before deployment.
 
 ## Delivery workflow
 

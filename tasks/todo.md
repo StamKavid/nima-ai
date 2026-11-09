@@ -19,17 +19,37 @@
   - Acceptance: actionable JSON summary, honest exit status, no data in Git, green local/hosted checks.
   - Verify: CLI tests, `make check`, `make audit`, opt-in live probe, private PR metadata.
   - Evidence: 134 tests, 97.94% coverage; 1,118 live records over 23 pages;
-    draft PRs #7 → #8 → #9 with green hosted quality checks. Retarget dependent
-    PRs to main after merging their predecessors; no merge/deploy is authorized.
+    PRs #7–#9 and integration #10 merged by the user; #10 brought the complete
+    collector into main. New PRs target main directly; no automatic merge/deploy.
 
-## Next ingestion increment
+## PostgreSQL page persistence (current)
 
-- [ ] Specify and implement PostgreSQL observations, immutable versions, and outbox.
-  - Depends on: reviewed collector PRs #7–#9.
-  - Acceptance: atomic page persistence/checkpointing, A→B→A observation history,
-    deterministic replay, and reconciled IDs after real worker termination/restart.
-  - Verify: real PostgreSQL integration tests and process-crash experiments;
-    design/migration review before implementation. Do not expose resume early.
+- [x] Extend and review the accepted persistence contract in SPEC-source-ingestion.md.
+  - Acceptance: source versions and observations are distinct; transaction, replay,
+    archive, checkpoint, and migration invariants are explicit.
+- [x] Persist one archived page in a real PostgreSQL transaction.
+  - Acceptance: immutable content versions, A→B→A observations, quarantine and
+    pending outbox events; checkpoint commits atomically; replay is idempotent.
+  - Verify: real PostgreSQL tests, SQL constraints, exact source hashes/money.
+- [x] Verify killed-worker rollback and replay at page commit boundaries.
+  - Acceptance: killed pre-commit leaves no page effects; killed post-commit
+    replays without duplicate observations or outbox work. HTTP resume stays hidden.
+  - Verify: subprocess SIGKILL tests with independent database connections.
+- [x] Complete checks and publish one unmerged PR directly to main.
+  - Verify: make check, make audit, hosted quality, private visibility/attribution.
+  - Evidence: PR #11 targets main; 151 tests, 98.23% coverage, real PostgreSQL
+    SIGKILL/replay tests; hosted push run 42685054456 passed at ea14a23.
+    Final-head checks are recorded in the PR before marking it ready.
+
+## Following ingestion slices
+
+- [ ] Connect PostgreSQL checkpoints to HTTP run inspection/resume and reconciliation.
+  - Depends on: reviewed page persistence.
+  - Verify: full multi-page worker termination/restart, source-page drift handling,
+    durable attempt history, and final completeness reconstruction.
+- [ ] Add reviewed supplier/buyer projections and an outbox consumer.
+  - Acceptance: preserve joint participation without duplicating contract spend;
+    consumer replay is idempotent. No automatic graph inference is implied.
 
 ## Engineering foundation
 
