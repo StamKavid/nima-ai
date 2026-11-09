@@ -41,9 +41,17 @@
     SIGKILL/replay tests; hosted push run 42685054456 passed at ea14a23.
     Final-head checks are recorded in the PR before marking it ready.
 
+## Durable HTTP collection and inspection (current)
+
+- [ ] Add checksum-verified migration 0002 and prove populated v1 upgrade.
+- [ ] Journal HTTP attempts and atomically persist accepted pages through the collector.
+- [ ] Expose opt-in database ingestion, explicit migration, and read-only run inspection.
+- [ ] Verify real process interruption, SQL failures, redaction and coverage reconstruction.
+- [ ] Complete checks/audit and open one unmerged main-targeted PR.
+
 ## Following ingestion slices
 
-- [ ] Connect PostgreSQL checkpoints to HTTP run inspection/resume and reconciliation.
+- [ ] Add safe HTTP run resume and restart reconciliation after durable inspection.
   - Depends on: reviewed page persistence.
   - Verify: full multi-page worker termination/restart, source-page drift handling,
     durable attempt history, and final completeness reconstruction.

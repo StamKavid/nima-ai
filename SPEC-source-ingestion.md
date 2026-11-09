@@ -190,6 +190,39 @@ https://www.psycopg.org/psycopg3/docs/basic/params.html ,
 https://www.postgresql.org/docs/17/explicit-locking.html , and
 https://www.postgresql.org/docs/17/ddl-constraints.html .
 
+## Durable collection and inspection contract
+
+Opt in with `uv run python -m nima ingest kimdis --database` plus the existing
+required dates/archive options. Read NIMA_DATABASE_URL from the environment only.
+`uv run python -m nima db migrate` explicitly upgrades an existing schema;
+`uv run python -m nima runs show RUN_ID` reads durable run metadata and counts.
+Neither collection nor inspection applies migrations implicitly. Archive-only
+collection stays available. Database errors emit sanitized codes, never driver
+messages, connection strings, titles, or company tax identifiers.
+
+A managed run fixes query, limits, connector/normalizer versions, archive root,
+and a writer ownership token. Attempts are inserted before entering HTTP I/O;
+finished receipts retain status, whitelisted headers, errors, and hashes of all
+completed bounded bodies, including HTTP failures. A killed worker may leave a
+started attempt with unknown outcome or an unindexed file; do not invent a result.
+Transport journaling failure prevents a successful run. A failed database write
+may leave the durable run's last saved state running; this is not a liveness claim.
+
+Accepted pages retain source IDs, including identifiable quarantined rows, in the
+same transaction as their checkpoint. Legacy page API calls cannot write a managed
+run without its ownership token. Final completeness is saved only after committed
+pages, unique IDs, counts, and quarantine reconcile. Inspection rebuilds counters
+from committed SQL state, not from filesystem manifests or stale progress JSON.
+It reports the stored run state with worker liveness unknown, pending attempt
+count, checkpoint, query, and limits. It does not validate archive availability or
+refresh source data; source coverage and archive integrity are separate properties.
+
+A read-only inspection command exits zero when the run is found, even if its
+collection failed. Missing configuration/invalid IDs exit 2; missing or unsupported
+runs, database/schema failures exit nonzero. HTTP resume remains unavailable until
+pending-response replay and source-drift verification pass real multi-page restart
+tests; an old offset checkpoint alone is not enough to resume safely.
+
 ## Project structure
 
 Implementation will grow from the existing package as the feature requires:

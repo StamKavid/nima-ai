@@ -16,6 +16,11 @@ class Clock(Protocol):
     def sleep(self, seconds: float) -> None: ...
 
 
+class AttemptJournal(Protocol):
+    def started(self, receipt: dict[str, object]) -> None: ...
+    def finished(self, receipt: dict[str, object]) -> None: ...
+
+
 class SystemClock:
     monotonic = staticmethod(time.monotonic)
     sleep = staticmethod(time.sleep)
@@ -45,6 +50,7 @@ class Session:
         self.deadline = clock.monotonic() + limits.run_timeout
         self.previous: float | None = None
         self.responses: list[dict[str, object]] = []
+        self.journal: AttemptJournal | None = None
 
     def remaining(self) -> float:
         remaining = self.deadline - self.clock.monotonic()
@@ -66,8 +72,7 @@ class Session:
                     60 / self.limits.requests_per_minute - (self.clock.monotonic() - self.previous),
                 )
             )
-        timeout = min(self.limits.request_timeout, self.remaining())
-        self.previous = self.clock.monotonic()
+        self.remaining()
         receipt: dict[str, object] = {
             "page": page,
             "attempt": attempt,
@@ -75,7 +80,11 @@ class Session:
             "body_complete": False,
         }
         self.responses.append(receipt)
+        if self.journal is not None:
+            self.journal.started(receipt)
         try:
+            timeout = min(self.limits.request_timeout, self.remaining())
+            self.previous = self.clock.monotonic()
             with self.client.stream(
                 "POST",
                 ENDPOINT,
@@ -116,3 +125,9 @@ class Session:
         except CollectionStopped as exc:
             receipt["failure"] = str(exc)
             raise
+        except KeyboardInterrupt:
+            receipt["failure"] = "interrupted"
+            raise
+        finally:
+            if self.journal is not None:
+                self.journal.finished(receipt)
