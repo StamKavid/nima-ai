@@ -2,15 +2,20 @@
 
 import argparse
 import json
+import os
 from dataclasses import asdict
 from datetime import date
 from pathlib import Path
+from uuid import UUID
 
 import httpx
+import psycopg
 
 from nima.ingestion.archive import Archive, ArchiveError
-from nima.ingestion.collector import collect
+from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits, Query
+from nima.storage.postgres import CheckpointError, MigrationError, migrate
+from nima.storage.runs import inspect_run
 
 
 def _date(text: str) -> date:
@@ -25,11 +30,21 @@ def _date(text: str) -> date:
 
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m nima")
-    ingest = parser.add_subparsers(dest="command", required=True).add_parser("ingest")
+    commands = parser.add_subparsers(dest="command", required=True)
+    ingest = commands.add_parser("ingest")
+    database = commands.add_parser("db").add_subparsers(dest="operation", required=True)
+    database.add_parser("migrate", help="Explicitly apply database migrations")
+    show = (
+        commands.add_parser("runs")
+        .add_subparsers(dest="operation", required=True)
+        .add_parser("show", help="Inspect durable counts; worker liveness is unknown")
+    )
+    show.add_argument("run_id", type=UUID)
     kimdis = ingest.add_subparsers(dest="source", required=True).add_parser(
         "kimdis",
         help="Collect one explicit KIMDIS date window; no automatic resume",
     )
+    kimdis.add_argument("--database", action="store_true", help="Persist via NIMA_DATABASE_URL")
     kimdis.add_argument("--from-date", type=_date, required=True)
     kimdis.add_argument("--to-date", type=_date, required=True)
     kimdis.add_argument("--archive-dir", type=Path, required=True)
@@ -48,10 +63,11 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _failure(code: str) -> None:
+def _failure(code: str, *, run_id: str | None = None) -> None:
     print(
         json.dumps(
             {
+                **({"run_id": run_id} if run_id is not None else {}),
                 "status": "failed",
                 "failure": code,
                 "collection_complete": False,
@@ -61,9 +77,23 @@ def _failure(code: str) -> None:
     )
 
 
+def _database_url() -> str:
+    dsn = os.environ.get("NIMA_DATABASE_URL", "")
+    if not dsn.strip():
+        raise ValueError("NIMA_DATABASE_URL is required")
+    return dsn
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
+        if args.command == "db":
+            migrate(_database_url())
+            print(json.dumps({"status": "migrated"}))
+            return 0
+        if args.command == "runs":
+            print(json.dumps(inspect_run(_database_url(), args.run_id), ensure_ascii=False))
+            return 0
         query = Query(args.from_date, args.to_date, tuple(args.buyer_id))
         limits = Limits(
             args.max_pages,
@@ -74,13 +104,22 @@ def main(argv: list[str] | None = None) -> int:
             args.run_timeout,
             args.max_retry_delay,
         )
-    except ValueError:
-        _failure("configuration")
-        return 2
-    try:
+        dsn = _database_url() if args.database else None
         archive = Archive(args.archive_dir)
         with httpx.Client() as client:
-            summary = collect(query, limits, archive, client=client)
+            summary = collect(query, limits, archive, client=client, database_dsn=dsn)
+    except RunError as exc:
+        _failure(exc.reason, run_id=exc.run_id)
+        return 1
+    except MigrationError:
+        _failure("database_schema")
+        return 1
+    except CheckpointError:
+        _failure("run_unavailable")
+        return 1
+    except psycopg.Error:
+        _failure("database")
+        return 1
     except ArchiveError:
         _failure("archive_invalid")
         return 1
@@ -88,6 +127,9 @@ def main(argv: list[str] | None = None) -> int:
         # Even failure to persist the final manifest must prevent a successful exit.
         _failure("archive_io")
         return 1
+    except ValueError:
+        _failure("configuration")
+        return 2
     print(json.dumps(asdict(summary), ensure_ascii=False, allow_nan=False))
     return {"complete": 0, "quarantined": 3, "interrupted": 130}.get(summary.status, 1)
 
