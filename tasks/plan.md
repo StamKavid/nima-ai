@@ -1,6 +1,30 @@
 # Delivery plan
 
-## Current increment: atomic archived-page persistence
+## Current increment: durable HTTP collection and run inspection
+
+PR #11 is merged into main (`65b08ea`). On `feature/durable-kimdis-runs`, connect
+the existing collector to the accepted PostgreSQL persistence contract. First
+ship fresh database-backed collection and read-only inspection. Keep HTTP resume
+hidden until worker ownership, pending-response replay, drift verification, and
+multi-page restart have been verified in a following increment.
+
+1. Add migration 0002 without changing 0001: managed run settings/ownership/status,
+   durable HTTP attempts, and per-page source IDs for honest coverage counts.
+   Generalize checksum migration replay and test upgrading an existing v1 database.
+2. Journal attempts before HTTP and finish their metadata after bounded body archival.
+   Connect accepted pages to the page transaction; guard managed pages with owner
+   identity and persist final state only after all page commits and reconciliation.
+3. Add opt-in `ingest kimdis --database` and read-only `runs show RUN_ID`. Use only
+   NIMA_DATABASE_URL for connection configuration; redact driver errors. Missing or
+   outdated schemas fail before HTTP. Migration remains explicit via `db migrate`.
+4. Test HTTPX plus real PostgreSQL, including retries, quarantine, incomplete runs,
+   failed SQL, missing/corrupt evidence, ownership guards, and real SIGKILL during
+   an HTTP request and after a page commit. Inspection reconstructs counts from SQL
+   and never treats saved running state as proof of a live worker.
+5. Run checks/audit, self-review, and open one unmerged PR directly to main. No new
+   dependency or relaxed check is needed. Confirm private hosting and attribution.
+
+## Previous increment: atomic archived-page persistence
 
 PR #10 is merged into main (`e2314cd`). Continue the already-approved
 PostgreSQL portion of SPEC-source-ingestion.md on `feature/postgres-page-persistence`.

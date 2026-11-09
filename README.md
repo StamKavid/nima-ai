@@ -8,8 +8,8 @@ time inspectable and reproducible.
 The product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
 Current code implements bounded KIMDIS contract collection, a private raw-evidence
-archive, typed normalization, and an independent transactional PostgreSQL page API.
-HTTP run inspection/resume, entity resolution, graph projection, trained
+archive, typed normalization, optional PostgreSQL collection, and durable run inspection.
+HTTP resume, entity resolution, graph projection, trained
 models, and the investigation workspace are subsequent milestones.
 An investigative signal is not a finding of wrongdoing.
 
@@ -127,9 +127,33 @@ all three observations. Monetary values remain exact decimal strings in JSONB.
 Join observations to `run_pages` for the raw hash and original `/content/<index>`
 pointer. The archive root is fixed per run. SQL triggers reject evidence edits.
 
-The existing HTTP command remains archive-only. Database orchestration, HTTP
-attempt history, run inspection/resume, supplier/buyer relational projections,
-outbox delivery, and complete-run reconciliation are following increments.
+Add `--database` to the HTTP command to persist attempts and accepted pages in
+PostgreSQL. Configure `NIMA_DATABASE_URL` in the environment, then explicitly apply
+migrations before collection:
+
+```bash
+uv run --frozen python -m nima db migrate
+uv run --frozen python -m nima ingest kimdis --database \
+  --from-date 2026-11-06 --to-date 2026-11-06 --archive-dir data/raw
+uv run --frozen python -m nima runs show RUN_ID
+```
+
+Without `--database`, ingestion remains archive-only. No command except
+`db migrate` applies schema changes. Migration 0002 upgrades v1 without changing
+its original SQL/checksum or historical evidence. Standalone page-API runs from
+v1 remain unmanaged and are not inspectable with `runs show`.
+
+Inspection reconstructs counters from committed SQL rows and exits zero when the
+managed run is found, including failed runs. It reports stored status and
+`worker_liveness: unknown`; a saved running state does not prove a live worker.
+An interrupted request can remain started with an unknown outcome. SQL/journal
+errors stop collection and preserve its run ID in the sanitized failure output.
+Inspection does not read archive bodies or refresh source records, so it cannot
+establish archive integrity or current source freshness.
+
+Run resume, supplier/buyer relational projections and outbox delivery remain
+following increments. Resume will need pending-response replay and revalidation
+of already committed source pages before trusting their offsets.
 SIGKILL tests verify the page transaction boundary; they do not prove HTTP resume
 or database-server/storage-device crash recovery. Keep connection strings in
 environment/memory and redact driver errors before exposing them in an interface.

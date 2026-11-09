@@ -38,26 +38,51 @@ def _connect(dsn: str) -> Connection:
     )
 
 
+def _migrations() -> list[tuple[int, str, str]]:
+    result = []
+    for version in (1, 2):
+        body = files("nima.storage").joinpath(f"migrations/{version:04d}.sql").read_text()
+        result.append((version, body, hashlib.sha256(body.encode()).hexdigest()))
+    return result
+
+
+def _applied(connection: Connection, migrations: list[tuple[int, str, str]]) -> int:
+    if connection.info.server_version // 10000 != 17:
+        raise MigrationError("This schema is tested on PostgreSQL 17")
+    history = connection.execute(
+        "SELECT version, sha256 FROM nima.schema_migrations ORDER BY version"
+    ).fetchall()
+    expected = [(version, digest) for version, _, digest in migrations]
+    if history != expected[: len(history)]:
+        raise MigrationError("Unknown migration version or changed checksum")
+    return len(history)
+
+
+def check_schema(dsn: str) -> None:
+    """Validate current migration history without applying DDL."""
+    migrations = _migrations()
+    try:
+        with _connect(dsn) as connection:
+            if _applied(connection, migrations) != len(migrations):
+                raise MigrationError("Run the explicit database migration first")
+    except psycopg.errors.UndefinedTable:
+        raise MigrationError("Run the explicit database migration first") from None
+
+
 def migrate(dsn: str) -> None:
-    """Apply the packaged additive migration once, with a verified checksum."""
-    migration = files("nima.storage").joinpath("migrations/0001.sql").read_text()
-    digest = hashlib.sha256(migration.encode()).hexdigest()
+    """Apply pending packaged migrations atomically, rejecting altered history."""
+    migrations = _migrations()
     with _connect(dsn) as connection, connection.transaction():
-        if connection.info.server_version // 10000 != 17:
-            raise MigrationError("This schema is tested on PostgreSQL 17")
         connection.execute("SELECT pg_advisory_xact_lock(812344001, 1)")
         connection.execute("CREATE SCHEMA IF NOT EXISTS nima")
         connection.execute("""CREATE TABLE IF NOT EXISTS nima.schema_migrations (
             version integer PRIMARY KEY, sha256 text NOT NULL)""")
-        history = connection.execute(
-            "SELECT version, sha256 FROM nima.schema_migrations ORDER BY version"
-        ).fetchall()
-        if history:
-            if history != [(1, digest)]:
-                raise MigrationError("Unknown migration version or changed checksum")
-            return
-        connection.execute(migration)
-        connection.execute("INSERT INTO nima.schema_migrations VALUES (1, %s)", (digest,))
+        applied = _applied(connection, migrations)
+        for version, body, digest in migrations[applied:]:
+            connection.execute(body)
+            connection.execute(
+                "INSERT INTO nima.schema_migrations VALUES (%s, %s)", (version, digest)
+            )
 
 
 class PageStore:
@@ -85,21 +110,29 @@ class PageStore:
             if row != (query.payload(), *self._identity()):
                 raise CheckpointError("Run query, connector, normalizer, or archive differs")
 
-    def commit_page(self, run_id: UUID, raw_body: bytes, *, observed_at: datetime) -> bool:
+    def commit_page(
+        self,
+        run_id: UUID,
+        raw_body: bytes,
+        *,
+        observed_at: datetime,
+        owner: UUID | None = None,
+        max_bytes: int = 8 * 1024 * 1024,
+    ) -> bool:
         """Archive first, then atomically persist a page or verify identical replay."""
         if observed_at.utcoffset() is None:
             raise ValueError("Observation time must include a timezone")
         digest = self.archive.store(raw_body)
-        page = normalize_page(raw_body)
+        page = normalize_page(raw_body, max_bytes=max_bytes)
         shape = (page.total_records, page.total_pages, page.size)
         with _connect(self._dsn) as connection, connection.transaction():
             row = connection.execute(
                 """SELECT next_page, total_records, total_pages,
-                page_size, connector_version, normalizer_version, archive_root
+                page_size, connector_version, normalizer_version, archive_root, owner
                 FROM nima.ingest_runs WHERE run_id = %s FOR UPDATE""",
                 (run_id,),
             ).fetchone()
-            if row is None or row[4:] != self._identity():
+            if row is None or row[4:7] != self._identity() or row[7] != owner:
                 raise CheckpointError("Unknown run or mismatched processing identity")
             previous = connection.execute(
                 """SELECT raw_sha256 FROM nima.run_pages
@@ -119,8 +152,17 @@ class PageStore:
             )
             connection.execute(
                 """INSERT INTO nima.run_pages
-                VALUES (%s, %s, %s, %s, %s, %s)""",
-                (run_id, page.number, digest, observed_at, page.record_count, len(page.issues)),
+                (run_id, page_number, raw_sha256, observed_at, record_count,
+                 quarantined_count, source_ids) VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                (
+                    run_id,
+                    page.number,
+                    digest,
+                    observed_at,
+                    page.record_count,
+                    len(page.issues),
+                    list(page.source_ids),
+                ),
             )
             for contract in page.contracts:
                 index = int(contract.evidence.json_pointer.rsplit("/", 1)[1])

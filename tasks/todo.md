@@ -22,7 +22,7 @@
     PRs #7–#9 and integration #10 merged by the user; #10 brought the complete
     collector into main. New PRs target main directly; no automatic merge/deploy.
 
-## PostgreSQL page persistence (current)
+## PostgreSQL page persistence (completed)
 
 - [x] Extend and review the accepted persistence contract in SPEC-source-ingestion.md.
   - Acceptance: source versions and observations are distinct; transaction, replay,
@@ -41,9 +41,20 @@
     SIGKILL/replay tests; hosted push run 42685054456 passed at ea14a23.
     Final-head checks are recorded in the PR before marking it ready.
 
+## Durable HTTP collection and inspection (current)
+
+- [x] Add checksum-verified migration 0002 and prove populated v1 upgrade.
+- [x] Journal HTTP attempts and atomically persist accepted pages through the collector.
+- [x] Expose opt-in database ingestion, explicit migration, and read-only run inspection.
+- [x] Verify real process interruption, SQL failures, redaction and coverage reconstruction.
+- [x] Complete checks/audit and open one unmerged main-targeted PR.
+  - Evidence: PR #12 targets main; 172 tests, 97.42% coverage; real SIGKILL
+    inspection tests and offline 1,118-record replay. Hosted push run 42690122843
+    passed at 7a861f0; final-head check links are recorded in the PR.
+
 ## Following ingestion slices
 
-- [ ] Connect PostgreSQL checkpoints to HTTP run inspection/resume and reconciliation.
+- [ ] Add safe HTTP run resume and restart reconciliation after durable inspection.
   - Depends on: reviewed page persistence.
   - Verify: full multi-page worker termination/restart, source-page drift handling,
     durable attempt history, and final completeness reconstruction.
