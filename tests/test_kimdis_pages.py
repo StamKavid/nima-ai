@@ -62,6 +62,13 @@ def test_source_fingerprint_distinguishes_exact_numbers_and_strings() -> None:
     assert len({digest('"0.10"'), digest("0.10"), digest("0.100000000000000001")}) == 3
 
 
+def test_nested_source_types_are_fingerprinted_without_tag_collisions() -> None:
+    nested = {"extra": {"values": [None, True, 1], "empty": []}}
+    first = normalize_page(page_body({**record(), **nested}))
+    changed = normalize_page(page_body({**record(), "extra": ["object", nested["extra"]]}))
+    assert first.record_hashes != changed.record_hashes
+
+
 def test_non_object_rows_and_missing_ids_remain_quarantined() -> None:
     page = normalize_page(page_body(42, {"title": "Missing ID"}, record()))
     assert len(page.issues) == 2

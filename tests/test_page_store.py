@@ -1,5 +1,6 @@
 """Page history and replay exercise a real PostgreSQL transaction boundary."""
 
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
@@ -8,8 +9,10 @@ import psycopg
 import pytest
 
 from nima.ingestion.archive import Archive
+from nima.ingestion.config import Query
 from nima.storage.postgres import CheckpointError, PageStore, migrate
 from tests.test_collection import QUERY, body
+from tests.test_kimdis_pages import page_body, record
 
 
 def store(pg_dsn: str, tmp_path: Path) -> PageStore:
@@ -91,3 +94,64 @@ def test_duplicate_source_rolls_back_every_page_effect(pg_dsn: str, tmp_path: Pa
     assert counts(pg_dsn) == (1, 1, 1, 1)
     with psycopg.connect(pg_dsn) as connection:
         assert connection.execute("SELECT next_page FROM nima.ingest_runs").fetchone() == (1,)
+
+
+def test_run_identity_and_timestamp_are_not_silently_changed(pg_dsn: str, tmp_path: Path) -> None:
+    database = store(pg_dsn, tmp_path)
+    run = uuid4()
+    database.start_run(run, QUERY)
+    with pytest.raises(CheckpointError):
+        database.start_run(run, Query(QUERY.from_date, QUERY.to_date, ("999",)))
+    other = PageStore(pg_dsn, Archive(tmp_path / "other"))
+    with pytest.raises(CheckpointError):
+        other.start_run(run, QUERY)
+    with pytest.raises(CheckpointError):
+        other.commit_page(run, body(total=1), observed_at=datetime.now(UTC))
+    with pytest.raises(CheckpointError):
+        database.commit_page(uuid4(), body(total=1), observed_at=datetime.now(UTC))
+    with pytest.raises(ValueError, match="timezone"):
+        database.commit_page(run, body(total=1), observed_at=datetime(2026, 1, 1))
+    assert counts(pg_dsn) == (0, 0, 0, 0)
+
+
+def test_empty_page_is_durable_without_fabricated_records(pg_dsn: str, tmp_path: Path) -> None:
+    database = store(pg_dsn, tmp_path)
+    run = uuid4()
+    database.start_run(run, QUERY)
+    database.commit_page(run, body(total=0), observed_at=datetime.now(UTC))
+    assert counts(pg_dsn) == (1, 0, 0, 0)
+
+
+def test_neighbor_changes_do_not_duplicate_unchanged_versions(pg_dsn: str, tmp_path: Path) -> None:
+    database = store(pg_dsn, tmp_path)
+    for title in ("A", "B"):
+        run = uuid4()
+        database.start_run(run, QUERY)
+        database.commit_page(
+            run,
+            page_body(record(), 42, {**record("OTHER"), "title": title}),
+            observed_at=datetime.now(UTC),
+        )
+    assert counts(pg_dsn) == (2, 3, 4, 4)
+    with psycopg.connect(pg_dsn) as connection:
+        assert connection.execute(
+            "SELECT DISTINCT record_index FROM nima.quarantine"
+        ).fetchall() == [(1,)]
+        assert connection.execute(
+            "SELECT DISTINCT record_index FROM nima.observations ORDER BY 1"
+        ).fetchall() == [(0,), (2,)]
+
+
+def test_concurrent_same_page_is_committed_once(pg_dsn: str, tmp_path: Path) -> None:
+    database = store(pg_dsn, tmp_path)
+    run = uuid4()
+    database.start_run(run, QUERY)
+    with ThreadPoolExecutor(max_workers=2) as workers:
+        results = list(
+            workers.map(
+                lambda _: database.commit_page(run, body(total=1), observed_at=datetime.now(UTC)),
+                range(2),
+            )
+        )
+    assert sorted(results) == [False, True]
+    assert counts(pg_dsn) == (1, 1, 1, 1)
