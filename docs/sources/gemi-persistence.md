@@ -1,7 +1,7 @@
 # Offline GEMI evidence persistence
 
-Status: **approved**, 2026-11-10, by explicit user approval in the next turn.
-Implementation and live profile acceptance are tracked separately.
+Status: **approved**, 2026-11-10, by explicit user approval before implementation.
+Implemented on the delivery branch; personal-key/live profile acceptance is pending.
 Provider: `source-ingestion` in CAPABILITIES.md. Supplements the approved
 [GEMI profile contract](gemi.md) and SPEC-source-ingestion.md; no new module.
 
@@ -27,9 +27,9 @@ The deliverable is registry evidence storage, not company resolution. Matching,
 review decisions, graph projection, sector analytics and live-collection changes
 remain separate increments. It does not require a generic connector framework.
 
-## Proposed command and structure
+## Command and structure
 
-The following interface is proposed, not currently implemented:
+Implemented offline interface:
 
 ```bash
 uv run --frozen python -m nima db migrate
@@ -41,13 +41,13 @@ remains environment-only. No key, URL override, network fallback, implicit
 migration or automatic import of every archive is supported.
 
 Keep Python 3.12, PostgreSQL 17 and locked Psycopg 3.3.8; add no dependency or CI
-service. Proposed files: `src/nima/storage/gemi.py`, packaged migration `0004.sql`,
+service. Files: `src/nima/storage/gemi.py`, read-only `gemi_archive.py`, migration `0004.sql`,
 CLI routing in `src/nima/__main__.py`, focused `tests/test_gemi_import*.py`, and
 `docs/verification/gemi-persistence.md`. Update the existing migration loader
 without changing the bytes or checksums of migrations 0001–0003.
 
 Use immutable typed values, explicit unknowns, parameterized SQL, Ruff and strict
-mypy. Illustrative result shape, not an implemented API:
+mypy. Style excerpt; the implemented summary also includes hash/version metadata:
 
 ```python
 from dataclasses import dataclass
@@ -106,7 +106,7 @@ Use a small GEMI-specific aggregate because existing KIMDIS pages/checkpoints an
 participation events describe contracts. Do not pretend a company profile is a
 procurement page or send it to the KIMDIS projector.
 
-Proposed immutable evidence relations:
+Implemented immutable evidence relations:
 
 | Relation | Identity and purpose |
 |---|---|
@@ -181,7 +181,10 @@ Never infer identity, legal form, ownership, collusion or tax evasion from an
 import. Do not add dependencies, alter CI/security constraints, expose a write
 API, publish source data or broaden collection as part of this increment.
 
-This proposal requests review of the additive schema and offline import policy
-before implementation planning. No external-access question blocks this scope.
-After acceptance, registry/procurement comparison can consume these observations
+The additive schema and offline policy were explicitly approved before planning.
+Delivery is split into two reviewable PRs: archive verification, then storage/CLI.
+The first targets main; the dependent PR targets its branch until the predecessor
+is merged, then is retargeted to main. No automatic merge or deployment.
+No external-access question blocks this scope. Registry/procurement comparison
+can consume these observations
 under a separate identity policy; reviewed links precede a resolved temporal graph.
