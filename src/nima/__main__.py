@@ -15,6 +15,7 @@ from nima.ingestion.archive import Archive, ArchiveError
 from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits, Query
 from nima.ingestion.resume import resume
+from nima.projections.worker import PROJECTION_VERSION, ProjectionFailure, drain
 from nima.storage.postgres import CheckpointError, MigrationError, migrate
 from nima.storage.runs import inspect_run
 
@@ -32,6 +33,10 @@ def _date(text: str) -> date:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m nima")
     commands = parser.add_subparsers(dest="command", required=True)
+    project = commands.add_parser("outbox").add_subparsers(dest="operation", required=True)
+    project.add_parser(
+        "project", help="Project reported participation in one bounded batch"
+    ).add_argument("--max-events", type=int, default=100)
     ingest = commands.add_parser("ingest")
     database = commands.add_parser("db").add_subparsers(dest="operation", required=True)
     database.add_parser("migrate", help="Explicitly apply database migrations")
@@ -88,6 +93,9 @@ def _database_url() -> str:
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
+        if args.command == "outbox":
+            print(json.dumps(drain(_database_url(), max_events=args.max_events)))
+            return 0
         if args.command == "db":
             migrate(_database_url())
             print(json.dumps({"status": "migrated"}))
@@ -115,6 +123,19 @@ def main(argv: list[str] | None = None) -> int:
         archive = Archive(args.archive_dir)
         with httpx.Client() as client:
             summary = collect(query, limits, archive, client=client, database_dsn=dsn)
+    except ProjectionFailure as exc:
+        print(
+            json.dumps(
+                {
+                    "status": "failed",
+                    "projection_version": PROJECTION_VERSION,
+                    "processed_events": exc.processed,
+                    "event_id": exc.event_id,
+                    "failure": exc.reason,
+                }
+            )
+        )
+        return 1
     except RunError as exc:
         _failure(exc.reason, run_id=exc.run_id)
         return 1

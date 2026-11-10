@@ -90,6 +90,36 @@ response alone does not make a collection successful.
 
 ## Pipeline
 
+### Local participation projection (next accepted ingestion slice)
+
+`outbox project --max-events 100` uses NIMA_DATABASE_URL and an explicitly migrated
+schema. Accept 1–1,000 events per invocation. Each event transaction locks its
+outbox row with SKIP LOCKED, reads the immutable normalized version, writes a
+versioned contract fact plus buyer/supplier occurrences, records a versioned
+observation receipt, then acknowledges the event. All effects commit together.
+Receipts, rather than delivered_at, determine eligibility for a projection
+version; future versions can replay previously acknowledged observations.
+
+One contract version carries its exact numeric amounts once. Occurrences retain
+source order, original Greek text and identifiers without resolving identity or
+allocating money. Null suppliers mean unknown; an empty list means reported empty.
+A maximum of 1,000 suppliers bounds fan-out; larger records fail visibly, without
+truncation. Unsupported normalizers or malformed persisted records also remain
+pending. Stop on failure, preserve earlier committed events and emit only a
+redacted reason, event ID and processed count. A pending bounded batch exits zero;
+its summary includes remaining work as a snapshot, not a freshness guarantee.
+
+Immutable projection facts and receipts coexist by version. A deterministic hash
+detects changed mappings without a projection-version bump. A reported-edge view
+joins receipts to observations, run state and original page hash/record pointer;
+it deliberately contains no monetary columns. Queries must choose run and
+projection version, because repeated observations are evidence, not new contracts.
+No latest-state selection, company identity, ownership or wrongdoing is inferred.
+The existing delivered_at marks first successful local projection, not delivery
+to an external graph, queue or service. New consumers need their own receipts.
+
+### Collection
+
 1. Validate dates and configuration before any network request. Establish a run
    containing the exact query, connector version, and explicit window bounds.
 2. Fetch one page using bounded timeouts and retries. Retry transient transport
