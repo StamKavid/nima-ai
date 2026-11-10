@@ -137,8 +137,9 @@
 ## Offline GEMI evidence persistence
 
 - [x] Obtain explicit user approval of docs/sources/gemi-persistence.md.
-- [ ] Validate one completed archive read-only and rederive profile assertions.
+- [x] Validate one completed archive read-only and rederive profile assertions.
   - Verify: pure archive tests for reconciliation, evidence tampering and budgets.
+  - Evidence: 393 tests, 97.96% coverage; docs/verification/gemi-archive.md.
 - [ ] Persist one immutable bounded run atomically through additive migration 0004.
   - Verify: real PostgreSQL history, replay, concurrency and populated v3 upgrade.
 - [ ] Expose redacted offline import CLI without HTTP or an API key.

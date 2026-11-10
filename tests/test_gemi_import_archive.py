@@ -129,6 +129,8 @@ def edit(root: Path, run: UUID, path: str, value: object) -> None:
         ("started_at", "2026-01-01"),
         ("finished_at", "2000-01-01T00:00:00+00:00"),
         ("limits.max_attempts", 4),
+        ("limits.request_timeout", "20"),
+        ("limits.unrecognized", 1),
         ("limits.request_timeout", float("inf")),
         ("outcomes.2", "found"),
         ("attempts", []),
@@ -142,8 +144,15 @@ def edit(root: Path, run: UUID, path: str, value: object) -> None:
         ("attempts.0.observed_at", "2026-01-01"),
         ("attempts.0.finished_at", "2000-01-01T00:00:00+00:00"),
         ("attempts.0.status", 429),
+        ("attempts.0.status", 401),
         ("attempts.0.failure", "transport"),
+        ("attempts.0.body_complete", False),
+        ("attempts.0.sha256", "../invalid"),
+        ("attempts.0.bytes", 0),
+        ("attempts.0.observed_at", "2000-01-01T00:00:00+00:00"),
         ("attempts.1.registry_number", "1"),
+        ("summary", []),
+        ("attempts", {}),
     ],
 )
 def test_inconsistent_manifest_is_rejected(tmp_path: Path, path: str, value: object) -> None:
@@ -154,7 +163,9 @@ def test_inconsistent_manifest_is_rejected(tmp_path: Path, path: str, value: obj
         verify_run(root, run)
 
 
-@pytest.mark.parametrize("kind", ["root", "manifest", "body", "fifo", "duplicate", "marker"])
+@pytest.mark.parametrize(
+    "kind", ["root", "parent", "manifest", "body", "fifo", "duplicate", "marker"]
+)
 def test_unsafe_or_malformed_archive_is_rejected(tmp_path: Path, kind: str) -> None:
     import os
 
@@ -165,6 +176,8 @@ def test_unsafe_or_malformed_archive_is_rejected(tmp_path: Path, kind: str) -> N
         link = tmp_path / "linked"
         link.symlink_to(root, target_is_directory=True)
         root = link
+    elif kind == "parent":
+        root = root / ".." / "raw"
     elif kind in {"manifest", "body"}:
         if kind == "body":
             target = next((root / "objects").glob("*/*.body"))
@@ -189,6 +202,19 @@ def test_each_budget_fails_without_truncation(
     root = tmp_path / "raw"
     run = archive_run(root)
     monkeypatch.setattr("nima.storage.gemi_archive." + budget, 1)
+    with pytest.raises(ImportFailure, match="archive_budget"):
+        verify_run(root, run)
+
+
+def test_aggregate_budget_rejects_before_reading_another_body(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = tmp_path / "raw"
+    run = archive_run(root)
+    monkeypatch.setattr("nima.storage.gemi_archive.MAX_TOTAL_BODY", 1)
+    # Missing body distinguishes a pre-read budget check from post-read accounting.
+    for path in (root / "objects").glob("*/*.body"):
+        path.unlink()
     with pytest.raises(ImportFailure, match="archive_budget"):
         verify_run(root, run)
 
@@ -224,4 +250,26 @@ def test_successful_manifest_cannot_hide_bad_profile(tmp_path: Path) -> None:
     data["attempts"][0].update(sha256=digest, bytes=len(raw))
     manifest_path(root, run).write_text(json.dumps(data))
     with pytest.raises(ImportFailure, match="profile_invalid"):
+        verify_run(root, run)
+
+
+def test_exhausted_attempts_cannot_be_imported_as_complete(tmp_path: Path) -> None:
+    root = tmp_path / "raw"
+    count = 0
+
+    def handle(_: httpx.Request) -> httpx.Response:
+        nonlocal count
+        count += 1
+        return httpx.Response(
+            503 if count < 3 else 200,
+            content=profile(),
+            headers={"content-type": "application/json"},
+        )
+
+    with httpx.Client(transport=httpx.MockTransport(handle)) as client:
+        result = collect(("1",), root, api_key="synthetic", client=client, clock=Clock())
+    run = UUID(result.run_id)
+    assert len(verify_run(root, run).responses) == 3
+    edit(root, run, "attempts.2.status", 503)
+    with pytest.raises(ImportFailure, match="run_incomplete"):
         verify_run(root, run)

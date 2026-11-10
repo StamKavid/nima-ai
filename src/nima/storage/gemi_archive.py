@@ -9,7 +9,7 @@ import os
 import stat
 from collections.abc import Iterator
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import cast
@@ -147,6 +147,12 @@ def _list(value: object, maximum: int) -> list[object]:
     return cast(list[object], value)
 
 
+def _duration(value: object) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ImportFailure("manifest_invalid")
+    return float(value)
+
+
 def _header(data: dict[str, object], run_id: UUID) -> tuple[list[str], GemiLimits]:
     if type(data["format_version"]) is not int or data["format_version"] != 1:
         raise ImportFailure("manifest_version")
@@ -169,8 +175,18 @@ def _header(data: dict[str, object], run_id: UUID) -> tuple[list[str], GemiLimit
     ):
         raise ImportFailure("manifest_invalid")
     raw_limits = _object(data["limits"])
+    defaults = GemiLimits()
+    if raw_limits.keys() != asdict(defaults).keys():
+        raise ImportFailure("manifest_invalid")
     # Constructor enforces the collector's finite ceilings and exact integer counts.
-    limits = GemiLimits(**cast(dict[str, int], raw_limits))
+    limits = GemiLimits(
+        max_attempts=_integer(raw_limits["max_attempts"], 1, 3),
+        max_bytes=_integer(raw_limits["max_bytes"], 1, defaults.max_bytes),
+        requests_per_minute=_duration(raw_limits["requests_per_minute"]),
+        request_timeout=_duration(raw_limits["request_timeout"]),
+        run_timeout=_duration(raw_limits["run_timeout"]),
+        max_retry_delay=_duration(raw_limits["max_retry_delay"]),
+    )
     return numbers, limits
 
 
@@ -211,7 +227,7 @@ def _receipt(
     )
 
 
-def _body(root: Path, receipt: dict[str, object]) -> bytes:
+def _body(root: Path, receipt: dict[str, object], remaining: int) -> bytes:
     digest = receipt["sha256"]
     if (
         not isinstance(digest, str)
@@ -219,8 +235,11 @@ def _body(root: Path, receipt: dict[str, object]) -> bytes:
         or any(c not in "0123456789abcdef" for c in digest)
     ):
         raise ImportFailure("manifest_invalid")
+    limit = min(MAX_BODY, remaining)
+    if cast(int, receipt["bytes"]) > limit:
+        raise ImportFailure("archive_budget")
     with _directory(root / "objects" / digest[:2]) as directory:
-        raw = _read(directory, f"{digest}.body", MAX_BODY)
+        raw = _read(directory, f"{digest}.body", limit)
     if hashlib.sha256(raw).hexdigest() != digest or len(raw) != receipt["bytes"]:
         raise ImportFailure("archive_integrity")
     return raw
@@ -249,10 +268,10 @@ def verify_run(archive_root: Path, run_id: UUID) -> VerifiedRun:
                 row, response = _receipt(attempts[cursor], number, attempt, previous, end, limits)
                 cursor += 1
                 previous = response.finished_at
-                raw = _body(root, row) if row["body_complete"] else None
+                raw = (
+                    _body(root, row, MAX_TOTAL_BODY - total_body) if row["body_complete"] else None
+                )
                 total_body += 0 if raw is None else len(raw)
-                if total_body > MAX_TOTAL_BODY:
-                    raise ImportFailure("archive_budget")
                 responses.append(response)
                 if raw is None:
                     continue  # A transport failure may follow an HTTP status line.
