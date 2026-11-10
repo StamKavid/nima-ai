@@ -1,6 +1,26 @@
 # Delivery plan
 
-## Current increment: bounded GEMI profile evidence
+## Current increment: offline GEMI evidence persistence
+
+The user approved docs/sources/gemi-persistence.md after reviewing the saved
+proposal. Implement on `feature/gemi-offline-import`; no live key or API call.
+
+1. Test and implement a bounded read-only archive verifier. Reconcile terminal
+   manifests/attempts/outcomes and regenerate assertions from hash-verified bodies.
+2. Test additive migration 0004 and one atomic import transaction on PostgreSQL 17.
+   Preserve response versions/observations; serialize replay and verify reuse.
+3. Test/expose `gemi import RUN_ID --archive-dir PATH` with redacted outcomes and
+   no key/network dependency. Keep KIMDIS SQL/outbox behavior unchanged.
+4. Verify real SIGKILL before/after commit, concurrent/rejected replay, populated
+   v3 upgrade, bounds and archive immutability; mutation-test an integrity guard.
+5. Complete five-axis review, checks/audit, and a private main-targeted PR as
+   StamKavid with hosted CI. Human merge only; live profile compatibility deferred.
+
+Pure verifier tests precede SQL tests, then CLI/recovery. Use synthetic collector
+archives and existing real PostgreSQL fixtures. Each task changes about five files;
+keep validation separate from transaction orchestration and preserve prior plans.
+
+## Previous increment: bounded GEMI profile evidence
 
 PR #17 is merged (`1f45c70`); docs/sources/gemi.md is approved. Build on
 `feature/gemi-profile-collector`, with no database/graph writes or new dependency.

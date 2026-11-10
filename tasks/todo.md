@@ -130,8 +130,21 @@
 - [x] Verify merged PR #18 and document official trial/access and offline pilot steps.
 - [ ] Configure a personal key after provider approval; the user has submitted the form.
 - [ ] Select 1–3 registry numbers and reconcile a credentialed small pilot.
-  - Evidence: live acceptance is unverified; no authenticated trial was run here.
+  - Evidence: documented public test-key request returned HTTP 401 on 2026-11-10;
+    no accepted live profile or personal-key compatibility is established.
   - Runbook: docs/verification/gemi-live-pilot.md; no key is needed for offline export checks.
+
+## Offline GEMI evidence persistence
+
+- [x] Obtain explicit user approval of docs/sources/gemi-persistence.md.
+- [ ] Validate one completed archive read-only and rederive profile assertions.
+  - Verify: pure archive tests for reconciliation, evidence tampering and budgets.
+- [ ] Persist one immutable bounded run atomically through additive migration 0004.
+  - Verify: real PostgreSQL history, replay, concurrency and populated v3 upgrade.
+- [ ] Expose redacted offline import CLI without HTTP or an API key.
+  - Verify: success/configuration/failure/interruption and no archive mutation.
+- [ ] Prove actual worker termination before/after commit and mutate an integrity guard.
+- [ ] Complete review/checks/audit and private main-targeted PR with hosted CI.
 
 ## Engineering foundation
 
