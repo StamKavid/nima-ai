@@ -1,0 +1,26 @@
+"""Reported identifier assessment before reviewed identity resolution."""
+
+from typing import Literal
+
+MAX_REPORT_BYTES = 32 * 1024 * 1024
+POLICY_VERSION = "kimdis-identifier-assessment-v1"
+
+
+class AssessmentError(Exception):
+    """Fixed public reason; source/driver details must not escape the CLI."""
+
+    def __init__(
+        self,
+        reason: Literal[
+            "run_unavailable",
+            "cohort_version",
+            "projection_incomplete",
+            "projection_version",
+            "assessment_limit",
+            "output_path",
+            "output_conflict",
+            "output_io",
+        ],
+    ) -> None:
+        self.reason = reason
+        super().__init__(reason)

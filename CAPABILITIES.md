@@ -22,6 +22,6 @@ receive their own specs when their evidence and interface requirements are clear
 The model strategy, graph boundaries, and per-stage validation gates are in
 `docs/architecture.md`. The election-accountability idea is outside this project.
 
-`SPEC-entity-resolution.md` proposes the next module contract for review: offline
-identifier assessment and source-scoped review candidates first. It is not yet
-approved or implemented; registry corroboration and identity decisions follow later.
+`SPEC-entity-resolution.md` was approved through PR #15. Its first release implements
+offline identifier assessment and source-scoped review reports. Registry
+corroboration, identity decisions and evaluated matching follow later gates.

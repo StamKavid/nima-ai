@@ -85,12 +85,25 @@
     SIGKILL and offline 1,118-contract replay. Hosted push run 42779066374 and
     PR run 42779122179 passed at 11631d1; final-head links are recorded in the PR.
 
-## Entity-resolution specification (current review)
+## Entity-resolution specification (approved)
 
 - [x] Verify merged PR #14 and inspect official identifier/registry source contracts.
 - [x] Draft SPEC-entity-resolution.md with candidate boundaries and acceptance criteria.
-- [ ] Obtain policy approval before implementation planning for this new module.
+- [x] Obtain policy approval before implementation planning for this new module.
   - Review: offline candidate report first; no automatic merges or registry calls.
+  - Evidence: user merged PR #15 (`33115f0`) and requested continuation.
+
+## Offline identity assessment (current)
+
+- [x] Test and implement conservative identifier/candidate policy.
+  - Verify: leading zeros, unknowns, country/key namespaces and review issues.
+- [x] Read a bounded, complete projection cohort in one read-only snapshot.
+  - Verify: real PostgreSQL receipt/limit guards, coverage and concurrent changes.
+- [x] Publish reproducible private reports and expose redacted assessment CLI.
+  - Verify: replay, paths, byte bounds, interruption before/after publication.
+- [x] Complete mutation/review, checks/audit, cached replay and private PR/hosted CI.
+  - Evidence: PR #16; 256 tests, 97.51% coverage; push run 42820672229 passed at
+    f36d443. Final-head hosted links and review boundaries are recorded in the PR.
 
 ## Engineering foundation
 

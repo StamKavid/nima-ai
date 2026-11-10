@@ -1,6 +1,30 @@
 # Delivery plan
 
-## Current increment: reported contract participation
+## Current increment: offline identity assessment
+
+PR #15 is merged (`33115f0`); the user approved SPEC-entity-resolution.md.
+Build the first release on `feature/identity-assessment`. No registry calls,
+schema/dependency changes, automatic identity links or graph work are included.
+
+1. Test and implement pure identifier assessment and source-scoped candidate
+   groups. Keep raw fields, unsupported cases, namespace boundaries and issues.
+2. Test and implement one repeatable-read, read-only SQL cohort. Require receipts
+   and facts for all accepted observations; bound rows and raw input bytes before
+   fetching labels. Preserve coverage, unknown suppliers and exact evidence.
+3. Test and implement bounded canonical reports with private atomic publication.
+   Use directory descriptors and no-follow opens; no-clobber publication and
+   byte-verified reuse. Add the explicit `identities assess` CLI with redacted output.
+4. Verify snapshot consistency, read-only operation, file hazards and real process
+   interruption before/after publication; mutation-test a meaningful guard.
+5. Run checks/audit, offline cached reconciliation and five-axis review; push one
+   private main-targeted PR as StamKavid and verify hosted CI. Human merge only.
+
+Each task depends on the preceding tested boundary. Focused tests live in
+tests/test_identity_policy.py and tests/test_identity_report.py. Preserve older
+plans/tasks. The report includes every occurrence, not a resolved company list;
+format checks and reported country do not verify identifier jurisdiction.
+
+## Previous increment: reported contract participation
 
 PR #13 is merged (`14063bf`). Continue the approved ingestion/outbox contract on
 `feature/participation-projections`. Build one local, bounded projection consumer;
