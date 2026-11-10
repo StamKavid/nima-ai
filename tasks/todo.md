@@ -73,7 +73,7 @@
   - Acceptance: preserve joint participation without duplicating contract spend;
     consumer replay is idempotent. No automatic graph inference is implied.
 
-## Reported contract participation (current)
+## Reported contract participation (completed)
 
 - [x] Define and test versioned facts, party occurrences and receipts.
   - Depends on: merged PR #13; verify exact amounts and populated-schema upgrade.
@@ -84,6 +84,13 @@
   - Evidence: PR #14 targets main; 222 tests, 97.04% local coverage, real worker
     SIGKILL and offline 1,118-contract replay. Hosted push run 42779066374 and
     PR run 42779122179 passed at 11631d1; final-head links are recorded in the PR.
+
+## Entity-resolution specification (current review)
+
+- [x] Verify merged PR #14 and inspect official identifier/registry source contracts.
+- [x] Draft SPEC-entity-resolution.md with candidate boundaries and acceptance criteria.
+- [ ] Obtain policy approval before implementation planning for this new module.
+  - Review: offline candidate report first; no automatic merges or registry calls.
 
 ## Engineering foundation
 
