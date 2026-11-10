@@ -101,7 +101,9 @@
   - Verify: real PostgreSQL receipt/limit guards, coverage and concurrent changes.
 - [x] Publish reproducible private reports and expose redacted assessment CLI.
   - Verify: replay, paths, byte bounds, interruption before/after publication.
-- [ ] Complete mutation/review, checks/audit, cached replay and private PR/hosted CI.
+- [x] Complete mutation/review, checks/audit, cached replay and private PR/hosted CI.
+  - Evidence: PR #16; 256 tests, 97.51% coverage; push run 42820672229 passed at
+    f36d443. Final-head hosted links and review boundaries are recorded in the PR.
 
 ## Engineering foundation
 
