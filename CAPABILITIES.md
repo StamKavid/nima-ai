@@ -25,3 +25,7 @@ The model strategy, graph boundaries, and per-stage validation gates are in
 `SPEC-entity-resolution.md` was approved through PR #15. Its first release implements
 offline identifier assessment and source-scoped review reports. Registry
 corroboration, identity decisions and evaluated matching follow later gates.
+
+The proposed GEMI source contract is in `docs/sources/gemi.md`, supplementing the
+existing `source-ingestion` module. Its first bounded profile-lookup release awaits
+review; it adds no new module or implemented registry capability.
