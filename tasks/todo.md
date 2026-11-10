@@ -120,7 +120,9 @@
 - [x] Collect bounded explicit IDs with private raw evidence and truthful manifests.
   - Verify: credentials, retries/limits, 404/quarantine and archived failures.
 - [x] Expose CLI; prove real interruption and redaction before source access.
-- [ ] Complete mutation/review, checks/audit and private PR with hosted CI.
+- [x] Complete mutation/review, checks/audit and private PR with hosted CI.
+  - Evidence: PR #18; 324 tests, 97.85% coverage; initial hosted checks passed at
+    befd536. Final-head checks and the streaming-budget correction are linked in the PR.
   - Live compatibility requires personal credentials and explicit pilot IDs later.
 
 ## Engineering foundation
