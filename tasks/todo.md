@@ -113,7 +113,7 @@
   - Scope: explicit IDs, archive-first snapshots; no automatic identity decisions.
   - Evidence: user merged PR #17 (`1f45c70`) and requested continuation.
 
-## GEMI profile collector (current)
+## GEMI profile collector (completed)
 
 - [x] Normalize exact profile assertions, nullable metadata and versioned activities.
   - Verify: synthetic parser failures, source ID matching, raw hashes and field pointers.
@@ -124,6 +124,14 @@
   - Evidence: PR #18; 324 tests, 97.85% coverage; initial hosted checks passed at
     befd536. Final-head checks and the streaming-budget correction are linked in the PR.
   - Live compatibility requires personal credentials and explicit pilot IDs later.
+
+## GEMI live pilot (waiting for access)
+
+- [x] Verify merged PR #18 and document official trial/access and offline pilot steps.
+- [ ] Configure a personal key after provider approval; the user has submitted the form.
+- [ ] Select 1–3 registry numbers and reconcile a credentialed small pilot.
+  - Evidence: live acceptance is unverified; no authenticated trial was run here.
+  - Runbook: docs/verification/gemi-live-pilot.md; no key is needed for offline export checks.
 
 ## Engineering foundation
 
