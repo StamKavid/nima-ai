@@ -9,8 +9,8 @@ The product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
 Current code implements bounded KIMDIS contract collection, a private raw-evidence
 archive, typed normalization, optional PostgreSQL collection, and durable run inspection.
-It also projects reported contract participation through a replay-safe local outbox consumer.
-Entity resolution, a graph store, trained
+It also projects reported participation and creates offline identifier-review reports.
+Reviewed identity resolution, a graph store, trained
 models, and the investigation workspace are subsequent milestones.
 An investigative signal is not a finding of wrongdoing.
 
@@ -280,6 +280,44 @@ successful local projection; it does not mean external graph delivery. A changed
 mapping requires a version bump. Actual SIGKILL tests prove worker rollback/retry,
 not database-server or storage-device crash recovery. See
 [verification](docs/verification/participation-projection.md).
+
+## Offline identity assessment
+
+After projecting every accepted observation of a selected run, create a private
+review report using NIMA_DATABASE_URL:
+
+```bash
+uv run --frozen python -m nima identities assess RUN_ID \
+  --projection-version kimdis-participation-v1 \
+  --output-dir work/identity-review --max-mentions 10000
+```
+
+This command reads one repeatable-read, read-only database snapshot and makes no
+HTTP requests. It rejects missing projection receipts/facts/mentions and enforces
+10,000 occurrences plus a 32 MiB report limit without truncation. It preserves
+partial/unmanaged run coverage and unknown/empty supplier lists.
+
+Reports contain every original party occurrence, comparison fields, candidate
+groups, review issues and exact evidence pointers. Reported GR/EL country/tax
+keys and KIMDIS buyer keys remain distinct; unknown/foreign cases stay explicit.
+Nine ASCII digits mean a format match, with checksum and authority checks marked
+`not_checked`. Name/tax variations merit review; no company identity is accepted.
+Candidate groups can overlap and must not be counted as companies or joined
+transitively. Registry corroboration and reviewed identity decisions are later work.
+
+The summary prints only counts, policy and report hash. Exit 0 means assessment
+succeeded; it certifies neither collection completeness nor archive integrity.
+Configuration errors exit 2; incomplete/unsupported inputs, budget, SQL and output
+failures exit 1 with a redacted reason. Original source data is unchanged.
+
+The artifact is `<report_sha256>.json` under the output directory. Identical inputs
+produce identical bytes; verified existing artifacts are reused without overwrite.
+Directories/files are private (0700/0600), symlinks and Git internals are rejected,
+and an atomic `.gitignore` protects outputs even inside a checkout. Publication is
+atomic on the supported Linux/POSIX filesystem. Killed workers can leave private
+temporary files; these are not completed reports. Hashes do not anonymize tax IDs.
+See [policy](SPEC-entity-resolution.md) and
+[verification](docs/verification/identity-assessment.md).
 
 ## Data and privacy
 
