@@ -140,12 +140,15 @@
 - [x] Validate one completed archive read-only and rederive profile assertions.
   - Verify: pure archive tests for reconciliation, evidence tampering and budgets.
   - Evidence: 393 tests, 97.96% coverage; docs/verification/gemi-archive.md.
-- [ ] Persist one immutable bounded run atomically through additive migration 0004.
+- [x] Persist one immutable bounded run atomically through additive migration 0004.
   - Verify: real PostgreSQL history, replay, concurrency and populated v3 upgrade.
-- [ ] Expose redacted offline import CLI without HTTP or an API key.
+- [x] Expose redacted offline import CLI without HTTP or an API key.
   - Verify: success/configuration/failure/interruption and no archive mutation.
-- [ ] Prove actual worker termination before/after commit and mutate an integrity guard.
+- [x] Prove actual worker termination before/after commit and mutate an integrity guard.
 - [ ] Complete review/checks/audit and private main-targeted PR with hosted CI.
+  - Local evidence: 411 tests, 98.05% coverage; docs/verification/gemi-persistence.md.
+  - Delivery: #20 targets main; #21 depends on #20 and requires retargeting to
+    main after its predecessor merges. Final-head hosted links are recorded in the PRs.
 
 ## Engineering foundation
 

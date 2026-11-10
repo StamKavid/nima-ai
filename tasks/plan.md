@@ -3,7 +3,8 @@
 ## Current increment: offline GEMI evidence persistence
 
 The user approved docs/sources/gemi-persistence.md after reviewing the saved
-proposal. Implement on `feature/gemi-offline-import`; no live key or API call.
+proposal. Delivery branches are `feature/gemi-archive-verifier`, followed by
+`feature/gemi-registry-storage`; no live key or API call.
 
 1. Test and implement a bounded read-only archive verifier. Reconcile terminal
    manifests/attempts/outcomes and regenerate assertions from hash-verified bodies.
@@ -13,8 +14,9 @@ proposal. Implement on `feature/gemi-offline-import`; no live key or API call.
    no key/network dependency. Keep KIMDIS SQL/outbox behavior unchanged.
 4. Verify real SIGKILL before/after commit, concurrent/rejected replay, populated
    v3 upgrade, bounds and archive immutability; mutation-test an integrity guard.
-5. Complete five-axis review, checks/audit, and a private main-targeted PR as
-   StamKavid with hosted CI. Human merge only; live profile compatibility deferred.
+5. Complete five-axis review, checks/audit, and two private linked PRs as StamKavid
+   with hosted CI. Retarget the dependent PR to main after #20 merges. Human merge
+   only; live profile compatibility deferred.
 
 Pure verifier tests precede SQL tests, then CLI/recovery. Use synthetic collector
 archives and existing real PostgreSQL fixtures. Each task changes about five files;

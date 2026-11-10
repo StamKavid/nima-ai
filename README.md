@@ -346,11 +346,33 @@ Client bounds are 3 attempts per ID, 20 requests/minute, 20-second HTTP inactivi
 entry cap. Limits fail visibly without truncation; Retry-After is honored or the run
 stops. After abrupt termination, manifests/derived JSONL may be incomplete: trust
 verified raw bodies for reprocessing and start a fresh run. Automatic resume and
-SQL/graph integration are later work. This collector has synthetic transport and
+graph integration are later work. This collector has synthetic transport and
 process-interruption evidence; credentialed live payload compatibility is unverified.
 See [contract](docs/sources/gemi.md) and [verification](docs/verification/gemi-profiles.md).
 For pending access, documented Swagger testing and a small credentialed pilot,
 use the [access/pilot runbook](docs/verification/gemi-live-pilot.md).
+
+## Import archived GEMI evidence offline
+
+Configure NIMA_DATABASE_URL and explicitly migrate, then import one completed,
+non-quarantined GEMI collector run. This command needs no API key or provider call:
+
+```bash
+uv run --frozen python -m nima db migrate
+uv run --frozen python -m nima gemi import RUN_ID --archive-dir data/gemi
+```
+
+The importer verifies original bodies and reconciles all selected 200/404 outcomes
+before one atomic database transaction. It regenerates assertions from raw JSON;
+derived JSONL is not authoritative. Identical replay verifies and reuses the import;
+changed evidence or archive location fails without replacing history. The archive
+is read-only. Migration 0004 adds separate registry relations and leaves the
+procurement outbox unchanged. Failed/incomplete/quarantined runs remain outside
+this first import scope. A 404 is an observation, never an entity deletion.
+
+See the [persistence contract](docs/sources/gemi-persistence.md) and
+[verification](docs/verification/gemi-persistence.md). Live profile compatibility
+still requires the personal-key pilot; synthetic success does not establish it.
 
 ## Data and privacy
 

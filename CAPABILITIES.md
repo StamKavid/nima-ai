@@ -27,5 +27,7 @@ offline identifier assessment and source-scoped review reports. Registry
 corroboration, identity decisions and evaluated matching follow later gates.
 
 The approved GEMI source contract is in `docs/sources/gemi.md`, supplementing the
-existing `source-ingestion` module. Archive-only bounded profile lookup is implemented;
-credentialed live validation and multi-source persistence remain later gates.
+existing `source-ingestion` module. Archive-only bounded profile lookup and
+[offline registry evidence import](docs/sources/gemi-persistence.md) are implemented.
+Personal-key/live validation, source-aware downstream dispatch and registry-backed
+identity corroboration remain later gates.

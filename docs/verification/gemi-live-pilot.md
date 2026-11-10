@@ -1,8 +1,11 @@
 # GEMI access and pilot runbook
 
-Status, 2026-11-10: PR #18 is merged (`2fc4f40`). No credentialed live pilot has
-run. The user reports submitting the personal-key application; the environment
-has no NIMA_GEMI_API_KEY binding and pilot registry IDs have not been selected.
+Status, 2026-11-10: PR #18 is merged (`2fc4f40`). The personal-key collector pilot
+is pending. The user submitted the application; no NIMA_GEMI_API_KEY is configured.
+A separate direct HTTPS request equivalent to Swagger's profile operation used
+the published test key and OTE's publicly documented registry number `1037501000`.
+It returned HTTP 401, so no profile was accepted or parsed. The response and
+retrieval metadata are retained privately outside Git. This was not a collector run.
 
 ## Access while approval is pending
 
@@ -14,8 +17,9 @@ guaranteed SLA; no expedited personal-key procedure was found.
 For limited developer exploration, [official technical instructions](https://opendata.businessportal.gr/techdocs/)
 publish `api-docs-key` for the [Swagger interface](https://opendata-api.businessportal.gr/opendata/docs/).
 Open **Authorize**, enter that published test key, then try one explicitly selected
-`GET /companies/{arGemi}` lookup. Calls are limited per IP; no numeric quota or
-current validity of this key has been verified here. Testing does not replace
+`GET /companies/{arGemi}` lookup. Calls are limited per IP; no numeric quota is
+verified. The test key was rejected from this environment as recorded above; that
+does not establish whether it works from another IP. Testing does not replace
 the personal-key application or establish personal-credential acceptance.
 
 Use this test key in Swagger. The Nima collector requires a personal key and
