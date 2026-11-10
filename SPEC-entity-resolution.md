@@ -1,8 +1,8 @@
 # Spec: evidence-backed party identity
 
 Module: `entity-resolution` in CAPABILITIES.md. Depends on `source-ingestion`.
-Status: **proposed for user review**, 2026-11-10; no identity feature is implemented.
-Base: PR #14 merged at `d6c8e53`. Implementation planning follows policy approval.
+Status: **approved**, 2026-11-10, by user merge of PR #15 (`33115f0`) and continuation.
+Base: PR #14 merged at `d6c8e53`. First-release implementation follows tasks/plan.md.
 
 ## Objective and assumptions
 
@@ -97,7 +97,7 @@ procurement role or tax-number shape.
 
 ### Output and operational contract
 
-Proposed command, **not available until implemented**:
+First-release command:
 
 ```bash
 uv run --frozen python -m nima identities assess RUN_ID \
@@ -158,7 +158,7 @@ collusion, fraud or tax evasion. GNNs and investigative risk models remain later
 
 ## Stack, structure and code style
 
-Retain Python 3.12, PostgreSQL 17 and pinned Psycopg 3.3.8. Proposed implementation
+Retain Python 3.12, PostgreSQL 17 and pinned Psycopg 3.3.8. Implementation
 lives in `src/nima/identity/`, with CLI routing in `src/nima/__main__.py`; tests live
 in `tests/test_identity_*.py` and verification notes in `docs/verification/`.
 Pure comparison policy is separate from SQL cohort reads and artifact publication.
@@ -186,10 +186,11 @@ make check
 make audit
 ```
 
-After implementation, the focused command will be:
+Focused verification:
 
 ```bash
-uv run --frozen pytest tests/test_identity_policy.py tests/test_identity_report.py
+uv run --frozen pytest tests/test_identity_policy.py tests/test_identity_report.py \
+  tests/test_identity_crash.py
 ```
 
 ## Testing and success criteria
@@ -224,6 +225,6 @@ automatic identity links, a decision-write interface or public data publication.
 Never merge by name alone, infer legal form/ownership/fraud, equate source country
 with issuing jurisdiction, overwrite evidence, or treat checksum/VIES as company proof.
 
-Review decision requested: approve the offline candidate-report scope and conservative
-comparison policy above, or specify changes. No unresolved external-access question
-blocks that scope. Registry access and later decision/matching gates stay deferred.
+The offline scope and comparison policy were approved through PR #15. No unresolved
+external-access question blocks that scope. Registry access and later
+decision/matching gates stay deferred.
