@@ -349,6 +349,8 @@ verified raw bodies for reprocessing and start a fresh run. Automatic resume and
 SQL/graph integration are later work. This collector has synthetic transport and
 process-interruption evidence; credentialed live payload compatibility is unverified.
 See [contract](docs/sources/gemi.md) and [verification](docs/verification/gemi-profiles.md).
+For pending access, documented Swagger testing and a small credentialed pilot,
+use the [access/pilot runbook](docs/verification/gemi-live-pilot.md).
 
 ## Data and privacy
 
