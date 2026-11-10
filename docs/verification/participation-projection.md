@@ -57,4 +57,6 @@ uncertain; retry consults committed receipts. Worker termination tests do not pr
 database/storage crash recovery. A bad event requires review; no automatic skip,
 dead-letter queue, graph store, models or scheduler is included.
 
-Final local and hosted results are recorded with the delivery PR.
+Hosted [push run 42779066374](https://github.com/StamKavid/nima-ai/actions/runs/42779066374)
+and [PR run 42779122179](https://github.com/StamKavid/nima-ai/actions/runs/42779122179)
+passed at `11631d1`. Final-head results are recorded in [PR #14](https://github.com/StamKavid/nima-ai/pull/14).
