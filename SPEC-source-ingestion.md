@@ -2,6 +2,10 @@
 
 Module: `source-ingestion` in `CAPABILITIES.md`.
 
+The implemented source in this specification is KIMDIS. The proposed source-specific
+[GEMI registry evidence contract](docs/sources/gemi.md) supplements this provider
+module and requires review before its first credentialed connector is implemented.
+
 Status: staged direction reaffirmed by the user on 2026-11-08 through the supplied
 architectural brief. Implement the contract-normalization slice first and keep
 collection, persistence, and durability as later verified slices. This spec's

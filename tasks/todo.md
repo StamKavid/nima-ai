@@ -93,7 +93,7 @@
   - Review: offline candidate report first; no automatic merges or registry calls.
   - Evidence: user merged PR #15 (`33115f0`) and requested continuation.
 
-## Offline identity assessment (current)
+## Offline identity assessment (completed)
 
 - [x] Test and implement conservative identifier/candidate policy.
   - Verify: leading zeros, unknowns, country/key namespaces and review issues.
@@ -104,6 +104,13 @@
 - [x] Complete mutation/review, checks/audit, cached replay and private PR/hosted CI.
   - Evidence: PR #16; 256 tests, 97.51% coverage; push run 42820672229 passed at
     f36d443. Final-head hosted links and review boundaries are recorded in the PR.
+
+## GEMI source contract (current review)
+
+- [x] Verify merged PR #16 and inspect official Swagger/authentication/source fields.
+- [x] Document bounded profile lookup, registry evidence, KAD versions and integration limits.
+- [ ] Review the new credentialed-source contract before implementation planning.
+  - Scope: explicit IDs, archive-first snapshots; no automatic identity decisions.
 
 ## Engineering foundation
 
