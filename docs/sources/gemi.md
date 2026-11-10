@@ -1,6 +1,6 @@
 # GEMI registry evidence contract
 
-Status: **proposed for user review**, 2026-11-10; not implemented.
+Status: **approved**, 2026-11-10, by user merge of PR #17 (`1f45c70`).
 Provider module: `source-ingestion`, supplementing SPEC-source-ingestion.md.
 Consumer: `entity-resolution`, under its separately gated registry-corroboration stage.
 Base: merged PR #16 (`0e6e8f5`). No new capability-map module is introduced.
@@ -99,6 +99,8 @@ nodes; percentages or role labels alone do not establish beneficial ownership.
 Missing optional fields become explicit unknowns, not defaults. Wrong types or
 invalid supplied dates fail profile normalization visibly; raw evidence survives.
 Unknown extra fields remain in the archive and do not silently become graph facts.
+Each projected alias/activity array is capped at 1,000 entries; exceeding it
+quarantines the profile without truncation. This is a client resource limit.
 Decode numeric JSON exactly, including unprojected capital values; never use binary
 floating point to create monetary assertions. Registry capital is not procurement
 spending, revenue or tax liability.
@@ -109,9 +111,9 @@ Record aware UTC observation time and source-supplied dates separately. There is
 no verified registry refresh SLA or generic profile `lastUpdated` field here.
 An unchanged normalized subset does not imply an unchanged raw profile.
 
-## Proposed command and operational behavior
+## Command and operational behavior
 
-**Not executable until implemented:**
+Implemented for archive-only staging; production payload compatibility is unverified:
 
 ```bash
 uv run --frozen python -m nima ingest gemi \
@@ -128,7 +130,7 @@ manifest, hash/fingerprint, console output or committed file. Missing/blank key
 fails configuration before HTTP or archive creation. Do not request secret values
 in chat. Key presence alone does not start a live pilot; the operator must invoke
 the explicit command with selected IDs. No registration or live pilot is part of
-this documentation change.
+this implementation's synthetic validation.
 
 Use the fixed HTTPS host/base and GET profile route; verify TLS, preserve inherited
 proxy/CA settings and disable redirects. Never follow profile website/document
@@ -210,9 +212,9 @@ the approved offline/transport boundaries first.
 
 ## Review decision and later gates
 
-Approve or amend this first-release contract before implementation planning.
-Approval authorizes bounded connector development; it does not create credentials
-or start collection automatically. Exact-AFM discovery/pagination, metadata mapping,
+The first-release contract was approved through PR #17. It authorizes bounded
+connector development; it does not create credentials or start collection
+automatically. Exact-AFM discovery/pagination, metadata mapping,
 document/person extraction, multi-source SQL/outbox routing and reviewed identity
 decisions remain subsequent gates. No automatic tax-number merge, ownership or
 fraud inference, public data publication or paid infrastructure is authorized here.

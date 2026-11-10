@@ -105,12 +105,25 @@
   - Evidence: PR #16; 256 tests, 97.51% coverage; push run 42820672229 passed at
     f36d443. Final-head hosted links and review boundaries are recorded in the PR.
 
-## GEMI source contract (current review)
+## GEMI source contract (approved)
 
 - [x] Verify merged PR #16 and inspect official Swagger/authentication/source fields.
 - [x] Document bounded profile lookup, registry evidence, KAD versions and integration limits.
-- [ ] Review the new credentialed-source contract before implementation planning.
+- [x] Review the new credentialed-source contract before implementation planning.
   - Scope: explicit IDs, archive-first snapshots; no automatic identity decisions.
+  - Evidence: user merged PR #17 (`1f45c70`) and requested continuation.
+
+## GEMI profile collector (current)
+
+- [x] Normalize exact profile assertions, nullable metadata and versioned activities.
+  - Verify: synthetic parser failures, source ID matching, raw hashes and field pointers.
+- [x] Collect bounded explicit IDs with private raw evidence and truthful manifests.
+  - Verify: credentials, retries/limits, 404/quarantine and archived failures.
+- [x] Expose CLI; prove real interruption and redaction before source access.
+- [x] Complete mutation/review, checks/audit and private PR with hosted CI.
+  - Evidence: PR #18; 324 tests, 97.85% coverage; initial hosted checks passed at
+    befd536. Final-head checks and the streaming-budget correction are linked in the PR.
+  - Live compatibility requires personal credentials and explicit pilot IDs later.
 
 ## Engineering foundation
 

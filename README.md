@@ -319,6 +319,37 @@ temporary files; these are not completed reports. Hashes do not anonymize tax ID
 See [policy](SPEC-entity-resolution.md) and
 [verification](docs/verification/identity-assessment.md).
 
+## GEMI registry snapshots
+
+Configure a personal `NIMA_GEMI_API_KEY` in environment settings, then explicitly
+select up to 10 registry numbers:
+
+```bash
+uv run --frozen python -m nima ingest gemi \
+  --gemi-id REGISTRY_NUMBER --archive-dir data/gemi
+```
+
+Repeat `--gemi-id` for multiple numbers. Original input is retained and equivalent
+numeric IDs are fetched once per run. The archive-only collector uses the fixed
+official HTTPS route, private content-addressed bodies and fresh run manifests.
+The API key stays in its request header. Missing/invalid configuration fails before
+client/archive creation. Redirects and document/website URL following are disabled.
+
+Profiles retain original text, unknowns, legal/status labels, partial-registration
+flags and versioned KAD activities with field pointers. No company/person identity
+or active-status mapping is accepted. A 404 is only `not_found_at_observation`.
+Exit 0 accounts for every selected ID (200/404); 3 reports quarantine, 1 failure,
+2 configuration errors and 130 interruption. Console output is counters/reasons only.
+
+Client bounds are 3 attempts per ID, 20 requests/minute, 20-second HTTP inactivity,
+8 MiB bodies and a cooperative 300-second run budget. Projected arrays have a 1,000
+entry cap. Limits fail visibly without truncation; Retry-After is honored or the run
+stops. After abrupt termination, manifests/derived JSONL may be incomplete: trust
+verified raw bodies for reprocessing and start a fresh run. Automatic resume and
+SQL/graph integration are later work. This collector has synthetic transport and
+process-interruption evidence; credentialed live payload compatibility is unverified.
+See [contract](docs/sources/gemi.md) and [verification](docs/verification/gemi-profiles.md).
+
 ## Data and privacy
 
 Keep original JSON, PDFs, databases, credentials, and investigation workspaces

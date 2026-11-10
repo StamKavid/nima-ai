@@ -111,7 +111,8 @@ class Session:
                     # decoded-byte limit sees it. This collector requests identity.
                     raise CollectionStopped("unsupported_encoding")
                 body = bytearray()
-                for chunk in response.iter_bytes(chunk_size=64 * 1024):
+                # Let each delivered chunk reach the cooperative budget check.
+                for chunk in response.iter_bytes():
                     self.remaining()
                     if len(body) + len(chunk) > self.limits.max_bytes:
                         raise CollectionStopped("response_size")
