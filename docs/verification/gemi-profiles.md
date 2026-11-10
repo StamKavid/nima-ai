@@ -1,7 +1,7 @@
 # Bounded GEMI profile verification
 
 2026-11-10. Base: approved PR #17 (`1f45c70`). No schema, dependency or CI change.
-Local checks pass with 322 tests and 97.85% combined Python line/branch coverage.
+Local checks pass with 324 tests and 97.85% combined Python line/branch coverage.
 Parser coverage is 100%; collector is 99%. Formatting/lint, strict types, build,
 skill integrity, Bandit, Gitleaks and dependency audit pass.
 
@@ -14,7 +14,10 @@ Arrays exceeding the client cap are quarantined, never truncated.
 Real HTTPX plus MockTransport exercises GET/header behavior, pre-request pending
 manifests, pacing, 404 accounting, retry exhaustion/defer, auth/redirect stops,
 unsupported compression/media, partial streams, cooperative budgets and key/error
-redaction. Forced raw-storage failure prevents normalization. All legacy database
+redaction. Review found buffering could hide a small-chunk trickle from budget
+checks; a failing regression drove checking each transport chunk. The same
+pre-existing KIMDIS issue was reproduced and fixed with a separate regression. Forced
+raw-storage failure prevents normalization. All legacy database
 tests still use disposable PostgreSQL 17; the GEMI path writes no SQL/outbox rows.
 
 Real SIGKILL tests stop a child inside a MockTransport request and before terminal

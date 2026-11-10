@@ -16,6 +16,25 @@ from nima.ingestion.transport import retry_delay
 from tests.test_collection import QUERY, Clock, body
 
 
+def test_small_stream_chunks_cannot_hide_elapsed_run_budget(tmp_path: Path) -> None:
+    clock = Clock()
+
+    class Trickle(httpx.SyncByteStream):
+        def __iter__(self) -> Iterator[bytes]:
+            for _ in range(10):
+                clock.elapsed += 2
+                yield b"x"
+
+    with httpx.Client(
+        transport=httpx.MockTransport(lambda _: httpx.Response(200, stream=Trickle()))
+    ) as client:
+        result = collect(
+            QUERY, Limits(run_timeout=5), Archive(tmp_path / "raw"), client=client, clock=clock
+        )
+    assert result.failure == "time_budget" and clock.elapsed == 6
+    assert not list((tmp_path / "raw" / "objects").glob("*/*.body"))
+
+
 @pytest.mark.parametrize(
     "build",
     [

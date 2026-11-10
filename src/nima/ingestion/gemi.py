@@ -177,7 +177,9 @@ class _Lookup:
                 ):
                     raise CollectionStopped("unsupported_encoding")
                 body = bytearray()
-                for chunk in response.iter_bytes(chunk_size=64 * 1024):
+                # Check every transport chunk: a target chunk size can buffer a
+                # slow trickle for longer than the cooperative run budget.
+                for chunk in response.iter_bytes():
                     self.remaining()
                     if len(body) + len(chunk) > self.limits.max_bytes:
                         raise CollectionStopped("response_size")

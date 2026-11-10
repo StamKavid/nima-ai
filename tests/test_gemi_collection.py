@@ -273,3 +273,27 @@ def test_stream_error_never_archives_partial_body_and_rate_budget_keeps_prior_su
         )
     assert result.failure == "time_budget" and result.found == result.attempts == 1
     assert not result.collection_complete
+
+
+def test_small_stream_chunks_cannot_hide_elapsed_run_budget(tmp_path: Path) -> None:
+    clock = Clock()
+
+    class Trickle(httpx.SyncByteStream):
+        def __iter__(self) -> Iterator[bytes]:
+            for _ in range(10):
+                clock.elapsed += 2
+                yield b"x"
+
+    with httpx.Client(
+        transport=httpx.MockTransport(lambda _: httpx.Response(200, stream=Trickle()))
+    ) as client:
+        result = collect(
+            ("1",),
+            tmp_path / "raw",
+            api_key=KEY,
+            client=client,
+            limits=GemiLimits(run_timeout=5),
+            clock=clock,
+        )
+    assert result.failure == "time_budget" and clock.elapsed == 6
+    assert not list((tmp_path / "raw" / "objects").glob("*/*.body"))
