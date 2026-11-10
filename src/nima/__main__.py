@@ -20,6 +20,9 @@ from nima.ingestion.gemi import GemiRunError, validate_inputs
 from nima.ingestion.gemi import collect as collect_gemi
 from nima.ingestion.resume import resume
 from nima.projections.worker import PROJECTION_VERSION, ProjectionFailure, drain
+from nima.storage.gemi import IMPORT_VERSION
+from nima.storage.gemi import import_run as import_gemi
+from nima.storage.gemi_archive import ImportFailure
 from nima.storage.postgres import CheckpointError, MigrationError, migrate
 from nima.storage.runs import inspect_run
 
@@ -37,6 +40,12 @@ def _date(text: str) -> date:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m nima")
     commands = parser.add_subparsers(dest="command", required=True)
+    registry = commands.add_parser("gemi").add_subparsers(dest="operation", required=True)
+    archived = registry.add_parser(
+        "import", help="Verify and persist one completed archive offline"
+    )
+    archived.add_argument("run_id", type=UUID)
+    archived.add_argument("--archive-dir", type=Path, required=True)
     identities = commands.add_parser("identities").add_subparsers(dest="operation", required=True)
     assess = identities.add_parser("assess", help="Assess one projected run offline")
     assess.add_argument("run_id", type=UUID)
@@ -104,8 +113,31 @@ def _database_url() -> str:
     return dsn
 
 
+def _import_gemi(run_id: UUID, archive_root: Path) -> int:
+    code = 0
+    try:
+        result = asdict(import_gemi(_database_url(), archive_root, run_id))
+    except (ImportFailure, KeyboardInterrupt, ValueError) as exc:
+        if isinstance(exc, ImportFailure):
+            reason, code = exc.reason, 1
+        elif isinstance(exc, KeyboardInterrupt):
+            reason, code = "interrupted", 130
+        else:
+            reason, code = "configuration", 2
+        result = {
+            "run_id": run_id.hex,
+            "import_version": IMPORT_VERSION,
+            "status": "failed",
+            "failure": reason,
+        }
+    print(json.dumps(result, allow_nan=False))
+    return code
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.command == "gemi":
+        return _import_gemi(args.run_id, args.archive_dir)
     try:
         if args.command == "identities":
             print(
