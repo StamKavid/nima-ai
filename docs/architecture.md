@@ -45,6 +45,13 @@ with the reference architecture. The graph is rebuildable from reviewed records.
 Inngest is the orchestration candidate after source and persistence boundaries
 are tested. Neither service is installed as a production dependency yet.
 
+The local outbox consumer now materializes versioned contract facts and reported
+buyer/supplier occurrences in PostgreSQL. Its evidence-linked relationship view
+is an input to identity review, not a resolved company graph. Per-version receipts
+allow deterministic replay. Money stays on contracts; the relationship view does
+not allocate values to joint suppliers. Entity resolution needs an explicit
+country/identifier/conflict policy before any occurrences become company nodes.
+
 ## Source order and boundaries
 
 1. **KIMDIS:** contracts first, then awards, notices, and payment orders as distinct

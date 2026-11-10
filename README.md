@@ -9,7 +9,8 @@ The product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
 Current code implements bounded KIMDIS contract collection, a private raw-evidence
 archive, typed normalization, optional PostgreSQL collection, and durable run inspection.
-Entity resolution, graph projection, trained
+It also projects reported contract participation through a replay-safe local outbox consumer.
+Entity resolution, a graph store, trained
 models, and the investigation workspace are subsequent milestones.
 An investigative signal is not a finding of wrongdoing.
 
@@ -140,8 +141,8 @@ uv run --frozen python -m nima runs show RUN_ID
 ```
 
 Without `--database`, ingestion remains archive-only. No command except
-`db migrate` applies schema changes. Migration 0002 upgrades v1 without changing
-its original SQL/checksum or historical evidence. Standalone page-API runs from
+`db migrate` applies schema changes. Migrations 0002 and 0003 upgrade earlier schemas
+without changing their original SQL/checksums or historical evidence. Standalone page-API runs from
 v1 remain unmanaged and are not inspectable with `runs show`.
 
 Inspection reconstructs counters from committed SQL rows and exits zero when the
@@ -152,8 +153,8 @@ errors stop collection and preserve its run ID in the sanitized failure output.
 Inspection does not read archive bodies or refresh source records, so it cannot
 establish archive integrity or current source freshness.
 
-Supplier/buyer relational projections and outbox delivery remain following
-increments. SIGKILL/restart tests cover collector recovery and the page transaction
+Local supplier/buyer projections are described below; external outbox delivery
+remains future work. SIGKILL/restart tests cover collector recovery and the page transaction
 boundary; database-server/storage-device crash recovery remains unproven. Keep
 connection strings in environment/memory and redact driver errors before exposing
 them in an interface.
@@ -167,7 +168,7 @@ uv run --frozen python -m nima runs resume RUN_ID
 Fresh/resumed workers hold a session advisory lease; an active writer produces
 `run_busy`. Ownership claims use that exact connection, and writer UUID checks
 fence stale page/attempt/finalization writes after takeover. Drain older pre-lease
-application workers before upgrading. No new schema migration is needed.
+application workers before upgrading. Resume itself needs no additional migration.
 
 Resume verifies saved body hashes, reconstructs the SQL checkpoint, and recovers
 the earliest complete successful response for the next uncommitted page. It
@@ -233,6 +234,52 @@ it is an integrity check against the recorded snapshot, not signature verificati
 Codex discovers project-local skills when a session starts in this repository.
 In an existing session, read the relevant `SKILL.md` directly. Installation does
 not add slash commands or register a global plugin.
+
+## Reported participation
+
+After explicit `db migrate`, process a bounded batch from NIMA_DATABASE_URL:
+
+```bash
+uv run --frozen python -m nima outbox project --max-events 100
+```
+
+The limit is 1–1,000 events. The JSON summary reports projection version, processed
+and remaining events, and `complete` or `pending`. Exit 0 means the batch succeeded;
+remaining work is a snapshot and may include locked events. Invoke again to drain.
+The worker does not schedule itself or refresh source data. Failures stop the batch,
+keep the affected event pending and redact source/driver details; prior commits survive.
+
+Migration 0003 adds immutable, versioned `projection_contracts`, `projection_mentions`
+and `projection_receipts`. Amounts are exact PostgreSQL numeric values on contract
+facts. Mentions preserve source order and unknowns; matching names/tax IDs are not
+merged. Unknown versus reported-empty suppliers remain distinct. A contract with
+over 1,000 supplier occurrences fails visibly without truncation.
+
+For a selected run, this psql query exposes evidence-linked reported relationships:
+
+```sql
+SELECT source_id, buyer_name, supplier_name, supplier_ordinal,
+       raw_sha256, json_pointer, observed_at, run_status
+FROM nima.reported_procurement_edges
+WHERE run_id = :'run_id'::uuid
+  AND projection_version = 'kimdis-participation-v1'
+ORDER BY observation_id, supplier_ordinal;
+```
+
+The view has no monetary columns: joint suppliers must not each receive the entire
+contract value. Unknown/empty suppliers create no edges; inspect contract facts for
+those counts. For amounts, join observations to projection_contracts using
+`(source_id, normalizer_version, content_sha256)` and filter one run and projection
+version. Repeated runs are observations of contracts, not additional spending.
+Check run coverage, currency, cancellation and unknown amounts before aggregation.
+
+Projection writes, an observation receipt and outbox acknowledgement share one
+transaction. Receipts govern eligibility per projection version, including replay
+of already acknowledged events for a future version. `delivered_at` records first
+successful local projection; it does not mean external graph delivery. A changed
+mapping requires a version bump. Actual SIGKILL tests prove worker rollback/retry,
+not database-server or storage-device crash recovery. See
+[verification](docs/verification/participation-projection.md).
 
 ## Data and privacy
 
