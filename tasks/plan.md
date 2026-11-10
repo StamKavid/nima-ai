@@ -1,6 +1,28 @@
 # Delivery plan
 
-## Current increment: offline identity assessment
+## Current increment: bounded GEMI profile evidence
+
+PR #17 is merged (`1f45c70`); docs/sources/gemi.md is approved. Build on
+`feature/gemi-profile-collector`, with no database/graph writes or new dependency.
+
+1. Write failing pure-profile tests. Implement strict exact JSON decoding,
+   requested registry identity, nullable fields, versioned KAD assertions with dates
+   and existing field pointers. Preserve partial profiles and unknowns explicitly.
+2. Write failing HTTP/archive tests. Implement explicit-ID/key validation before
+   archive creation, bounded sequential GETs, pending/finished manifests, retry/
+   rate/deadline/body bounds, raw-before-transform and visible 404/quarantine states.
+3. Expose the explicit GEMI CLI and verify credential/error redaction. Test actual
+   process termination during a request and at manifest publication boundaries.
+4. Mutation-test an identity/budget guard, review five axes, run checks/audit and
+   publish one private main-targeted PR as StamKavid with hosted CI. Human merge only.
+
+Pure tests precede collector tests; the CLI depends on both verified boundaries.
+Use synthetic fixtures and HTTPX MockTransport; record that no live profile/API-key
+validation occurred. Reuse archive and public clock/retry utilities, keeping the
+KIMDIS-specific SQL/outbox unchanged. First-release runs are fresh, archive-only
+staging; no automatic resume or accepted company identity is implied.
+
+## Previous increment: offline identity assessment
 
 PR #15 is merged (`33115f0`); the user approved SPEC-entity-resolution.md.
 Build the first release on `feature/identity-assessment`. No registry calls,
