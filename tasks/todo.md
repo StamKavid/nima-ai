@@ -52,7 +52,7 @@
     inspection tests and offline 1,118-record replay. Hosted push run 42690122843
     passed at 7a861f0; final-head check links are recorded in the PR.
 
-## Safe database-run resume (current)
+## Safe database-run resume (completed)
 
 - [x] Restore immutable run settings and verify archived page bodies.
 - [x] Exclude active workers and fence stale writers during takeover.
@@ -72,6 +72,15 @@
 - [ ] Add reviewed supplier/buyer projections and an outbox consumer.
   - Acceptance: preserve joint participation without duplicating contract spend;
     consumer replay is idempotent. No automatic graph inference is implied.
+
+## Reported contract participation (current)
+
+- [ ] Define and test versioned facts, party occurrences and receipts.
+  - Depends on: merged PR #13; verify exact amounts and populated-schema upgrade.
+- [ ] Implement bounded atomic projection and redacted CLI summaries.
+  - Verify: replay, revisions, unknowns, joint suppliers, locked/concurrent events.
+- [ ] Prove rollback/retry with real worker termination; mutation-test one guard.
+- [ ] Complete review, checks/audit and private main-targeted PR with hosted CI.
 
 ## Engineering foundation
 

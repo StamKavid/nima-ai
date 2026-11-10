@@ -1,6 +1,31 @@
 # Delivery plan
 
-## Current increment: safe database-run resume
+## Current increment: reported contract participation
+
+PR #13 is merged (`14063bf`). Continue the approved ingestion/outbox contract on
+`feature/participation-projections`. Build one local, bounded projection consumer;
+entity resolution, graph databases, models and deployment remain later work.
+
+1. Extend the accepted spec; define immutable versioned contract facts, party
+   occurrences and per-observation receipts in additive migration 0003.
+2. Write failing pure-mapping and real PostgreSQL tests. Preserve exact money,
+   Greek text, unknown versus empty suppliers, repeated observations and evidence.
+3. Implement bounded `outbox project` transactions: lock one event, validate,
+   project and acknowledge together. Versioned receipts govern replay, including
+   already acknowledged events when a future projection version is introduced.
+4. Verify locked-event retries, concurrent consumers, poison-event rollback and
+   actual process termination before/after commit. Run a guard mutation experiment.
+5. Review five axes, run checks/audit, and publish one unmerged main-targeted PR
+   after privacy, attribution and hosted CI verification. Record measured results.
+
+Values belong to contract versions, never individual supplier edges. Every party
+is a source-local occurrence, not a resolved business. A run-scoped evidence view
+exposes reported relationships without allocating money. A batch cursor is local
+to one invocation; locked or late-committing lower IDs remain eligible next time.
+Invalid events stop visibly and stay pending; no automatic skip or dead-letter
+policy. No external delivery or exactly-once cross-system guarantee is claimed.
+
+## Previous increment: safe database-run resume
 
 PR #12 is merged (`c80efc5`). Continue the accepted ingestion recovery contract on
 `feature/safe-run-resume`. Add explicit `runs resume RUN_ID`, using the original
