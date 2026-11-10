@@ -11,6 +11,8 @@ from uuid import UUID
 import httpx
 import psycopg
 
+from nima.identity import AssessmentError
+from nima.identity.report import assess_run
 from nima.ingestion.archive import Archive, ArchiveError
 from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits, Query
@@ -33,6 +35,12 @@ def _date(text: str) -> date:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m nima")
     commands = parser.add_subparsers(dest="command", required=True)
+    identities = commands.add_parser("identities").add_subparsers(dest="operation", required=True)
+    assess = identities.add_parser("assess", help="Assess one projected run offline")
+    assess.add_argument("run_id", type=UUID)
+    assess.add_argument("--projection-version", required=True)
+    assess.add_argument("--output-dir", type=Path, required=True)
+    assess.add_argument("--max-mentions", type=int, default=10000)
     project = commands.add_parser("outbox").add_subparsers(dest="operation", required=True)
     project.add_parser(
         "project", help="Project reported participation in one bounded batch"
@@ -93,6 +101,19 @@ def _database_url() -> str:
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
+        if args.command == "identities":
+            print(
+                json.dumps(
+                    assess_run(
+                        _database_url(),
+                        args.run_id,
+                        args.projection_version,
+                        args.output_dir,
+                        max_mentions=args.max_mentions,
+                    )
+                )
+            )
+            return 0
         if args.command == "outbox":
             print(json.dumps(drain(_database_url(), max_events=args.max_events)))
             return 0
@@ -123,6 +144,9 @@ def main(argv: list[str] | None = None) -> int:
         archive = Archive(args.archive_dir)
         with httpx.Client() as client:
             summary = collect(query, limits, archive, client=client, database_dsn=dsn)
+    except AssessmentError as exc:
+        print(json.dumps({"status": "failed", "failure": exc.reason}))
+        return 1
     except ProjectionFailure as exc:
         print(
             json.dumps(
