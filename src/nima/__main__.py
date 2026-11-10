@@ -16,6 +16,8 @@ from nima.identity.report import assess_run
 from nima.ingestion.archive import Archive, ArchiveError
 from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits, Query
+from nima.ingestion.gemi import GemiRunError, validate_inputs
+from nima.ingestion.gemi import collect as collect_gemi
 from nima.ingestion.resume import resume
 from nima.projections.worker import PROJECTION_VERSION, ProjectionFailure, drain
 from nima.storage.postgres import CheckpointError, MigrationError, migrate
@@ -54,7 +56,11 @@ def _parser() -> argparse.ArgumentParser:
         ("resume", "Resume with original options and source verification"),
     ):
         runs.add_parser(operation, help=help_text).add_argument("run_id", type=UUID)
-    kimdis = ingest.add_subparsers(dest="source", required=True).add_parser(
+    sources = ingest.add_subparsers(dest="source", required=True)
+    gemi = sources.add_parser("gemi", help="Look up explicit GEMI numbers into a private archive")
+    gemi.add_argument("--gemi-id", action="append", required=True)
+    gemi.add_argument("--archive-dir", type=Path, required=True)
+    kimdis = sources.add_parser(
         "kimdis",
         help="Collect one explicit KIMDIS date window; no automatic resume",
     )
@@ -130,6 +136,14 @@ def main(argv: list[str] | None = None) -> int:
                 summary = resume(resume_dsn, args.run_id, client=client)
             print(json.dumps(asdict(summary), ensure_ascii=False, allow_nan=False))
             return {"complete": 0, "quarantined": 3, "interrupted": 130}.get(summary.status, 1)
+        if args.source == "gemi":
+            key = os.environ.get("NIMA_GEMI_API_KEY", "")
+            ids = tuple(args.gemi_id)
+            validate_inputs(ids, key)
+            with httpx.Client() as client:
+                gemi_summary = collect_gemi(ids, args.archive_dir, api_key=key, client=client)
+            print(json.dumps(asdict(gemi_summary), allow_nan=False))
+            return {"complete": 0, "quarantined": 3, "interrupted": 130}.get(gemi_summary.status, 1)
         query = Query(args.from_date, args.to_date, tuple(args.buyer_id))
         limits = Limits(
             args.max_pages,
@@ -159,6 +173,9 @@ def main(argv: list[str] | None = None) -> int:
                 }
             )
         )
+        return 1
+    except GemiRunError as exc:
+        _failure(exc.reason, run_id=exc.run_id)
         return 1
     except RunError as exc:
         _failure(exc.reason, run_id=exc.run_id)
