@@ -40,6 +40,15 @@ def _date(text: str) -> date:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m nima")
     commands = parser.add_subparsers(dest="command", required=True)
+    workflows = commands.add_parser("workflows").add_subparsers(dest="operation", required=True)
+    submit = workflows.add_parser("submit", help="Persist and dispatch one explicit local workflow")
+    submit.add_argument("source", choices=["kimdis"])
+    submit.add_argument("--request-id", type=UUID, required=True)
+    submit.add_argument("--from-date", type=_date, required=True)
+    submit.add_argument("--to-date", type=_date, required=True)
+    submit.add_argument("--buyer-id", action="append", default=[])
+    for operation in ("dispatch", "show"):
+        workflows.add_parser(operation).add_argument("request_id", type=UUID)
     registry = commands.add_parser("gemi").add_subparsers(dest="operation", required=True)
     archived = registry.add_parser(
         "import", help="Verify and persist one completed archive offline"
@@ -136,6 +145,16 @@ def _import_gemi(run_id: UUID, archive_root: Path) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.command == "workflows":
+        from nima.orchestration.cli import run
+
+        return run(
+            args.operation,
+            args.request_id,
+            start=getattr(args, "from_date", None),
+            end=getattr(args, "to_date", None),
+            buyers=tuple(getattr(args, "buyer_id", [])),
+        )
     if args.command == "gemi":
         return _import_gemi(args.run_id, args.archive_dir)
     try:
