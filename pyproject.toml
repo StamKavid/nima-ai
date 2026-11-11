@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "httpx==0.28.1",
+    "prefect==3.9.2",
     "psycopg[binary]==3.3.8",
 ]
 classifiers = ["Private :: Do Not Upload"]
