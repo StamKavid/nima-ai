@@ -207,11 +207,20 @@ GNN experiments need to demonstrate additional value before adoption.
 
 ## Current state and next milestone
 
-Implemented: project-local skills, locked delivery tooling, and a typed KIMDIS
-contract normalizer with exact monetary parsing and response evidence references.
-This establishes a source boundary; it is not a working end-to-end collector.
+As of merged PRs #20–#21 (`b24c14a`), the CLI implements bounded KIMDIS contract
+collection, raw evidence archives, typed normalization, PostgreSQL versions and
+observations, safe resume, reported-participation projection and offline identity
+assessment. GEMI has a bounded archive collector and offline SQL import; accepted
+live profiles still require the personal-key pilot. Main CI passed with 411 tests.
 
-Next: a bounded KIMDIS collection that archives original responses, records
-PostgreSQL observations and versions, resumes safely after interruption, and
-reports collection/normalization coverage. Entity enrichment, the graph, ML, AI,
-and the browser workspace follow those acceptance gates.
+Execution is operator-started. PostgreSQL stores domain work/checkpoints and the
+local outbox; no Inngest SDK/server, recurring source schedule, workflow service,
+Memgraph instance, model or investigator UI is installed. This is an implemented
+local data pipeline, not an unattended production service.
+
+The next proposed increment is a local Inngest workflow over existing KIMDIS
+collection/resume and run-scoped projection. It must preserve SQL idempotency,
+request budgets and evidence boundaries. Scheduling/refresh policy and subsequent
+registry comparison remain explicit following increments. See
+[pipeline/reference mapping](pipeline-reference.md) and the
+[capability progress estimate](progress.md).
