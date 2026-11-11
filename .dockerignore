@@ -1,0 +1,10 @@
+*
+!pyproject.toml
+!README.md
+!src/
+!src/**
+!infra/
+!infra/Dockerfile
+!infra/requirements-orchestration.txt
+src/**/__pycache__/
+src/**/*.pyc

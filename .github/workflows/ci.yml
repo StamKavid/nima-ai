@@ -58,3 +58,51 @@ jobs:
           path: coverage.xml
           if-no-files-found: ignore
           retention-days: 7
+
+  orchestration-compose:
+    name: orchestration-compose
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build hash-locked development image
+        run: >-
+          docker build --secret id=ca_bundle,src=/etc/ssl/certs/ca-certificates.crt
+          -t nima-workflows:local -f infra/Dockerfile .
+      - name: Start private local services and apply explicit migration
+        run: |
+          docker compose -p nima-ci -f infra/compose.orchestration.yml up -d --no-build --wait --wait-timeout 120
+          docker compose -p nima-ci -f infra/compose.orchestration.yml exec -T app python -m nima db migrate
+      - name: Verify installed module deployment and untouched source ledger
+        run: |
+          docker compose -p nima-ci -f infra/compose.orchestration.yml exec -T app python - <<'PY'
+          import os
+          import time
+          import httpx
+          import psycopg
+
+          assert os.getuid() == 10001
+          url = os.environ['PREFECT_API_URL'] + '/deployments/name/nima-kimdis/local'
+          with httpx.Client() as client:
+              for attempt in range(60):
+                  response = client.get(url)
+                  if response.status_code == 200:
+                      break
+                  time.sleep(1)
+              response.raise_for_status()
+              deployment = response.json()
+              assert deployment['entrypoint'] == 'nima.orchestration.flows.kimdis_flow'
+              assert not deployment.get('schedules')
+          with psycopg.connect(os.environ['NIMA_DATABASE_URL']) as connection:
+              assert connection.execute('SELECT count(*) FROM nima.schema_migrations').fetchone() == (5,)
+              assert connection.execute('SELECT count(*) FROM nima.workflow_requests').fetchone() == (0,)
+              assert connection.execute('SELECT count(*) FROM nima.observations').fetchone() == (0,)
+          PY
+      - name: Show service state
+        if: always()
+        run: docker compose -p nima-ci -f infra/compose.orchestration.yml ps -a
+      - name: Stop disposable services
+        if: always()
+        run: docker compose -p nima-ci -f infra/compose.orchestration.yml down --volumes
