@@ -79,3 +79,40 @@ def test_request_budget_blocks_source_before_http(pg_dsn: str, tmp_path: Path) -
     assert requests.show(request)["status"] == "deferred"
     with pytest.raises(WorkflowError):
         finalize_request(pg_dsn, request)
+
+
+def test_resume_verification_also_reserves_persistent_attempts(pg_dsn: str, tmp_path: Path) -> None:
+    from datetime import UTC, datetime
+
+    from nima.ingestion.archive import Archive
+    from nima.ingestion.config import Limits
+    from nima.storage.runs import RunStore
+
+    migrate(pg_dsn)
+    request = uuid4()
+    root = tmp_path / "raw"
+    requests = RequestStore(pg_dsn)
+    requests.submit(request, QUERY, root)
+    run = UUID(str(prepare_request(pg_dsn, request)["run_id"]))
+    writer = RunStore(pg_dsn, Archive(root), run, Limits())
+    with writer.lease():
+        writer.takeover(QUERY)
+        writer.commit_page(run, body(), observed_at=datetime.now(UTC), owner=writer.owner)
+    with psycopg.connect(pg_dsn) as connection:
+        connection.execute(
+            "UPDATE nima.workflow_requests SET attempts=299 WHERE request_id=%s", (request,)
+        )
+    calls: list[int] = []
+
+    def handle(req: httpx.Request) -> httpx.Response:
+        page = int(req.url.params["page"])
+        calls.append(page)
+        return httpx.Response(200, content=body(page=page))
+
+    with (
+        httpx.Client(transport=httpx.MockTransport(handle)) as client,
+        pytest.raises(WorkflowError, match="workflow_attempt_limit"),
+    ):
+        collect_request(pg_dsn, request, client=client, clock=Clock())
+    assert calls == [0]  # Verification consumes the last reservation; page 1 cannot be fetched.
+    assert requests.show(request)["attempts"] == 300

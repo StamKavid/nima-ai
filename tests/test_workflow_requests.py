@@ -146,3 +146,41 @@ def test_reservation_requires_execution_and_lost_owner_is_fenced(
         with pytest.raises(CollectionStopped, match="workflow_fenced"):
             guard.reserve_attempt()
     assert requests.show(request)["attempts"] == 0
+
+
+def test_populated_v4_upgrade_preserves_both_source_histories(
+    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from datetime import UTC, datetime
+
+    from nima.storage import postgres
+    from nima.storage.gemi import import_run
+    from tests.test_collection import body
+    from tests.test_gemi_import_archive import archive_run
+
+    migrations = postgres._migrations()
+    with monkeypatch.context() as historical:
+        historical.setattr(postgres, "_migrations", lambda: migrations[:4])
+        migrate(pg_dsn)
+        registry = tmp_path / "registry"
+        import_run(pg_dsn, registry, archive_run(registry))
+        pages = postgres.PageStore(pg_dsn, Archive(tmp_path / "kimdis"))
+        run = uuid4()
+        pages.start_run(run, QUERY)
+        pages.commit_page(run, body(total=1), observed_at=datetime.now(UTC))
+    with psycopg.connect(pg_dsn) as connection:
+        before = connection.execute(
+            "SELECT (SELECT jsonb_agg(to_jsonb(o)) FROM nima.observations o), "
+            "(SELECT jsonb_agg(to_jsonb(g)) FROM nima.gemi_observations g)"
+        ).fetchone()
+    migrate(pg_dsn)
+    with psycopg.connect(pg_dsn) as connection:
+        assert (
+            connection.execute(
+                "SELECT (SELECT jsonb_agg(to_jsonb(o)) FROM nima.observations o), "
+                "(SELECT jsonb_agg(to_jsonb(g)) FROM nima.gemi_observations g)"
+            ).fetchone()
+            == before
+        )
+        assert connection.execute("SELECT count(*) FROM nima.workflow_requests").fetchone() == (0,)
+    RequestStore(pg_dsn).submit(uuid4(), QUERY, tmp_path / "new")
