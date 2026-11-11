@@ -156,11 +156,13 @@
 - [x] Prepare one stable managed run; reuse resume and run-scoped projection safely.
 - [x] Add pinned Prefect flow/tasks, private local dispatch and redacted CLI.
 - [x] Verify actual server/runner recovery and mutate an integrity guard.
-- [ ] Pin Compose/CI, complete review/checks/audit and publish private review PRs.
+- [x] Pin Compose/CI, complete review/checks/audit and publish private review PRs.
   - Local evidence: 435 tests, 93.67% coverage, clean audit, actual Prefect/SQL
     crash tests and mutation caught. Image build passed; local Compose startup
-    hit disk capacity. Hosted Compose smoke is required before that PR is ready.
-    See docs/verification/kimdis-orchestration.md. User merges remain pending.
+    hit disk capacity; hosted Compose smoke passed at 9924c24 in run 43093598298.
+    Private review stack: #22 → #23 → #24 → #25 → #26. Final-head check links
+    are recorded in each PR. See docs/verification/kimdis-orchestration.md.
+    User merges remain pending; dependents stay draft until retargeted to main.
 
 ## Engineering foundation
 

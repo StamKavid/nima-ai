@@ -54,11 +54,14 @@ The local Compose smoke attempt was **blocked by capacity**: this environment's
 The successful image build does not establish a healthy Compose stack. Only this
 increment's disposable image/cache and empty smoke-project volumes were cleaned.
 
-The new required workflow job `orchestration-compose` builds the image, starts
+The new workflow job `orchestration-compose` builds the image, starts
 Compose, explicitly migrates Nima's schema and checks the installed module-path
 deployment, non-root execution, absent schedules and empty source/request tables.
-It creates no provider request. Hosted results must pass before the container PR
-is ready. The existing `quality` job runs the real-engine tests through `make check`
+It creates no provider request. Hosted Compose verification **passed** at
+`9924c24` in [job 130776657553](https://github.com/StamKavid/nima-ai/actions/runs/43093598298/job/130776657553).
+This resolves the startup verification gap left by local disk capacity. Final-head
+quality/Compose results are recorded in PR #26. The existing `quality` job runs
+the real-engine tests through `make check`
 and audits dependencies; no opt-in test flag or weaker threshold was added.
 Branch-protection enforcement remains unverified: workflow jobs alone do not make
 checks mandatory at the GitHub repository level.
