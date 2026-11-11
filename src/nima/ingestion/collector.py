@@ -1,6 +1,6 @@
 """One bounded collection run with explicit evidence and completeness checks."""
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager, nullcontext
 from dataclasses import asdict
 from datetime import UTC, datetime
@@ -48,6 +48,7 @@ def collect(
     clock: Clock | None = None,
     database_dsn: str | None = None,
     resume_id: UUID | None = None,
+    attempt_guard: Callable[[], None] | None = None,
 ) -> Summary:
     """Archive before parsing; never claim a snapshot or automatic crash recovery.
 
@@ -60,6 +61,7 @@ def collect(
     if database_dsn is not None:
         check_schema(database_dsn)
     session = Session(client, archive, limits, clock if clock is not None else SystemClock())
+    session.attempt_guard = attempt_guard
     summary = Summary()
     manifest: dict[str, object] = {
         "format_version": 1,

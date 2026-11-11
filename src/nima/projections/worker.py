@@ -5,6 +5,7 @@ Bulk conversion: https://www.postgresql.org/docs/17/functions-json.html
 """
 
 from typing import cast
+from uuid import UUID
 
 import psycopg
 from psycopg.types.json import Jsonb
@@ -83,7 +84,7 @@ def _project(connection: Connection, row: tuple[object, ...]) -> bool:
     return True
 
 
-def drain(dsn: str, *, max_events: int = 100) -> dict[str, object]:
+def drain(dsn: str, *, max_events: int = 100, run_id: UUID | None = None) -> dict[str, object]:
     """Process a bounded batch; retry locked/later-committing IDs next invocation."""
     if type(max_events) is not int or not 1 <= max_events <= 1000:
         raise ValueError("max_events must be 1–1000")
@@ -101,11 +102,14 @@ def drain(dsn: str, *, max_events: int = 100) -> dict[str, object]:
                         FROM nima.outbox q JOIN nima.observations o USING (observation_id)
                         JOIN nima.record_versions v
                             USING (source_id, normalizer_version, content_sha256)
-                        WHERE q.observation_id > %s AND NOT EXISTS (
+                        WHERE q.observation_id > %s
+                        AND (%s::uuid IS NULL OR EXISTS (SELECT 1 FROM nima.observations selected
+                            WHERE selected.observation_id=q.observation_id AND selected.run_id=%s))
+                        AND NOT EXISTS (
                             SELECT 1 FROM nima.projection_receipts r
                             WHERE r.projection_version=%s AND r.observation_id=q.observation_id)
                         ORDER BY q.observation_id LIMIT 1 FOR UPDATE OF q SKIP LOCKED""",
-                        (after_id, PROJECTION_VERSION),
+                        (after_id, run_id, run_id, PROJECTION_VERSION),
                     ).fetchone()
                     if row is None:
                         break
@@ -116,9 +120,11 @@ def drain(dsn: str, *, max_events: int = 100) -> dict[str, object]:
             event_id = None  # A summary-query failure does not identify a poison event.
             remaining_row = connection.execute(
                 """SELECT count(*) FROM nima.outbox q
-                WHERE NOT EXISTS (SELECT 1 FROM nima.projection_receipts r
+                WHERE (%s::uuid IS NULL OR EXISTS (SELECT 1 FROM nima.observations selected
+                    WHERE selected.observation_id=q.observation_id AND selected.run_id=%s))
+                AND NOT EXISTS (SELECT 1 FROM nima.projection_receipts r
                     WHERE r.projection_version=%s AND r.observation_id=q.observation_id)""",
-                (PROJECTION_VERSION,),
+                (run_id, run_id, PROJECTION_VERSION),
             ).fetchone()
             remaining = cast(tuple[int], remaining_row)[0]  # COUNT always returns one row.
     except (InvalidProjection, psycopg.Error) as exc:
