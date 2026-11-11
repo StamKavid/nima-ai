@@ -1,6 +1,30 @@
 # Delivery plan
 
-## Current increment: offline GEMI evidence persistence
+## Current increment: local Prefect KIMDIS workflow
+
+The user approved docs/sources/kimdis-orchestration.md and selected self-hosted
+Prefect on 2026-11-11. SQL evidence remains authoritative. No live provider calls.
+
+1. Add/test migration 0005 and an engine-independent request/dispatch ledger.
+   Verify immutable parameters, stable run binding, concurrent submission, leases,
+   persistent collection budgets, redacted inspection and populated-schema upgrade.
+2. Add/test a stable prepare/resume adapter, per-provider source lease and request
+   guard invoked before every provider attempt (including resume verification).
+   Add run-scoped projection without changing global CLI behavior.
+3. Pin/install Prefect and implement local flow/tasks, dispatch and CLI integration.
+   Require an explicit self-hosted API/deployment; no ephemeral/cloud fallback.
+4. Exercise real local server/process-runner delivery, duplicate/unknown dispatch,
+   exceptions and actual SIGKILL before task acknowledgement after SQL commits.
+   Retry/redispatch the same domain request and prove bounded repeat safety.
+5. Pin local Compose services and required CI integration; retain all quality gates.
+   Review five axes, mutate an identity/budget guard, run checks/audit and publish
+   reviewable private stacked PRs as StamKavid. Human merges, no deployment.
+
+Each task has failing tests before implementation, then its focused real-boundary
+checks. Dependency changes may require a large generated lockfile; keep it separate
+from domain behavior for review. Preserve all previous plans and pending access work.
+
+## Previous increment: offline GEMI evidence persistence
 
 The user approved docs/sources/gemi-persistence.md after reviewing the saved
 proposal. Delivery branches are `feature/gemi-archive-verifier`, followed by

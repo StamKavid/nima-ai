@@ -42,8 +42,8 @@ flowchart TD
 PostgreSQL is authoritative for record history and work state; original evidence
 is archived separately. Memgraph is the initial graph-store candidate, consistent
 with the reference architecture. The graph is rebuildable from reviewed records.
-Inngest is the orchestration candidate after source and persistence boundaries
-are tested. Neither service is installed as a production dependency yet.
+Self-hosted Prefect is the selected Apache 2.0 workflow engine for the local
+KIMDIS pipeline. Memgraph and production hosting remain later decisions.
 
 The local outbox consumer now materializes versioned contract facts and reported
 buyer/supplier occurrences in PostgreSQL. Its evidence-linked relationship view
@@ -207,11 +207,19 @@ GNN experiments need to demonstrate additional value before adoption.
 
 ## Current state and next milestone
 
-Implemented: project-local skills, locked delivery tooling, and a typed KIMDIS
-contract normalizer with exact monetary parsing and response evidence references.
-This establishes a source boundary; it is not a working end-to-end collector.
+As of merged PRs #20–#21 (`b24c14a`), the CLI implements bounded KIMDIS contract
+collection, raw evidence archives, typed normalization, PostgreSQL versions and
+observations, safe resume, reported-participation projection and offline identity
+assessment. GEMI has a bounded archive collector and offline SQL import; accepted
+live profiles still require the personal-key pilot. Main CI passed with 411 tests.
 
-Next: a bounded KIMDIS collection that archives original responses, records
-PostgreSQL observations and versions, resumes safely after interruption, and
-reports collection/normalization coverage. Entity enrichment, the graph, ML, AI,
-and the browser workspace follow those acceptance gates.
+The review increment adds operator-started self-hosted Prefect workflows over
+KIMDIS collection/resume and run-scoped projection. PostgreSQL stores immutable
+request identity, bounded retry budgets and dispatch history as well as evidence.
+The separate local Prefect control store contains workflow state, not source bodies.
+There is no recurring source schedule, Memgraph instance, model or investigator UI.
+
+Scheduling/refresh policy and subsequent registry comparison remain explicit
+following increments. See the [workflow contract](sources/kimdis-orchestration.md),
+[pipeline/reference mapping](pipeline-reference.md) and the
+[capability progress estimate](progress.md).

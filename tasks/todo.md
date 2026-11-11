@@ -145,10 +145,18 @@
 - [x] Expose redacted offline import CLI without HTTP or an API key.
   - Verify: success/configuration/failure/interruption and no archive mutation.
 - [x] Prove actual worker termination before/after commit and mutate an integrity guard.
-- [ ] Complete review/checks/audit and private main-targeted PR with hosted CI.
-  - Local evidence: 411 tests, 98.05% coverage; docs/verification/gemi-persistence.md.
-  - Delivery: #20 targets main; #21 depends on #20 and requires retargeting to
-    main after its predecessor merges. Final-head hosted links are recorded in the PRs.
+- [x] Complete review/checks/audit and private main-targeted PR with hosted CI.
+  - Evidence: #20 and #21 merged into main (`b24c14a`); 411 tests, 98.05% coverage.
+    Main CI run 42897504261 passed. See docs/verification/gemi-persistence.md.
+
+## Local Prefect workflow
+
+- [x] Obtain scope approval and explicit self-hosted Prefect selection.
+- [ ] Test/implement request identity, dispatch journal and persistent budgets.
+- [ ] Prepare one stable managed run; reuse resume and run-scoped projection safely.
+- [ ] Add pinned Prefect flow/tasks, private local dispatch and redacted CLI.
+- [ ] Verify actual server/runner recovery and mutate an integrity guard.
+- [ ] Pin Compose/CI, complete review/checks/audit and publish private review PRs.
 
 ## Engineering foundation
 
