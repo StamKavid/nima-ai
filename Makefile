@@ -2,7 +2,7 @@ export UV_CACHE_DIR ?= $(CURDIR)/.cache/uv
 export PIP_CACHE_DIR ?= $(CURDIR)/.cache/pip
 GITLEAKS ?= .tools/bin/gitleaks
 
-.PHONY: setup setup-security skills-check lint typecheck test build security secrets audit check
+.PHONY: setup setup-security skills-check lint typecheck test build security secrets audit check container-lock container-lock-check
 
 setup:
 	uv sync --frozen
@@ -39,4 +39,12 @@ audit:
 	uv export --frozen --all-groups --no-emit-project --output-file work/audit-requirements.txt > /dev/null
 	uv run --frozen pip-audit --strict --require-hashes --disable-pip -r work/audit-requirements.txt --cache-dir .cache/pip-audit
 
-check: skills-check lint typecheck test build security
+container-lock:
+	uv export --frozen --all-groups --no-emit-project --no-header --output-file infra/requirements-orchestration.txt > /dev/null
+
+container-lock-check:
+	mkdir -p work
+	uv export --frozen --all-groups --no-emit-project --no-header --output-file work/image-requirements.txt > /dev/null
+	cmp infra/requirements-orchestration.txt work/image-requirements.txt
+
+check: skills-check container-lock-check lint typecheck test build security

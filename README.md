@@ -10,6 +10,8 @@ explainable statistical/ML detectors, and AI-assisted research with citations.
 Current code implements bounded KIMDIS contract collection, a private raw-evidence
 archive, typed normalization, optional PostgreSQL collection, and durable run inspection.
 It also projects reported participation and creates offline identifier-review reports.
+Self-hosted Prefect can execute explicitly requested KIMDIS workflows while SQL
+preserves their identity, budgets and progress across retries.
 Reviewed identity resolution, a graph store, trained
 models, and the investigation workspace are subsequent milestones.
 An investigative signal is not a finding of wrongdoing.
@@ -96,7 +98,8 @@ may overrun the cooperative budget by an inactivity timeout; filesystem I/O has
 no hard deadline. Manifests use atomic writes but are **not database checkpoints**.
 Archive-only runs require a fresh bounded collection after interruption. Managed
 PostgreSQL runs support explicit `runs resume RUN_ID`; automatic scheduling/retry
-across invocations is not implemented. Offset pagination can drift without observable
+across these CLI invocations is not implemented. The separate Prefect workflow
+adds bounded task retries and explicit redispatch. Offset pagination can drift without observable
 count changes; successful reconciliation is not a point-in-time snapshot proof.
 
 ## Normalization API
@@ -380,3 +383,56 @@ Keep original JSON, PDFs, databases, credentials, and investigation workspaces
 outside Git. `data/`, `work/`, and local environment files are ignored. Repository
 privacy must be confirmed at the remote host; a local Git repository has no
 public/private hosting setting.
+
+## Local Prefect workflow
+
+The Apache 2.0 Prefect server and runner use the same pinned version (3.9.2).
+PostgreSQL holds Nima evidence; a separate SQLite control volume holds local
+Prefect state. This is a development stack with loopback host ports and a private
+Docker network. It registers a deployment without a schedule. Starting a fresh
+stack creates no source request; explicitly submitted queued work can run when
+its worker starts again. No cloud account or API key is needed.
+
+```bash
+docker compose -f infra/compose.orchestration.yml up --build -d --wait
+docker compose -f infra/compose.orchestration.yml exec app python -m nima db migrate
+```
+
+Open the local Prefect UI at `http://localhost:4200`. The sample database uses
+trust authentication and a loopback port 55433; keep this stack local. For hosts
+without `/etc/ssl/certs/ca-certificates.crt`, set `NIMA_CA_BUNDLE` to your trusted
+PEM CA bundle before building. TLS verification stays enabled. The hash-locked
+image includes development tooling; regenerate its export with `make container-lock`
+after a dependency update. Production packaging and operations need a separate review.
+
+To authorize one bounded source collection, generate a new UUID and replace
+`REQUEST_UUID` below. Run submission inside the app container so its saved
+`/evidence` path is the same path the worker sees:
+
+```bash
+docker compose -f infra/compose.orchestration.yml exec app python -m nima workflows submit kimdis \
+  --request-id REQUEST_UUID --from-date 2026-11-06 --to-date 2026-11-06
+docker compose -f infra/compose.orchestration.yml exec app python -m nima workflows show REQUEST_UUID
+```
+
+A successful submit means delivery was accepted, not that collection completed.
+`show` reads SQL and reports actual evidence flags separately from job status.
+Reusing the UUID with different query/archive parameters fails. Transient task
+errors retry automatically; after a killed process or unknown dispatch, inspect
+and explicitly redispatch the **same** request UUID:
+
+```bash
+docker compose -f infra/compose.orchestration.yml exec app python -m nima workflows dispatch REQUEST_UUID
+```
+
+Redispatch can create another Prefect flow run while retaining the original Nima
+collection run. SQL leases, checkpoints and receipts govern replay. Saved caps
+are 300 provider-attempt reservations, four collection executions, 30 minutes
+from first execution and 100 projection batches. Reservations survive crashes.
+Exhausted budgets require review; redispatch does not reset them. No recurring
+poller, graph, model or live GEMI validation is added. See the
+[contract](docs/sources/kimdis-orchestration.md) and
+[verification record](docs/verification/kimdis-orchestration.md).
+
+Stop services with `docker compose -f infra/compose.orchestration.yml down`.
+Volumes retain evidence and control state; deleting those volumes destroys it.

@@ -152,11 +152,17 @@
 ## Local Prefect workflow
 
 - [x] Obtain scope approval and explicit self-hosted Prefect selection.
-- [ ] Test/implement request identity, dispatch journal and persistent budgets.
-- [ ] Prepare one stable managed run; reuse resume and run-scoped projection safely.
-- [ ] Add pinned Prefect flow/tasks, private local dispatch and redacted CLI.
-- [ ] Verify actual server/runner recovery and mutate an integrity guard.
-- [ ] Pin Compose/CI, complete review/checks/audit and publish private review PRs.
+- [x] Test/implement request identity, dispatch journal and persistent budgets.
+- [x] Prepare one stable managed run; reuse resume and run-scoped projection safely.
+- [x] Add pinned Prefect flow/tasks, private local dispatch and redacted CLI.
+- [x] Verify actual server/runner recovery and mutate an integrity guard.
+- [x] Pin Compose/CI, complete review/checks/audit and publish private review PRs.
+  - Local evidence: 435 tests, 93.67% coverage, clean audit, actual Prefect/SQL
+    crash tests and mutation caught. Image build passed; local Compose startup
+    hit disk capacity; hosted Compose smoke passed at 9924c24 in run 43093598298.
+    Private review stack: #22 → #23 → #24 → #25 → #26. Final-head check links
+    are recorded in each PR. See docs/verification/kimdis-orchestration.md.
+    User merges remain pending; dependents stay draft until retargeted to main.
 
 ## Engineering foundation
 

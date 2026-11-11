@@ -1,0 +1,71 @@
+name: nima-workflows
+
+x-app: &app
+  image: nima-workflows:local
+  build:
+    context: ..
+    dockerfile: infra/Dockerfile
+    secrets: [ca_bundle]
+  secrets: [ca_bundle]
+
+services:
+  postgres:
+    image: postgres:17-bookworm@sha256:665dc7b37ac52a17e298511414c21d23ffa4e6a6ef6225b3e5d59c7afb35e994
+    environment:
+      POSTGRES_DB: nima_dev
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports: ["127.0.0.1:55433:5432"]
+    volumes: [nima_sql:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d nima_dev"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  prefect-server:
+    <<: *app
+    command: [prefect, server, start, --host, 0.0.0.0, --port, "4200"]
+    environment:
+      PREFECT_HOME: /control
+      PREFECT_API_URL: http://localhost:4200/api
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+      PREFECT_SERVER_EPHEMERAL_ENABLED: "false"
+      PREFECT_SERVER_UI_API_URL: http://localhost:4200/api
+      NO_PROXY: "${NO_PROXY:-},localhost,127.0.0.1,::1"
+      no_proxy: "${NO_PROXY:-},localhost,127.0.0.1,::1"
+    ports: ["127.0.0.1:4200:4200"]
+    volumes: [prefect_control:/control]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:4200/api/health', timeout=2)"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  app:
+    <<: *app
+    command: [python, -m, nima.orchestration.runner]
+    environment:
+      NIMA_DATABASE_URL: host=postgres port=5432 dbname=nima_dev user=postgres
+      NIMA_ARCHIVE_ROOT: /evidence
+      PREFECT_API_URL: http://prefect-server:4200/api
+      PREFECT_HOME: /control
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+      PREFECT_SERVER_EPHEMERAL_ENABLED: "false"
+      SSL_CERT_FILE: /run/secrets/ca_bundle
+      REQUESTS_CA_BUNDLE: /run/secrets/ca_bundle
+      NO_PROXY: "${NO_PROXY:-},localhost,127.0.0.1,::1,prefect-server,postgres"
+      no_proxy: "${NO_PROXY:-},localhost,127.0.0.1,::1,prefect-server,postgres"
+    volumes: [worker_control:/control, nima_evidence:/evidence]
+    depends_on:
+      postgres: {condition: service_healthy}
+      prefect-server: {condition: service_healthy}
+
+secrets:
+  ca_bundle:
+    file: ${NIMA_CA_BUNDLE:-/etc/ssl/certs/ca-certificates.crt}
+
+volumes:
+  nima_sql:
+  prefect_control:
+  worker_control:
+  nima_evidence:
