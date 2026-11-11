@@ -1,8 +1,10 @@
-# Capability progress: 2026-11-10
+# Capability progress: 2026-11-11
 
-Baseline: CAPABILITIES.md and docs/architecture.md, through merged PRs #20–#21
-at `b24c14a`. Main CI run 42897504261 passed. Current validation is 411 tests and
-98.05% combined Python line/branch coverage; coverage is not product completion.
+Planning estimate baseline: CAPABILITIES.md and docs/architecture.md through
+PRs #20–#21 at `b24c14a`. PRs #22–#26 now add local Prefect orchestration on main
+at `e80e23f`, identical to tested `749b9ee`: 435 tests, 93.67% combined coverage,
+hosted quality/Compose run 43094208540 passed. Post-merge main CI 43095249289
+was queued at review. Coverage is not product completion.
 
 ## Estimate and method
 
@@ -52,15 +54,14 @@ investigator workspace yet. Election-accountability work is outside this baselin
 
 ## Immediate direction
 
-1. Review and merge the local Prefect workflow for the working KIMDIS pipeline.
-2. Explicit source scheduling/refresh policy and controlled additional connectors.
-3. Registry comparison and reviewed identities, then temporal graph projection.
-4. Evaluated analytical baselines, evidence retrieval/AI and the workspace.
+1. Review source scheduling/refresh policy, then implement its bounded local pilot.
+2. Add controlled source connectors and registry comparison/reviewed identities.
+3. Build temporal graph projection, evaluated analytics, evidence AI and the workspace.
 
 No later component is blocked from design or synthetic testing by GEMI access;
 live source compatibility and empirical evaluation still need real evidence.
 
-The 2026-11-11 orchestration review increment adds bounded self-hosted Prefect
-execution, with no recurring polling or additional live-source validation. Keep
-the merged baseline estimate until the increment is reviewed and merged; adding
-a workflow engine does not deliver graph, models or investigator features.
+The merged 2026-11-11 increment adds bounded self-hosted Prefect execution, with
+no recurring polling or additional live-source validation. Retain the approximate
+20–25% headline; the table is the original planning snapshot, not a recalculated
+measurement. A workflow engine does not deliver graph, models or investigator features.

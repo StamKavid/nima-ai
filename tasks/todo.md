@@ -160,9 +160,10 @@
   - Local evidence: 435 tests, 93.67% coverage, clean audit, actual Prefect/SQL
     crash tests and mutation caught. Image build passed; local Compose startup
     hit disk capacity; hosted Compose smoke passed at 9924c24 in run 43093598298.
-    Private review stack: #22 → #23 → #24 → #25 → #26. Final-head check links
-    are recorded in each PR. See docs/verification/kimdis-orchestration.md.
-    User merges remain pending; dependents stay draft until retargeted to main.
+    PRs #22–#26 were merged into main by the user at e80e23f. Its tree matches
+    tested 749b9ee (hosted quality and Compose run 43094208540 passed).
+    Post-merge main CI run 43095249289 was still queued at verification.
+    See docs/verification/kimdis-orchestration.md. No production deployment.
 
 ## Engineering foundation
 

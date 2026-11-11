@@ -4,6 +4,11 @@ Date: 2026-11-11. Base: merged main `b24c14a`. The user approved the workflow
 scope and selected self-hosted Prefect. No official provider request was made
 for this increment. Hosted CI and review links belong in the delivery PRs.
 
+Post-merge check: all five PRs #22–#26 target main and are merged. Main `e80e23f`
+has the exact Git tree of tested final head `749b9ee`; hosted quality/Compose run
+43094208540 passed with 435 tests and a clean audit. Main run 43095249289 was
+queued when checked; tree equality is not a claim that this new run has passed.
+
 ## Implemented boundary
 
 Migration 0005 adds immutable request identity, a stable collection-run binding,

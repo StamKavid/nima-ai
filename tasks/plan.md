@@ -1,9 +1,11 @@
 # Delivery plan
 
-## Current increment: local Prefect KIMDIS workflow
+## Completed increment: local Prefect KIMDIS workflow
 
 The user approved docs/sources/kimdis-orchestration.md and selected self-hosted
 Prefect on 2026-11-11. SQL evidence remains authoritative. No live provider calls.
+PRs #22–#26 are merged into main at e80e23f; the tree matches tested 749b9ee.
+The next source-refresh spec is separate; implementation planning follows review.
 
 1. Add/test migration 0005 and an engine-independent request/dispatch ledger.
    Verify immutable parameters, stable run binding, concurrent submission, leases,
