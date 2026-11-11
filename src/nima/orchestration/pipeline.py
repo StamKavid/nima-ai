@@ -63,7 +63,11 @@ def collect_request(
     with store.source_lease(request) as guard:
         stored = inspect_run(dsn, run)
         if not stored["collection_complete"]:
-            guard.start_execution()
+            try:
+                guard.start_execution()
+            except WorkflowError as exc:
+                store.outcome(request, "deferred", exc.reason)
+                raise
         first = True
 
         def reserve() -> None:
@@ -108,7 +112,11 @@ def project_request(dsn: str, request: UUID) -> dict[str, object]:
             "status": "complete",
         }
     store.outcome(request, "projecting")
-    store.reserve_projection(request)
+    try:
+        store.reserve_projection(request)
+    except WorkflowError as exc:
+        store.outcome(request, "deferred", exc.reason)
+        raise
     try:
         result = drain(dsn, max_events=100, run_id=run)
         if not result["processed_events"] and result["remaining_events"]:

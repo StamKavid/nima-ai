@@ -121,6 +121,9 @@ def test_options_and_one_time_binding_survive_replay(pg_dsn: str, tmp_path: Path
     with pytest.raises(WorkflowError, match="request_conflict"):
         requests.bind(request, different)
     assert requests.show(request)["run_id"] == str(run)
+    with psycopg.connect(pg_dsn) as connection:
+        connection.execute("UPDATE nima.ingest_runs SET status='complete' WHERE run_id=%s", (run,))
+    assert requests.show(request)["collection_complete"] is False
     with pytest.raises(WorkflowError, match="request_conflict"):
         requests.submit(request, Query(date(2026, 11, 1), date(2026, 11, 1)), root)
 

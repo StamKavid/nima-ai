@@ -20,11 +20,13 @@ from nima.ingestion.config import CONNECTOR_VERSION, Limits, Query
 from nima.ingestion.transport import CollectionStopped
 from nima.storage.postgres import (
     NORMALIZER_VERSION,
+    CheckpointError,
     Connection,
     MigrationError,
     _connect,
     check_schema,
 )
+from nima.storage.runs import inspect_run
 
 REQUEST_VERSION = "nima-kimdis-request-v1"
 
@@ -43,6 +45,8 @@ def _db(dsn: str) -> Iterator[Connection]:
             yield connection
     except MigrationError:
         raise WorkflowError("database_schema") from None
+    except CheckpointError:
+        raise WorkflowError("run_unavailable") from None
     except psycopg.Error:
         raise WorkflowError("database", True) from None
 
@@ -242,7 +246,22 @@ class RequestStore:
             ).fetchone()
         if row is None:
             raise WorkflowError("request_unavailable")
-        return cast(dict[str, object], row[0])
+        result = cast(dict[str, object], row[0])
+        if isinstance(result["run_id"], str):
+            try:
+                evidence = inspect_run(self.dsn, UUID(result["run_id"]))
+            except (psycopg.Error, CheckpointError):
+                raise WorkflowError("run_unavailable") from None
+            for key in (
+                "collection_complete",
+                "normalization_complete",
+                "pages",
+                "records",
+                "normalized",
+                "quarantined",
+            ):
+                result[key] = evidence[key]
+        return result
 
     def begin_dispatch(self, request: UUID) -> UUID:
         self.show(request)

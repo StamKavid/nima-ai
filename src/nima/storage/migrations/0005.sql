@@ -47,3 +47,15 @@ CREATE TRIGGER workflow_requests_no_delete BEFORE DELETE ON nima.workflow_reques
     FOR EACH ROW EXECUTE FUNCTION nima.reject_mutation();
 CREATE TRIGGER workflow_dispatches_no_delete BEFORE DELETE ON nima.workflow_dispatches
     FOR EACH ROW EXECUTE FUNCTION nima.reject_mutation();
+CREATE FUNCTION nima.guard_dispatch_identity() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF OLD.dispatch_id IS DISTINCT FROM NEW.dispatch_id
+        OR OLD.request_id IS DISTINCT FROM NEW.request_id
+        OR OLD.created_at IS DISTINCT FROM NEW.created_at OR OLD.state <> 'pending' THEN
+        RAISE EXCEPTION 'Dispatch history cannot be rewritten' USING ERRCODE = '55000';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+CREATE TRIGGER dispatch_identity BEFORE UPDATE ON nima.workflow_dispatches
+    FOR EACH ROW EXECUTE FUNCTION nima.guard_dispatch_identity();
