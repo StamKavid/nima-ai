@@ -1,6 +1,7 @@
 """Bounded HTTP attempts against the fixed official source endpoint."""
 
 import time
+from collections.abc import Callable
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from typing import Protocol
@@ -52,6 +53,7 @@ class Session:
         self.responses: list[dict[str, object]] = []
         self.journal: AttemptJournal | None = None
         self.phase = "collect"
+        self.attempt_guard: Callable[[], None] | None = None
 
     def remaining(self) -> float:
         remaining = self.deadline - self.clock.monotonic()
@@ -74,6 +76,8 @@ class Session:
                 )
             )
         self.remaining()
+        if self.attempt_guard is not None:
+            self.attempt_guard()
         receipt: dict[str, object] = {
             "page": page,
             "attempt": attempt,
