@@ -26,9 +26,9 @@ has already been installed in Nima.
 |---|---|
 | Small, testable stages | Collection, raw archive, normalization, SQL persistence, projection and identity assessment are separate boundaries |
 | Repeat-safe writes | Version/observation keys, immutable evidence, atomic checkpoints and projection receipts; worker SIGKILL/replay tests |
-| Bounded work and backpressure | Explicit windows, per-run rate/attempt/body/deadline limits and Retry-After handling; no orchestrator-wide source queue yet |
+| Bounded work and backpressure | Explicit windows, per-run limits and Retry-After handling; saved workflow attempt/execution/deadline budgets and a SQL source lease |
 | History and provenance | Raw SHA-256 references, JSON pointers, observation times and separate source dates; A→B→A history preserved |
-| Durable workflow execution | Operator-started CLI plus domain SQL journals; **no Inngest SDK/server or memoized workflow steps yet** |
+| Durable workflow execution | Self-hosted Prefect tasks/deployment, SQL request/dispatch journals and repeat-safe replay; no Inngest runtime |
 | Freshness and scheduling | Explicit fresh runs and safe resume; **no unattended poller or reviewed refresh cursor yet** |
 | Graph and AI evaluation | Planned gated work; no graph store, embeddings, extraction LLM or model evaluation service installed |
 
@@ -50,18 +50,28 @@ paths are not automatically joined, and neither produces a resolved company grap
 
 ## Orchestration direction
 
-Use Inngest to decide when workflow steps run, retry them, limit concurrency and
-expose run timelines. Keep PostgreSQL authoritative for evidence, identity of
-work, checkpoints and projection receipts. A memoized step is not an exactly-once
-guarantee for an external side effect: its database/API call can succeed before
-the engine saves the step result. Stable SQL identities must survive that gap.
-See [official error-handling guidance](https://www.inngest.com/docs/durable-execution/guides-and-advanced/error-handling).
+The user selected self-hosted Prefect because its server and Python package use
+Apache 2.0. Prefect supplies named tasks, selective retries, local process execution,
+concurrency limits and run timelines. PostgreSQL remains authoritative for evidence,
+request identity, budgets, checkpoints and projection receipts. An external write
+can succeed before the engine acknowledges a task. Stable SQL identities survive
+that gap; this implementation disables Prefect task caching/result persistence
+rather than assuming the course's Inngest memoization semantics.
 
-The next proposed slice is one explicitly requested local KIMDIS workflow:
+The implemented slice is one explicitly requested local KIMDIS workflow:
 prepare/locate request → collect or safely resume → project selected run → reconcile.
 Event/step payloads carry IDs, hashes and counters, not source bodies, personal
 names, tax numbers or secrets. HTTP retries stay bounded across workflow restarts;
 wrapping a fresh collector in a retrying function is insufficient.
+
+Transient task errors retry automatically within saved budgets. After a killed
+process or unknown dispatch, the operator redispatches the same request UUID;
+that creates another Prefect run while retaining the domain run and evidence.
+This does not promise automatic continuation of a crashed Prefect process.
+See the [approved workflow contract](sources/kimdis-orchestration.md).
+
+dbt remains a candidate for later SQL analytical models, tests and lineage.
+It complements orchestration and is not installed in this increment.
 
 Scheduling follows that verified workflow. KIMDIS documents daily refresh, so
 five-minute RSS polling is not an appropriate default. Verify each provider's

@@ -41,16 +41,19 @@ Do not rely on the SDK's time-limited event/idempotency suppression to protect
 domain writes or block a legitimate explicit recovery. An HTTP 2xx event receipt
 means delivery acceptance, not successful collection or projection.
 
-## Stack and proposed commands
+## Stack and commands
 
-Retain Python 3.12, PostgreSQL 17, HTTPX 0.28.1 and Psycopg 3.3.8. Proposed direct
+Retain Python 3.12, PostgreSQL 17, HTTPX 0.28.1 and Psycopg 3.3.8. The direct
 dependency is `prefect==3.9.2` (Python 3.11–3.15, Apache 2.0), verified on PyPI.
 Use the same pinned version for client/server. No Inngest or separate application
 FastAPI/Uvicorn dependency is needed. Compatibility and the complete resolved
-dependency audit must pass before adoption. Pin the local engine image to an
-official version and immutable digest during implementation; do not use `latest`.
+dependency audit must pass before adoption. The development image pins the
+official Python base digest and installs the hash-locked Prefect version with the
+application, so client and server match. PostgreSQL is digest-pinned. Do not use
+`latest`; production image packaging remains separate.
 
-Proposed development interfaces, not currently implemented:
+Implemented development interfaces (use the Compose instructions in README to
+keep archive paths in the worker's filesystem):
 
 ```bash
 uv sync --frozen
@@ -78,8 +81,8 @@ stable collection run **before any provider request**. Reusing a UUID with chang
 parameters fails; submitting the same request again never silently creates another
 collection. A new observation run requires an explicitly new request identity.
 
-Persist a pending dispatch before creating a Prefect deployment flow run with only
-the request UUID and dispatch-format version. Delivery is at least once. A crash
+Persist a pending dispatch before creating a versioned Prefect deployment flow run
+with only the request UUID as its parameter. Delivery is at least once. A crash
 between SQL commit, send and acknowledgement leaves discoverable pending/unknown
 delivery, not lost work or a falsely completed job. Explicit dispatch retries the
 same logical request; duplicate events and expired engine deduplication windows

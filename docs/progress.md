@@ -52,10 +52,15 @@ investigator workspace yet. Election-accountability work is outside this baselin
 
 ## Immediate direction
 
-1. Proposed local Inngest orchestration for the working KIMDIS pipeline.
+1. Review and merge the local Prefect workflow for the working KIMDIS pipeline.
 2. Explicit source scheduling/refresh policy and controlled additional connectors.
 3. Registry comparison and reviewed identities, then temporal graph projection.
 4. Evaluated analytical baselines, evidence retrieval/AI and the workspace.
 
 No later component is blocked from design or synthetic testing by GEMI access;
 live source compatibility and empirical evaluation still need real evidence.
+
+The 2026-11-11 orchestration review increment adds bounded self-hosted Prefect
+execution, with no recurring polling or additional live-source validation. Keep
+the merged baseline estimate until the increment is reviewed and merged; adding
+a workflow engine does not deliver graph, models or investigator features.
