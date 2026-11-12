@@ -2,7 +2,9 @@
 
 Status: **approved**, 2026-11-12, by the user's “I approve”.
 Existing capability: `source-ingestion`. Implementation plan and task acceptance
-criteria are in `tasks/plan.md` and `tasks/todo.md`, awaiting their own review.
+criteria are in `tasks/plan.md` and `tasks/todo.md`, approved by the user's
+“Continue” on 2026-11-12. Runtime discoveries and verification limits are recorded
+in that plan and the draft implementation PR.
 Supplements the approved GEMI Publicity fallback and its personal-IP requirement.
 Base: main `ed52c38`, after merged manual-evidence PRs #32–#34.
 

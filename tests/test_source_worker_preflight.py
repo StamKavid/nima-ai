@@ -150,7 +150,41 @@ def test_browser_failure_codes_never_echo_diagnostics(message: str, code: str) -
 def test_namespace_failure_in_child_is_a_failed_prerequisite(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    def deny_chroot(path: str) -> None:
+        raise PermissionError
+
+    monkeypatch.setattr("os.chroot", deny_chroot)
     monkeypatch.setattr("os.fork", lambda: 123)
     monkeypatch.setattr("os.waitpid", lambda pid, flags: (123, 256))
     with pytest.raises(PrerequisiteError, match="^user_namespaces$"):
+        check_namespaces()
+
+
+def test_runtime_profile_changes_only_the_child_namespace_chroot_rule() -> None:
+    import hashlib
+
+    from nima.egress.seccomp import build_profile
+
+    root = Path("infra/source-worker")
+    upstream = (root / "seccomp.json").read_bytes()
+    original = json.loads(upstream)
+    raw = build_profile(upstream)
+    derived = json.loads(raw)
+    extra = derived["syscalls"].pop()
+    assert derived == original
+    assert extra["names"] == ["chroot"]
+    assert extra["action"] == "SCMP_ACT_ALLOW"
+    assert extra["args"] == []
+    assert extra["includes"] == extra["excludes"] == {}
+    pins = json.loads((root / "pins.json").read_bytes())
+    assert hashlib.sha256(raw).hexdigest() == pins["seccomp"]["runtime_sha256"]
+    with pytest.raises(ValueError, match="^profile_identity$"):
+        build_profile(upstream + b" ")
+
+
+def test_parent_chroot_privilege_is_never_accepted(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("os.chroot", lambda path: None)
+    monkeypatch.setattr("os.fork", lambda: 123)
+    monkeypatch.setattr("os.waitpid", lambda pid, flags: (123, 0))
+    with pytest.raises(PrerequisiteError, match="^unexpected_chroot$"):
         check_namespaces()

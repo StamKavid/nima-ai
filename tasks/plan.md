@@ -28,6 +28,22 @@ or proprietary proxy SDK is needed. This is a test stack, not a production image
 The Python 1.65.1 wheel bundles JS driver 1.65.0. Its matching upstream seccomp
 profile therefore comes from JS tag v1.65.0, not a nonexistent JS v1.65.1 tag.
 Retain its Apache-2.0 licence and exact source/digest in the fixture pins file.
+Implementation discovery: derive runtime profile `nima-userns-chroot-v1` from
+those exact upstream bytes, adding only a `chroot` allow rule. Runtime SHA-256:
+`1ec225154906ce8e797e22d7fadaff5b592d273a08774f35c627f5c940faf4b4`.
+The upstream rule is conditional on Docker granting SYS_CHROOT, which conflicts
+with our required cap-drop-all parent: its compiled filter blocks even a child
+that obtains capabilities solely in its new user namespace. Chromium 158 calls
+`sys_chroot("/proc/self/fdinfo/")` to construct its own filesystem sandbox.
+Closed network-none probes reproduced child denial with the original filter and
+child success with this single rule; the parent remained denied under both.
+Keep the upstream file unchanged and test the exact derived delta/hash. Verify
+parent chroot denial, child namespace/chroot success, UID/capability restrictions
+and real browser sandbox observations before passing checkpoint A. No SYS_CHROOT
+capability, host-policy edit or browser sandbox disable flag is added. This is an
+explicit syscall-filter expansion for security review in the draft PR, not a
+change to the browser/TLS/network boundary or permission for later stages.
+Source: [Chromium credentials.cc at the selected version](https://chromium.googlesource.com/chromium/src/+/158.0.8127.18/sandbox/linux/services/credentials.cc#56).
 Before launch, check the browser binary/image actually matches the wheel metadata.
 Do not silently use the environment's unrelated installed Chromium.
 

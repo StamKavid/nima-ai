@@ -13,6 +13,8 @@ from importlib.metadata import version
 from pathlib import Path
 from typing import Never
 
+from nima.egress.seccomp import build_profile
+
 MIN_FREE_BYTES = 8 * 1024**3
 PLAYWRIGHT = "1.65.1"
 CHROMIUM = "158.0.8127.18"
@@ -84,10 +86,17 @@ def helper_check() -> None:
 
 def check_namespaces() -> None:
     """Probe sandbox primitives in a child; never change the controller namespace."""
+    try:
+        os.chroot("/")
+    except PermissionError:
+        pass
+    else:
+        raise PrerequisiteError("unexpected_chroot")
     child = os.fork()
     if child == 0:
         try:
             os.unshare(os.CLONE_NEWUSER | os.CLONE_NEWNET | os.CLONE_NEWPID)
+            os.chroot("/proc/self/fdinfo/")
         except OSError:
             os._exit(1)
         os._exit(0)
@@ -106,6 +115,7 @@ def classify_browser_failure(message: str) -> str:
     """Extract only fixed known signals; never publish driver output."""
     for marker, code in (
         ("Failed to move to new namespace", "browser_namespace_denied"),
+        ("sys_chroot", "browser_sandbox_chroot"),
         ("Failed to unshare", "browser_namespace_denied"),
         ("No usable sandbox!", "browser_sandbox_unavailable"),
         ("Chromium sandboxing failed!", "browser_sandbox_unavailable"),
@@ -215,12 +225,19 @@ def main(argv: list[str] | None = None) -> int:
     modes.add_parser("browser")
     modes.add_parser("helper")
     modes.add_parser("namespaces")
+    profile = modes.add_parser("profile")
+    profile.add_argument("--output", type=Path, required=True)
     try:
         args = parser.parse_args(argv)
     except SystemExit as exc:
         return int(exc.code or 0)
     try:
-        if args.mode == "host":
+        if args.mode == "profile":
+            raw = build_profile(Path("infra/source-worker/seccomp.json").read_bytes())
+            descriptor = os.open(args.output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+            with os.fdopen(descriptor, "wb") as stream:
+                stream.write(raw)
+        elif args.mode == "host":
             with args.info_file.open("rb") as stream:
                 raw = stream.read(65537)
             if len(raw) > 65536:

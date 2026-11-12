@@ -11,6 +11,8 @@
   "playwright": "1.65.1",
   "seccomp": {
     "commit": "a1f35e1955976e84411f9c10358228a80b763ebe",
+    "runtime_overlay": "nima-userns-chroot-v1",
+    "runtime_sha256": "1ec225154906ce8e797e22d7fadaff5b592d273a08774f35c627f5c940faf4b4",
     "sha256": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849"
   },
   "snapshot": {
