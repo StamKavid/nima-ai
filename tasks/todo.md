@@ -251,11 +251,12 @@ investigator workspace. These are roadmap items, not implementation tasks.
 ## Private manual Publicity evidence intake
 
 Design: docs/sources/gemi-publicity-fallback.md, approved by the user on 2026-11-12,
-including personal-IP protection. Implementation plan: tasks/plan.md, **for review**.
+including personal-IP protection. Implementation plan: tasks/plan.md, **approved**.
 This extends source ingestion; all older incomplete tasks above remain tracked.
 
 - [x] Record design approval and prepare the first offline delivery plan.
-- [ ] Obtain review of the implementation plan and these task acceptance criteria.
+- [x] Obtain review of the implementation plan and these task acceptance criteria.
+  - User approved by answering “Yes” on 2026-11-12.
 
 ### P1: Validate the manual capture manifest
 
