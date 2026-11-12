@@ -40,6 +40,17 @@ def _date(text: str) -> date:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m nima")
     commands = parser.add_subparsers(dest="command", required=True)
+    refresh = commands.add_parser("refresh").add_subparsers(dest="operation", required=True)
+    create = refresh.add_parser("create").add_subparsers(dest="source", required=True)
+    policy = create.add_parser("kimdis")
+    policy.add_argument("--policy-id", type=UUID, required=True)
+    policy.add_argument("--start-date", type=_date, required=True)
+    policy.add_argument("--buyer-id", action="append", required=True)
+    for operation in ("plan", "show", "enable", "pause", "tick"):
+        command = refresh.add_parser(operation)
+        command.add_argument("policy_id", type=UUID)
+        if operation == "plan":
+            command.add_argument("--as-of", type=_date, required=True)
     workflows = commands.add_parser("workflows").add_subparsers(dest="operation", required=True)
     submit = workflows.add_parser("submit", help="Persist and dispatch one explicit local workflow")
     submit.add_argument("source", choices=["kimdis"])
@@ -145,6 +156,16 @@ def _import_gemi(run_id: UUID, archive_root: Path) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.command == "refresh":
+        from nima.orchestration.refresh_cli import run as refresh_run
+
+        return refresh_run(
+            args.operation,
+            args.policy_id,
+            start=getattr(args, "start_date", None),
+            buyers=tuple(getattr(args, "buyer_id", [])),
+            as_of=getattr(args, "as_of", None),
+        )
     if args.command == "workflows":
         from nima.orchestration.cli import run
 
