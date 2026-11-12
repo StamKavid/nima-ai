@@ -31,6 +31,7 @@ def test_verification_is_read_only_and_not_identity_confirmation(tmp_path: Path)
     "damage",
     [
         "missing",
+        "same_size_body",
         "body",
         "symlink",
         "manifest",
@@ -57,6 +58,8 @@ def test_damaged_archive_fails_verification_and_replay_without_repair(
         blob.unlink()
     elif damage == "body":
         blob.write_bytes(PDF + b"tamper")
+    elif damage == "same_size_body":
+        blob.write_bytes(PDF[:-1] + b"x")
     elif damage == "symlink":
         blob.unlink()
         blob.symlink_to(tmp_path / "input/αρχεία/capture.pdf")

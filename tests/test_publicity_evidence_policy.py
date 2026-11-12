@@ -57,6 +57,7 @@ def test_preserves_operator_claims_without_verifying_origin() -> None:
         ("claimed_captured_at", "2026-11-12"),
         ("claimed_captured_at", "2026-11-12T12:00:00"),
         ("claimed_captured_at", "2026-99-12T12:00:00Z"),
+        ("claimed_captured_at", "0001-01-01T00:00:00+02:00"),
         ("source_url", "http://publicity.businessportal.gr/"),
         ("source_url", "https://publicity.businessportal.gr.evil.test/"),
         ("source_url", "https://user:password@publicity.businessportal.gr/"),

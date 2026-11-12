@@ -105,7 +105,7 @@ def utc_timestamp(value: object) -> str:
         raise EvidenceError("input")
     try:
         return datetime.fromisoformat(original).astimezone(UTC).isoformat()
-    except ValueError:
+    except (ValueError, OverflowError):
         raise EvidenceError("input") from None
 
 
