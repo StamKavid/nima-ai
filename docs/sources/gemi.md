@@ -189,7 +189,7 @@ registry joins and accepted entity links. Keep current procurement ingestion int
 
 ## Verification and acceptance
 
-Existing checks: `make check` and `make audit`. The focused command after
+Existing checks: `just check` and `just audit`. The focused command after
 implementation will be `uv run --frozen pytest tests/test_gemi_contracts.py
 tests/test_gemi_collection.py`. Use synthetic profiles and HTTPX transport fixtures;
 do not commit actual registry payloads or credentials. Existing coverage floor

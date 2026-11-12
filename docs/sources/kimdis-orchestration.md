@@ -165,7 +165,7 @@ class CollectionRequested:
 ## Verification and acceptance
 
 Use pytest, disposable real PostgreSQL and a real local Prefect server. Write
-failing behavioral tests before code. `make check` and `make audit` retain their
+failing behavioral tests before code. `just check` and `just audit` retain their
 current gates and at least 90% combined coverage; no skipped integrations or
 weaker checks. Extend CI to run this required engine-backed suite with pinned
 services. External provider traffic is mocked or served by a local fixture.

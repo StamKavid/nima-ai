@@ -224,6 +224,21 @@ investigator workspace. These are roadmap items, not implementation tasks.
 - [x] Complete local checks/audit/review and prepare private review PRs.
   - Evidence: 469 acceptance tests, clean audit/security, real SQL/Prefect crash
     recovery and mutation caught. See docs/verification/kimdis-refresh.md.
-- [ ] Pass final-head hosted quality/Compose checks before marking PRs ready.
-  - GitHub Actions runs remain queued, including merged main; no hosted success
-    is claimed. No live policy or production service has been activated.
+- [x] Pass final-head hosted quality/Compose checks before marking PRs ready.
+  - PRs #27–#29 were merged into main at 242e9bb. Hosted final quality/Compose
+    run 43163011288 passed with 469 tests. No live policy has been activated.
+
+
+## Repository controls and just
+
+- [x] Verify merges and create dev from current main; keep repository private.
+- [x] Pin just and preserve every existing recipe/check in the migration.
+- [x] Verify cleanup policy/leases and clean eligible old merged heads.
+  - Seven matching remote heads deleted; local refs retained. Mutation caught;
+    17 cleanup cases include real Git lease rejection after branch advancement.
+- [ ] Publish cleanup workflow and matching main/dev bootstrap PRs.
+- [ ] Run just check/audit and verify hosted checks for both targets.
+- [ ] Enforce GitHub-side main/dev rules and native deletion setting.
+  - Blocked: private-repository rulesets require GitHub Pro; settings writes
+    returned 403 for this integration. Prepared .github/rulesets/main-dev.json.
+- [ ] Continue with offline registry-comparison specification.

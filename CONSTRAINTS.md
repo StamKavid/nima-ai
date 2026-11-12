@@ -16,14 +16,14 @@ checks below enforce only the properties each tool actually checks.
 
 | Property | Rule and reason | Command | Runs |
 |---|---|---|---|
-| Skill integrity | Zero differences from the pinned snapshot, including shared references | `make skills-check` | Local and CI |
-| Formatting and lint | Zero findings; one consistent style | `make lint` | Local and CI |
-| Types | Zero strict mypy errors in first-party Python | `make typecheck` | Local and CI |
-| First-party tests | At least 90% line/branch combined coverage across tooling and `nima`; data integrity and failure paths matter | `make test` | Local and CI |
-| Package | Wheel and source distribution build successfully | `make build` | Local and CI |
-| Code security | Zero Bandit findings in first-party code | `make security` | Local and CI |
-| Secret detection | Zero Gitleaks findings; output is redacted | `make secrets` | Local and CI |
-| Dependency advisories | Zero known advisories for locked third-party dependencies applicable to the current environment; audit failures fail the check | `make audit` | Task end and CI |
+| Skill integrity | Zero differences from the pinned snapshot, including shared references | `just skills-check` | Local and CI |
+| Formatting and lint | Zero findings; one consistent style | `just lint` | Local and CI |
+| Types | Zero strict mypy errors in first-party Python | `just typecheck` | Local and CI |
+| First-party tests | At least 90% line/branch combined coverage across tooling and `nima`; data integrity and failure paths matter | `just test` | Local and CI |
+| Package | Wheel and source distribution build successfully | `just build` | Local and CI |
+| Code security | Zero Bandit findings in first-party code | `just security` | Local and CI |
+| Secret detection | Zero Gitleaks findings; output is redacted | `just secrets` | Local and CI |
+| Dependency advisories | Zero known advisories for locked third-party dependencies applicable to the current environment; audit failures fail the check | `just audit` | Task end and CI |
 
 The hash lockfile detects local drift, not a compromised upstream or a coordinated
 change to both files and hashes. Skill updates require human review. Dependencies
@@ -35,8 +35,9 @@ pinned. First-party tools do not execute scripts from the skill bundle.
 Required visibility: private. Intended GitHub controls: PR-only changes to main, one
 approval, required `quality` check, resolved conversations, and blocked force
 pushes/deletions. Private visibility was independently verified for
-`StamKavid/nima-ai` before the initial bootstrap push. Branch controls still
-require verification of integration permissions and host-plan support. A workflow
+`StamKavid/nima-ai` before the initial bootstrap push. Activation remains blocked: GitHub returned a private-repository Pro requirement
+and integration-administration 403s. The proposed main/dev ruleset is saved in
+.github/rulesets/main-dev.json; it has not been enforced. A workflow
 file alone does not enforce branch protection.
 
 ## Measurements

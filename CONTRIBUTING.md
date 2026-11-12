@@ -3,15 +3,22 @@
 ## Local setup
 
 ```bash
-make setup
-make check
-make audit
+sh scripts/install-just.sh
+export PATH="$PWD/.tools/bin:$PATH"
+just setup
+just check
+just audit
 git switch -c feature/short-description
 ```
 
+The project-local just 1.59.0 and secret-scanner installers support Linux x86_64.
+On other platforms, install the pinned just version from its official distribution.
+Historical verification reports retain the make commands actually run at the time;
+current development and CI commands use just.
+
 The bundled secret-scanner installer supports Linux x86_64. On another platform,
 install Gitleaks 8.30.1 through its official distribution and run checks with
-`make GITLEAKS=/path/to/gitleaks check`.
+`just GITLEAKS=/path/to/gitleaks check`.
 
 ## Delivery
 
