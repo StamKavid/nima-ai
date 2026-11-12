@@ -2,11 +2,11 @@
 
 ## Current increment: source-worker egress verification
 
-Status: **implementation plan for review**, 2026-11-12. The user approved
+Status: **implementation approved**, 2026-11-12, by the user's “Continue”. The user approved
 `docs/sources/source-worker-egress.md`. This plan extends that same ingestion work;
 all previous plans and pending access/identity/administration tasks remain below.
-No application code, dependency, CI or runtime configuration is changed by this
-planning increment. Implementation starts after review of this plan and its tasks.
+Execute the reviewed plan and its task acceptance criteria. Keep source collection
+and production deployment disabled throughout this fixture-only increment.
 
 ### Selected stack and immutable pins
 

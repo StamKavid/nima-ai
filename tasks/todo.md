@@ -371,12 +371,13 @@ These are not accepted as complete by this offline intake delivery.
 
 ## Source-worker egress implementation
 
-Plan: tasks/plan.md, **for review**. The approved contract is fixture-only; no
+Plan: tasks/plan.md, **approved**. The approved contract is fixture-only; no
 external account, source request or deployment. Existing incomplete work remains
 tracked above. The following test commands describe future implementation checks.
 
 - [x] Select immutable stack/OS pins and record bounded capability feasibility probes.
-- [ ] Review this implementation plan and task acceptance criteria before coding.
+- [x] Review this implementation plan and task acceptance criteria before coding.
+  - User approved execution by saying “Continue” on 2026-11-12.
 
 ### E1: Lock fixture Python dependencies
 
