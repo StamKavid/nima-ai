@@ -2,10 +2,10 @@
 
 ## Current increment: private manual Publicity evidence intake
 
-Status: **implementation plan for review**, 2026-11-12. The user approved
+Status: **implementation approved**, 2026-11-12, by the user's “Yes”. The user approved
 `docs/sources/gemi-publicity-fallback.md`, including protection of the investigator's
-home/office IP. Planning and task definition are complete; implementation starts
-after plan review. This extends the existing source-ingestion roadmap. Preserve
+home/office IP. Execute the reviewed plan and task acceptance criteria.
+This extends the existing source-ingestion roadmap. Preserve
 the older plans and incomplete access, registry-comparison and administration tasks.
 
 ### First delivery and boundaries
