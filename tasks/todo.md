@@ -236,9 +236,115 @@ investigator workspace. These are roadmap items, not implementation tasks.
 - [x] Verify cleanup policy/leases and clean eligible old merged heads.
   - Seven matching remote heads deleted; local refs retained. Mutation caught;
     17 cleanup cases include real Git lease rejection after branch advancement.
-- [ ] Publish cleanup workflow and matching main/dev bootstrap PRs.
-- [ ] Run just check/audit and verify hosted checks for both targets.
+- [x] Publish cleanup workflow and matching main/dev bootstrap PRs.
+  - Verified: #30 merged to main at `0438f0f`; #31 merged to dev at `14ee45b`.
+- [x] Run just check/audit and verify hosted checks for both targets.
+  - Prior evidence: docs/verification/repository-controls.md; 486 tests, 92.53%
+    coverage. Final-head hosted runs 43171630805/43171639562 passed before merge.
 - [ ] Enforce GitHub-side main/dev rules and native deletion setting.
   - Blocked: private-repository rulesets require GitHub Pro; settings writes
     returned 403 for this integration. Prepared .github/rulesets/main-dev.json.
 - [ ] Continue with offline registry-comparison specification.
+  - Existing draft remains on `docs/registry-comparison-spec`; it is not discarded
+    or treated as approved by the Publicity fallback decision.
+
+## Private manual Publicity evidence intake
+
+Design: docs/sources/gemi-publicity-fallback.md, approved by the user on 2026-11-12,
+including personal-IP protection. Implementation plan: tasks/plan.md, **for review**.
+This extends source ingestion; all older incomplete tasks above remain tracked.
+
+- [x] Record design approval and prepare the first offline delivery plan.
+- [ ] Obtain review of the implementation plan and these task acceptance criteria.
+
+### P1: Validate the manual capture manifest
+
+- Acceptance: strictly decode a versioned manifest within 64 KiB/ten records;
+  validate IDs, HTTPS metadata URLs, relative paths, media and protected-context
+  claims. Preserve supplied values without treating them as source verification.
+- Verify: `uv run --frozen pytest tests/test_publicity_evidence_policy.py`;
+  include duplicate keys, unknown fields, invalid dates, oversized metadata,
+  credential-bearing URLs and traversal. Pure validation performs no I/O/network.
+- Dependencies: plan approval.
+- Files: `src/nima/evidence/__init__.py`, `src/nima/evidence/publicity.py`,
+  `tests/test_publicity_evidence_policy.py` (three files).
+
+### P2: Publish one private immutable intake bundle
+
+- Acceptance: copy only bounded regular files through no-follow descriptors;
+  preserve/hash exact bytes and publish a completion manifest after durable blobs.
+  Enforce private permissions, distinct archive marker and Git exclusion.
+- Verify: `uv run --frozen pytest tests/test_publicity_evidence_intake.py`;
+  original-byte comparison, size/signature mismatches, unsafe roots, read-time
+  mutation, conflicting request UUIDs and publication failure leave honest state.
+- Dependencies: P1.
+- Files: `src/nima/evidence/artifacts.py`, `src/nima/evidence/intake.py`,
+  `tests/test_publicity_evidence_intake.py` (three files).
+
+### Checkpoint A: Evidence boundary
+
+- [ ] Review strict metadata, bounded file reads and atomic completion after P1–P2.
+- [ ] Confirm no content rendering, source fetch or API-format substitution.
+
+### P3: Verify bundles independently and reconcile replay
+
+- Acceptance: read-only verification rehashes every referenced object and validates
+  manifest/channel/version/counts/bounds. Matching replay retains first observation;
+  conflicting or corrupt evidence never succeeds or overwrites an accepted bundle.
+- Verify: `uv run --frozen pytest tests/test_publicity_evidence_verify.py`;
+  include missing/truncated/corrupt objects, symlink replacement, changed manifests,
+  foreign API archives, concurrent reuse/conflicts and unchanged archive bytes.
+- Dependencies: P2.
+- Files: `src/nima/evidence/verify.py`, `src/nima/evidence/intake.py`,
+  `tests/test_publicity_evidence_verify.py` (three files).
+
+### P4: Expose the offline intake and verification commands
+
+- Acceptance: implement the exact `evidence intake publicity` and `evidence verify`
+  interfaces in tasks/plan.md. Output only UUID/version/counts/fixed reason codes;
+  clearly label integrity success and unverified source/identity/capture claims.
+- Verify: `uv run --frozen pytest tests/test_publicity_evidence_cli.py`;
+  end-to-end synthetic input, help, exit codes, replay, redacted errors and socket/
+  DNS guards prove the command performs no source fetch or database connection.
+- Dependencies: P3.
+- Files: `src/nima/evidence/cli.py`, `src/nima/__main__.py`,
+  `tests/test_publicity_evidence_cli.py` (three files).
+
+### Checkpoint B: Usable offline fallback
+
+- [ ] Review synthetic intake → verification without network access after P3–P4.
+- [ ] Verify no accepted company identity, registry-field extraction or SQL import.
+
+### P5: Prove interruption and filesystem failure behaviour
+
+- Acceptance: actual worker termination before publication leaves no accepted
+  partial bundle; termination after publication is durably verifiable. Retrying
+  the same input/UUID is safe; corrupt or conflicting replay is rejected.
+- Verify: `uv run --frozen pytest tests/test_publicity_evidence_crash.py
+  tests/test_publicity_evidence_verify.py`; real subprocess termination, competing
+  writers and path swaps. Mutate one hash/replay guard, observe a failing test,
+  then restore original implementation byte-for-byte.
+- Dependencies: P4.
+- Files: `tests/test_publicity_evidence_crash.py`,
+  `tests/test_publicity_evidence_verify.py` and an affected evidence module if
+  failure tests expose a defect (at most three files).
+
+### P6: Review and publish a private implementation PR
+
+- Acceptance: a protected-capture runbook, strict input example and measured
+  verification report describe what works and what remains unverified; private
+  PR has StamKavid attribution and final-head hosted checks. Human merge only.
+- Verify: five-axis review; `just check`, `just audit`, final-head hosted quality
+  and Compose checks. Do not claim a live pilot, deployed IP protection or an
+  implemented browser adapter from offline tests.
+- Dependencies: P5.
+- Files: `docs/verification/publicity-evidence.md`,
+  `docs/sources/gemi-publicity-fallback.md`, `tasks/plan.md`, `tasks/todo.md`,
+  `README.md` (at most five files).
+
+### Deferred milestones
+
+Remote-browser deployment and controlled-endpoint egress tests; permitted live UI
+capture; HTML/session-data handling; registry assertion extraction; explicit SQL
+import and comparison support; shared source budgets and Prefect scheduling.
+These are not accepted as complete by this offline intake delivery.
