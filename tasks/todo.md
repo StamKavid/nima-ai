@@ -258,7 +258,7 @@ This extends source ingestion; all older incomplete tasks above remain tracked.
 - [x] Obtain review of the implementation plan and these task acceptance criteria.
   - User approved by answering “Yes” on 2026-11-12.
 
-### P1: Validate the manual capture manifest
+### P1: Validate the manual capture manifest (complete)
 
 - Acceptance: strictly decode a versioned manifest within 64 KiB/ten records;
   validate IDs, HTTPS metadata URLs, relative paths, media and protected-context
@@ -270,7 +270,7 @@ This extends source ingestion; all older incomplete tasks above remain tracked.
 - Files: `src/nima/evidence/__init__.py`, `src/nima/evidence/publicity.py`,
   `tests/test_publicity_evidence_policy.py` (three files).
 
-### P2: Publish one private immutable intake bundle
+### P2: Publish one private immutable intake bundle (complete)
 
 - Acceptance: copy only bounded regular files through no-follow descriptors;
   preserve/hash exact bytes and publish a completion manifest after durable blobs.
@@ -284,10 +284,10 @@ This extends source ingestion; all older incomplete tasks above remain tracked.
 
 ### Checkpoint A: Evidence boundary
 
-- [ ] Review strict metadata, bounded file reads and atomic completion after P1–P2.
-- [ ] Confirm no content rendering, source fetch or API-format substitution.
+- [x] Review strict metadata, bounded file reads and atomic completion after P1–P2.
+- [x] Confirm no content rendering, source fetch or API-format substitution.
 
-### P3: Verify bundles independently and reconcile replay
+### P3: Verify bundles independently and reconcile replay (complete)
 
 - Acceptance: read-only verification rehashes every referenced object and validates
   manifest/channel/version/counts/bounds. Matching replay retains first observation;
@@ -299,7 +299,7 @@ This extends source ingestion; all older incomplete tasks above remain tracked.
 - Files: `src/nima/evidence/verify.py`, `src/nima/evidence/intake.py`,
   `tests/test_publicity_evidence_verify.py` (three files).
 
-### P4: Expose the offline intake and verification commands
+### P4: Expose the offline intake and verification commands (complete)
 
 - Acceptance: implement the exact `evidence intake publicity` and `evidence verify`
   interfaces in tasks/plan.md. Output only UUID/version/counts/fixed reason codes;
@@ -313,10 +313,10 @@ This extends source ingestion; all older incomplete tasks above remain tracked.
 
 ### Checkpoint B: Usable offline fallback
 
-- [ ] Review synthetic intake → verification without network access after P3–P4.
-- [ ] Verify no accepted company identity, registry-field extraction or SQL import.
+- [x] Review synthetic intake → verification without network access after P3–P4.
+- [x] Verify no accepted company identity, registry-field extraction or SQL import.
 
-### P5: Prove interruption and filesystem failure behaviour
+### P5: Prove interruption and filesystem failure behaviour (complete)
 
 - Acceptance: actual worker termination before publication leaves no accepted
   partial bundle; termination after publication is durably verifiable. Retrying
@@ -331,6 +331,13 @@ This extends source ingestion; all older incomplete tasks above remain tracked.
   failure tests expose a defect (at most three files).
 
 ### P6: Review and publish a private implementation PR
+
+- [x] Run focused failure checks, mutation, five-axis review and write runbook.
+- [x] Pass final full quality/audit checks and publish private reviewable PRs.
+  - Local runtime/test revision `f309961`: 576 tests, 93.03% coverage; clean audit.
+    Delivery is split into design (#32), core (#33), then the dependent CLI PR.
+- [ ] Verify final-head hosted quality/Compose checks before marking ready.
+  - Mutable final-head results are recorded in the delivery PRs after this snapshot.
 
 - Acceptance: a protected-capture runbook, strict input example and measured
   verification report describe what works and what remains unverified; private

@@ -27,7 +27,7 @@ context; it cannot prove which IP the source saw or authenticate supplied files.
 Remote browsing, source egress enforcement and leak testing remain later milestones.
 No hosting/proxy purchase or deployment is authorized by this plan.
 
-### Proposed interfaces (not yet implemented)
+### Implemented offline interfaces
 
 ```bash
 uv run --frozen python -m nima evidence intake publicity \
@@ -133,8 +133,10 @@ manual-browser setup; conditional offline UI adapter with pinned dependencies;
 live UI pilot only after permitted access is established; explicit channel-aware
 registry assertions/import; shared SQL source guard and optional Prefect scheduling.
 The original GEMI key/pilot and registry-comparison work remain pending separately.
-No unresolved provider/network prerequisite blocks offline implementation once the
-human approves this plan.
+The offline intake/verification slice is implemented. Final quality and hosted
+delivery checks are recorded in docs/verification/publicity-evidence.md and the PRs.
+Delivery is split into design, archive-core and CLI/failure-verification PRs to
+keep each dependent review below roughly 1,000 changed lines. No automatic merge.
 
 ## Previous increment: repository controls and just
 
