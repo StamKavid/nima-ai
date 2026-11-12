@@ -26,6 +26,18 @@ class CaseSpec:
     name: str
     kind: CaseKind
 
+    @property
+    def target_counter(self) -> str:
+        if self.kind == CaseKind.IPV6_DISABLED:
+            return "disabled_mode"
+        if self.name in {"http_dns", "browser_dns"}:
+            return "dns_queries"
+        if self.name in {"http_udp", "browser_quic", "browser_stun"}:
+            return "udp_datagrams"
+        if self.kind == CaseKind.PACKET_BLOCKED:
+            return "tcp_accepts"
+        return "application_requests"
+
 
 CASES = tuple(
     CaseSpec(name, kind)
@@ -87,12 +99,19 @@ class FixturePolicy:
     attempt_seconds: int = field(default=15, init=False)
     max_response_bytes: int = field(default=1024**2, init=False)
     max_receipt_bytes: int = field(default=64 * 1024, init=False)
+    seccomp_sha256: str = field(
+        default="1ec225154906ce8e797e22d7fadaff5b592d273a08774f35c627f5c940faf4b4", init=False
+    )
     cases: tuple[CaseSpec, ...] = field(default=CASES, init=False)
 
     @property
     def digest(self) -> str:
+        manifest = asdict(self)
+        manifest["cases"] = [
+            {**asdict(case), "target_counter": case.target_counter} for case in self.cases
+        ]
         return hashlib.sha256(
-            json.dumps(asdict(self), sort_keys=True, separators=(",", ":")).encode()
+            json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
 
 
