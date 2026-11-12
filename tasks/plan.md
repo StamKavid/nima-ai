@@ -1,12 +1,244 @@
 # Delivery plan
 
-## Next increment: source-worker egress verification
+## Current increment: source-worker egress verification
 
-The manual intake delivery is merged and verified. The next source-ingestion
-contract is `docs/sources/source-worker-egress.md`, **draft for review**. It covers
-a fixture-only worker network boundary; implementation planning follows contract
-approval. No source collector, remote service or proxy subscription is activated.
-Preserve the previous plans and unrelated pending tasks below.
+Status: **implementation plan for review**, 2026-11-12. The user approved
+`docs/sources/source-worker-egress.md`. This plan extends that same ingestion work;
+all previous plans and pending access/identity/administration tasks remain below.
+No application code, dependency, CI or runtime configuration is changed by this
+planning increment. Implementation starts after review of this plan and its tasks.
+
+### Selected stack and immutable pins
+
+First support Linux/amd64 only. Use official publisher images and preserve source
+licences. Envoy and Playwright are Apache-2.0; cryptography is Apache-2.0 OR BSD-3-Clause.
+Debian utilities retain their upstream OS-package licences. No service subscription
+or proprietary proxy SDK is needed. This is a test stack, not a production image.
+
+| Component | Selected pin |
+|---|---|
+| Gateway | `envoyproxy/envoy:v1.40.2@sha256:49d3e8b6246d1a804acffaebe42f2799edc77b77a37a97709ef742af90b6d223` |
+| Browser fixture base | `mcr.microsoft.com/playwright/python:v1.65.1-noble@sha256:ce84a3d75a47e81657d2ec2c0a949e6e0ef790abdc32ce6819220a3df987ff9a` |
+| Namespace helper base | Existing `python:3.12.14-slim-bookworm@sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e` |
+| Python browser binding | `playwright==1.65.1`; Linux x86_64 wheel SHA-256 `5660e0b050a5bd5672bf8e366ed2580288a3d3640ff9444436ed2d890d3dc442` |
+| Bundled browser target | Chromium `158.0.8127.18`, revision `1254`, from the verified wheel's `browsers.json` |
+| Fixture certificate generation | `cryptography==50.0.2`, already resolved in the current root lockfile |
+| Seccomp profile | Playwright JS commit `a1f35e1955976e84411f9c10358228a80b763ebe`; profile SHA-256 `cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849` |
+
+The Python 1.65.1 wheel bundles JS driver 1.65.0. Its matching upstream seccomp
+profile therefore comes from JS tag v1.65.0, not a nonexistent JS v1.65.1 tag.
+Retain its Apache-2.0 licence and exact source/digest in the fixture pins file.
+Before launch, check the browser binary/image actually matches the wheel metadata.
+Do not silently use the environment's unrelated installed Chromium.
+
+Build the helper from Debian snapshot
+`https://snapshot.debian.org/archive/debian/20261112T000000Z/`, suite `bookworm`.
+Keep APT signature/TLS verification. The InRelease SHA-256 is
+`77737fa4b34f2693e982cc9ee35736816c35a7778fc2d326cc1bbf5b301fe1aa`;
+its main amd64 Packages.xz SHA-256 is
+`9e0b5aabb2465b3d2e7a7fe27f9913846277833f7a2826e7767acccff5b588c5`.
+Treat this as an intentionally frozen build feed; any later pin/feed refresh needs
+a reviewed update, not a floating fallback to current mirrors.
+
+| Helper package | Version | amd64 .deb SHA-256 |
+|---|---|---|
+| nftables | `1.0.6-2+deb12u2` | `966ff20ce58c17163a771c02ddbca264291408f94c512bd85dd18da0ebdbe88c` |
+| iproute2 | `6.1.0-3` | `1204b29e916e836267096d0b9d778106752f821ebde0d281539008b4386d9070` |
+| libnss3-tools | `2:3.87.1-1+deb12u2` | `7d4efc0ccd28edf39c9bbc108794c7b78020e99376a049c50416e429bae96a9b` |
+
+Resolve transitive OS packages only from the same signed snapshot and record the
+installed package manifest. Historical feeds may require snapshot-specific
+Valid-Until handling; bind it to this exact verified metadata rather than disabling
+repository signatures or TLS. No latest-image or unversioned-package substitution.
+
+Add Playwright and a direct dev-only cryptography pin to the existing root uv dev
+group. Keep runtime dependency declarations unchanged. Regenerate the hash-locked
+orchestration development export because it intentionally includes all dev tools;
+it receives the Python binding, not downloaded browser binaries. Browser binaries
+live only in the fixture image. Freeze unrelated resolved packages during this change.
+
+### What planning actually verified
+
+Registry metadata confirmed both selected amd64 image digests. The downloaded
+Playwright wheel matched PyPI's SHA-256 and supplied the driver/browser revisions
+above. Debian InRelease signatures verified with the archive keyring from the
+pinned Python image; the package index matched its declared SHA-256.
+
+Disposable, read-only, network-none probes on Docker 29.9.2 verified:
+
+- A root helper with only NET_ADMIN could set a socket mark; effective capabilities
+  were exactly `0x1000`.
+- UID 10001 with all capabilities dropped and no-new-privileges could not do so.
+- With the pinned seccomp profile, the unprivileged process could create a user
+  namespace, but still could not gain NET_ADMIN over its parent network namespace.
+
+These are capability primitives, not installed nftables rules or a Chromium launch.
+Gateway CONNECT/TLS/auth, NSS trust and browser sandbox operation remain untested.
+The current executor had about 1.6 GB free; do not pull the large browser image
+there and pretend a full launch was checked. The build preflight requires at least
+8 GiB free on the Docker data filesystem; use a sufficiently sized Linux runner.
+No automatic pruning of unrelated images/caches or host security relaxation.
+
+### Concrete process and network boundary
+
+Use two internal Compose networks with fixed test-only addresses selected from
+nonoverlapping private subnets. Abort on a conflict; do not attach to the implicit
+default network. An anchor holds the worker network namespace. The gateway alone
+bridges worker/fixture networks, with IP forwarding disabled. Neither has Internet
+egress. Build-time downloads still use the mandatory platform proxy and CA.
+
+| Process | UID/capabilities | Access |
+|---|---|---|
+| Namespace anchor | 10001, none | Holds the isolated namespace, no service ports |
+| Policy setup helper | 0, NET_ADMIN only | Joins that namespace, installs fixed rules/aliases, then exits |
+| Collection workload | 10001, none, no-new-privileges | Shares guarded namespace, can contact only the fixed gateway TCP port |
+| Independent fixture observer | 10002, none | Test-only control identity; proves canaries reachable without changing the policy |
+| Gateway and fixture services | 10002, none | Their own namespaces; only explicit synthetic routes and private control mounts |
+
+The trusted observer shares the worker namespace for comparable positive controls,
+but has its own PID/container context and UID. Its exception is explicitly limited
+to this fixture profile. Workloads must be unable to assume that UID, alter rules,
+mount control volumes or reach the Docker socket. It is not a live deployment
+exception or an Internet path. Do not ship the observer/canary aliases as production
+configuration.
+
+Install an nftables inet OUTPUT chain with a default drop policy. Accept only the
+fixed gateway IPv4/TCP destination for workload UID 10001. Do not add a general
+OUTPUT established-flow exemption that could reuse an observer's previous flow.
+Playwright uses a local pipe, so no blanket IP-loopback allowance is needed.
+Observer UID 10002 is a declared test-only positive-control exception. Disable
+IPv6 explicitly in the anchor namespace and verify the effective settings.
+
+The setup helper exits successfully before Compose starts workloads. Applications
+never receive NET_ADMIN. A separate short-lived trusted helper may read kernel
+policy/counters later; it does not rewrite rules during normal cases. No host
+network/PID/IPC sharing, privileged container, host policy edit or mounted Docker
+socket. Use private /dev/shm of 256 MiB, read-only roots and bounded tmpfs/state.
+
+Canaries include same-network TCP/UDP/DNS targets and a synthetic metadata address
+installed locally within the disposable namespace. A metadata case must never
+contact a real cloud metadata endpoint. For the host-boundary case, publish only a
+synthetic canary on the dedicated Docker bridge address, never 0.0.0.0/public
+interfaces. Verify its positive control and actual binding before any negative
+case. Gateway/browser control interfaces are never exposed as host TCP services.
+
+### Gateway, TLS and observation choices
+
+Use Envoy's HTTP/1 CONNECT termination to a static fixture upstream, not dynamic
+DNS forwarding or a custom Python tunnelling server. Exact-authority/port/method
+RBAC is enforced, not shadow mode; no wildcard or raw-IP destination is allowed.
+Fixture-only Basic proxy credentials are generated at runtime. Configure a bounded
+407/Proxy-Authenticate challenge for authentication denial so Chromium can respond;
+prove both HTTPX and browser behaviour rather than assuming a 403 is sufficient.
+Validate the bootstrap with the pinned Envoy binary before starting it.
+
+TLS remains end-to-end between client and fixture; the gateway does not intercept
+certificates. Generate CA/server keys privately with cryptography, publish only
+the CA certificate to the workload, and use SSLContext trust for HTTPX. Import
+that CA into Chromium's private NSS database with certutil. Chromium M146+ defaults
+to `$HOME/.local/share/pki/nssdb`; verify the selected process's actual private home
+and database. Do not rely on system CA changes, ignore_https_errors or sandbox
+disable flags. Launch full Chromium with `channel="chromium"` and
+`chromium_sandbox=True`, with first-run/background networking disabled.
+
+Keep fixture keys, generated gateway credentials/config and observer control
+sockets on private mounts absent from the worker. Use separate public-CA mounts.
+No unfiltered gateway access logs, configs, HARs or raw exception values enter CI
+logs. Gateway admin statistics, if needed, use an observer-only Unix socket and
+allowlisted numeric counters; no admin TCP listener. Counters reset/read through
+private control channels which the workload cannot reach or spoof.
+
+### Cases, receipts and executable interfaces
+
+Freeze at most 30 named cases from the approved matrix. Each negative case has an
+observer positive control, a stable active-policy identity and counter evidence.
+Prove proxy-variable removal, trust_env=False and NO_PROXY cannot bypass rules;
+cover real browser subresources, DNS/UDP/QUIC/STUN, IPv6 disabled mode, host/metadata
+targets, denied redirects, gateway failure, bad auth and bad TLS. Distinguish a
+blocked delivery from a dead fixture or a successful UDP send without delivery.
+
+The host-side runner generates its own UUID/project name and private state root,
+uses structured Docker CLI arguments and tracks exact resource IDs/ownership.
+Cleanup may remove only those resources. The runner can use the local Docker
+socket; no test container receives it. Missing disk/kernel/sandbox prerequisites,
+timeouts, absent cases or incomplete controls fail nonzero without skips.
+
+First-party code lives under `src/nima/egress/`. Ordinary unit files use
+`tests/test_source_worker_*.py`. Real Docker tests use the explicitly selected file
+`tests/source_worker_integration.py`, which default pytest discovery does not select
+but strict mypy/Ruff still cover. The dedicated CI job must run it; no skip marker,
+weakened ordinary check or pretend green result substitutes for this gate.
+
+Proposed commands after implementation:
+
+```bash
+uv run --frozen python -m nima.egress.runner --profile fixtures \
+  --output-dir data/source-worker
+just source-worker-check
+uv run --frozen pytest tests/source_worker_integration.py
+just check
+just audit
+```
+
+The just recipe selects the explicit integration file, which exercises the same
+fixed-profile runner once per required scenario. It does not redundantly run a
+second normal matrix. No live mode, arbitrary target URL, collector integration or
+source job is exposed. The runner separates image
+builds from runtime's 10-minute deadline. Keep 15-second attempts, one attempt per
+case, 1 MiB responses and 64 KiB receipts. Serialize cases; one Chromium instance.
+
+Receipts preserve fixture scope, actual image/policy identities, kernel/workload
+observations, counter/control results and UTC times. The report is bounded, private
+and published atomically after reconciliation. Keep internet_egress_verified,
+investigator_ip_protection_verified and production_ready false. Packet enforcement
+does not authenticate the host or prove a remote public IP. No GEMI archive format,
+SQL write, identity acceptance or model output is involved.
+
+### Ordered delivery and review checkpoints
+
+E1 dependencies → E2 pins/helper → E3 sandbox prerequisite → checkpoint A →
+E4 policy/receipts → E5 controlled fixtures → E6 gateway TLS/auth → checkpoint B →
+E7 namespace enforcement → E8 HTTPX cases/runner → E9 browser cases → checkpoint C →
+E10 failure/mutation checks → E11 complete CI gates → E12 runbook/private PRs.
+
+Task acceptance criteria and roughly 3–5 files per task are in `tasks/todo.md`.
+Use focused failing tests before behaviour, small commits, sequential execution
+and no delegation. Stop at a failed feasibility checkpoint; do not silently change
+the approved stack or weaken sandbox/TLS/network controls to proceed.
+
+Add `source-worker-egress` as a dedicated `ubuntu-24.04` CI job, initially proving the
+image/sandbox prerequisite and extended to the complete matrix by delivery. It
+never claims deployed IP protection. Keep quality and orchestration-compose jobs
+unchanged in purpose. Use a 25-minute job bound for builds, the 10-minute runtime
+suite and cleanup; no live source secrets. Final exact-head local/hosted evidence,
+clean audit and the 90% coverage floor are required before marking delivery ready.
+Add the new check to the proposed main/dev ruleset payload. The existing GitHub
+Pro/integration-administration block still prevents claiming server enforcement;
+this work updates the payload/instructions, not account settings or billing.
+Split large delivery diffs into dependent PRs and leave dependents draft until
+their parents are merged/retargeted; human merges only.
+
+### Risks, limits and remaining review
+
+The remaining feasibility risks are a real sandboxed Chromium launch, matching
+NSS trust and Envoy's CONNECT/auth handshake. They have explicit early checks.
+Only the primitive capabilities and publisher metadata above were tested during
+planning. The current small executor cannot claim the full browser/image checks;
+use a sufficient runner and report environment failures honestly.
+
+There is no need for a GEMI key, Webshare account or VPN credential in this work.
+No source access, hosting purchase or deployment is authorized by this plan.
+Provider permission and deployment-specific public-egress verification remain
+separate gates. Existing manual intake and the original ingestion/identity roadmap
+continue independently.
+
+Official sources: [Envoy CONNECT](https://www.envoyproxy.io/docs/envoy/v1.40.2/intro/arch_overview/http/upgrades),
+[RBAC](https://www.envoyproxy.io/docs/envoy/v1.40.2/configuration/http/http_filters/rbac_filter),
+[local replies](https://www.envoyproxy.io/docs/envoy/v1.40.2/configuration/http/http_conn_man/local_reply),
+[Playwright Docker](https://playwright.dev/python/docs/docker),
+[Chromium headless mode](https://playwright.dev/python/docs/browsers#chromium-new-headless-mode),
+[NSS trust](https://chromium.googlesource.com/chromium/src/+/main/docs/linux/cert_management.md),
+[nftables UID metadata](https://wiki.nftables.org/wiki-nftables/index.php/Matching_packet_metainformation).
 
 ## Completed increment: private manual Publicity evidence intake
 

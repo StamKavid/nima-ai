@@ -366,4 +366,181 @@ These are not accepted as complete by this offline intake delivery.
 - [x] Draft the fixture-only network boundary and observable acceptance cases.
   - Contract: docs/sources/source-worker-egress.md. This is not deployed privacy
     infrastructure or permission to automate a government source.
-- [ ] Review the new contract before implementation planning.
+- [x] Review the new contract before implementation planning.
+  - User approved by saying “I approve” on 2026-11-12.
+
+## Source-worker egress implementation
+
+Plan: tasks/plan.md, **for review**. The approved contract is fixture-only; no
+external account, source request or deployment. Existing incomplete work remains
+tracked above. The following test commands describe future implementation checks.
+
+- [x] Select immutable stack/OS pins and record bounded capability feasibility probes.
+- [ ] Review this implementation plan and task acceptance criteria before coding.
+
+### E1: Lock fixture Python dependencies
+
+- Acceptance: add dev-only Playwright 1.65.1 and cryptography 50.0.2; retain runtime
+  declarations and unrelated resolved versions. Regenerate the existing hash-locked
+  development-image export without downloading browsers into that image.
+- Verify: frozen uv sync/export, `just container-lock-check`, `just audit`, existing
+  quality/type checks; explain any unavoidable shared transitive resolution change.
+- Dependencies: plan approval.
+- Files: pyproject.toml, uv.lock, infra/requirements-orchestration.txt (three).
+
+### E2: Freeze image, package and seccomp provenance
+
+- Acceptance: record the selected amd64 image digests, verified OS snapshot/feed,
+  direct package versions/checksums and profile source/hash/licence. Build the
+  helper from the exact signed feed; no unsigned/unversioned fallback.
+- Verify: reproduce metadata/hash/signature checks and helper installed-package
+  manifest. Helper works with read-only runtime root and no network.
+- Dependencies: E1.
+- Files: infra/source-worker/pins.json, infra/source-worker/seccomp.json,
+  infra/source-worker/LICENSE.seccomp, infra/source-worker/Dockerfile.helper (four).
+
+### E3: Prove the sandboxed browser prerequisite
+
+- Acceptance: a pinned worker image runs UID 10001 with no capabilities, private
+  IPC/state and the real Chromium sandbox. Preflight fails visibly on insufficient
+  disk, unsupported user namespaces, mismatched binaries or missing prerequisites.
+- Verify: unit parsing/redaction tests; a real network-none browser/data-page probe,
+  exact version/sandbox observations and scoped helper-versus-worker capability
+  checks on a sufficient runner. Never use no-sandbox or SYS_ADMIN as recovery.
+- Dependencies: E2.
+- Files: infra/source-worker/Dockerfile.worker, src/nima/egress/__init__.py,
+  src/nima/egress/preflight.py, tests/test_source_worker_preflight.py,
+  .github/workflows/ci.yml (five; adds the dedicated prerequisite job).
+
+### Checkpoint A: Supported pinned runtime
+
+- [ ] Actual pinned-image browser launch/sandbox and helper capabilities verified.
+- [ ] Unsupported resource/kernel cases fail; no deployed privacy claim appears.
+
+### E4: Define fixture policy and receipt semantics
+
+- Acceptance: immutable bounded policy/case models accept only fixed fixture
+  identities and reject arbitrary live URLs or bypass options. Receipt validation
+  requires complete case/control evidence and preserves all production/privacy
+  verification flags as false; source formats and SQL remain separate.
+- Verify: `uv run --frozen pytest tests/test_source_worker_policy.py
+  tests/test_source_worker_receipts.py`; missing/conflicting evidence, bounds,
+  redaction and private atomic report publication without network.
+- Dependencies: E3.
+- Files: src/nima/egress/policy.py, src/nima/egress/receipt.py,
+  tests/test_source_worker_policy.py, tests/test_source_worker_receipts.py (four).
+
+### E5: Build controlled fixtures and independent observation
+
+- Acceptance: generate ephemeral CA/server material and sentinel credentials on
+  private volumes, expose only a public CA to the worker, and provide HTTPS and
+  TCP/UDP/DNS canaries with private control counters. Observer UID 10002 is distinct
+  from workload UID 10001 and never a live collection identity.
+- Verify: `uv run --frozen pytest tests/test_source_worker_fixtures.py`; real
+  observer positive controls, private-control access rejection and TLS material
+  absent from Git/logs. Create only closed, project-owned networks/resources.
+- Dependencies: E4.
+- Files: src/nima/egress/fixtures.py, src/nima/egress/bootstrap.py,
+  src/nima/egress/observer.py, tests/test_source_worker_fixtures.py,
+  infra/compose.source-worker-test.yml (five).
+
+### E6: Prove gateway CONNECT, TLS and authentication
+
+- Acceptance: static-authority Envoy routing and enforced RBAC accept only the
+  fixture; Basic authentication challenges correctly, credentials stay on the
+  proxy hop and invalid TLS is rejected. Prove Chromium NSS trust/challenge
+  compatibility here before building its later transport matrix.
+- Verify: unit gateway-policy tests plus explicit Docker integration; validate
+  config with pinned Envoy and complete real HTTPX and sandboxed Chromium HTTPS
+  tunnels. Test missing credentials, raw-IP/host/port denial, invalid certificates
+  and no secret-bearing config/log output. Counters are observable privately.
+- Dependencies: E5.
+- Files: src/nima/egress/gateway.py, tests/test_source_worker_gateway.py,
+  tests/source_worker_integration.py, infra/compose.source-worker-test.yml,
+  src/nima/egress/bootstrap.py (five).
+
+### Checkpoint B: Real gateway/fixture protocol
+
+- [ ] HTTPX/browser HTTPS, proxy challenges and NSS trust pass with real controls.
+- [ ] Control sockets/credentials are inaccessible to the workload; no open relay.
+
+### E7: Enforce the worker namespace packet policy
+
+- Acceptance: NET_ADMIN exists only in a trusted helper sharing the anchor's
+  namespace. It installs default-drop output, exact gateway/UID rules and local
+  fixture aliases, then exits before starting cap-free workload processes. IPv6
+  is explicitly disabled; a child user namespace cannot change the parent policy.
+- Verify: policy unit tests and real Docker probes for direct/host/metadata/DNS/UDP
+  delivery denial with observer successes, effective UID/capability/sysctl evidence
+  and stable rule counters. No first-party host firewall or routing changes.
+- Dependencies: E6.
+- Files: src/nima/egress/network.py, tests/test_source_worker_network.py,
+  tests/source_worker_integration.py, infra/compose.source-worker-test.yml (four).
+
+### E8: Execute HTTPX cases through a bounded host runner
+
+- Acceptance: fixed-case HTTPX probes cover proxy bypass, redirects, TLS, credentials,
+  host/metadata and gateway failure. A host controller generates/owns its resources,
+  enforces budgets and publishes reconciled private receipts; it offers no live mode.
+- Verify: `uv run --frozen pytest tests/test_source_worker_http.py`; real
+  integration cases with controls, NO_PROXY/trust_env=False attempts, UID-change
+  denial, invalid configuration and no direct fallback. No live endpoints are used.
+- Dependencies: E7.
+- Files: src/nima/egress/probe_http.py, src/nima/egress/runner.py,
+  tests/test_source_worker_http.py, tests/source_worker_integration.py (four).
+
+### E9: Exercise Chromium subresources and alternate transports
+
+- Acceptance: full Chromium uses the private NSS trust database and explicit
+  sandbox; page/scripts/images/XHR/fetch use the gateway. DNS, UDP/QUIC/STUN and
+  proxy-configuration changes cannot escape. Worker never mounts observer controls.
+- Verify: unit result/redaction tests and real browser cases; observer counters,
+  denied-delivery evidence, invalid-cert rejection and explicit IPv6 disabled-mode
+  observations. No ignored certificate errors or unfiltered traces.
+- Dependencies: E8.
+- Files: src/nima/egress/probe_browser.py, tests/test_source_worker_browser.py,
+  tests/source_worker_integration.py, src/nima/egress/runner.py (four).
+
+### Checkpoint C: Complete named acceptance matrix
+
+- [ ] All required HTTPX/browser cases and controls reconcile within budgets.
+- [ ] Receipt distinguishes observed fixture isolation from undeployed IP protection.
+
+### E10: Prove failure, redaction and mutation behaviour
+
+- Acceptance: stopped gateway, missing capabilities, absent cases, interrupted/
+  timed-out controller or invalid ownership never create a successful receipt or
+  broaden cleanup. Runtime-generated sentinel secrets remain out of diagnostics.
+- Verify: real outage/interruption/cleanup controls and an actual packet-guard
+  mutation, on disposable closed fixtures only. The negative-case regression must
+  fail, then restore original guard bytes and rerun the normal matrix.
+- Dependencies: E9.
+- Files: tests/source_worker_integration.py, tests/test_source_worker_receipts.py,
+  src/nima/egress/runner.py (three).
+
+### E11: Integrate the complete CI gate
+
+- Acceptance: `just source-worker-check` and a mandatory additive CI job run the
+  complete explicit integration file and publish only redacted receipts. Existing
+  quality/Compose gates remain. Include the new context in the proposed protection
+  payload while retaining the documented block on server-side enforcement.
+- Verify: `just source-worker-check`, `just check`, `just audit` and exact-head
+  hosted checks. Check the proposed ruleset and workflow context names agree;
+  no live repository-administration or billing change.
+- Dependencies: E10.
+- Files: .github/workflows/ci.yml, justfile, .github/rulesets/main-dev.json,
+  docs/repository-settings.md (four).
+
+### E12: Review and publish the measured delivery
+
+- Acceptance: runbook and evidence state actual results/prerequisites and limits.
+  Small dependent private PRs use StamKavid attribution; no dependent merge to an
+  obsolete base, automatic merge, source request, purchase or deployment.
+- Verify: five-axis review, final exact-head checks and public-IP/privacy flags
+  remain false in fixture receipts. Human review/merge is the final delivery gate.
+- Dependencies: E11.
+- Files: README.md, docs/verification/source-worker-egress.md, tasks/todo.md,
+  tasks/plan.md, docs/sources/source-worker-egress.md (five).
+
+Progress-only updates to this plan/spec remain separate from behaviour changes.
+Current stack pins/probes are planning evidence, not passing integration results.

@@ -1,6 +1,8 @@
 # Spec: source-worker egress verification
 
-Status: **draft for approval**, 2026-11-12. Existing capability: `source-ingestion`.
+Status: **approved**, 2026-11-12, by the user's “I approve”.
+Existing capability: `source-ingestion`. Implementation plan and task acceptance
+criteria are in `tasks/plan.md` and `tasks/todo.md`, awaiting their own review.
 Supplements the approved GEMI Publicity fallback and its personal-IP requirement.
 Base: main `ed52c38`, after merged manual-evidence PRs #32–#34.
 
@@ -197,9 +199,9 @@ setup capabilities, resource bounds and additive CI changes.
 Never: buy services, publish a browser/control port, deploy infrastructure, disable
 TLS/browser sandboxing, activate source automation or treat IP rotation as recovery.
 
-Open implementation decisions are the smallest compatible pinned gateway/browser
-stack and namespace-policy mechanism on supported Linux runners. These require
-documented feasibility and a concrete implementation plan after spec approval.
+The implementation plan selects pinned Envoy, Playwright/Chromium and nftables,
+and records limited capability probes and the untested browser/TLS prerequisites.
+Review that concrete plan before implementing the worker or changing dependencies.
 Live access still needs provider permission and a separate deployment decision;
 neither is a blocker for this fixture-only increment. No external credentials are
 needed now. Existing registry-comparison and pending GEMI-key work remain tracked.
