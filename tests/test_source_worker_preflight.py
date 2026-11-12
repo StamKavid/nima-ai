@@ -8,6 +8,7 @@ import pytest
 from nima.egress.preflight import (
     PrerequisiteError,
     check_host,
+    check_namespaces,
     check_process,
     check_sandbox,
     classify_browser_failure,
@@ -140,3 +141,12 @@ def test_helper_has_only_network_admin_in_the_target_namespace() -> None:
 )
 def test_browser_failure_codes_never_echo_diagnostics(message: str, code: str) -> None:
     assert classify_browser_failure(message) == code
+
+
+def test_namespace_failure_in_child_is_a_failed_prerequisite(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr("os.fork", lambda: 123)
+    monkeypatch.setattr("os.waitpid", lambda pid, flags: (123, 256))
+    with pytest.raises(PrerequisiteError, match="^user_namespaces$"):
+        check_namespaces()

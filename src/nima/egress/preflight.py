@@ -6,6 +6,7 @@ https://playwright.dev/python/docs/browsers#chromium-new-headless-mode
 
 import argparse
 import json
+import os
 import re
 import socket
 from importlib.metadata import version
@@ -81,13 +82,40 @@ def helper_check() -> None:
     check_socket_mark(helper=True)
 
 
+def check_namespaces() -> None:
+    """Probe sandbox primitives in a child; never change the controller namespace."""
+    child = os.fork()
+    if child == 0:
+        try:
+            os.unshare(os.CLONE_NEWUSER | os.CLONE_NEWNET | os.CLONE_NEWPID)
+        except OSError:
+            os._exit(1)
+        os._exit(0)
+    _, status = os.waitpid(child, 0)
+    if status != 0:
+        raise PrerequisiteError("user_namespaces")
+
+
+def namespaces_check() -> None:
+    check_process(Path("/proc/self/status").read_text())
+    check_socket_mark(helper=False)
+    check_namespaces()
+
+
 def classify_browser_failure(message: str) -> str:
     """Extract only fixed known signals; never publish driver output."""
     for marker, code in (
         ("Failed to move to new namespace", "browser_namespace_denied"),
+        ("Failed to unshare", "browser_namespace_denied"),
         ("No usable sandbox!", "browser_sandbox_unavailable"),
         ("Executable doesn't exist", "browser_binary_missing"),
         ("error while loading shared libraries", "browser_library_missing"),
+        ("chrome_crashpad_handler: --database is required", "browser_crashpad_database"),
+        ("Resource temporarily unavailable", "browser_resource_unavailable"),
+        ("Operation not permitted", "browser_operation_denied"),
+        ("Permission denied", "browser_permission_denied"),
+        ("signal=SIGSYS", "browser_syscall_signal"),
+        ("signal=SIGTRAP", "browser_trap_signal"),
     ):
         if marker in message:
             return code
@@ -160,6 +188,7 @@ def main(argv: list[str] | None = None) -> int:
     host.add_argument("--free-bytes", type=int, required=True)
     modes.add_parser("browser")
     modes.add_parser("helper")
+    modes.add_parser("namespaces")
     try:
         args = parser.parse_args(argv)
     except SystemExit as exc:
@@ -173,6 +202,8 @@ def main(argv: list[str] | None = None) -> int:
             check_host(json.loads(raw), args.free_bytes)
         elif args.mode == "helper":
             helper_check()
+        elif args.mode == "namespaces":
+            namespaces_check()
         else:
             browser_check()
     except PrerequisiteError as exc:

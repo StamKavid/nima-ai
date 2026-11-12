@@ -99,6 +99,14 @@ jobs:
           --pids-limit 64 --memory 128m --cpus 1
           nima-egress-helper:local python -m nima.egress.preflight helper
           > data/source-worker/helper-receipt.json
+      - name: Verify unprivileged sandbox namespace primitives
+        run: >-
+          docker --host=unix:///var/run/docker.sock run --rm --network none --read-only
+          --cap-drop ALL --security-opt no-new-privileges
+          --security-opt seccomp=infra/source-worker/seccomp.json
+          --pids-limit 64 --memory 128m --cpus 1
+          nima-egress-helper:local python -m nima.egress.preflight namespaces
+          > data/source-worker/namespaces-receipt.json
       - name: Build pinned browser fixture image
         run: >-
           docker --host=unix:///var/run/docker.sock build
