@@ -112,3 +112,35 @@ def test_read_failure_and_invalid_manifest_do_not_complete(tmp_path: Path) -> No
     metadata.write_bytes(b"bad")
     with pytest.raises(EvidenceError, match="^input$"):
         intake(uuid4(), metadata, source, archive)
+
+
+@pytest.mark.parametrize(
+    ("media", "body"),
+    [
+        ("image/png", b"\x89PNG\r\n\x1a\nsynthetic"),
+        ("image/jpeg", b"\xff\xd8\xffsynthetic"),
+    ],
+)
+def test_image_capture_is_opaque_exact_evidence(tmp_path: Path, media: str, body: bytes) -> None:
+    metadata, source, archive = inputs(tmp_path, body)
+    metadata.write_bytes(manifest(capture(media_type=media, capture_method="screenshot")))
+    assert intake(uuid4(), metadata, source, archive)["extraction_complete"] is False
+    assert [p.read_bytes() for p in (archive / "objects").glob("*.body")] == [body]
+
+
+@pytest.mark.parametrize("kind", ["root_symlink", "parent_symlink", "git_internals"])
+def test_archive_cannot_follow_links_or_write_git_internals(tmp_path: Path, kind: str) -> None:
+    metadata, source, archive = inputs(tmp_path)
+    target = tmp_path / (".git" if kind == "git_internals" else "target")
+    target.mkdir(mode=0o700)
+    if kind == "root_symlink":
+        archive.symlink_to(target, target_is_directory=True)
+    elif kind == "parent_symlink":
+        alias = tmp_path / "alias"
+        alias.symlink_to(target, target_is_directory=True)
+        archive = alias / "archive"
+    else:
+        archive = target / "archive"
+    with pytest.raises(EvidenceError):
+        intake(uuid4(), metadata, source, archive)
+    assert list(target.iterdir()) == []
