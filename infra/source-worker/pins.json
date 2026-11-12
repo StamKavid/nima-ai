@@ -1,0 +1,39 @@
+{
+  "chromium": "158.0.8127.18",
+  "chromium_revision": "1254",
+  "driver": "1.65.0",
+  "images": {
+    "gateway": "envoyproxy/envoy:v1.40.2@sha256:49d3e8b6246d1a804acffaebe42f2799edc77b77a37a97709ef742af90b6d223",
+    "helper": "python:3.12.14-slim-bookworm@sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e",
+    "worker": "mcr.microsoft.com/playwright/python:v1.65.1-noble@sha256:ce84a3d75a47e81657d2ec2c0a949e6e0ef790abdc32ce6819220a3df987ff9a"
+  },
+  "platform": "linux/amd64",
+  "playwright": "1.65.1",
+  "seccomp": {
+    "commit": "a1f35e1955976e84411f9c10358228a80b763ebe",
+    "sha256": "cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849"
+  },
+  "snapshot": {
+    "inrelease_sha256": "77737fa4b34f2693e982cc9ee35736816c35a7778fc2d326cc1bbf5b301fe1aa",
+    "packages": {
+      "iproute2": {
+        "Filename": "pool/main/i/iproute2/iproute2_6.1.0-3_amd64.deb",
+        "SHA256": "1204b29e916e836267096d0b9d778106752f821ebde0d281539008b4386d9070",
+        "Version": "6.1.0-3"
+      },
+      "libnss3-tools": {
+        "Filename": "pool/main/n/nss/libnss3-tools_3.87.1-1+deb12u2_amd64.deb",
+        "SHA256": "7d4efc0ccd28edf39c9bbc108794c7b78020e99376a049c50416e429bae96a9b",
+        "Version": "2:3.87.1-1+deb12u2"
+      },
+      "nftables": {
+        "Filename": "pool/main/n/nftables/nftables_1.0.6-2+deb12u2_amd64.deb",
+        "SHA256": "966ff20ce58c17163a771c02ddbca264291408f94c512bd85dd18da0ebdbe88c",
+        "Version": "1.0.6-2+deb12u2"
+      }
+    },
+    "packages_sha256": "9e0b5aabb2465b3d2e7a7fe27f9913846277833f7a2826e7767acccff5b588c5",
+    "url": "https://snapshot.debian.org/archive/debian/20261112T000000Z/"
+  },
+  "version": "source-worker-pins-v1"
+}
