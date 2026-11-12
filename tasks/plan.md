@@ -1,5 +1,30 @@
 # Delivery plan
 
+## Current increment: bounded KIMDIS refresh
+
+The user approved docs/sources/kimdis-refresh.md by requesting continuation on
+2026-11-12. Implement local/offline tests only; no policy or live poller activation.
+Preserve previous completed plans and unrelated pending access/control tasks.
+
+1. Test pure policy validation and Athens calendar/date selection (policy module,
+   tests). Include DST, clipping, overlap and bounded oldest-gap catch-up.
+2. Add migration 0006 and real-SQL policy lifecycle/frozen cycles (storage module,
+   migration loader, SQL tests). Persist cycle intent before idempotent request
+   creation; UUID5 child IDs survive a crash before child-map insertion.
+3. Add bounded SQL reconciliation/inspection (separate progress module/tests).
+   Only evidence-complete children advance contiguous coverage; unknown or
+   unresolved work blocks a later cycle without fresh request budgets.
+4. Add/test coordinator dispatch and serialized enable/pause against real Prefect.
+   Serve coordinator and existing collector in one runner without waiting for
+   children. Schedules are created inactive and explicitly activated only in tests.
+5. Expose redacted CLI, update migration assertions/Compose CI and document usage.
+   Verify real SIGKILL, pause races, changed reobservations and populated-v5 upgrade;
+   mutate a guard, review five axes, run checks/audit and publish private PRs as
+   StamKavid. Human merges only, no production deployment.
+
+Work is sliced by tested boundaries; each slice uses red/green focused tests
+before its implementation and commits. No new dependency or relaxed check.
+
 ## Completed increment: local Prefect KIMDIS workflow
 
 The user approved docs/sources/kimdis-orchestration.md and selected self-hosted

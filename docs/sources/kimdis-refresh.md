@@ -1,6 +1,6 @@
 # KIMDIS bounded daily refresh
 
-Status: **draft for approval**, 2026-11-11. Module: `source-ingestion` in
+Status: **approved**, 2026-11-12. The user requested continuation after review. Module: `source-ingestion` in
 CAPABILITIES.md. Builds on merged orchestration PRs #22–#26, main `e80e23f`.
 This document specifies new behavior; the refresh commands below do not exist yet.
 
