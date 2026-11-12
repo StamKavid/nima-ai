@@ -26,6 +26,23 @@ SIGNATURES = {
 }
 
 
+def summary(
+    request_id: str, count: int, *, reused: bool = False, status: str = "staged"
+) -> dict[str, object]:
+    return {
+        "request_id": request_id,
+        "version": VERSION,
+        "status": status,
+        "records": count,
+        "reused": reused,
+        "evidence_complete": True,
+        "identity_verified": False,
+        "origin_verified": False,
+        "capture_context_verified": False,
+        "extraction_complete": False,
+    }
+
+
 def _invalid(_: str) -> Never:
     raise EvidenceError("input")
 

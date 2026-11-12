@@ -11,34 +11,16 @@ from nima.evidence import EvidenceError
 from nima.evidence.artifacts import child_directory, directory, initialize, publish, read
 from nima.evidence.publicity import (
     INPUT_VERSION,
-    MAX_COMPLETION,
     MAX_FILE,
     MAX_MANIFEST,
     MAX_TOTAL,
     SIGNATURES,
     VERSION,
-    decode,
     encode,
     parse_manifest,
-    utc_timestamp,
+    summary,
 )
-
-
-def summary(
-    request_id: UUID, count: int, *, reused: bool = False, status: str = "staged"
-) -> dict[str, object]:
-    return {
-        "request_id": request_id.hex,
-        "version": VERSION,
-        "status": status,
-        "records": count,
-        "reused": reused,
-        "evidence_complete": True,
-        "identity_verified": False,
-        "origin_verified": False,
-        "capture_context_verified": False,
-        "extraction_complete": False,
-    }
+from nima.evidence.verify import load_bundle
 
 
 def _manifest(path: Path) -> bytes:
@@ -62,6 +44,21 @@ def intake(
     try:
         root = directory(archive_dir, create=True, private=True)
         fcntl.flock(root, fcntl.LOCK_EX)
+        previous = None
+        try:
+            existing = child_directory(root, "bundles")
+        except FileNotFoundError:
+            pass
+        else:
+            try:
+                try:
+                    os.stat(f"{request_id.hex}.json", dir_fd=existing, follow_symlinks=False)
+                except FileNotFoundError:
+                    pass
+                else:
+                    previous = load_bundle(root, request_id)
+            finally:
+                os.close(existing)
         initialize(root)
         objects = []
         total = 0
@@ -106,17 +103,7 @@ def intake(
         bundles = child_directory(root, "bundles")
         try:
             name = f"{request_id.hex}.json"
-            try:
-                previous = decode(
-                    read(bundles, name, limit=MAX_COMPLETION, private=True), limit=MAX_COMPLETION
-                )
-            except FileNotFoundError:
-                previous = None
             if previous is not None:
-                if not isinstance(previous, dict) or "imported_at" not in previous:
-                    raise EvidenceError("integrity")
-                if utc_timestamp(previous["imported_at"]) != previous["imported_at"]:
-                    raise EvidenceError("integrity")
                 comparable = {**previous, "imported_at": completed["imported_at"]}
                 if comparable != completed:
                     raise EvidenceError("conflict")
@@ -124,7 +111,7 @@ def intake(
                 publish(bundles, name, encode(completed))
         finally:
             os.close(bundles)
-        return summary(request_id, len(records), reused=previous is not None)
+        return summary(request_id.hex, len(records), reused=previous is not None)
     except OSError:
         raise EvidenceError("archive_io") from None
     finally:
