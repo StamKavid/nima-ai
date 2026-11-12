@@ -80,10 +80,12 @@ jobs:
           docker compose -p nima-ci -f infra/compose.orchestration.yml exec -T app python - <<'PY'
           import os
           import time
+          from zoneinfo import ZoneInfo
           import httpx
           import psycopg
 
           assert os.getuid() == 10001
+          ZoneInfo('Europe/Athens')
           url = os.environ['PREFECT_API_URL'] + '/deployments/name/nima-kimdis/local'
           with httpx.Client() as client:
               for attempt in range(60):
@@ -95,9 +97,18 @@ jobs:
               deployment = response.json()
               assert deployment['entrypoint'] == 'nima.orchestration.flows.kimdis_flow'
               assert not deployment.get('schedules')
+              for attempt in range(60):
+                  response = client.get(os.environ['PREFECT_API_URL'] + '/deployments/name/nima-refresh/local')
+                  if response.status_code == 200:
+                      break
+                  time.sleep(1)
+              response.raise_for_status()
+              assert response.json()['entrypoint'] == 'nima.orchestration.refresh_flow.refresh_flow'
+              assert not response.json().get('schedules')
           with psycopg.connect(os.environ['NIMA_DATABASE_URL']) as connection:
               assert connection.execute('SELECT count(*) FROM nima.schema_migrations').fetchone() == (6,)
               assert connection.execute('SELECT count(*) FROM nima.workflow_requests').fetchone() == (0,)
+              assert connection.execute('SELECT count(*) FROM nima.refresh_policies').fetchone() == (0,)
               assert connection.execute('SELECT count(*) FROM nima.observations').fetchone() == (0,)
           PY
       - name: Show service state

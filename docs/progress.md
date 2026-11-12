@@ -54,7 +54,7 @@ investigator workspace yet. Election-accountability work is outside this baselin
 
 ## Immediate direction
 
-1. Review source scheduling/refresh policy, then implement its bounded local pilot.
+1. Review/merge the implemented bounded refresh increment; live activation remains separate.
 2. Add controlled source connectors and registry comparison/reviewed identities.
 3. Build temporal graph projection, evaluated analytics, evidence AI and the workspace.
 
