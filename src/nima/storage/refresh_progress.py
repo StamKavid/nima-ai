@@ -122,6 +122,8 @@ def show(store: RefreshStore, policy_id: UUID, day: date) -> dict[str, object]:
     return {
         "policy_id": str(policy_id),
         "state": state[0],
+        "enabled": state[0] == "enabled",
+        "schedule_reconciliation": "required" if state[0] == "pending" else "last_acknowledged",
         "business_date": day.isoformat(),
         "coverage_start": policy.start.isoformat(),
         "query_dates_through": through.isoformat() if through >= policy.start else None,

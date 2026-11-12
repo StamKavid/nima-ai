@@ -6,6 +6,7 @@ from uuid import UUID
 
 import httpx
 import psycopg
+import pytest
 
 from nima.orchestration.pipeline import (
     collect_request,
@@ -76,3 +77,45 @@ def test_false_complete_status_does_not_advance_coverage(pg_dsn: str, tmp_path: 
         assert not reconcile(session)
     status = show(store, policy, DAY)
     assert status["query_dates_through"] is None and status["missing_days"] == 2
+
+
+@pytest.mark.parametrize("exhausted", [False, True])
+def test_quarantine_or_exhaustion_blocks_new_cycle_without_new_budget(
+    pg_dsn: str, tmp_path: Path, exhausted: bool
+) -> None:
+    import json
+
+    from nima.storage.workflows import WorkflowError
+
+    store, policy = new_policy(pg_dsn, tmp_path / "raw", start=DAY - timedelta(days=1))
+    with store.lease(policy) as session:
+        session.state("enabled")
+        cycle = session.cycle(DAY)
+        assert cycle is not None
+        child = session.children(cycle)[0]
+        prepare_request(pg_dsn, child.request)
+        payload = json.loads(body(total=1))
+        payload["content"][0].pop("referenceNumber")
+        if exhausted:
+            with psycopg.connect(pg_dsn) as connection:
+                connection.execute("UPDATE nima.workflow_requests SET attempts=300")
+        with (
+            httpx.Client(
+                transport=httpx.MockTransport(
+                    lambda _: (
+                        pytest.fail("Budget failed")
+                        if exhausted
+                        else httpx.Response(200, content=json.dumps(payload).encode())
+                    )
+                )
+            ) as client,
+            pytest.raises(WorkflowError),
+        ):
+            collect_request(pg_dsn, child.request, client=client, clock=Clock())
+        assert not reconcile(session)
+        with pytest.raises(WorkflowError, match="cycle_unresolved"):
+            session.cycle(DAY + timedelta(days=1))
+        assert session.children(cycle)[0].request == child.request
+    assert show(store, policy, DAY)["query_dates_through"] is None
+    with psycopg.connect(pg_dsn) as connection:
+        assert connection.execute("SELECT count(*) FROM nima.workflow_requests").fetchone() == (1,)
