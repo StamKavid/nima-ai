@@ -216,9 +216,14 @@ investigator workspace. These are roadmap items, not implementation tasks.
 ## Bounded daily KIMDIS refresh
 
 - [x] Approve bounded refresh spec and record ordered implementation tasks.
-- [ ] Validate pure policy/calendar selection with DST and outage tests.
-- [ ] Persist immutable policy/cycle/request identity in migration 0006.
-- [ ] Reconcile evidence-complete progress and bounded freshness inspection.
-- [ ] Integrate coordinator/schedules and serialized enable/pause with real Prefect.
-- [ ] Expose CLI and verify defaults, crashes, races, upgrade and changed evidence.
-- [ ] Complete checks/audit/review and private PRs with honest hosted CI results.
+- [x] Validate pure policy/calendar selection with DST and outage tests.
+- [x] Persist immutable policy/cycle/request identity in migration 0006.
+- [x] Reconcile evidence-complete progress and bounded freshness inspection.
+- [x] Integrate coordinator/schedules and serialized enable/pause with real Prefect.
+- [x] Expose CLI and verify defaults, crashes, races, upgrade and changed evidence.
+- [x] Complete local checks/audit/review and prepare private review PRs.
+  - Evidence: 469 acceptance tests, clean audit/security, real SQL/Prefect crash
+    recovery and mutation caught. See docs/verification/kimdis-refresh.md.
+- [ ] Pass final-head hosted quality/Compose checks before marking PRs ready.
+  - GitHub Actions runs remain queued, including merged main; no hosted success
+    is claimed. No live policy or production service has been activated.

@@ -2,7 +2,7 @@
 
 Status: **approved**, 2026-11-12. The user requested continuation after review. Module: `source-ingestion` in
 CAPABILITIES.md. Builds on merged orchestration PRs #22–#26, main `e80e23f`.
-This document specifies new behavior; the refresh commands below do not exist yet.
+This contract is implemented on the review branch. No live policy has been enabled.
 
 ## Objective and assumptions
 
@@ -137,10 +137,10 @@ def select_dates(policy: RefreshPolicy, business_date: date) -> tuple[date, ...]
     """Return at most 14 explicit query dates; no I/O or implicit current time."""
 ```
 
-## Proposed commands and activation boundary
+## Commands and activation boundary
 
 Run operator commands in the worker environment, with existing Nima/local-Prefect
-configuration. Replace UUID/buyer placeholders. Proposed interfaces:
+configuration. Replace UUID/buyer placeholders. Implemented interfaces:
 
 ```bash
 uv run --frozen python -m nima refresh create kimdis \
@@ -198,9 +198,7 @@ with demonstrated recovery, not a claim of nationwide real-time coverage.
 
 ## Review decision
 
-Approve or amend the proposed 04:00 Athens cadence, seven-day overlap, selected-
-buyer pilot and 14-child ceiling. No additional architecture question blocks
-this draft. Exact live buyer IDs and start date are required at policy creation;
+The user approved the 04:00 Athens cadence, seven-day overlap, selected-buyer
+pilot and 14-child ceiling by requesting continuation on 2026-11-12. Exact live buyer IDs and start date are required at policy creation;
 provider completion timing and old-record change coverage remain limitations,
-not assumptions silently promoted into guarantees. Implementation planning follows
-approval in a later turn.
+not assumptions silently promoted into guarantees. Implementation and acceptance evidence are recorded in docs/verification/kimdis-refresh.md.

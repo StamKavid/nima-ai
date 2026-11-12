@@ -80,10 +80,12 @@ jobs:
           docker compose -p nima-ci -f infra/compose.orchestration.yml exec -T app python - <<'PY'
           import os
           import time
+          from zoneinfo import ZoneInfo
           import httpx
           import psycopg
 
           assert os.getuid() == 10001
+          ZoneInfo('Europe/Athens')
           url = os.environ['PREFECT_API_URL'] + '/deployments/name/nima-kimdis/local'
           with httpx.Client() as client:
               for attempt in range(60):

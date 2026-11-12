@@ -436,3 +436,61 @@ poller, graph, model or live GEMI validation is added. See the
 
 Stop services with `docker compose -f infra/compose.orchestration.yml down`.
 Volumes retain evidence and control state; deleting those volumes destroys it.
+
+## Bounded daily refresh
+
+The refresh coordinator uses the same local Prefect server and SQL evidence.
+Fresh services register both deployments with no active schedules or policies.
+A policy selects 1–10 buyer IDs and an explicit coverage start date; its identity,
+query settings and archive root are fixed. Create it inside the app container:
+
+```bash
+docker compose -f infra/compose.orchestration.yml exec app python -m nima refresh create kimdis \
+  --policy-id POLICY_UUID --start-date 2026-11-06 --buyer-id BUYER_ID
+docker compose -f infra/compose.orchestration.yml exec app python -m nima refresh plan POLICY_UUID --as-of 2026-11-12
+docker compose -f infra/compose.orchestration.yml exec app python -m nima refresh show POLICY_UUID
+```
+
+Replace the placeholders with a new UUID and your selected public-buyer ID.
+Creation, preview and inspection make no provider request. SQL migration 0006
+must be applied explicitly before using refresh commands. The existing manual
+workflow commands remain available.
+
+To authorize scheduled collection for that cohort, enable the policy explicitly:
+
+```bash
+docker compose -f infra/compose.orchestration.yml exec app python -m nima refresh enable POLICY_UUID
+```
+
+The schedule runs daily at 04:00 Europe/Athens. Each cycle reobserves the seven
+most recent completed calendar days and selects up to seven oldest missing days,
+clipped to the policy start: at most 14 one-day child windows. The coordinator
+returns after dispatch; child workflows collect serially with their saved limits.
+A worker restart preserves API-managed schedules. To request an immediate cycle
+for the current Athens business date or stop new dispatch decisions:
+
+```bash
+docker compose -f infra/compose.orchestration.yml exec app python -m nima refresh tick POLICY_UUID
+docker compose -f infra/compose.orchestration.yml exec app python -m nima refresh pause POLICY_UUID
+```
+
+Repeated ticks reuse their original request IDs. Unknown or failed children block
+further dispatch and later cycles. Inspect `blocked_reason` and the child request
+IDs; use the existing `workflows show/dispatch` commands for explicit recovery of
+the same request. Exhausted budgets do not reset on redispatch. Policy changes
+require a new policy identity and explicit operator review.
+
+If pause reports `policy_busy`, retry after the short coordinator returns.
+Already accepted/running children may finish after pause. `state=pending` means
+the SQL gate is disabled and schedule acknowledgement needs reconciliation;
+retry enable/pause after restoring the local server. Inspection reports the last
+acknowledged schedule state, with worker liveness unknown.
+
+`query_dates_through` reports contiguous completed query dates. `recent_status`
+reports whether the current business date's overlap has been reobserved. Both
+require complete collection, normalization and projection evidence; neither is a
+provider-wide update watermark. Corrections older than the overlap can be missed,
+and absence on a recheck is not proof of deletion. See the
+[refresh contract](docs/sources/kimdis-refresh.md) and
+[verification](docs/verification/kimdis-refresh.md). No policy has been enabled
+or live cohort selected by this implementation.
