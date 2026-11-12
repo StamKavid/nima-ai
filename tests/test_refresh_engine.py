@@ -127,4 +127,3 @@ def test_missing_deployment_leaves_sql_gate_closed(engine: dict[str, str], tmp_p
     with pytest.raises(WorkflowError, match="policy_paused"):
         asyncio.run(tick(policy_id, day))
     assert not (tmp_path / "raw").exists()
-
