@@ -1,9 +1,12 @@
 # Proposal: GEMI Publicity evidence fallback
 
-Status: **draft for review**, 2026-11-12. Research and design only; no collector,
-new command, dependency, database migration or live schedule is introduced.
+Status: **design approved**, 2026-11-12, by the user's “I agree continue”, including
+the personal-IP requirement added in `53f9285`. No collector, new command,
+dependency, database migration or live schedule has been implemented.
 Provider module: existing `source-ingestion`; identity review remains separate.
 This proposal supplements, rather than replaces, the approved GEMI API contract.
+The first delivery plan and review gates are recorded in `tasks/plan.md` and
+`tasks/todo.md`. Design approval is not a claim of provider permission to automate.
 
 ## Objective and assumptions
 

@@ -1,6 +1,142 @@
 # Delivery plan
 
-## Current increment: repository controls and just
+## Current increment: private manual Publicity evidence intake
+
+Status: **implementation plan for review**, 2026-11-12. The user approved
+`docs/sources/gemi-publicity-fallback.md`, including protection of the investigator's
+home/office IP. Planning and task definition are complete; implementation starts
+after plan review. This extends the existing source-ingestion roadmap. Preserve
+the older plans and incomplete access, registry-comparison and administration tasks.
+
+### First delivery and boundaries
+
+Deliver an entirely offline CLI for importing and independently verifying a small
+bundle of manually saved public evidence. It needs no GEMI key, browser dependency,
+database migration, Prefect dispatch or outbound connection. This is verified
+manual-evidence staging, not registry-field extraction or company verification.
+
+Start with PDF, PNG and JPEG files, stored as opaque evidence. Signatures constrain
+declared file types; they do not establish that a document is valid or authentic.
+Do not render/open files, execute scripts, OCR documents, follow links or fetch URLs.
+HTML, HAR, browser sessions and archives are unsupported in this first delivery;
+HTML capture requires a separate session-data and safe-display contract.
+
+Manual acquisition must happen through a remote browser or a separately verified
+protected VPN path. The offline importer records the operator's declared capture
+context; it cannot prove which IP the source saw or authenticate supplied files.
+Remote browsing, source egress enforcement and leak testing remain later milestones.
+No hosting/proxy purchase or deployment is authorized by this plan.
+
+### Proposed interfaces (not yet implemented)
+
+```bash
+uv run --frozen python -m nima evidence intake publicity \
+  --request-id 00000000-0000-4000-8000-000000000001 \
+  --manifest /private/capture/input.json \
+  --input-dir /private/capture \
+  --archive-dir /private/publicity-evidence
+
+uv run --frozen python -m nima evidence verify \
+  00000000-0000-4000-8000-000000000001 \
+  --archive-dir /private/publicity-evidence
+```
+
+The UUID is synthetic. Paths denote operator-selected private local directories.
+The manifest is versioned JSON, capped at 64 KiB and at ten records. Each record
+supplies a GEMI number, relative file path, declared media type, original public
+source URL, timezone-aware claimed capture time, capture method and declared
+protected capture context. Preserve original values and normalized representations;
+unknown JSON keys, duplicate keys and inconsistent declarations fail visibly.
+
+Apply existing positive ASCII-decimal GEMI-number rules without inventing a fixed
+number length; preserve supplied text and label the number as operator-supplied.
+Use only HTTPS metadata URLs on `publicity.businessportal.gr`, with no userinfo,
+query, fragment or nondefault port in this version. Do not resolve or fetch them.
+Other document hosts need an explicit later source contract. Maximum URL length is
+2,048 characters. Capture/import times remain distinct; supplied dates are claims.
+
+Allow one evidence file per record, at most 8 MiB each and 50 MiB total. Read from
+regular files beneath the selected input directory through no-follow directory
+descriptors; reject symlinks, traversal, devices, FIFOs and changing inputs. Stream
+bounded copies into private staging, hash the bytes copied and never reread an
+unchecked pathname for publication. Do not infer a company's identity from a file
+name, claimed metadata or successful file-format checks.
+
+### Archive and replay decisions
+
+Keep `source_family=gemi`, `acquisition_channel=publicity-manual` and a distinct
+manual archive marker/version. The existing API verifier/importer must reject it.
+Reuse established descriptor-based publication patterns from
+`src/nima/identity/artifacts.py`; do not weaken or broadly refactor current archives.
+
+Use owner-only directories/files (0700/0600), an archive-local Git exclusion,
+content-addressed blobs and a canonical immutable completion manifest. The manifest
+binds the request UUID, frozen input metadata, original-byte hashes, importer
+version and actual import time. It does not add the investigator's IP or local
+absolute paths. No arbitrary notes, request headers or session-state exports are
+part of the accepted input contract.
+
+Publish the completion manifest only after all blobs are durably stored. Concurrent
+same-request publication uses an atomic no-clobber operation: matching immutable
+content reuses the first accepted bundle; conflicting content fails without
+replacement. The first import timestamp remains stable on replay. A crash before
+publication can leave unreferenced blobs but never a completed partial bundle.
+The read-only verifier reconciles every declared reference and byte bound; a
+stored digest is not trusted without reading and hashing its referenced bytes.
+
+CLI output exposes only request UUID, version, counts and fixed status/reason codes.
+Exit 0 means evidence was staged or integrity verified, not identity established;
+2 means invalid configuration/input; 1 means archive/integrity failure; 130 means
+interruption. Exclude supplied paths, URLs, IDs and document text from errors.
+No browser/collect subcommand, automatic API fallback or active schedule is exposed.
+
+### Dependency order and review checkpoints
+
+1. **P1: input policy.** Pure types, strict bounded manifest decoding, protected
+   capture declarations, identifiers, URL/path/media validation and synthetic tests.
+2. **P2: private intake.** Bounded descriptor-based file copying, content hashes,
+   immutable publication and duplicate/conflicting-request tests.
+3. **Checkpoint A.** Review archive/metadata limits, original-byte retention and
+   absence of outbound work before exposing a public command.
+4. **P3: independent verifier.** Read-only reconciliation, missing/corrupt/unsafe
+   archive rejection, unchanged replay and concurrent-publication tests.
+5. **P4: CLI.** Lazy command dispatch, help, redacted outcomes and end-to-end
+   synthetic intake/verify tests, including explicit no-network guards.
+6. **Checkpoint B.** Review the usable offline path and confirm API import remains
+   a distinct channel with no accepted identity or SQL writes.
+7. **P5: failure verification.** Actual process termination before/after publication,
+   races, bounded hostile inputs and a meaningful integrity-guard mutation check.
+8. **P6: review and delivery.** Capture runbook/evidence, complete quality/audit
+   checks and publish a private implementation PR as StamKavid. Human merge only.
+
+Every code task begins with focused failing tests and ends with its relevant
+passing checks and a small commit. Task details are in `tasks/todo.md`; no task
+requires more than about five files. Execute sequentially; no agent delegation.
+
+### Verification and risks
+
+Future focused tests are named in the task list; no test results are claimed for
+unimplemented code. The repository-wide gates remain `just check` and `just audit`,
+with the existing disposable local PostgreSQL fixture for the full suite and the
+90% combined line/branch coverage floor. Government services are never CI fixtures.
+
+| Risk | Mitigation and limit |
+|---|---|
+| Forged or mislabelled manual evidence | Preserve supplied claims and bytes; integrity is not origin, identity or IP verification |
+| Input/path substitution or crash | Descriptor-based reads, fixed bounds, immutable completion and real interruption/race tests |
+| Imported HTML makes local source requests | Accept only opaque PDF/PNG/JPEG; no rendering, live embeds or automatic link following |
+| Operator captured directly from home | Require declared protected capture context and a clear runbook; actual egress requires separate verified remote infrastructure |
+| Mistaking this slice for the full fallback | Release notes list pending UI capture, network isolation, extraction and SQL integration explicitly |
+
+Subsequent milestones remain gated: controlled-endpoint egress tests and remote
+manual-browser setup; conditional offline UI adapter with pinned dependencies;
+live UI pilot only after permitted access is established; explicit channel-aware
+registry assertions/import; shared SQL source guard and optional Prefect scheduling.
+The original GEMI key/pilot and registry-comparison work remain pending separately.
+No unresolved provider/network prerequisite blocks offline implementation once the
+human approves this plan.
+
+## Previous increment: repository controls and just
 
 The user requested cleanup of merged PR branches, protected main/dev branches,
 replacement of make with just, and an explanation of Python 3.12 versus 3.14.
