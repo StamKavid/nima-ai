@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import sys
 from dataclasses import asdict
 from datetime import date
 from pathlib import Path
@@ -40,6 +41,7 @@ def _date(text: str) -> date:
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m nima")
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("evidence", help="Offline manual evidence intake and verification")
     refresh = commands.add_parser("refresh").add_subparsers(dest="operation", required=True)
     create = refresh.add_parser("create").add_subparsers(dest="source", required=True)
     policy = create.add_parser("kimdis")
@@ -155,6 +157,11 @@ def _import_gemi(run_id: UUID, archive_root: Path) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    arguments = sys.argv[1:] if argv is None else argv
+    if arguments and arguments[0] == "evidence":
+        from nima.evidence.cli import run as evidence_run
+
+        return evidence_run(arguments[1:])
     args = _parser().parse_args(argv)
     if args.command == "refresh":
         from nima.orchestration.refresh_cli import run as refresh_run
