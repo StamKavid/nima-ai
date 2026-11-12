@@ -110,7 +110,18 @@ def classify_browser_failure(message: str) -> str:
         ("No usable sandbox!", "browser_sandbox_unavailable"),
         ("Chromium sandboxing failed!", "browser_sandbox_unavailable"),
         ("Executable doesn't exist", "browser_binary_missing"),
+        ("ENOENT", "browser_binary_missing"),
         ("error while loading shared libraries", "browser_library_missing"),
+        ("SUID sandbox helper binary", "browser_setuid_sandbox_unavailable"),
+        ("setuid sandbox is not running as root", "browser_setuid_sandbox_unavailable"),
+        ("Missing X server", "browser_display_unavailable"),
+        ("without having a XServer", "browser_display_unavailable"),
+        ("ProcessSingleton", "browser_profile_unavailable"),
+        ("Read-only file system", "browser_readonly_failure"),
+        ("No space left on device", "browser_disk_unavailable"),
+        ("Cannot allocate memory", "browser_memory_unavailable"),
+        ("EACCES", "browser_permission_denied"),
+        ("pthread_create", "browser_thread_unavailable"),
         ("chrome_crashpad_handler: --database is required", "browser_crashpad_database"),
         ("Resource temporarily unavailable", "browser_resource_unavailable"),
         ("Operation not permitted", "browser_operation_denied"),
@@ -118,7 +129,7 @@ def classify_browser_failure(message: str) -> str:
         ("signal=SIGSYS", "browser_syscall_signal"),
         ("signal=SIGTRAP", "browser_trap_signal"),
     ):
-        if marker in message:
+        if marker.casefold() in message.casefold():
             return code
     for prefix, code in (
         ("BrowserType.launch:", "browser_launch_failed"),
@@ -148,8 +159,14 @@ def _check_browser() -> None:
     if version("playwright") != PLAYWRIGHT:
         raise PrerequisiteError("package_version")
     with sync_playwright() as client:
+        executable = Path(client.chromium.executable_path)
+        if not executable.is_file():
+            raise PrerequisiteError("browser_binary_missing")
+        if not os.access(executable, os.X_OK):
+            raise PrerequisiteError("browser_binary_not_executable")
         browser = client.chromium.launch(
             channel="chromium",
+            headless=True,
             chromium_sandbox=True,
             args=["--disable-background-networking", "--no-first-run"],
             timeout=15000,
