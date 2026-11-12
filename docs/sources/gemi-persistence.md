@@ -171,7 +171,7 @@ Acceptance requires:
   the relevant regression test, followed by restoration.
 - No network request, API-key dependency or archive modification during import;
   populated v3 schema upgrade and existing KIMDIS workflows still verified.
-- Five-axis review, `make check`, `make audit`, and private main-targeted PR with
+- Five-axis review, `just check`, `just audit`, and private main-targeted PR with
   hosted CI and StamKavid attribution. No automatic merge or deployment.
 
 ## Review and later work

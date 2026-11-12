@@ -182,8 +182,8 @@ class IdentifierAssessment:
 Existing verification commands:
 
 ```bash
-make check
-make audit
+just check
+just audit
 ```
 
 Focused verification:

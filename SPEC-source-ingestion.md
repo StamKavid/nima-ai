@@ -62,9 +62,9 @@ populated in 3. This is a feasibility sample, not a completeness benchmark.
 Existing bootstrap commands, executable now:
 
 ```bash
-make setup
-make check
-make audit
+just setup
+just check
+just audit
 ```
 
 Implemented bounded command (see README for limits and exit codes):
@@ -221,9 +221,9 @@ a fresh connection. This acceptance proves the page API, not multi-page HTTP
 resume; keep `runs resume` unavailable until the orchestrator is tested.
 
 Verify locally with a disposable PostgreSQL service and
-`NIMA_TEST_DSN='host=127.0.0.1 port=55432 dbname=nima_test user=postgres' make check`.
+`NIMA_TEST_DSN='host=127.0.0.1 port=55432 dbname=nima_test user=postgres' just check`.
 Tests must fail clearly if the test database is unavailable; no database mocks or
-skips replace integration coverage. Existing `make audit` remains required.
+skips replace integration coverage. Existing `just audit` remains required.
 
 Official patterns: https://www.psycopg.org/psycopg3/docs/basic/transactions.html ,
 https://www.psycopg.org/psycopg3/docs/basic/params.html ,

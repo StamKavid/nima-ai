@@ -162,8 +162,8 @@ Verification commands after implementation:
 
 ```bash
 uv run --frozen pytest tests/test_refresh_policy.py tests/test_refresh_store.py tests/test_refresh_engine.py
-make check
-make audit
+just check
+just audit
 docker compose -f infra/compose.orchestration.yml up --build -d --wait
 docker compose -f infra/compose.orchestration.yml exec app python -m nima db migrate
 ```
