@@ -10,6 +10,7 @@ from nima.egress.preflight import (
     check_host,
     check_process,
     check_sandbox,
+    classify_browser_failure,
     main,
 )
 
@@ -122,3 +123,20 @@ def test_helper_has_only_network_admin_in_the_target_namespace() -> None:
     check_process(helper, helper=True)
     with pytest.raises(PrerequisiteError, match="^process$"):
         check_process(status(), helper=True)
+
+
+@pytest.mark.parametrize(
+    ("message", "code"),
+    [
+        (
+            "private: Failed to move to new namespace: Operation not permitted",
+            "browser_namespace_denied",
+        ),
+        ("private: No usable sandbox!", "browser_sandbox_unavailable"),
+        ("private: Executable doesn't exist at /private/path", "browser_binary_missing"),
+        ("private: error while loading shared libraries: secret.so", "browser_library_missing"),
+        ("private unknown diagnostics", "browser_operation_failed"),
+    ],
+)
+def test_browser_failure_codes_never_echo_diagnostics(message: str, code: str) -> None:
+    assert classify_browser_failure(message) == code

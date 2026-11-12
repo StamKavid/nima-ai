@@ -81,7 +81,29 @@ def helper_check() -> None:
     check_socket_mark(helper=True)
 
 
+def classify_browser_failure(message: str) -> str:
+    """Extract only fixed known signals; never publish driver output."""
+    for marker, code in (
+        ("Failed to move to new namespace", "browser_namespace_denied"),
+        ("No usable sandbox!", "browser_sandbox_unavailable"),
+        ("Executable doesn't exist", "browser_binary_missing"),
+        ("error while loading shared libraries", "browser_library_missing"),
+    ):
+        if marker in message:
+            return code
+    return "browser_operation_failed"
+
+
 def browser_check() -> None:
+    from playwright.sync_api import Error
+
+    try:
+        _check_browser()
+    except Error as exc:
+        raise PrerequisiteError(classify_browser_failure(str(exc))) from None
+
+
+def _check_browser() -> None:
     from playwright.sync_api import sync_playwright
 
     check_process(Path("/proc/self/status").read_text())
