@@ -134,6 +134,13 @@ jobs:
               # entries can reach logs; no paths, flags, IDs or raw error values.
               allowed = set('browser type launch process closed target page context or has been channel chromium not supported sandbox only is available in headless mode protocol error spawn eperm eacces enoent eagain memory file system read write permission failed to could cannot create directory expected got arguments argument options option invalid unknown executable because does exist at shared library pipe connection timeout unsupported resource temporarily unavailable host dependencies needed installed install glibc libc posix_spawn thread socket syscall operation permitted eio enosys errno running without root setuid helper binary configured correctly must owned zygote assertion check node'.split())
               original = error.__context__ or error
+              locations = []
+              known_sources = {'credentials.cc', 'namespace_sandbox.cc', 'zygote_main_linux.cc', 'zygote_host_impl_linux.cc', 'zygote_communication_linux.cc', 'sandbox_linux.cc', 'thread_helpers.cc', 'platform_thread_posix.cc', 'launch_posix.cc', 'process_linux.cc', 'zygote_linux.cc', 'sandbox_bpf.cc', 'seccomp_bpf.cc', 'check.cc', 'logging.cc', 'thread.cc', 'sandbox_host_linux.cc', 'scoped_temp_dir.cc', 'file_util_posix.cc', 'sandbox_bpf_policy_linux.cc', 'sandbox_seccomp_bpf_linux.cc', 'proc_util.cc', 'process_metrics_linux.cc'}
+              for name, number in re.findall(r'([a-z_]+\.cc):([0-9]{1,6})', str(original)):
+                  if name in known_sources:
+                      locations.append([name, int(number)])
+              print(json.dumps({'public_source_locations_only': locations[:16]}), file=sys.stderr)
+              allowed.update(word.lower() for word in 'IsSingleThreaded DropAllCapabilities proc_fd CLONE_NEWUSER CLONE_NEWPID CLONE_NEWNET prctl clone setns unshare capset capget fork send receive communicate GetTerminationStatus euid uid gid setgroups geteuid getuid readlink readlinkat access _exit pthread fd pid success result failed init initialize exec setresuid setresgid chroot unshareFlags'.split())
               lines = [line for line in str(original).splitlines() if '[err]' in line or line.startswith('BrowserType.launch:')][:8]
               tokens = []
               for line in lines:
