@@ -84,3 +84,34 @@ def test_bounded_catchup_and_per_policy_lease(pg_dsn: str, tmp_path: Path) -> No
             session.cycle(DAY)
     with psycopg.connect(pg_dsn) as connection:
         assert connection.execute("SELECT count(*) FROM nima.refresh_events").fetchone() == (3,)
+
+
+def test_populated_v5_upgrade_keeps_requests_and_both_sources(
+    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from datetime import UTC, datetime
+
+    from nima.ingestion.archive import Archive
+    from nima.storage import postgres
+    from nima.storage.gemi import import_run
+    from tests.test_collection import QUERY, body
+    from tests.test_gemi_import_archive import archive_run
+
+    migrations = postgres._migrations()
+    request = uuid4()
+    with monkeypatch.context() as historical:
+        historical.setattr(postgres, "_migrations", lambda: migrations[:5])
+        migrate(pg_dsn)
+        registry = tmp_path / "registry"
+        import_run(pg_dsn, registry, archive_run(registry))
+        pages = postgres.PageStore(pg_dsn, Archive(tmp_path / "kimdis"))
+        run = uuid4()
+        pages.start_run(run, QUERY)
+        pages.commit_page(run, body(total=1), observed_at=datetime.now(UTC))
+        RequestStore(pg_dsn).submit(request, QUERY, tmp_path / "workflow")
+    migrate(pg_dsn)
+    assert RequestStore(pg_dsn).show(request)["run_id"] is None
+    with psycopg.connect(pg_dsn) as connection:
+        assert connection.execute("SELECT count(*) FROM nima.observations").fetchone() == (1,)
+        assert connection.execute("SELECT count(*) FROM nima.gemi_observations").fetchone() == (2,)
+        assert connection.execute("SELECT count(*) FROM nima.refresh_policies").fetchone() == (0,)

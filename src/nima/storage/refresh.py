@@ -39,12 +39,14 @@ def _digest(value: dict[str, object]) -> str:
 
 
 # Gaps use known successful days, not a series expanding every date of an outage.
-GAPS = """WITH done AS (
+MISSING_DATES_SQL = """WITH done AS (
     SELECT DISTINCT query_date d FROM nima.refresh_windows
     WHERE policy_id=%s AND completed_at IS NOT NULL AND query_date BETWEEN %s AND %s
 ), boundaries AS (SELECT %s::date-1 d UNION SELECT d FROM done),
 gaps AS (SELECT d+1 first, coalesce(lead(d) OVER (ORDER BY d),%s::date+1)-1 last
     FROM boundaries)
+SELECT first+n FROM gaps CROSS JOIN generate_series(0,6) n
+WHERE first+n<=last ORDER BY 1 LIMIT 7
 """
 
 
@@ -54,8 +56,7 @@ def missing_dates(
     if end < start:
         return ()
     rows = connection.execute(
-        GAPS + "SELECT first+n FROM gaps CROSS JOIN generate_series(0,6) n "
-        "WHERE first+n<=last ORDER BY 1 LIMIT 7",
+        MISSING_DATES_SQL,
         (policy_id, start, end, start, end),
     ).fetchall()
     return tuple(cast(date, row[0]) for row in rows)
@@ -211,6 +212,25 @@ class RefreshSession:
             (cycle.cycle_id, self.policy_id, day, list(dates)),
         )
         return cycle
+
+    def open_cycle(self) -> Cycle | None:
+        row = self.connection.execute(
+            "SELECT cycle_id,business_date,query_dates FROM nima.refresh_cycles "
+            "WHERE policy_id=%s AND completed_at IS NULL",
+            (self.policy_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        return Cycle(cast(UUID, row[0]), cast(date, row[1]), tuple(cast(list[date], row[2])))
+
+    def blocked(self) -> bool:
+        return self.connection.execute(
+            "SELECT EXISTS(SELECT 1 FROM nima.refresh_windows w "
+            "JOIN nima.workflow_requests r USING(request_id) WHERE w.policy_id=%s "
+            "AND w.completed_at IS NULL AND (w.dispatch_state='sending' "
+            "OR r.status IN ('partial','failed','deferred')))",
+            (self.policy_id,),
+        ).fetchone() == (True,)
 
     def children(self, cycle: Cycle) -> tuple[Child, ...]:
         for day in cycle.dates:

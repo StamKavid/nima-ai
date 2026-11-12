@@ -96,7 +96,7 @@ jobs:
               assert deployment['entrypoint'] == 'nima.orchestration.flows.kimdis_flow'
               assert not deployment.get('schedules')
           with psycopg.connect(os.environ['NIMA_DATABASE_URL']) as connection:
-              assert connection.execute('SELECT count(*) FROM nima.schema_migrations').fetchone() == (5,)
+              assert connection.execute('SELECT count(*) FROM nima.schema_migrations').fetchone() == (6,)
               assert connection.execute('SELECT count(*) FROM nima.workflow_requests').fetchone() == (0,)
               assert connection.execute('SELECT count(*) FROM nima.observations').fetchone() == (0,)
           PY
