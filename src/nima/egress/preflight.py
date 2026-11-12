@@ -108,6 +108,7 @@ def classify_browser_failure(message: str) -> str:
         ("Failed to move to new namespace", "browser_namespace_denied"),
         ("Failed to unshare", "browser_namespace_denied"),
         ("No usable sandbox!", "browser_sandbox_unavailable"),
+        ("Chromium sandboxing failed!", "browser_sandbox_unavailable"),
         ("Executable doesn't exist", "browser_binary_missing"),
         ("error while loading shared libraries", "browser_library_missing"),
         ("chrome_crashpad_handler: --database is required", "browser_crashpad_database"),
@@ -118,6 +119,14 @@ def classify_browser_failure(message: str) -> str:
         ("signal=SIGTRAP", "browser_trap_signal"),
     ):
         if marker in message:
+            return code
+    for prefix, code in (
+        ("BrowserType.launch:", "browser_launch_failed"),
+        ("Page.goto:", "browser_navigation_failed"),
+        ("Locator.inner_text:", "browser_content_failed"),
+        ("Browser.close:", "browser_close_failed"),
+    ):
+        if message.startswith(prefix):
             return code
     return "browser_operation_failed"
 

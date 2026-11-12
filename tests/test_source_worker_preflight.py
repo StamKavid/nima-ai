@@ -134,6 +134,8 @@ def test_helper_has_only_network_admin_in_the_target_namespace() -> None:
             "browser_namespace_denied",
         ),
         ("private: No usable sandbox!", "browser_sandbox_unavailable"),
+        ("BrowserType.launch: Chromium sandboxing failed! private", "browser_sandbox_unavailable"),
+        ("Page.goto: net::ERR_INVALID_URL at private", "browser_navigation_failed"),
         ("private: Executable doesn't exist at /private/path", "browser_binary_missing"),
         ("private: error while loading shared libraries: secret.so", "browser_library_missing"),
         ("private unknown diagnostics", "browser_operation_failed"),
