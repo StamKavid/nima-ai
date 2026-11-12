@@ -113,15 +113,37 @@ jobs:
           --secret id=ca_bundle,src=/etc/ssl/certs/ca-certificates.crt
           -t nima-egress-worker:local -f infra/source-worker/Dockerfile.worker .
       - name: Verify actual Chromium sandbox without network access
-        run: >-
-          docker --host=unix:///var/run/docker.sock run --rm --network none --read-only
-          --cap-drop ALL --security-opt no-new-privileges
-          --security-opt seccomp=infra/source-worker/seccomp.json
-          --shm-size 256m --pids-limit 256 --memory 2g --cpus 2
-          --tmpfs /tmp:rw,noexec,nosuid,size=256m,mode=1777
-          --tmpfs /home/nima:rw,nosuid,size=128m,uid=10001,gid=10001,mode=0700
-          nima-egress-worker:local python -m nima.egress.preflight browser
-          > data/source-worker/browser-receipt.json
+        run: |
+          docker --host=unix:///var/run/docker.sock run --rm -i --network none --read-only \
+            --cap-drop ALL --security-opt no-new-privileges \
+            --security-opt seccomp=infra/source-worker/seccomp.json \
+            --shm-size 256m --pids-limit 256 --memory 2g --cpus 2 \
+            --tmpfs /tmp:rw,noexec,nosuid,size=256m,mode=1777 \
+            --tmpfs /home/nima:rw,nosuid,size=128m,uid=10001,gid=10001,mode=0700 \
+            nima-egress-worker:local python - > data/source-worker/browser-receipt.json <<'PY'
+          import json
+          import re
+          import sys
+          from nima.egress.preflight import PrerequisiteError, browser_check, report
+
+          try:
+              browser_check()
+          except PrerequisiteError as error:
+              report('failed', str(error))
+              # Temporary fixture-only diagnosis. Only these literal vocabulary
+              # entries can reach logs; no paths, flags, IDs or raw error values.
+              allowed = set('browser type launch process closed target page context or has been channel chromium not supported sandbox only is available in headless mode protocol error spawn eperm eacces enoent eagain memory file system read write permission failed to could cannot create directory expected got arguments argument options option invalid unknown executable because does exist at shared library pipe connection timeout unsupported'.split())
+              original = error.__context__ or error
+              first = str(original).splitlines()[0] if str(original) else ''
+              first = re.sub(r'(?:https?://|/)[^\s]+', '<redacted>', first)
+              tokens = [word.lower() if word.lower() in allowed else '?' for word in re.findall(r'[A-Za-z_]+', first)[:64]]
+              print(json.dumps({'fixed_vocabulary_only': tokens}), file=sys.stderr)
+              raise SystemExit(1)
+          except Exception:
+              report('failed', 'observation_unavailable')
+              raise SystemExit(1)
+          report('passed')
+          PY
       - name: Upload bounded prerequisite receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
