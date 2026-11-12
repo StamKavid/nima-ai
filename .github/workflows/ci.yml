@@ -132,11 +132,13 @@ jobs:
               report('failed', str(error))
               # Temporary fixture-only diagnosis. Only these literal vocabulary
               # entries can reach logs; no paths, flags, IDs or raw error values.
-              allowed = set('browser type launch process closed target page context or has been channel chromium not supported sandbox only is available in headless mode protocol error spawn eperm eacces enoent eagain memory file system read write permission failed to could cannot create directory expected got arguments argument options option invalid unknown executable because does exist at shared library pipe connection timeout unsupported'.split())
+              allowed = set('browser type launch process closed target page context or has been channel chromium not supported sandbox only is available in headless mode protocol error spawn eperm eacces enoent eagain memory file system read write permission failed to could cannot create directory expected got arguments argument options option invalid unknown executable because does exist at shared library pipe connection timeout unsupported resource temporarily unavailable host dependencies needed installed install glibc libc posix_spawn thread socket syscall operation permitted eio enosys errno running without root setuid helper binary configured correctly must owned zygote assertion check node'.split())
               original = error.__context__ or error
-              first = str(original).splitlines()[0] if str(original) else ''
-              first = re.sub(r'(?:https?://|/)[^\s]+', '<redacted>', first)
-              tokens = [word.lower() if word.lower() in allowed else '?' for word in re.findall(r'[A-Za-z_]+', first)[:64]]
+              lines = [line for line in str(original).splitlines() if '[err]' in line or line.startswith('BrowserType.launch:')][:8]
+              tokens = []
+              for line in lines:
+                  line = re.sub(r'(?:https?://|/)[^\s]+', '<redacted>', line)
+                  tokens.append([word.lower() if word.lower() in allowed else '?' for word in re.findall(r'[A-Za-z_]+', line)[:64]])
               print(json.dumps({'fixed_vocabulary_only': tokens}), file=sys.stderr)
               raise SystemExit(1)
           except Exception:
