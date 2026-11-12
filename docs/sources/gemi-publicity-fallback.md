@@ -15,6 +15,8 @@ crawl or a claim that a company committed tax evasion.
 Assumptions: private research use; at most ten explicitly selected GEMI numbers in
 the first pilot; API preferred after approval; one stable network connection;
 no proxy purchase, provider contact, identity decision or production activation.
+User clarification: source websites must not receive the investigator's home or
+office IP. This applies to manual capture, automated collection and API requests.
 Search by AFM/name, public-document downloading and SQL import are later extensions
 with their own source contracts. Ordinary manual discovery can identify the pilot
 numbers, but a name search never automatically selects a matching company.
@@ -178,16 +180,64 @@ network-bandwidth cap.
 - **Interrupted attempt:** retain unknown outcome and original attempt budget;
   explicit recovery must not create a fresh retry allowance under another job ID.
 
-Use a normal stable connection first. Webshare offers HTTP/SOCKS proxy infrastructure
-([vendor documentation](https://www.webshare.io/proxy-server)); a proxy changes
-egress, not access permission, source freshness or evidence quality. A VPN plus a
-proxy adds complexity without an established requirement. No purchase is proposed.
+### Personal-IP protection requirement
 
-If a documented deployment/network requirement later warrants a proxy, use one
-approved stable/sticky egress, inherited TLS trust and secret-managed credentials.
-Do not multiply quotas across IPs. Keep the source lease/cooldown shared across
-API/UI workers and deployment egresses. Review the provider's visibility of queries
-and any hosted browser's access to page contents before sending investigation data.
+Run source-facing browsers and API clients on a dedicated remote worker. The
+investigator connects to Nima or a private remote-browser session; source websites
+receive the worker's egress IP, not the investigator's home/office IP. The earlier
+research requests ran in the hosted execution environment, not the user's local
+browser. A production Nima worker has not been provisioned or privacy-tested.
+
+```mermaid
+flowchart LR
+    U[Investigator device] --> N[Private Nima access / remote browser]
+    N --> W[Remote source worker]
+    W --> S[Source website sees worker IP]
+    W -. optional fixed proxy .-> P[Source website sees proxy IP]
+```
+
+The worker IP alone satisfies protection from exposing the home IP to source
+websites. If hiding the worker IP is also required, add one approved fixed/sticky
+proxy or a full-tunnel VPN on the worker. Webshare offers HTTP/SOCKS infrastructure
+([vendor documentation](https://www.webshare.io/proxy-server)); Playwright supports
+[browser/context proxy configuration](https://playwright.dev/python/docs/network#http-proxy).
+No purchase or VPN-plus-proxy chain is proposed by default.
+
+Manual capture must use the remote browser too. An alternative is a separately
+verified local full-tunnel VPN with lockdown protection that remains effective
+when disconnected, not just a browser extension or a kill switch active only
+during an established VPN session. See the distinction in the
+[Mullvad app documentation](https://mullvad.net/en/help/using-mullvad-vpn-app).
+Ordinary local browsing directly to the source does not meet this requirement.
+
+Required controls for the later implementation:
+
+- Source HTTP/browser work happens on the remote worker. The investigator-facing
+  app serves private archived evidence and does not load source-hosted images,
+  scripts or embeds into the investigator's browser. Render untrusted captures
+  safely. Opening a live source link requires the protected browsing path.
+- Never forward the investigator's IP in request headers such as X-Forwarded-For
+  or put it in source query parameters, logs or evidence metadata.
+- In proxy-required mode, missing credentials, tunnel failure or proxy outage
+  stops collection. No retry falls back to direct egress. Enforce this in the
+  worker's network policy, not just in Playwright settings. Route or block DNS,
+  IPv6 and WebRTC/UDP paths that could bypass the chosen egress.
+- Keep TLS verification enabled and credentials secret-managed. Test observed
+  egress and connection failures against controlled endpoints before any source
+  pilot; do not perform these tests against government services.
+- Verify automated and manual browser traffic, subresources and API requests.
+  Browser proxy settings alone are not evidence that all traffic is covered.
+
+This protects the home IP from source websites, not anonymity from every party.
+The hosting/access provider can see the investigator's connection IP. With a
+remote worker, a proxy sees the worker's connecting IP and destination metadata;
+visibility into content depends on TLS termination and service architecture.
+Accounts, API keys, cookies and other identifiers can still identify the operator.
+Review provider logging/retention and avoid claims of guaranteed anonymity.
+
+Network privacy does not change the access-policy prerequisite above. Keep stable
+egress, source-family limits and cooldowns; do not rotate IPs to continue after a
+block or multiply quotas across deployment egresses.
 
 ## Evidence, persistence and orchestration boundaries
 
@@ -269,6 +319,10 @@ Required acceptance cases for a later first delivery:
 - Complete bodies precede derived fields; oversized/incomplete evidence is rejected.
 - Replay, interruption and duplicate delivery cannot reset budgets or mutate evidence.
 - Throttling pauses the source family and cannot trigger channel/IP failover.
+- Source websites and their subresources never receive requests from the
+  investigator's home/office connection through Nima. Controlled egress tests
+  cover remote manual capture, API calls and automated browsing; proxy-required
+  mode fails closed on outage, missing configuration and alternate network paths.
 - Errors/logs/archives exclude session secrets and records are excluded from Git.
 - Fixture tests preserve the repository's 90% combined coverage floor; a later
   opt-in live pilot reports verified IDs, field coverage, request counts and failures.
