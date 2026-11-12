@@ -1,6 +1,14 @@
 # Delivery plan
 
-## Current increment: private manual Publicity evidence intake
+## Next increment: source-worker egress verification
+
+The manual intake delivery is merged and verified. The next source-ingestion
+contract is `docs/sources/source-worker-egress.md`, **draft for review**. It covers
+a fixture-only worker network boundary; implementation planning follows contract
+approval. No source collector, remote service or proxy subscription is activated.
+Preserve the previous plans and unrelated pending tasks below.
+
+## Completed increment: private manual Publicity evidence intake
 
 Status: **implementation approved**, 2026-11-12, by the user's “Yes”. The user approved
 `docs/sources/gemi-publicity-fallback.md`, including protection of the investigator's

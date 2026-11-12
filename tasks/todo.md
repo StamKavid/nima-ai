@@ -330,14 +330,17 @@ This extends source ingestion; all older incomplete tasks above remain tracked.
   `tests/test_publicity_evidence_verify.py` and an affected evidence module if
   failure tests expose a defect (at most three files).
 
-### P6: Review and publish a private implementation PR
+### P6: Review and publish a private implementation PR (complete)
 
 - [x] Run focused failure checks, mutation, five-axis review and write runbook.
 - [x] Pass final full quality/audit checks and publish private reviewable PRs.
   - Local runtime/test revision `f309961`: 576 tests, 93.03% coverage; clean audit.
     Delivery is split into design (#32), core (#33), then the dependent CLI PR.
-- [ ] Verify final-head hosted quality/Compose checks before marking ready.
-  - Mutable final-head results are recorded in the delivery PRs after this snapshot.
+- [x] Verify final-head hosted quality/Compose checks before marking ready.
+  - #32, #33 and #34 were merged to main by the user. Main `ed52c38` has the
+    identical file tree to tested `99a4144`. Post-merge run 43218895749 passed
+    both quality and orchestration-compose. All three merged remote heads were
+    removed by the cleanup workflow; local history remains available.
 
 - Acceptance: a protected-capture runbook, strict input example and measured
   verification report describe what works and what remains unverified; private
@@ -356,3 +359,11 @@ Remote-browser deployment and controlled-endpoint egress tests; permitted live U
 capture; HTML/session-data handling; registry assertion extraction; explicit SQL
 import and comparison support; shared source budgets and Prefect scheduling.
 These are not accepted as complete by this offline intake delivery.
+
+## Source-worker egress verification specification
+
+- [x] Verify all manual-evidence merges, main's tested tree and post-merge CI.
+- [x] Draft the fixture-only network boundary and observable acceptance cases.
+  - Contract: docs/sources/source-worker-egress.md. This is not deployed privacy
+    infrastructure or permission to automate a government source.
+- [ ] Review the new contract before implementation planning.

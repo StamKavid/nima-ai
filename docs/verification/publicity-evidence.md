@@ -49,6 +49,13 @@ and StamKavid attribution. No provider request or production deployment.
 Final-head hosted quality and Compose results belong in the delivery PRs. A local
 test or push is not evidence that hosted CI passed. Human merges only.
 
+Post-merge verification, 2026-11-12: the user merged #32, #33 and #34 into main
+(`ace6d1f`, `43f8081`, then `ed52c38`). Main's file tree is identical to tested
+`99a4144`. [Main CI run 43218895749](https://github.com/StamKavid/nima-ai/actions/runs/43218895749)
+passed both quality and orchestration-compose. Remote branch enumeration confirmed
+all three merged heads were removed; local references were retained. No runtime
+change or production deployment was needed for this verification.
+
 ## Review and limits
 
 Correctness: content hashes, bounded metadata, strict reconciliation and real
