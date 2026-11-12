@@ -1,6 +1,26 @@
 # Delivery plan
 
-## Current increment: bounded KIMDIS refresh
+## Current increment: repository controls and just
+
+The user requested cleanup of merged PR branches, protected main/dev branches,
+replacement of make with just, and an explanation of Python 3.12 versus 3.14.
+These operational changes are explicitly authorized; preserve all quality gates.
+
+1. Verify refresh PR merges, create dev from main, inspect GitHub controls and
+   attempt native settings. Record actual plan/permission blocks without changing
+   repository privacy or purchasing a plan.
+2. Pin/install official just, port every active recipe and CI invocation, and
+   preserve archived command evidence and the immutable skill snapshot.
+3. Test a conservative merged-head policy and actual Git deletion leases; add a
+   trusted-default-branch cleanup workflow. Preview then clean verified old heads.
+   Keep main/dev, protected heads, unmerged/new work and open PR dependencies.
+4. Check/audit locally and in hosted CI, publish matching bootstrap PRs for main
+   and dev, and supply an importable protection ruleset/manual setup instructions.
+   Human merges only; actual protections require a supported plan/admin access.
+5. Continue the application roadmap with a bounded offline registry comparison
+   spec. The runtime remains 3.12 until a separately validated compatibility change.
+
+## Completed increment: bounded KIMDIS refresh
 
 The user approved docs/sources/kimdis-refresh.md by requesting continuation on
 2026-11-12. Implement local/offline tests only; no policy or live poller activation.

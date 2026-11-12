@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   push:
   workflow_dispatch:
 
@@ -16,6 +16,7 @@ concurrency:
 jobs:
   quality:
     name: quality
+    if: github.event_name != 'push' || github.event.deleted != true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     services:
@@ -42,14 +43,18 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
+      - name: Install checksum-pinned command runner
+        run: |
+          sh scripts/install-just.sh
+          echo "$PWD/.tools/bin" >> "$GITHUB_PATH"
       - name: Install locked dependencies
         run: uv sync --frozen
       - name: Install checksum-pinned secret scanner
-        run: make setup-security
+        run: just setup-security
       - name: Verify skills, lint, types, tests, build, and source security
-        run: make check
+        run: just check
       - name: Audit Python dependencies
-        run: make audit
+        run: just audit
       - name: Upload coverage evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -61,6 +66,7 @@ jobs:
 
   orchestration-compose:
     name: orchestration-compose
+    if: github.event_name != 'push' || github.event.deleted != true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

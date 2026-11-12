@@ -21,7 +21,7 @@ decisions. The upstream project policy was not copied into this repository.
 
 - Keep features in short-lived branches and use small, focused commits.
 - Clarify consequential missing requirements; continue independently on authorized work.
-- Run `make check` and `make audit` before proposing a merge.
+- Run `just check` and `just audit` before proposing a merge.
 - Review correctness, readability, architecture, security, and performance.
 - Do not merge or deploy without user authorization. Preserve the user-requested
   private visibility; never publish the project or its source to a public repository.

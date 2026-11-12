@@ -31,17 +31,19 @@ The practical deliverable is a reviewable case with an evidence trail. Read the
 
 ## Development
 
-Python 3.12 and [uv](https://docs.astral.sh/uv/) are required. Full checks also
+Python 3.12, [uv](https://docs.astral.sh/uv/) and just 1.59.0 are the tested development baseline. Full checks also
 require disposable local PostgreSQL 17; configure `NIMA_TEST_DSN` as below.
 
 ```bash
-make setup
-make check
-make audit
+sh scripts/install-just.sh
+export PATH="$PWD/.tools/bin:$PATH"
+just setup
+just check
+just audit
 ```
 
-`make check` verifies the installed skills, formatting, lint, types, behavioral
-tests, package build, and source security. `make audit` checks locked third-party Python dependencies against
+`just check` verifies the installed skills, formatting, lint, types, behavioral
+tests, package build, and source security. `just audit` checks locked third-party Python dependencies against
 the Python Packaging Advisory Database. The unpublished project is checked
 by first-party tests and static analysis rather than a public package database.
 These checks cover first-party tooling and collection behavior. They do not
@@ -201,8 +203,8 @@ docker run --rm -d --name nima-postgres-test \
   postgres:17-bookworm@sha256:665dc7b37ac52a17e298511414c21d23ffa4e6a6ef6225b3e5d59c7afb35e994
 docker exec nima-postgres-test pg_isready -U postgres -d nima_test
 export NIMA_TEST_DSN='host=127.0.0.1 port=55432 dbname=nima_test user=postgres'
-make check
-make audit
+just check
+just audit
 docker stop nima-postgres-test
 ```
 
@@ -231,7 +233,7 @@ to merge or deploy.
 All 25 skills from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)
 are installed project-locally in `.agents/skills/`. Shared references, supporting
 documents, and the MIT license are preserved. `.agents/skills.lock.json` records
-the upstream revision and file hashes. `make skills-check` detects local drift;
+the upstream revision and file hashes. `just skills-check` detects local drift;
 it is an integrity check against the recorded snapshot, not signature verification.
 
 Codex discovers project-local skills when a session starts in this repository.
@@ -402,7 +404,7 @@ Open the local Prefect UI at `http://localhost:4200`. The sample database uses
 trust authentication and a loopback port 55433; keep this stack local. For hosts
 without `/etc/ssl/certs/ca-certificates.crt`, set `NIMA_CA_BUNDLE` to your trusted
 PEM CA bundle before building. TLS verification stays enabled. The hash-locked
-image includes development tooling; regenerate its export with `make container-lock`
+image includes development tooling; regenerate its export with `just container-lock`
 after a dependency update. Production packaging and operations need a separate review.
 
 To authorize one bounded source collection, generate a new UUID and replace
@@ -494,3 +496,6 @@ and absence on a recheck is not proof of deletion. See the
 [refresh contract](docs/sources/kimdis-refresh.md) and
 [verification](docs/verification/kimdis-refresh.md). No policy has been enabled
 or live cohort selected by this implementation.
+
+Repository branch cleanup, main/dev protection status, and the Python 3.12/3.14
+choice are documented in [repository settings](docs/repository-settings.md).
