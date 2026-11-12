@@ -1,8 +1,9 @@
 # Proposal: GEMI Publicity evidence fallback
 
 Status: **design approved**, 2026-11-12, by the user's “I agree continue”, including
-the personal-IP requirement added in `53f9285`. No collector, new command,
-dependency, database migration or live schedule has been implemented.
+the personal-IP requirement added in `53f9285`. The offline manual intake and
+verification slice is implemented. No browser collector, new dependency, database
+migration, remote infrastructure or live schedule has been introduced.
 Provider module: existing `source-ingestion`; identity review remains separate.
 This proposal supplements, rather than replaces, the approved GEMI API contract.
 The first delivery plan and review gates are recorded in `tasks/plan.md` and
@@ -274,12 +275,102 @@ API/UI use, route both through the same source-family guard. The initial operato
 pilot is serialized with API jobs disabled. No automatic failover or active schedule
 is included in this proposal.
 
+## Manual intake runbook
+
+Use this only for public evidence already saved through a remote browser or a
+separately verified VPN-protected connection. That acquisition infrastructure is
+not supplied by these commands. Never save account pages, credentials, browser
+sessions, cookies, HAR files or CAPTCHA tokens. The importer does not inspect or
+redact the contents of opaque documents; choose appropriate public captures.
+
+From the repository root, create a private input directory:
+
+```bash
+umask 077
+mkdir -p -m 700 data/manual-input
+```
+
+Place one original PDF, PNG or JPEG per selected company there; do not edit the
+original capture to satisfy validation. Write `data/manual-input/input.json`:
+
+```json
+{
+  "version": "publicity-manual-input-v1",
+  "records": [
+    {
+      "gemi_number": "123",
+      "file": "capture.pdf",
+      "media_type": "application/pdf",
+      "source_url": "https://publicity.businessportal.gr/",
+      "claimed_captured_at": "2026-11-12T12:00:00Z",
+      "capture_method": "print-to-pdf",
+      "capture_context": "remote-browser"
+    }
+  ]
+}
+```
+
+These are synthetic placeholders, not a company profile. Replace the registry
+number, exact public profile/page URL, capture time and file information with
+your capture's metadata. The supplied number is not verified against document
+content. A URL needing a query or another host requires an explicit contract
+extension; do not strip required URL parts to make a record pass.
+
+Allowed media types are `application/pdf`, `image/png` and `image/jpeg`. Allowed
+methods are `download`, `print-to-pdf` (PDF only) and `screenshot` (images only).
+Contexts are `remote-browser` or `vpn-protected`; both are operator declarations,
+not independently verified network observations. File signatures are checked, but
+validity/authenticity of PDF/image content is not established. Nothing is rendered,
+OCRed or opened in a browser. HTML and session exports are unsupported.
+
+Choose a fresh request UUID for a new bundle. For example:
+
+```bash
+uv run --frozen python -c 'from uuid import uuid4; print(uuid4())'
+```
+
+Substitute it consistently below (the shown UUID is synthetic):
+
+```bash
+uv run --frozen python -m nima evidence intake publicity \
+  --request-id 00000000-0000-4000-8000-000000000001 \
+  --manifest data/manual-input/input.json \
+  --input-dir data/manual-input \
+  --archive-dir data/publicity-manual
+
+uv run --frozen python -m nima evidence verify \
+  00000000-0000-4000-8000-000000000001 \
+  --archive-dir data/publicity-manual
+```
+
+The source manifest is at most 64 KiB, with 1–10 unique registry numbers and files;
+each file is at most 8 MiB, with at most 50 MiB total. Input and archive roots must
+be private owner-controlled directories. Symlinks, traversal and special files
+are rejected. Existing unrelated or incorrectly permissioned archives fail without
+being adopted or chmodded. Keep input captures and archives outside version control.
+
+The archive uses `.nima-publicity`, `.gitignore`, content-addressed `objects/` and
+immutable `bundles/REQUEST_UUID_HEX.json` files. Only a completed manifest accepts
+a bundle. A killed worker may leave ignored temporary files or unreferenced blobs;
+these are not accepted bundles. Verification is read-only and works without the
+input files. Reusing a UUID with identical claims/content preserves the first
+manifest/time; changed content needs a new request. Corrupt completed evidence
+fails without automatic repair. Preserve damaged evidence for investigation.
+
+Exit 0 means staged evidence or verified integrity, never source authentication,
+identity acceptance, successful extraction or verified IP protection. JSON summaries
+explicitly retain false verification/extraction flags. Exit 2 is invalid input;
+1 is archive/integrity failure; 130 is interruption. Help is available with
+`uv run --frozen python -m nima evidence --help`. Errors do not echo supplied paths,
+URLs, identifiers or document content. No API key, database or network is required.
+
 ## Implementation conventions and verification
 
 Current stack: Python 3.12, HTTPX 0.28.1, Psycopg 3.3.8 and self-hosted Prefect 3.9.2.
-Proposed first-party modules belong under `src/nima/`; fixture-backed tests under
-`tests/`; source contracts under `docs/sources/`; pilot evidence summaries under
-`docs/verification/`. Raw evidence belongs in a private Git-ignored archive.
+Manual-evidence modules live under `src/nima/evidence/`; synthetic fixture-backed
+tests under `tests/test_publicity_evidence*.py`; source contracts under
+`docs/sources/`; verification summaries under `docs/verification/`.
+Raw evidence belongs in a private Git-ignored archive.
 Use existing strict typing, Ruff formatting, immutable evidence and redacted outcomes.
 For example, a proposed outcome could preserve absence without guessing:
 
@@ -307,8 +398,8 @@ just check
 just audit
 ```
 
-These are repository checks, not browser pilot commands. No UI collector/intake
-CLI is implemented; its exact interface belongs in an approved implementation plan.
+These are repository checks, not browser pilot commands. Only the manual intake
+and verification CLI above is implemented; UI collection remains conditional.
 No live government searches run in CI. Use synthetic public-page fixtures and
 local browser endpoints for parsers, network behaviour and failure states.
 

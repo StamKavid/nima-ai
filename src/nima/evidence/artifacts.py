@@ -120,6 +120,10 @@ def initialize(root: int) -> None:
     names = set(os.listdir(root))
     if MARKER_NAME not in names and any(not n.startswith(".tmp-") for n in names):
         raise EvidenceError("archive_path")
+    # These directories are created only after the immutable root metadata.
+    # Their presence rules out an interrupted, not-yet-initialized root.
+    if names & {"objects", "bundles"}:
+        validate_root(root)
     publish(root, MARKER_NAME, MARKER)
     publish(root, ".gitignore", b"*\n")
     for name in ("objects", "bundles"):

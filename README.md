@@ -49,6 +49,20 @@ by first-party tests and static analysis rather than a public package database.
 These checks cover first-party tooling and collection behavior. They do not
 prove full-source coverage, crash recovery, or model quality.
 
+## Stage manually captured GEMI evidence offline
+
+The `evidence intake publicity` command preserves manually saved public PDFs or
+screenshots in a separate private archive. `evidence verify REQUEST_UUID` checks
+its hashes, metadata and completeness without source requests or a database.
+Original files are stored as opaque evidence; they are not rendered or extracted.
+Supplied company identifiers, origin and capture context remain unverified claims.
+
+Follow the [manual intake runbook](docs/sources/gemi-publicity-fallback.md#manual-intake-runbook)
+for the strict input manifest, commands, byte limits, exit codes and replay rules.
+Manual acquisition must use a remote browser or a separately verified protected
+connection. These offline commands do not deploy or verify that infrastructure.
+No live Publicity scraper or automatic API fallback is enabled.
+
 ## Collect a bounded KIMDIS window
 
 ```bash

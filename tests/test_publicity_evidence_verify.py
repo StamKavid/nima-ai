@@ -113,3 +113,27 @@ def test_missing_archive_verification_creates_nothing(tmp_path: Path) -> None:
     with pytest.raises(EvidenceError):
         verify(uuid4(), archive)
     assert not archive.exists()
+
+
+def test_new_request_cannot_repair_missing_shared_archive_metadata(tmp_path: Path) -> None:
+    archive, _, _ = ingest(tmp_path)
+    (archive / ".gitignore").unlink()
+    before = snapshot(archive)
+    source = tmp_path / "input"
+    with pytest.raises(EvidenceError):
+        intake(uuid4(), source / "input.json", source, archive)
+    assert snapshot(archive) == before
+
+
+def test_manual_and_api_verifiers_reject_each_others_archive(tmp_path: Path) -> None:
+    from nima.ingestion.archive import Archive
+    from nima.storage.gemi_archive import ImportFailure, verify_run
+
+    archive, request_id, _ = ingest(tmp_path)
+    with pytest.raises(ImportFailure):
+        verify_run(archive, request_id)
+    api = Archive(tmp_path / "api")
+    original = snapshot(api.root)
+    with pytest.raises(EvidenceError):
+        verify(request_id, api.root)
+    assert snapshot(api.root) == original
