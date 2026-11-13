@@ -78,7 +78,11 @@ def policy_objects() -> list[dict[str, Any]]:
 def policy_payload() -> bytes:
     return (
         json.dumps(
-            {"nftables": [{"add": row} for row in policy_objects()]},
+            {
+                "nftables": [
+                    {"create" if "table" in row else "add": row} for row in policy_objects()
+                ]
+            },
             sort_keys=True,
             separators=(",", ":"),
         ).encode()
@@ -157,6 +161,27 @@ def _normalize(rows: list[dict[str, Any]]) -> dict[str, Any]:
                         and type(match.get("right")) is int
                     ):
                         match["right"] = {6: "tcp", 17: "udp"}.get(match["right"], match["right"])
+            if kind == "rule" and type(body.get("expr")) is list:
+                typed = set()
+                for expression in body["expr"]:
+                    if type(expression) is not dict:
+                        continue
+                    match = expression.get("match", {})
+                    if type(match) is not dict:
+                        continue
+                    left = match.get("left", {})
+                    payload = left.get("payload", {}) if type(left) is dict else {}
+                    if (
+                        type(payload) is dict
+                        and payload.get("protocol") in {"tcp", "udp"}
+                        and payload.get("field") == "dport"
+                    ):
+                        typed.add(payload["protocol"])
+                if len(typed) == 1:
+                    # nft 1.0.6 elides this redundant dependency when printing
+                    # a typed tcp/udp port match. Other protocol checks remain.
+                    implied = _match("meta", "l4proto", next(iter(typed)))
+                    body["expr"] = [row for row in body["expr"] if row != implied]
             result[kind].append(body)
     return result
 
