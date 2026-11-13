@@ -381,6 +381,8 @@ tracked above. The following test commands describe future implementation checks
 
 ### E1: Lock fixture Python dependencies
 
+- [x] Locked without unrelated version changes; frozen export/audit verified.
+
 - Acceptance: add dev-only Playwright 1.65.1 and cryptography 50.0.2; retain runtime
   declarations and unrelated resolved versions. Regenerate the existing hash-locked
   development-image export without downloading browsers into that image.
@@ -390,6 +392,8 @@ tracked above. The following test commands describe future implementation checks
 - Files: pyproject.toml, uv.lock, infra/requirements-orchestration.txt (three).
 
 ### E2: Freeze image, package and seccomp provenance
+
+- [x] Built verified snapshot toolbox; package manifest and scoped capabilities checked.
 
 - Acceptance: record the selected amd64 image digests, verified OS snapshot/feed,
   direct package versions/checksums and profile source/hash/licence. Build the
@@ -401,6 +405,10 @@ tracked above. The following test commands describe future implementation checks
   infra/source-worker/LICENSE.seccomp, infra/source-worker/Dockerfile.helper (four).
 
 ### E3: Prove the sandboxed browser prerequisite
+
+- [x] Real pinned Chromium sandbox/version and helper probes passed in hosted run
+  43267775558 at `98fa958`; all three CI jobs passed. The plan records the explicit
+  one-rule derived seccomp profile and parent-denial/child-success checks.
 
 - Acceptance: a pinned worker image runs UID 10001 with no capabilities, private
   IPC/state and the real Chromium sandbox. Preflight fails visibly on insufficient
@@ -415,10 +423,15 @@ tracked above. The following test commands describe future implementation checks
 
 ### Checkpoint A: Supported pinned runtime
 
-- [ ] Actual pinned-image browser launch/sandbox and helper capabilities verified.
-- [ ] Unsupported resource/kernel cases fail; no deployed privacy claim appears.
+- [x] Actual pinned-image browser launch/sandbox and helper capabilities verified.
+- [x] Unsupported resource/kernel cases fail; no deployed privacy claim appears.
 
 ### E4: Define fixture policy and receipt semantics
+
+- [x] Offline semantics, strict independent decoding and private atomic publication
+  verified: 32 focused tests; hosted run 43272416378 at `1f72c8f` passed 634 tests
+  with 91.86% coverage and all three jobs green. This does not claim that the
+  later network cases have executed. The user merged #35 and #36 on 2026-11-13.
 
 - Acceptance: immutable bounded policy/case models accept only fixed fixture
   identities and reject arbitrary live URLs or bypass options. Receipt validation
@@ -437,7 +450,7 @@ tracked above. The following test commands describe future implementation checks
 - [x] Synthetic service listeners and private counters.
 - [x] Closed Docker wiring and independent observer controls; the complete
   fixture stack passed at `c937584` in hosted run 43397091843.
-- Delivery: #37 certificate setup → #38 services → wiring PR; each is reviewed
+- Delivery: #37 certificate setup → #38 services → #39 fixture wiring; each is reviewed
   separately, with exact-head hosted checks required before readiness. E6 gateway
   authentication/TLS, E7 kernel enforcement and the full matrix remain pending.
 
@@ -553,4 +566,6 @@ tracked above. The following test commands describe future implementation checks
   tasks/plan.md, docs/sources/source-worker-egress.md (five).
 
 Progress-only updates to this plan/spec remain separate from behaviour changes.
-Current stack pins/probes are planning evidence, not passing integration results.
+The implementation progress above records passing prerequisite, offline and
+closed-fixture gates. The complete network matrix and deployed IP protection
+remain unverified.

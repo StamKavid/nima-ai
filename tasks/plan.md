@@ -15,7 +15,7 @@ semantics passed at `1f72c8f` in
 [run 43272416378](https://github.com/StamKavid/nima-ai/actions/runs/43272416378)
 (634 tests, 91.86%, all three jobs green). The user merged PRs #35 and #36
 on 2026-11-13. E5 closed fixtures passed in hosted run 43397091843 at `c937584`
-and are split for review: #37 certificate setup → #38 services → fixture wiring.
+and are split for review: #37 certificate setup → #38 services → #39 fixture wiring.
 Each delivery head still requires its own hosted checks. The complete network
 matrix, checkpoints B/C, and deployed IP protection have not been verified.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
