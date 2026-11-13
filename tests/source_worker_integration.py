@@ -9,12 +9,12 @@ import os
 import re
 import secrets
 import stat
-import subprocess
 from ipaddress import ip_network
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from nima.egress.commands import capture
 from nima.egress.fixtures import Counters, http_server
 from nima.egress.network import NETWORK_FAILURES
 from nima.egress.observer import OBSERVER_FAILURES
@@ -55,19 +55,13 @@ class FixtureStack:
         self.auth = ("nima-fixture-" + secrets.token_urlsafe(12), secrets.token_urlsafe(32))
 
     def command(self, *arguments: str, timeout: int = 90) -> str:
-        try:
-            result = subprocess.run(
-                [self.docker, "--host=unix:///var/run/docker.sock", *arguments],
-                cwd=ROOT,
-                env=self.environment,
-                check=False,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-            )
-        except (OSError, subprocess.TimeoutExpired):
-            raise RuntimeError("fixture_docker_unavailable") from None
-        if result.returncode or len(result.stdout) > 1024**2 or len(result.stderr) > 1024**2:
+        result = capture(
+            (self.docker, "--host=unix:///var/run/docker.sock", *arguments),
+            cwd=ROOT,
+            env=self.environment,
+            timeout=timeout,
+        )
+        if result.returncode:
             # No CalledProcessError, raw daemon output, configuration or secrets.
             for line in result.stdout.splitlines()[:16]:
                 try:
