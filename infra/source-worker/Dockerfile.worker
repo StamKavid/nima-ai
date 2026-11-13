@@ -9,6 +9,9 @@ COPY infra/requirements-orchestration.txt /opt/nima/requirements.txt
 RUN --mount=type=secret,id=ca_bundle,required=true \
     PIP_CERT=/run/secrets/ca_bundle python -m pip install --no-cache-dir --require-hashes -r /opt/nima/requirements.txt \
     && groupadd --gid 10001 nima \
-    && useradd --uid 10001 --gid 10001 --create-home nima
+    && useradd --uid 10001 --gid 10001 --create-home nima \
+    && install -d -o 10001 -g 10001 -m 0700 /home/nima \
+    && install -d -o 10002 -g 10001 -m 0700 /fixture-private /gateway-private /control /gateway-admin \
+    && install -d -o 10002 -g 10001 -m 0750 /fixture-public
 COPY src /app
 USER 10001:10001

@@ -435,13 +435,18 @@ tracked above. The following test commands describe future implementation checks
 
 - [x] Ephemeral certificate/credential setup and UID/private-control preflight.
 - [x] Synthetic service listeners and private counters.
-- [ ] Closed Docker wiring and independent observer controls.
+- [x] Closed Docker wiring and independent observer controls; the complete
+  fixture stack passed at `c937584` in hosted run 43397091843.
+- Delivery: #37 certificate setup → #38 services → wiring PR; each is reviewed
+  separately, with exact-head hosted checks required before readiness. E6 gateway
+  authentication/TLS, E7 kernel enforcement and the full matrix remain pending.
 
 - Acceptance: generate ephemeral CA/server material and sentinel credentials on
   private volumes, expose only a public CA to the worker, and provide HTTPS and
   TCP/UDP/DNS canaries with private control counters. Observer UID 10002 is distinct
   from workload UID 10001 and never a live collection identity.
-- Verify: `uv run --frozen pytest tests/test_source_worker_fixtures.py`; real
+- Verify: `uv run --frozen pytest tests/test_source_worker_bootstrap.py
+  tests/test_source_worker_fixtures.py tests/test_source_worker_observer.py`; real
   observer positive controls, private-control access rejection and TLS material
   absent from Git/logs. Create only closed, project-owned networks/resources.
 - Dependencies: E4.
