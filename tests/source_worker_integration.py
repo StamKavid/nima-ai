@@ -72,6 +72,34 @@ class FixtureStack:
                     continue
                 if (
                     type(value) is dict
+                    and value.get("version") == "source-worker-rule-shape-v1"
+                    and all(
+                        type(value.get(key)) is list
+                        and len(value[key]) <= 30
+                        and all(
+                            type(row) is list
+                            and len(row) <= 16
+                            and all(
+                                type(token) is str
+                                and (
+                                    token in {"counter", "accept", "drop", "invalid", "unknown"}
+                                    or re.fullmatch(
+                                        r"(?:meta:(?:skuid|l4proto|nfproto)|(?:ip|tcp|udp):(?:daddr|dport)):(?:bool|int|str|NoneType|list|dict|float)",
+                                        token,
+                                    )
+                                )
+                                for token in row
+                            )
+                            for row in value[key]
+                        )
+                        for key in ("expected", "observed")
+                    )
+                ):
+                    print(
+                        json.dumps({key: value[key] for key in ("version", "expected", "observed")})
+                    )
+                if (
+                    type(value) is dict
                     and value.get("version") == "source-worker-preflight-v1"
                     and value.get("failure")
                     in OBSERVER_FAILURES | PROTOCOL_FAILURES | NETWORK_FAILURES
