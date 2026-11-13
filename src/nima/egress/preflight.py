@@ -5,6 +5,7 @@ https://playwright.dev/python/docs/browsers#chromium-new-headless-mode
 """
 
 import argparse
+import errno
 import json
 import os
 import re
@@ -35,7 +36,9 @@ def check_host(info: object, free_bytes: int) -> None:
         raise PrerequisiteError("disk")
 
 
-def check_process(status: str, *, helper: bool = False) -> None:
+def check_process(status: str, *, helper: bool = False, uid: int = 10001) -> None:
+    if uid not in {10001, 10002}:
+        raise PrerequisiteError("process")
     required = {"Uid", "CapEff", "CapPrm", "CapBnd", "NoNewPrivs", "Seccomp"}
     observed = {}
     for line in status.splitlines():
@@ -47,7 +50,7 @@ def check_process(status: str, *, helper: bool = False) -> None:
     try:
         if (
             set(observed) != required
-            or observed["Uid"].split() != (["0"] if helper else ["10001"]) * 4
+            or observed["Uid"].split() != (["0"] if helper else [str(uid)]) * 4
             or any(
                 int(observed[name], 16) != (0x1000 if helper else 0)
                 for name in ("CapEff", "CapPrm", "CapBnd")
@@ -82,6 +85,33 @@ def check_socket_mark(*, helper: bool) -> None:
 def helper_check() -> None:
     check_process(Path("/proc/self/status").read_text(), helper=True)
     check_socket_mark(helper=True)
+
+
+def private_controls() -> None:
+    for path in ("/fixture-private/ca.key", "/gateway-private/envoy.json"):
+        try:
+            descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        except OSError as exc:
+            if exc.errno not in {errno.ENOENT, errno.EACCES}:
+                raise PrerequisiteError("control_observation") from None
+        else:
+            os.close(descriptor)
+            raise PrerequisiteError("control_access")
+    for path in ("/control/canary.sock", "/gateway-admin/envoy.sock"):
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+            client.settimeout(2)
+            try:
+                client.connect(path)
+            except OSError as exc:
+                if exc.errno not in {errno.ENOENT, errno.EACCES}:
+                    raise PrerequisiteError("control_observation") from None
+            else:
+                raise PrerequisiteError("control_access")
+
+
+def controls_check() -> None:
+    check_process(Path("/proc/self/status").read_text())
+    private_controls()
 
 
 def check_namespaces() -> None:
@@ -225,6 +255,7 @@ def main(argv: list[str] | None = None) -> int:
     modes.add_parser("browser")
     modes.add_parser("helper")
     modes.add_parser("namespaces")
+    modes.add_parser("controls")
     profile = modes.add_parser("profile")
     profile.add_argument("--output", type=Path, required=True)
     try:
@@ -247,6 +278,8 @@ def main(argv: list[str] | None = None) -> int:
             helper_check()
         elif args.mode == "namespaces":
             namespaces_check()
+        elif args.mode == "controls":
+            controls_check()
         else:
             browser_check()
     except PrerequisiteError as exc:

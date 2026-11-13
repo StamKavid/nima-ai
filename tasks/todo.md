@@ -433,6 +433,10 @@ tracked above. The following test commands describe future implementation checks
 
 ### E5: Build controlled fixtures and independent observation
 
+- [x] Ephemeral certificate/credential setup and UID/private-control preflight.
+- [ ] Synthetic service listeners and private counters.
+- [ ] Closed Docker wiring and independent observer controls.
+
 - Acceptance: generate ephemeral CA/server material and sentinel credentials on
   private volumes, expose only a public CA to the worker, and provide HTTPS and
   TCP/UDP/DNS canaries with private control counters. Observer UID 10002 is distinct
