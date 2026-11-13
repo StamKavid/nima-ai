@@ -434,7 +434,7 @@ tracked above. The following test commands describe future implementation checks
 ### E5: Build controlled fixtures and independent observation
 
 - [x] Ephemeral certificate/credential setup and UID/private-control preflight.
-- [ ] Synthetic service listeners and private counters.
+- [x] Synthetic service listeners and private counters.
 - [ ] Closed Docker wiring and independent observer controls.
 
 - Acceptance: generate ephemeral CA/server material and sentinel credentials on
