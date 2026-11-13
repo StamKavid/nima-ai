@@ -66,7 +66,8 @@ def test_only_observer_and_exact_workload_gateway_are_accepted() -> None:
         word in policy_payload().decode() for word in ("established", "loopback", "ct state")
     )
     commands = json.loads(policy_payload())["nftables"]
-    assert all(set(command) == {"add"} for command in commands)
+    assert set(commands[0]) == {"create"}
+    assert all(set(command) == {"add"} for command in commands[1:])
 
 
 def test_readback_identity_ignores_handles_and_counter_values_only() -> None:

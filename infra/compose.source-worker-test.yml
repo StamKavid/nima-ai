@@ -56,6 +56,7 @@ services:
       net.ipv6.conf.all.disable_ipv6: "1"
       net.ipv6.conf.default.disable_ipv6: "1"
       net.ipv4.ip_unprivileged_port_start: "0"
+      net.ipv4.ip_forward: "0"
     volumes:
       - browser-home:/home/nima
 
@@ -143,6 +144,19 @@ services:
     volumes:
       - gateway-private:/gateway-private:ro
       - gateway-admin:/gateway-admin
+
+  network-setup: &network-helper
+    <<: *service
+    profiles: [probes]
+    image: ${NIMA_HELPER_IMAGE:?}
+    user: "0:0"
+    cap_add: [NET_ADMIN]
+    network_mode: service:anchor
+    command: [python, -m, nima.egress.network, install]
+
+  network-inspect:
+    <<: *network-helper
+    command: [python, -m, nima.egress.network, inspect]
 
   observer:
     <<: *service

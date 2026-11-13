@@ -78,7 +78,11 @@ def policy_objects() -> list[dict[str, Any]]:
 def policy_payload() -> bytes:
     return (
         json.dumps(
-            {"nftables": [{"add": row} for row in policy_objects()]},
+            {
+                "nftables": [
+                    {"create" if "table" in row else "add": row} for row in policy_objects()
+                ]
+            },
             sort_keys=True,
             separators=(",", ":"),
         ).encode()

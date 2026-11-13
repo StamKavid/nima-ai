@@ -15,6 +15,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from nima.egress.fixtures import Counters, http_server
+from nima.egress.network import NETWORK_FAILURES
 from nima.egress.observer import OBSERVER_FAILURES
 from nima.egress.preflight import check_host
 from nima.egress.protocol import PROTOCOL_FAILURES
@@ -72,7 +73,8 @@ class FixtureStack:
                 if (
                     type(value) is dict
                     and value.get("version") == "source-worker-preflight-v1"
-                    and value.get("failure") in OBSERVER_FAILURES | PROTOCOL_FAILURES
+                    and value.get("failure")
+                    in OBSERVER_FAILURES | PROTOCOL_FAILURES | NETWORK_FAILURES
                 ):
                     raise RuntimeError(value["failure"])
             diagnostic = (result.stdout + result.stderr).lower()
@@ -208,6 +210,13 @@ class FixtureStack:
         self.compose("run", "--rm", "--no-deps", "nss")
         self.compose("run", "--rm", "--no-deps", "gateway-validate")
         self.compose("up", "-d", "--wait", "--no-deps", "gateway")
+        installed = json.loads(self.compose("run", "--rm", "--no-deps", "network-setup"))
+        assert installed["status"] == "passed"
+        assert installed["metadata_alias"] is True
+        assert installed["ipv6_disabled"] is True
+        observed = json.loads(self.compose("run", "--rm", "--no-deps", "network-inspect"))
+        assert observed["policy_sha256"] == installed["policy_sha256"]
+        assert observed["network_inode"] == installed["network_inode"]
 
     def cleanup(self) -> None:
         selected: dict[str, list[str]] = {}
@@ -255,6 +264,8 @@ class FixtureStack:
                 "worker",
                 "gateway",
                 "gateway-validate",
+                "network-setup",
+                "network-inspect",
             }:
                 raise RuntimeError("fixture_service_identity")
             observations.append(row)
