@@ -332,3 +332,27 @@ def test_cli_redacts_failures_and_clears_total_attempt_timer(
         assert status == (2 if fault == "configuration" else 130 if fault == "interrupt" else 1)
         assert json.loads(raw)["status"] == "failed"
     assert timers == ([] if fault == "configuration" else [15, 0])
+
+
+def test_total_attempt_alarm_actually_interrupts_a_stalled_probe(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], auth: ProxyCredentials
+) -> None:
+    import time
+    from types import SimpleNamespace
+
+    previous = signal.getsignal(signal.SIGALRM)
+    monkeypatch.setattr(probe_http, "FixturePolicy", lambda: SimpleNamespace(attempt_seconds=0.02))
+    monkeypatch.setattr(Path, "read_text", lambda path: "status")
+    monkeypatch.setattr(probe_http, "check_process", Mock())
+    monkeypatch.setattr(probe_http, "private_controls", Mock())
+    monkeypatch.setattr(probe_http, "credentials", Mock(return_value=auth))
+
+    def stalled(*args: object) -> ClientResult:
+        time.sleep(0.2)
+        return ClientResult.FIXTURE_BODY
+
+    monkeypatch.setattr(probe_http, "execute", stalled)
+    assert probe_http.main(["http_allowed"]) == 1
+    assert json.loads(capsys.readouterr().out)["failure"] == "http_probe"
+    assert signal.getsignal(signal.SIGALRM) == previous
+    assert signal.getitimer(signal.ITIMER_REAL) == (0, 0)

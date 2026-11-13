@@ -565,7 +565,11 @@ def test_all_http_cases_reconcile_real_controls_delivery_and_gateway_outage(tmp_
         ):
             for case in HTTP_CASES:
                 if case.name == "gateway_restart":
-                    stack.compose("start", "gateway")
+                    # Compose start also restarts the one-shot initializer.
+                    # Keep its refuse-overwrite guard and restart only the
+                    # exact gateway container observed stopped in the outage.
+                    assert stopped_gateway_id is not None
+                    stack.command("start", stopped_gateway_id)
                 gateway_id = stack.compose("ps", "--all", "--quiet", "gateway")
                 if case.name == "gateway_restart":
                     assert stopped_gateway_id == gateway_id
