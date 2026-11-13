@@ -472,7 +472,9 @@ tracked above. The following test commands describe future implementation checks
 
 - [x] Fixed static bootstrap, enforced RBAC/challenge and private config tests.
 - [x] Bounded HTTPX/browser probes and strict independent counter decoding.
-- [ ] Pinned Envoy validation and real Docker HTTPX/Chromium protocol checks.
+- [x] Pinned Envoy validation and real Docker HTTPX/Chromium protocol checks.
+  Evidence: `4d749ae`, hosted run 43403470378, two Docker tests/21.04 seconds.
+  Final delivery-head quality checks are recorded in the implementation PRs.
 - Implementation: `protocol.py` contains executable fixture-only client probes;
   its unit tests cover trust/sandbox options, bounds and error redaction. Observer
   changes read only allowlisted numeric admin counters. These extra files keep
@@ -493,8 +495,10 @@ tracked above. The following test commands describe future implementation checks
 
 ### Checkpoint B: Real gateway/fixture protocol
 
-- [ ] HTTPX/browser HTTPS, proxy challenges and NSS trust pass with real controls.
-- [ ] Control sockets/credentials are inaccessible to the workload; no open relay.
+- [x] HTTPX/browser HTTPS, proxy challenges and NSS trust pass with real controls.
+- [x] Private control sockets/config and fixture credential files are inaccessible
+  to the workload; no open relay. The worker receives only its required proxy
+  username/password through explicit runtime configuration.
 
 ### E7: Enforce the worker namespace packet policy
 

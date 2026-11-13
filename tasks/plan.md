@@ -17,16 +17,18 @@ semantics passed at `1f72c8f` in
 on 2026-11-13. E5 reached main through #37, #38 and #40 (#39 was first
 merged into its dependency branch). Delivery head `cfcb677` passed all three jobs
 in push run 43398560990 and PR run 43398771919: 650 tests, 90.54% coverage.
-E6 gateway CONNECT/TLS/auth is in progress, using the existing immutable Envoy
-pin. Its real client probes live in `protocol.py`; the independent observer reads
-allowlisted admin counters plus origin delivery counts. Unit tests verify client
-configuration/failure classification; only the real Docker probes can pass
-checkpoint B. Runtime discovery: Chromium 158 reports an invalid-credential
+E6 gateway CONNECT/TLS/auth and checkpoint B passed at `4d749ae` in
+[run 43403470378](https://github.com/StamKavid/nima-ai/actions/runs/43403470378):
+two real Docker tests passed in 21.04 seconds, including pinned Envoy validation,
+HTTPX/Chromium HTTPS/auth, Chromium NSS trust and independent delivery counters.
+Its real client probes live in `protocol.py`; the observer reads allowlisted admin
+counters plus origin delivery counts. Unit tests verify configuration and failure
+classification; they do not substitute for the real Docker gate.
+Final delivery-head quality gates remain required before review readiness. Runtime discovery: Chromium 158 reports an invalid-credential
 407 CONNECT response as `ERR_HTTP_RESPONSE_CODE_FAILURE`; retain independent
 RBAC-denial and origin-delivery checks when classifying this outcome. Do not
 accept arbitrary browser errors as authentication proof.
-The complete matrix, checkpoints B/C and deployed IP protection
-remain unverified.
+The complete matrix, checkpoint C and deployed IP protection remain unverified.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
 not start because this executor lacks Docker storage. Hosted full tests used
 real PostgreSQL. Keep that validation limitation visible at delivery.
