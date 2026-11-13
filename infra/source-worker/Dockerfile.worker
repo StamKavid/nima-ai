@@ -1,0 +1,14 @@
+# Fixture-only development toolchain; never deploy this image as a collector.
+FROM mcr.microsoft.com/playwright/python:v1.65.1-noble@sha256:ce84a3d75a47e81657d2ec2c0a949e6e0ef790abdc32ce6819220a3df987ff9a
+
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    HOME=/home/nima PYTHONPATH=/app
+WORKDIR /app
+# Reuse the root's complete, hash-locked development environment. No browser download.
+COPY infra/requirements-orchestration.txt /opt/nima/requirements.txt
+RUN --mount=type=secret,id=ca_bundle,required=true \
+    PIP_CERT=/run/secrets/ca_bundle python -m pip install --no-cache-dir --require-hashes -r /opt/nima/requirements.txt \
+    && groupadd --gid 10001 nima \
+    && useradd --uid 10001 --gid 10001 --create-home nima
+COPY src /app
+USER 10001:10001

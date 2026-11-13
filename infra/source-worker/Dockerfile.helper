@@ -1,0 +1,37 @@
+# Fixture-only toolbox. The runtime receives NET_ADMIN only for scoped setup/readback.
+FROM python:3.12.14-slim-bookworm@sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e
+
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONPATH=/app
+COPY infra/source-worker/pins.json /opt/nima/pins.json
+RUN --mount=type=secret,id=ca_bundle,required=true,mode=0444 python - <<'PY'
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import urllib.request
+
+pins = json.loads(Path('/opt/nima/pins.json').read_text())['snapshot']
+certificate = '/run/secrets/ca_bundle'
+os.environ['SSL_CERT_FILE'] = certificate
+with urllib.request.urlopen(pins['url'] + 'dists/bookworm/InRelease', timeout=30) as response:
+    release = response.read(200001)
+if hashlib.sha256(release).hexdigest() != pins['inrelease_sha256']:
+    raise SystemExit('snapshot_identity')
+Path('/etc/apt/sources.list.d/debian.sources').unlink()
+Path('/etc/apt/sources.list.d/nima.list').write_text('deb ' + pins['url'] + ' bookworm main\n')
+apt = ['apt-get', '-o', 'Acquire::https::CaInfo=' + certificate]
+subprocess.run([*apt, 'update'], check=True)
+packages = [name + '=' + row['Version'] for name, row in sorted(pins['packages'].items())]
+subprocess.run([*apt, 'install', '-y', '--no-install-recommends', '--download-only', *packages], check=True)
+for name, row in pins['packages'].items():
+    candidates = list(Path('/var/cache/apt/archives').glob(name + '_*.deb'))
+    if len(candidates) != 1 or hashlib.sha256(candidates[0].read_bytes()).hexdigest() != row['SHA256']:
+        raise SystemExit('package_identity')
+subprocess.run([*apt, 'install', '-y', '--no-install-recommends', *packages], check=True)
+with Path('/opt/nima/packages.txt').open('w') as report:
+    subprocess.run(['dpkg-query', '-W', '-f=${Package}=${Version}\n'], stdout=report, check=True)
+subprocess.run([*apt, 'clean'], check=True)
+PY
+COPY src /app
+USER 10001:10001

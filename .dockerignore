@@ -6,5 +6,10 @@
 !infra/
 !infra/Dockerfile
 !infra/requirements-orchestration.txt
+!infra/source-worker/
+!infra/source-worker/Dockerfile.*
+!infra/source-worker/pins.json
+!infra/source-worker/seccomp.json
+!infra/source-worker/LICENSE.seccomp
 src/**/__pycache__/
 src/**/*.pyc
