@@ -451,7 +451,8 @@ tracked above. The following test commands describe future implementation checks
 - [x] Closed Docker wiring and independent observer controls; the complete
   fixture stack passed at `c937584` in hosted run 43397091843.
 - Delivery: #37 certificate setup → #38 services → #39 fixture wiring; each is reviewed
-  separately, with exact-head hosted checks required before readiness. E6 gateway
+  separately; #40 delivered #39 to main after its dependency-branch merge.
+  Exact delivery head `cfcb677` passed both hosted runs with 650 tests/90.54%. E6 gateway
   authentication/TLS, E7 kernel enforcement and the full matrix remain pending.
 
 - Acceptance: generate ephemeral CA/server material and sentinel credentials on
@@ -469,6 +470,16 @@ tracked above. The following test commands describe future implementation checks
 
 ### E6: Prove gateway CONNECT, TLS and authentication
 
+- [x] Fixed static bootstrap, enforced RBAC/challenge and private config tests.
+- [x] Bounded HTTPX/browser probes and strict independent counter decoding.
+- [x] Pinned Envoy validation and real Docker HTTPX/Chromium protocol checks.
+  Evidence: `4d749ae`, hosted run 43403470378, two Docker tests/21.04 seconds.
+  Final delivery-head quality checks are recorded in the implementation PRs.
+- Implementation: `protocol.py` contains executable fixture-only client probes;
+  its unit tests cover trust/sandbox options, bounds and error redaction. Observer
+  changes read only allowlisted numeric admin counters. These extra files keep
+  protocol work out of bootstrap and the temporary test controller.
+
 - Acceptance: static-authority Envoy routing and enforced RBAC accept only the
   fixture; Basic authentication challenges correctly, credentials stay on the
   proxy hop and invalid TLS is rejected. Prove Chromium NSS trust/challenge
@@ -484,8 +495,10 @@ tracked above. The following test commands describe future implementation checks
 
 ### Checkpoint B: Real gateway/fixture protocol
 
-- [ ] HTTPX/browser HTTPS, proxy challenges and NSS trust pass with real controls.
-- [ ] Control sockets/credentials are inaccessible to the workload; no open relay.
+- [x] HTTPX/browser HTTPS, proxy challenges and NSS trust pass with real controls.
+- [x] Private control sockets/config and fixture credential files are inaccessible
+  to the workload; no open relay. The worker receives only its required proxy
+  username/password through explicit runtime configuration.
 
 ### E7: Enforce the worker namespace packet policy
 

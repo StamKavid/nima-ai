@@ -91,6 +91,10 @@ jobs:
           uv run --frozen python -m nima.egress.preflight profile
           --output data/source-worker/seccomp.runtime.json
           > data/source-worker/profile-receipt.json
+      - name: Pull pinned fixture gateway
+        run: >-
+          docker --host=unix:///var/run/docker.sock pull --platform linux/amd64
+          envoyproxy/envoy:v1.40.2@sha256:49d3e8b6246d1a804acffaebe42f2799edc77b77a37a97709ef742af90b6d223
       - name: Build pinned fixture toolbox
         run: >-
           docker --host=unix:///var/run/docker.sock build

@@ -17,6 +17,7 @@ from uuid import uuid4
 from nima.egress.fixtures import Counters, http_server
 from nima.egress.observer import OBSERVER_FAILURES
 from nima.egress.preflight import check_host
+from nima.egress.protocol import PROTOCOL_FAILURES
 from nima.egress.seccomp import build_profile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -71,7 +72,7 @@ class FixtureStack:
                 if (
                     type(value) is dict
                     and value.get("version") == "source-worker-preflight-v1"
-                    and value.get("failure") in OBSERVER_FAILURES
+                    and value.get("failure") in OBSERVER_FAILURES | PROTOCOL_FAILURES
                 ):
                     raise RuntimeError(value["failure"])
             diagnostic = (result.stdout + result.stderr).lower()
@@ -205,6 +206,8 @@ class FixtureStack:
         ):
             raise RuntimeError("fixture_network_identity")
         self.compose("run", "--rm", "--no-deps", "nss")
+        self.compose("run", "--rm", "--no-deps", "gateway-validate")
+        self.compose("up", "-d", "--wait", "--no-deps", "gateway")
 
     def cleanup(self) -> None:
         selected: dict[str, list[str]] = {}
@@ -250,6 +253,8 @@ class FixtureStack:
                 "canary",
                 "observer",
                 "worker",
+                "gateway",
+                "gateway-validate",
             }:
                 raise RuntimeError("fixture_service_identity")
             observations.append(row)
@@ -342,5 +347,67 @@ def test_closed_fixture_services_and_private_controls(tmp_path: Path) -> None:
             assert snapshot["application_requests"] == 1
             assert snapshot["headers_clean"] is True
             assert snapshot["server_errors"] == 0
+    finally:
+        stack.cleanup()
+
+
+def test_real_gateway_auth_tls_and_browser_resources(tmp_path: Path) -> None:
+    stack = FixtureStack(tmp_path)
+    stack.prepare()
+    try:
+        stack.start()
+        for mode, applications in (("http", 1), ("browser", 5)):
+            before = json.loads(
+                stack.compose(
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "observer",
+                    "python",
+                    "-m",
+                    "nima.egress.observer",
+                    "gateway-reset",
+                )
+            )
+            result = json.loads(
+                stack.compose(
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "worker",
+                    "python",
+                    "-m",
+                    "nima.egress.protocol",
+                    mode,
+                )
+            )
+            assert result["status"] == "passed"
+            assert result["investigator_ip_protection_verified"] is False
+            after = json.loads(
+                stack.compose(
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "observer",
+                    "python",
+                    "-m",
+                    "nima.egress.observer",
+                    "gateway-observe",
+                )
+            )
+            assert after["allowed"] - before["allowed"] >= 2
+            assert after["denied"] > before["denied"]
+            if mode == "http":
+                assert after["denied"] - before["denied"] == 5
+            assert after["origin"]["application_requests"] == applications
+            assert after["origin"]["headers_clean"] is True
+            assert after["bad"]["tcp_accepts"] >= 1
+            assert after["bad"]["application_requests"] == 0
+            assert after["bad"]["headers_clean"] is True
+            if mode == "browser":
+                assert all(
+                    after["origin"][resource] == 1
+                    for resource in ("html", "script", "image", "xhr", "fetch")
+                )
     finally:
         stack.cleanup()

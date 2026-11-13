@@ -1,11 +1,13 @@
 """Independent fixture controls. Fixed CLI targets, never a live egress check."""
 
+import json
 import socket
 import ssl
 import struct
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TypedDict
 
 import httpx
 
@@ -23,6 +25,7 @@ OBSERVER_FAILURES = frozenset(
         "udp",
         "dns",
         "counters",
+        "gateway",
     )
 )
 
@@ -125,13 +128,77 @@ def fixture_smoke(targets: FixtureTargets, ca_path: Path, control_dir: Path) -> 
         raise FixtureError("observer_" + phase) from None
 
 
+class GatewayObservation(TypedDict):
+    version: str
+    allowed: int
+    denied: int
+    origin: dict[str, int | bool]
+    bad: dict[str, int | bool]
+
+
+def gateway_observation(*, reset: bool = False) -> GatewayObservation:
+    try:
+        transport = httpx.HTTPTransport(uds="/gateway-admin/envoy.sock")
+        with httpx.Client(transport=transport, timeout=2, trust_env=False) as client:
+            body = bytearray()
+            with client.stream(
+                "GET",
+                "http://fixture/stats",
+                params={
+                    "format": "json",
+                    "filter": r"^http\.nima\.rbac\.(allowed|denied)$",
+                },
+            ) as response:
+                if response.status_code != 200:
+                    raise FixtureError("observer_gateway")
+                for chunk in response.iter_bytes(chunk_size=4096):
+                    body.extend(chunk)
+                    if len(body) > 65536:
+                        raise FixtureError("observer_gateway")
+        parsed = json.loads(body)
+        if (
+            type(parsed) is not dict
+            or set(parsed) != {"stats"}
+            or type(parsed["stats"]) is not list
+        ):
+            raise FixtureError("observer_gateway")
+        counts: dict[str, int] = {}
+        for row in parsed["stats"]:
+            if (
+                type(row) is not dict
+                or set(row) != {"name", "value"}
+                or row["name"] not in {"http.nima.rbac.allowed", "http.nima.rbac.denied"}
+                or row["name"] in counts
+                or type(row["value"]) is not int
+                or not 0 <= row["value"] <= 1000000
+            ):
+                raise FixtureError("observer_gateway")
+            counts[row["name"]] = row["value"]
+        if len(counts) != 2:
+            raise FixtureError("observer_gateway")
+        return {
+            "version": "source-worker-gateway-observation-v1",
+            "allowed": counts["http.nima.rbac.allowed"],
+            "denied": counts["http.nima.rbac.denied"],
+            "origin": read_counters(Path("/control/origin.sock"), role="origin", reset=reset),
+            "bad": read_counters(Path("/control/bad.sock"), role="bad", reset=reset),
+        }
+    except Exception:
+        raise FixtureError("observer_gateway") from None
+
+
 def main(argv: list[str] | None = None) -> int:
-    if (sys.argv[1:] if argv is None else argv) != ["fixture-smoke"]:
+    arguments = sys.argv[1:] if argv is None else argv
+    if arguments not in (["fixture-smoke"], ["gateway-observe"], ["gateway-reset"]):
         report("failed", "configuration")
         return 2
     try:
         check_process(Path("/proc/self/status").read_text(), uid=10002)
-        fixture_smoke(FixtureTargets(), Path("/fixture-public/ca.pem"), Path("/control"))
+        if arguments == ["fixture-smoke"]:
+            fixture_smoke(FixtureTargets(), Path("/fixture-public/ca.pem"), Path("/control"))
+        else:
+            print(json.dumps(gateway_observation(reset=arguments == ["gateway-reset"])))
+            return 0
     except Exception as exc:
         code = str(exc)
         report("failed", code if code in OBSERVER_FAILURES else "observer_control")

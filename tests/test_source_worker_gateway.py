@@ -31,6 +31,15 @@ def test_gateway_has_only_static_connect_routes_and_enforced_auth() -> None:
         ("origin", "STATIC"),
         ("bad", "STATIC"),
     }
+    assert {
+        row["name"]: row["load_assignment"]["endpoints"][0]["lb_endpoints"][0]["endpoint"][
+            "address"
+        ]["socket_address"]
+        for row in resources["clusters"]
+    } == {
+        "origin": {"address": "172.30.241.3", "port_value": 8443},
+        "bad": {"address": "172.30.241.4", "port_value": 8443},
+    }
     filters = manager["http_filters"]
     assert [row["name"] for row in filters] == [
         "envoy.filters.http.rbac",

@@ -41,7 +41,7 @@ HTML = b"""<!doctype html><html><head><link rel="icon" href="data:,">
 <img src="/image.png" alt="synthetic pixel"></body></html>"""
 SCRIPT = b"""window.nimaReady=Promise.all([fetch('/fetch').then(r=>r.text()),
 new Promise((resolve,reject)=>{const x=new XMLHttpRequest();x.open('GET','/xhr');
-x.onload=()=>resolve(x.responseText);x.onerror=reject;x.send();})]);"""
+x.onload=()=>resolve(x.responseText);x.onerror=reject;x.send();})]).then(()=>{window.nimaComplete=true;});"""
 PIXEL = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAX+XDSwAAAABJRU5ErkJggg=="
 )

@@ -253,6 +253,9 @@ def main(argv: list[str] | None = None) -> int:
             os.environ.get("NIMA_FIXTURE_USERNAME"), os.environ.get("NIMA_FIXTURE_PASSWORD")
         )
         initialize_fixture_state(Path("/fixture-private"), Path("/fixture-public"), auth)
+        from nima.egress.gateway import write_gateway_config
+
+        write_gateway_config(Path("/gateway-private"), auth)
     except KeyboardInterrupt:
         report("failed", "interrupted")
         return 130
