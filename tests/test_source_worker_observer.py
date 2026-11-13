@@ -97,3 +97,45 @@ def test_gateway_observation_accepts_only_bounded_numeric_admin_counters(
     else:
         with pytest.raises(FixtureError):
             observer.gateway_observation()
+
+
+@pytest.mark.parametrize("fault", ["none", "nonlocal_bind", "missing_alias"])
+def test_packet_controls_never_request_metadata_without_a_local_alias(
+    monkeypatch: pytest.MonkeyPatch,
+    fault: str,
+) -> None:
+    import socket
+    from pathlib import Path
+    from unittest.mock import MagicMock, Mock
+
+    import httpx
+
+    from nima.egress import observer
+    from nima.egress.fixtures import Counters, FixtureError
+
+    monkeypatch.setattr(
+        Path, "read_text", lambda self: "1\n" if fault == "nonlocal_bind" else "0\n"
+    )
+    channel = MagicMock()
+    channel.__enter__.return_value = channel
+    if fault == "missing_alias":
+        channel.bind.side_effect = OSError("not local")
+    monkeypatch.setattr(socket, "socket", lambda *args: channel)
+    client = MagicMock()
+    client.__enter__.return_value = client
+    monkeypatch.setattr(httpx, "Client", Mock(return_value=client))
+    control = Mock()
+    monkeypatch.setattr(observer, "fixture_smoke", Mock())
+    monkeypatch.setattr(observer, "_http_control", control)
+    counter = Counters()
+    counter.request(None, clean=True)
+    monkeypatch.setattr(observer, "read_counters", lambda *args, **kwargs: counter.snapshot())
+    if fault == "none":
+        value = observer.packet_control()
+        assert value["metadata"]["application_requests"] == 1
+        channel.bind.assert_called_once_with(("169.254.169.254", 0))
+        control.assert_called_once_with(client, "http://169.254.169.254/")
+    else:
+        with pytest.raises(FixtureError):
+            observer.packet_control()
+        control.assert_not_called()
