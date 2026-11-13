@@ -528,6 +528,13 @@ tracked above. The following test commands describe future implementation checks
 
 ### E8: Execute HTTPX cases through a bounded host runner
 
+- [x] Implement 18 fixed HTTP-stage probes with bounded verified-TLS attempts.
+- [ ] Run the HTTP matrix through the bounded host controller in CI.
+  - PR #46 adds the matrix using the temporary test controller; final-head
+    hosted evidence is recorded in the PR before merge readiness.
+- [ ] Extract the host controller with run-wide bounds and ownership failure tests.
+- [ ] Publish private reconciled HTTP-stage reports with incomplete matrix explicit.
+
 - Acceptance: fixed-case HTTPX probes cover proxy bypass, redirects, TLS, credentials,
   host/metadata and gateway failure. A host controller generates/owns its resources,
   enforces budgets and publishes reconciled private receipts; it offers no live mode.
