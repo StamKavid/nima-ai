@@ -34,6 +34,10 @@ PROTOCOL_FAILURES = frozenset(
         "protocol_tls",
         "protocol_browser_version",
         "protocol_browser_auth",
+        "protocol_browser_auth_http_response",
+        "protocol_browser_auth_connection",
+        "protocol_browser_auth_accepted",
+        "protocol_browser_auth_returned_407",
         "protocol_browser_tls",
         "protocol_probe",
     }
@@ -133,7 +137,7 @@ def probe_browser(auth: ProxyCredentials) -> None:
                 }
                 with browser.new_context(proxy=rejected_proxy) as context:
                     try:
-                        context.new_page().goto(
+                        rejected_response = context.new_page().goto(
                             target, wait_until="domcontentloaded", timeout=15000
                         )
                     except PlaywrightError as exc:
@@ -143,8 +147,19 @@ def probe_browser(auth: ProxyCredentials) -> None:
                             else ("ERR_CERT_AUTHORITY_INVALID",)
                         )
                         if not any(marker in str(exc) for marker in expected):
+                            if reason == "auth" and "ERR_HTTP_RESPONSE_CODE_FAILURE" in str(exc):
+                                raise ProtocolError("protocol_browser_auth_http_response") from None
+                            if reason == "auth" and "ERR_PROXY_CONNECTION_FAILED" in str(exc):
+                                raise ProtocolError("protocol_browser_auth_connection") from None
                             raise ProtocolError("protocol_browser_" + reason) from None
                     else:
+                        if reason == "auth":
+                            code = (
+                                "returned_407"
+                                if rejected_response is not None and rejected_response.status == 407
+                                else "accepted"
+                            )
+                            raise ProtocolError("protocol_browser_auth_" + code)
                         raise ProtocolError("protocol_browser_" + reason)
         finally:
             browser.close()
