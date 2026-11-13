@@ -8,6 +8,20 @@ all previous plans and pending access/identity/administration tasks remain below
 Execute the reviewed plan and its task acceptance criteria. Keep source collection
 and production deployment disabled throughout this fixture-only increment.
 
+Implementation progress: E1–E3 and checkpoint A passed at `98fa958` in
+[hosted run 43267775558](https://github.com/StamKavid/nima-ai/actions/runs/43267775558)
+(602 tests, 91.53% coverage, all three jobs green). E4's offline policy/receipt
+semantics passed at `1f72c8f` in
+[run 43272416378](https://github.com/StamKavid/nima-ai/actions/runs/43272416378)
+(634 tests, 91.86%, all three jobs green). The user merged PRs #35 and #36
+on 2026-11-13. E5 closed fixtures passed in hosted run 43397091843 at `c937584`
+and are split for review: #37 certificate setup → #38 services → #39 fixture wiring.
+Each delivery head still requires its own hosted checks. The complete network
+matrix, checkpoints B/C, and deployed IP protection have not been verified.
+Local focused tests/types/security passed; the full local PostgreSQL gate could
+not start because this executor lacks Docker storage. Hosted full tests used
+real PostgreSQL. Keep that validation limitation visible at delivery.
+
 ### Selected stack and immutable pins
 
 First support Linux/amd64 only. Use official publisher images and preserve source
@@ -133,10 +147,16 @@ socket. Use private /dev/shm of 256 MiB, read-only roots and bounded tmpfs/state
 
 Canaries include same-network TCP/UDP/DNS targets and a synthetic metadata address
 installed locally within the disposable namespace. A metadata case must never
-contact a real cloud metadata endpoint. For the host-boundary case, publish only a
-synthetic canary on the dedicated Docker bridge address, never 0.0.0.0/public
-interfaces. Verify its positive control and actual binding before any negative
-case. Gateway/browser control interfaces are never exposed as host TCP services.
+contact a real cloud metadata endpoint. For the host-boundary case, bind a
+synthetic HTTP canary directly to the dedicated Docker bridge address, never
+0.0.0.0/public interfaces. Implementation discovery: the Docker-published port on
+an internal bridge refused the observer connection despite a reachable direct
+canary; confirmed by an isolated two-container probe. The trusted host controller
+therefore owns this unprivileged listener and its in-memory counters, while other
+fixtures use container UID 10002. It requires the controller and Docker daemon to
+share the host network namespace; no container uses host networking. Verify the
+positive control, exact binding and controller-side delivery counts before any
+negative case. Gateway/browser control interfaces are never exposed as host TCP services.
 
 ### Gateway, TLS and observation choices
 
