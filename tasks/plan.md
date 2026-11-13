@@ -14,10 +14,15 @@ Implementation progress: E1–E3 and checkpoint A passed at `98fa958` in
 semantics passed at `1f72c8f` in
 [run 43272416378](https://github.com/StamKavid/nima-ai/actions/runs/43272416378)
 (634 tests, 91.86%, all three jobs green). The user merged PRs #35 and #36
-on 2026-11-13. E5 closed fixtures passed in hosted run 43397091843 at `c937584`
-and are split for review: #37 certificate setup → #38 services → #39 fixture wiring.
-Each delivery head still requires its own hosted checks. The complete network
-matrix, checkpoints B/C, and deployed IP protection have not been verified.
+on 2026-11-13. E5 reached main through #37, #38 and #40 (#39 was first
+merged into its dependency branch). Delivery head `cfcb677` passed all three jobs
+in push run 43398560990 and PR run 43398771919: 650 tests, 90.54% coverage.
+E6 gateway CONNECT/TLS/auth is in progress, using the existing immutable Envoy
+pin. Its real client probes live in `protocol.py`; the independent observer reads
+allowlisted admin counters plus origin delivery counts. Unit tests verify client
+configuration/failure classification; only the real Docker probes can pass
+checkpoint B. The complete matrix, checkpoints B/C and deployed IP protection
+remain unverified.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
 not start because this executor lacks Docker storage. Hosted full tests used
 real PostgreSQL. Keep that validation limitation visible at delivery.

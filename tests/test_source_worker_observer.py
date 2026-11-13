@@ -55,3 +55,45 @@ def test_observer_runs_real_delivery_controls_and_rejects_nonfixture_targets(
         assert host.snapshot()["application_requests"] == 1
     with pytest.raises(ValueError, match="^fixture_targets$"):
         FixtureTargets(canary_ip="192.0.2.1")
+
+
+@pytest.mark.parametrize("fault", ["none", "negative", "unknown", "missing", "large"])
+def test_gateway_observation_accepts_only_bounded_numeric_admin_counters(
+    monkeypatch: pytest.MonkeyPatch,
+    fault: str,
+) -> None:
+    import httpx
+
+    from nima.egress import observer
+    from nima.egress.fixtures import Counters, FixtureError
+
+    rows = [
+        {"name": "http.nima.rbac.allowed", "value": 2},
+        {"name": "http.nima.rbac.denied", "value": 5},
+    ]
+    if fault == "negative":
+        rows[0]["value"] = -1
+    elif fault == "unknown":
+        rows[0]["name"] = "unexpected.secret"
+    elif fault == "missing":
+        rows.pop()
+
+    def response(request: httpx.Request) -> httpx.Response:
+        assert request.url.path == "/stats"
+        assert request.url.params["format"] == "json"
+        return (
+            httpx.Response(200, content=b"x" * 65537)
+            if fault == "large"
+            else httpx.Response(200, json={"stats": rows})
+        )
+
+    monkeypatch.setattr(httpx, "HTTPTransport", lambda **kwargs: httpx.MockTransport(response))
+    monkeypatch.setattr(observer, "read_counters", lambda *args, **kwargs: Counters().snapshot())
+    if fault == "none":
+        result = observer.gateway_observation(reset=True)
+        assert result["allowed"] == 2
+        assert result["denied"] == 5
+        assert result["origin"]["application_requests"] == 0
+    else:
+        with pytest.raises(FixtureError):
+            observer.gateway_observation()

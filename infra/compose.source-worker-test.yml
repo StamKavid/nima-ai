@@ -115,6 +115,35 @@ services:
       timeout: 3s
       retries: 15
 
+  gateway:
+    <<: *service
+    image: envoyproxy/envoy:v1.40.2@sha256:49d3e8b6246d1a804acffaebe42f2799edc77b77a37a97709ef742af90b6d223
+    entrypoint: [/usr/local/bin/envoy]
+    command: [-c, /gateway-private/envoy.json, --log-level, off, --concurrency, "1", --disable-hot-restart, --drain-time-s, "1"]
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+    networks:
+      front: {ipv4_address: 172.30.240.2}
+      back: {ipv4_address: 172.30.241.2}
+    sysctls:
+      net.ipv4.ip_forward: "0"
+      net.ipv6.conf.all.disable_ipv6: "1"
+      net.ipv6.conf.default.disable_ipv6: "1"
+    volumes:
+      - gateway-private:/gateway-private:ro
+      - gateway-admin:/gateway-admin
+
+  gateway-validate:
+    <<: *service
+    profiles: [probes]
+    image: envoyproxy/envoy:v1.40.2@sha256:49d3e8b6246d1a804acffaebe42f2799edc77b77a37a97709ef742af90b6d223
+    network_mode: none
+    entrypoint: [/usr/local/bin/envoy]
+    command: [-c, /gateway-private/envoy.json, --mode, validate, --log-level, off, --concurrency, "1", --disable-hot-restart]
+    volumes:
+      - gateway-private:/gateway-private:ro
+      - gateway-admin:/gateway-admin
+
   observer:
     <<: *service
     profiles: [probes]

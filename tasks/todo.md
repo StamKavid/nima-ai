@@ -451,7 +451,8 @@ tracked above. The following test commands describe future implementation checks
 - [x] Closed Docker wiring and independent observer controls; the complete
   fixture stack passed at `c937584` in hosted run 43397091843.
 - Delivery: #37 certificate setup → #38 services → #39 fixture wiring; each is reviewed
-  separately, with exact-head hosted checks required before readiness. E6 gateway
+  separately; #40 delivered #39 to main after its dependency-branch merge.
+  Exact delivery head `cfcb677` passed both hosted runs with 650 tests/90.54%. E6 gateway
   authentication/TLS, E7 kernel enforcement and the full matrix remain pending.
 
 - Acceptance: generate ephemeral CA/server material and sentinel credentials on
@@ -468,6 +469,14 @@ tracked above. The following test commands describe future implementation checks
   infra/compose.source-worker-test.yml (five).
 
 ### E6: Prove gateway CONNECT, TLS and authentication
+
+- [x] Fixed static bootstrap, enforced RBAC/challenge and private config tests.
+- [x] Bounded HTTPX/browser probes and strict independent counter decoding.
+- [ ] Pinned Envoy validation and real Docker HTTPX/Chromium protocol checks.
+- Implementation: `protocol.py` contains executable fixture-only client probes;
+  its unit tests cover trust/sandbox options, bounds and error redaction. Observer
+  changes read only allowlisted numeric admin counters. These extra files keep
+  protocol work out of bootstrap and the temporary test controller.
 
 - Acceptance: static-authority Envoy routing and enforced RBAC accept only the
   fixture; Basic authentication challenges correctly, credentials stay on the
