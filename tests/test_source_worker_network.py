@@ -154,3 +154,33 @@ def test_numeric_protocol_display_preserves_semantics_but_other_protocols_fail()
     rules[1]["expr"][1]["match"]["right"] = 1
     with pytest.raises(NetworkError):
         decode_ruleset(json.dumps(value).encode())
+
+
+def test_nft_implicit_transport_selector_is_equivalent_only_with_a_typed_port() -> None:
+    value = json.loads(kernel_dump())
+    rules = [row["rule"] for row in value["nftables"] if "rule" in row]
+    for row in rules:
+        typed = [
+            expression.get("match", {}).get("left", {}).get("payload", {})
+            for expression in row["expr"]
+        ]
+        if any(
+            item.get("protocol") in {"tcp", "udp"} and item.get("field") == "dport"
+            for item in typed
+        ):
+            row["expr"] = [
+                expression
+                for expression in row["expr"]
+                if expression.get("match", {}).get("left") != {"meta": {"key": "l4proto"}}
+            ]
+    assert (
+        decode_ruleset(json.dumps(value).encode()).fingerprint
+        == decode_ruleset(kernel_dump()).fingerprint
+    )
+    rules[2]["expr"] = [
+        expression
+        for expression in rules[2]["expr"]
+        if expression.get("match", {}).get("left") != {"meta": {"key": "l4proto"}}
+    ]
+    with pytest.raises(NetworkError):
+        decode_ruleset(json.dumps(value).encode())

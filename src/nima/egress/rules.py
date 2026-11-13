@@ -161,6 +161,27 @@ def _normalize(rows: list[dict[str, Any]]) -> dict[str, Any]:
                         and type(match.get("right")) is int
                     ):
                         match["right"] = {6: "tcp", 17: "udp"}.get(match["right"], match["right"])
+            if kind == "rule" and type(body.get("expr")) is list:
+                typed = set()
+                for expression in body["expr"]:
+                    if type(expression) is not dict:
+                        continue
+                    match = expression.get("match", {})
+                    if type(match) is not dict:
+                        continue
+                    left = match.get("left", {})
+                    payload = left.get("payload", {}) if type(left) is dict else {}
+                    if (
+                        type(payload) is dict
+                        and payload.get("protocol") in {"tcp", "udp"}
+                        and payload.get("field") == "dport"
+                    ):
+                        typed.add(payload["protocol"])
+                if len(typed) == 1:
+                    # nft 1.0.6 elides this redundant dependency when printing
+                    # a typed tcp/udp port match. Other protocol checks remain.
+                    implied = _match("meta", "l4proto", next(iter(typed)))
+                    body["expr"] = [row for row in body["expr"] if row != implied]
             result[kind].append(body)
     return result
 
@@ -177,40 +198,6 @@ class NetworkSnapshot:
         raise NetworkError("network_counter")
 
 
-def _shape(policy: dict[str, Any]) -> list[list[str]]:
-    """Fixed protocol/field labels and type names only; never values or names."""
-    result = []
-    for row in policy["rule"]:
-        expressions = []
-        for item in row.get("expr", []):
-            if type(item) is not dict:
-                expressions.append("invalid")
-                continue
-            match = item.get("match")
-            if type(match) is dict and type(match.get("left")) is dict:
-                left = match["left"]
-                metadata = left.get("meta", {})
-                payload = left.get("payload", {})
-                if metadata.get("key") in {"skuid", "l4proto", "nfproto"}:
-                    label = "meta:" + metadata["key"]
-                elif payload.get("protocol") in {"ip", "tcp", "udp"} and payload.get("field") in {
-                    "daddr",
-                    "dport",
-                }:
-                    label = payload["protocol"] + ":" + payload["field"]
-                else:
-                    label = "unknown"
-                expressions.append(label + ":" + type(match.get("right")).__name__)
-            else:
-                expressions.append(
-                    next(
-                        (name for name in ("counter", "accept", "drop") if name in item), "unknown"
-                    )
-                )
-        result.append(expressions)
-    return result
-
-
 def decode_ruleset(raw: bytes) -> NetworkSnapshot:
     rows = nft_objects(raw)
     actual, expected = _normalize(rows), _normalize(policy_objects())
@@ -221,15 +208,6 @@ def decode_ruleset(raw: bytes) -> NetworkSnapshot:
         raise NetworkError("network_policy") from None
     # JSON identity also distinguishes booleans/floats from integer UID/priority.
     if encoded != required:
-        print(
-            json.dumps(
-                {
-                    "version": "source-worker-rule-shape-v1",
-                    "expected": _shape(expected),
-                    "observed": _shape(actual),
-                }
-            )
-        )
         raise NetworkError("network_policy")
     counters = []
     for row in rows:
