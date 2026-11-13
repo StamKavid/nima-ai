@@ -21,7 +21,11 @@ E6 gateway CONNECT/TLS/auth is in progress, using the existing immutable Envoy
 pin. Its real client probes live in `protocol.py`; the independent observer reads
 allowlisted admin counters plus origin delivery counts. Unit tests verify client
 configuration/failure classification; only the real Docker probes can pass
-checkpoint B. The complete matrix, checkpoints B/C and deployed IP protection
+checkpoint B. Runtime discovery: Chromium 158 reports an invalid-credential
+407 CONNECT response as `ERR_HTTP_RESPONSE_CODE_FAILURE`; retain independent
+RBAC-denial and origin-delivery checks when classifying this outcome. Do not
+accept arbitrary browser errors as authentication proof.
+The complete matrix, checkpoints B/C and deployed IP protection
 remain unverified.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
 not start because this executor lacks Docker storage. Hosted full tests used

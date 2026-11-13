@@ -34,7 +34,6 @@ PROTOCOL_FAILURES = frozenset(
         "protocol_tls",
         "protocol_browser_version",
         "protocol_browser_auth",
-        "protocol_browser_auth_http_response",
         "protocol_browser_auth_connection",
         "protocol_browser_auth_accepted",
         "protocol_browser_auth_returned_407",
@@ -141,14 +140,19 @@ def probe_browser(auth: ProxyCredentials) -> None:
                             target, wait_until="domcontentloaded", timeout=15000
                         )
                     except PlaywrightError as exc:
+                        # Chromium 158 reports a rejected proxy CONNECT as
+                        # HTTP_RESPONSE_CODE_FAILURE. The host must additionally
+                        # observe RBAC denials and zero unauthorized delivery.
                         expected = (
-                            ("ERR_INVALID_AUTH_CREDENTIALS", "ERR_TUNNEL_CONNECTION_FAILED")
+                            (
+                                "ERR_INVALID_AUTH_CREDENTIALS",
+                                "ERR_TUNNEL_CONNECTION_FAILED",
+                                "ERR_HTTP_RESPONSE_CODE_FAILURE",
+                            )
                             if reason == "auth"
                             else ("ERR_CERT_AUTHORITY_INVALID",)
                         )
                         if not any(marker in str(exc) for marker in expected):
-                            if reason == "auth" and "ERR_HTTP_RESPONSE_CODE_FAILURE" in str(exc):
-                                raise ProtocolError("protocol_browser_auth_http_response") from None
                             if reason == "auth" and "ERR_PROXY_CONNECTION_FAILED" in str(exc):
                                 raise ProtocolError("protocol_browser_auth_connection") from None
                             raise ProtocolError("protocol_browser_" + reason) from None

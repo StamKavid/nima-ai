@@ -67,6 +67,10 @@ def test_response_bounds_fail_closed(status: int, body: bytes) -> None:
     "fault",
     [
         "none",
+        "auth_response_denied",
+        "auth_accepted",
+        "auth_407_returned",
+        "auth_connection",
         "bad_version",
         "bad_sandbox",
         "bad_body",
@@ -94,10 +98,20 @@ def test_browser_preserves_sandbox_trust_and_validates_failure_reasons(
     page.goto.side_effect = [
         None,
         SimpleNamespace(status=503 if fault == "bad_status" else 200),
-        PlaywrightError(
-            "net::ERR_CONNECTION_REFUSED"
-            if fault == "auth_wrong_error"
-            else "net::ERR_INVALID_AUTH_CREDENTIALS"
+        (
+            SimpleNamespace(status=200)
+            if fault == "auth_accepted"
+            else SimpleNamespace(status=407)
+            if fault == "auth_407_returned"
+            else PlaywrightError(
+                "net::ERR_HTTP_RESPONSE_CODE_FAILURE"
+                if fault == "auth_response_denied"
+                else "net::ERR_PROXY_CONNECTION_FAILED"
+                if fault == "auth_connection"
+                else "net::ERR_CONNECTION_REFUSED"
+                if fault == "auth_wrong_error"
+                else "net::ERR_INVALID_AUTH_CREDENTIALS"
+            )
         ),
         None if fault == "tls_allowed" else PlaywrightError("net::ERR_CERT_AUTHORITY_INVALID"),
     ]
@@ -113,7 +127,7 @@ def test_browser_preserves_sandbox_trust_and_validates_failure_reasons(
         yield SimpleNamespace(chromium=SimpleNamespace(launch=launch))
 
     monkeypatch.setattr(protocol, "sync_playwright", factory)
-    if fault == "none":
+    if fault in {"none", "auth_response_denied"}:
         protocol.probe_browser(auth)
         options = launch.call_args.kwargs
         assert options["chromium_sandbox"] is True
