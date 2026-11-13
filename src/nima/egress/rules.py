@@ -177,6 +177,40 @@ class NetworkSnapshot:
         raise NetworkError("network_counter")
 
 
+def _shape(policy: dict[str, Any]) -> list[list[str]]:
+    """Fixed protocol/field labels and type names only; never values or names."""
+    result = []
+    for row in policy["rule"]:
+        expressions = []
+        for item in row.get("expr", []):
+            if type(item) is not dict:
+                expressions.append("invalid")
+                continue
+            match = item.get("match")
+            if type(match) is dict and type(match.get("left")) is dict:
+                left = match["left"]
+                metadata = left.get("meta", {})
+                payload = left.get("payload", {})
+                if metadata.get("key") in {"skuid", "l4proto", "nfproto"}:
+                    label = "meta:" + metadata["key"]
+                elif payload.get("protocol") in {"ip", "tcp", "udp"} and payload.get("field") in {
+                    "daddr",
+                    "dport",
+                }:
+                    label = payload["protocol"] + ":" + payload["field"]
+                else:
+                    label = "unknown"
+                expressions.append(label + ":" + type(match.get("right")).__name__)
+            else:
+                expressions.append(
+                    next(
+                        (name for name in ("counter", "accept", "drop") if name in item), "unknown"
+                    )
+                )
+        result.append(expressions)
+    return result
+
+
 def decode_ruleset(raw: bytes) -> NetworkSnapshot:
     rows = nft_objects(raw)
     actual, expected = _normalize(rows), _normalize(policy_objects())
@@ -187,6 +221,15 @@ def decode_ruleset(raw: bytes) -> NetworkSnapshot:
         raise NetworkError("network_policy") from None
     # JSON identity also distinguishes booleans/floats from integer UID/priority.
     if encoded != required:
+        print(
+            json.dumps(
+                {
+                    "version": "source-worker-rule-shape-v1",
+                    "expected": _shape(expected),
+                    "observed": _shape(actual),
+                }
+            )
+        )
         raise NetworkError("network_policy")
     counters = []
     for row in rows:
