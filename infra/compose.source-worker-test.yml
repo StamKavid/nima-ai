@@ -158,6 +158,37 @@ services:
     <<: *network-helper
     command: [python, -m, nima.egress.network, inspect]
 
+  metadata:
+    <<: *fixture
+    profiles: [probes]
+    network_mode: service:anchor
+    command: [python, -m, nima.egress.fixtures, serve, --role, metadata]
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+      network-setup: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -m, nima.egress.fixtures, health, --role, metadata]
+      interval: 1s
+      timeout: 3s
+      retries: 15
+
+  network-probe:
+    <<: *service
+    profiles: [probes]
+    image: ${NIMA_HELPER_IMAGE:?}
+    user: "10001:10001"
+    network_mode: service:anchor
+    command: [python, -m, nima.egress.probe_network, raw]
+    depends_on:
+      network-setup: {condition: service_completed_successfully}
+      metadata: {condition: service_healthy}
+    volumes:
+      - type: bind
+        source: ${NIMA_RESOLV_PATH:?}
+        target: /etc/resolv.conf
+        read_only: true
+        bind: {create_host_path: false}
+
   observer:
     <<: *service
     profiles: [probes]
@@ -187,6 +218,9 @@ services:
     mem_limit: 2g
     cpus: 2
     command: [python, -m, nima.egress.preflight, browser]
+    depends_on:
+      network-setup: {condition: service_completed_successfully}
+      nss: {condition: service_completed_successfully}
     environment:
       NIMA_FIXTURE_USERNAME: ${NIMA_FIXTURE_USERNAME:?}
       NIMA_FIXTURE_PASSWORD: ${NIMA_FIXTURE_PASSWORD:?}

@@ -26,6 +26,8 @@ OBSERVER_FAILURES = frozenset(
         "dns",
         "counters",
         "gateway",
+        "metadata",
+        "packet",
     )
 )
 
@@ -187,17 +189,70 @@ def gateway_observation(*, reset: bool = False) -> GatewayObservation:
         raise FixtureError("observer_gateway") from None
 
 
+class PacketObservation(TypedDict):
+    version: str
+    canary: dict[str, int | bool]
+    metadata: dict[str, int | bool]
+
+
+def packet_observation(*, reset: bool = False) -> PacketObservation:
+    return {
+        "version": "source-worker-packet-observation-v1",
+        "canary": read_counters(Path("/control/canary.sock"), role="canary", reset=reset),
+        "metadata": read_counters(Path("/control/metadata.sock"), role="metadata", reset=reset),
+    }
+
+
+def packet_control() -> PacketObservation:
+    try:
+        # A successful local bind with nonlocal binding disabled proves the
+        # metadata address exists locally before ANY HTTP request is attempted.
+        if Path("/proc/sys/net/ipv4/ip_nonlocal_bind").read_text().strip() != "0":
+            raise FixtureError("observer_metadata")
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as local:
+            local.bind(("169.254.169.254", 0))
+        fixture_smoke(FixtureTargets(), Path("/fixture-public/ca.pem"), Path("/control"))
+        read_counters(Path("/control/metadata.sock"), role="metadata", reset=True)
+        with httpx.Client(trust_env=False, timeout=2, follow_redirects=False) as client:
+            _http_control(client, "http://169.254.169.254/")
+        observed = packet_observation()
+        if (
+            observed["metadata"]["application_requests"] != 1
+            or observed["metadata"]["headers_clean"] is not True
+        ):
+            raise FixtureError("observer_metadata")
+        return observed
+    except Exception:
+        raise FixtureError("observer_metadata") from None
+
+
 def main(argv: list[str] | None = None) -> int:
     arguments = sys.argv[1:] if argv is None else argv
-    if arguments not in (["fixture-smoke"], ["gateway-observe"], ["gateway-reset"]):
+    if arguments not in (
+        ["fixture-smoke"],
+        ["gateway-observe"],
+        ["gateway-reset"],
+        ["packet-control"],
+        ["packet-reset"],
+        ["packet-observe"],
+    ):
         report("failed", "configuration")
         return 2
     try:
         check_process(Path("/proc/self/status").read_text(), uid=10002)
         if arguments == ["fixture-smoke"]:
             fixture_smoke(FixtureTargets(), Path("/fixture-public/ca.pem"), Path("/control"))
-        else:
+        elif arguments[0].startswith("gateway-"):
             print(json.dumps(gateway_observation(reset=arguments == ["gateway-reset"])))
+            return 0
+        else:
+            print(
+                json.dumps(
+                    packet_control()
+                    if arguments == ["packet-control"]
+                    else packet_observation(reset=arguments == ["packet-reset"])
+                )
+            )
             return 0
     except Exception as exc:
         code = str(exc)

@@ -266,6 +266,8 @@ class FixtureStack:
                 "gateway-validate",
                 "network-setup",
                 "network-inspect",
+                "metadata",
+                "network-probe",
             }:
                 raise RuntimeError("fixture_service_identity")
             observations.append(row)
@@ -420,5 +422,92 @@ def test_real_gateway_auth_tls_and_browser_resources(tmp_path: Path) -> None:
                     after["origin"][resource] == 1
                     for resource in ("html", "script", "image", "xhr", "fetch")
                 )
+    finally:
+        stack.cleanup()
+
+
+def test_packet_policy_blocks_real_delivery_and_user_namespace_bypass(tmp_path: Path) -> None:
+    stack = FixtureStack(tmp_path)
+    stack.prepare()
+    try:
+        stack.start()
+        stack.compose("up", "-d", "--wait", "--no-deps", "metadata")
+        host = Counters()
+        with http_server(
+            ("172.30.240.1", 18080), host, role="host", context=None, credentials=stack.auth
+        ):
+            controls = json.loads(
+                stack.compose(
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "observer",
+                    "python",
+                    "-m",
+                    "nima.egress.observer",
+                    "packet-control",
+                )
+            )
+            assert controls["metadata"]["application_requests"] == 1
+            assert host.snapshot()["application_requests"] == 1
+            host.reset()
+            reset = json.loads(
+                stack.compose(
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "observer",
+                    "python",
+                    "-m",
+                    "nima.egress.observer",
+                    "packet-reset",
+                )
+            )
+            assert reset["canary"]["tcp_accepts"] == 0
+            assert reset["metadata"]["application_requests"] == 0
+            before = json.loads(stack.compose("run", "--rm", "--no-deps", "network-inspect"))
+            result = json.loads(stack.compose("run", "--rm", "--no-deps", "network-probe"))
+            assert result["status"] == "passed"
+            after = json.loads(stack.compose("run", "--rm", "--no-deps", "network-inspect"))
+            targets = json.loads(
+                stack.compose(
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "observer",
+                    "python",
+                    "-m",
+                    "nima.egress.observer",
+                    "packet-observe",
+                )
+            )
+            assert before["policy_sha256"] == after["policy_sha256"]
+            assert before["network_inode"] == after["network_inode"]
+            assert after["ipv6_disabled"] is True
+            assert after["metadata_alias"] is True
+            for name in (
+                "direct_tcp",
+                "host_tcp",
+                "metadata_tcp",
+                "dns_udp",
+                "direct_udp",
+                "quic_udp",
+                "stun_udp",
+            ):
+                assert after["counters"][name]["packets"] > before["counters"][name]["packets"]
+            for name in ("canary", "metadata"):
+                assert all(
+                    targets[name][metric] == 0
+                    for metric in (
+                        "tcp_accepts",
+                        "application_requests",
+                        "dns_queries",
+                        "udp_datagrams",
+                        "server_errors",
+                    )
+                )
+            assert host.snapshot()["application_requests"] == 0
+            assert host.snapshot()["tcp_accepts"] == 0
+            assert host.snapshot()["server_errors"] == 0
     finally:
         stack.cleanup()

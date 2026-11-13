@@ -502,6 +502,19 @@ tracked above. The following test commands describe future implementation checks
 
 ### E7: Enforce the worker namespace packet policy
 
+- [x] Fixed policy, named counters and strict stable kernel readback.
+- [x] NET_ADMIN-only setup exits before workloads; normal inspection is read-only.
+- [x] Real direct/host/metadata/DNS/UDP delivery denial with working controls.
+- [x] Outer observer UID and parent network administration remain unavailable to
+  the workload and its user-namespace child; effective IPv6-disabled mode checked.
+- Evidence: `d8e0a3c`, run 43422295581, three Docker tests/49.27 seconds,
+  746 tests/90.72% coverage, all three jobs green. Final-head CI stays required.
+- Delivery slices: #43 policy/decoder; setup/readback; packet/privilege probes.
+  All target main. Rules, helper and probes have separate modules/tests so the
+  privileged path remains small. The observer checks local alias binding before
+  metadata HTTP. See the plan for nft readback normalization and the two narrow,
+  explained subprocess annotations. No live collection or deployment enabled.
+
 - Acceptance: NET_ADMIN exists only in a trusted helper sharing the anchor's
   namespace. It installs default-drop output, exact gateway/UID rules and local
   fixture aliases, then exits before starting cap-free workload processes. IPv6
