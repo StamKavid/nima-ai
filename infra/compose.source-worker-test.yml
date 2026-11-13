@@ -1,0 +1,177 @@
+# Closed fixtures only. No source job, public control port or Internet network.
+x-ownership: &ownership
+  io.nima.fixture.run_id: ${NIMA_RUN_ID:?}
+x-service: &service
+  image: ${NIMA_WORKER_IMAGE:?}
+  pull_policy: never
+  user: "10002:10001"
+  labels: *ownership
+  read_only: true
+  cap_drop: [ALL]
+  security_opt:
+    - no-new-privileges:true
+    - seccomp=${NIMA_SECCOMP_PATH:?}
+  ipc: private
+  pids_limit: 64
+  mem_limit: 256m
+  cpus: 1
+  tmpfs:
+    - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+  logging:
+    driver: json-file
+    options: {max-size: "1m", max-file: "1"}
+x-fixture: &fixture
+  <<: *service
+  depends_on:
+    initialize: {condition: service_completed_successfully}
+  volumes:
+    - fixture-private:/fixture-private:ro
+    - controls:/control
+
+services:
+  initialize:
+    <<: *service
+    network_mode: none
+    command: [python, -m, nima.egress.bootstrap, initialize]
+    environment:
+      NIMA_FIXTURE_USERNAME: ${NIMA_FIXTURE_USERNAME:?}
+      NIMA_FIXTURE_PASSWORD: ${NIMA_FIXTURE_PASSWORD:?}
+    volumes:
+      - fixture-private:/fixture-private
+      - fixture-public:/fixture-public
+      - gateway-private:/gateway-private
+      - gateway-admin:/gateway-admin
+      - controls:/control
+
+  anchor:
+    <<: *service
+    user: "10001:10001"
+    command:
+      - python
+      - -c
+      - "import signal,sys; signal.signal(signal.SIGTERM,lambda *_:sys.exit(0)); signal.pause()"
+    networks:
+      front: {ipv4_address: 172.30.240.3}
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: "1"
+      net.ipv6.conf.default.disable_ipv6: "1"
+      net.ipv4.ip_unprivileged_port_start: "0"
+    volumes:
+      - browser-home:/home/nima
+
+  nss:
+    <<: *service
+    profiles: [probes]
+    image: ${NIMA_HELPER_IMAGE:?}
+    user: "10001:10001"
+    network_mode: none
+    depends_on:
+      initialize: {condition: service_completed_successfully}
+      anchor: {condition: service_started}
+    entrypoint: [/bin/sh, -ec]
+    # Fixed literals only; no credentials or user input are interpolated here.
+    command:
+      - >-
+        mkdir -m 700 -p /home/nima/.local/share/pki/nssdb;
+        certutil -N --empty-password -d sql:/home/nima/.local/share/pki/nssdb;
+        certutil -A -n 'Nima fixture CA' -t 'C,,'
+        -d sql:/home/nima/.local/share/pki/nssdb -i /fixture-public/ca.pem
+    volumes:
+      - browser-home:/home/nima
+      - fixture-public:/fixture-public:ro
+
+  origin:
+    <<: *fixture
+    command: [python, -m, nima.egress.fixtures, serve, --role, origin]
+    networks:
+      back: {ipv4_address: 172.30.241.3}
+    healthcheck:
+      test: [CMD, python, -m, nima.egress.fixtures, health, --role, origin]
+      interval: 1s
+      timeout: 3s
+      retries: 15
+
+  bad:
+    <<: *fixture
+    command: [python, -m, nima.egress.fixtures, serve, --role, bad]
+    networks:
+      back: {ipv4_address: 172.30.241.4}
+    healthcheck:
+      test: [CMD, python, -m, nima.egress.fixtures, health, --role, bad]
+      interval: 1s
+      timeout: 3s
+      retries: 15
+
+  canary:
+    <<: *fixture
+    command: [python, -m, nima.egress.fixtures, serve, --role, canary]
+    networks:
+      front: {ipv4_address: 172.30.240.4}
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: "0"
+    healthcheck:
+      test: [CMD, python, -m, nima.egress.fixtures, health, --role, canary]
+      interval: 1s
+      timeout: 3s
+      retries: 15
+
+  observer:
+    <<: *service
+    profiles: [probes]
+    network_mode: service:anchor
+    command: [python, -m, nima.egress.observer, fixture-smoke]
+    environment:
+      NIMA_FIXTURE_USERNAME: ${NIMA_FIXTURE_USERNAME:?}
+      NIMA_FIXTURE_PASSWORD: ${NIMA_FIXTURE_PASSWORD:?}
+    volumes:
+      - fixture-private:/fixture-private:ro
+      - fixture-public:/fixture-public:ro
+      - controls:/control
+      - gateway-admin:/gateway-admin
+      - type: bind
+        source: ${NIMA_RESOLV_PATH:?}
+        target: /etc/resolv.conf
+        read_only: true
+        bind: {create_host_path: false}
+
+  worker:
+    <<: *service
+    profiles: [probes]
+    user: "10001:10001"
+    network_mode: service:anchor
+    shm_size: 256m
+    pids_limit: 256
+    mem_limit: 2g
+    cpus: 2
+    command: [python, -m, nima.egress.preflight, browser]
+    environment:
+      NIMA_FIXTURE_USERNAME: ${NIMA_FIXTURE_USERNAME:?}
+      NIMA_FIXTURE_PASSWORD: ${NIMA_FIXTURE_PASSWORD:?}
+    volumes:
+      - browser-home:/home/nima
+      - fixture-public:/fixture-public:ro
+      - type: bind
+        source: ${NIMA_RESOLV_PATH:?}
+        target: /etc/resolv.conf
+        read_only: true
+        bind: {create_host_path: false}
+
+networks:
+  front:
+    internal: true
+    labels: *ownership
+    ipam:
+      config: [{subnet: 172.30.240.0/24, gateway: 172.30.240.1}]
+  back:
+    internal: true
+    labels: *ownership
+    ipam:
+      config: [{subnet: 172.30.241.0/24, gateway: 172.30.241.1}]
+
+volumes:
+  fixture-private: {labels: *ownership}
+  fixture-public: {labels: *ownership}
+  gateway-private: {labels: *ownership}
+  gateway-admin: {labels: *ownership}
+  controls: {labels: *ownership}
+  browser-home: {labels: *ownership}
