@@ -13,6 +13,7 @@ from nima.egress.preflight import (
     check_sandbox,
     classify_browser_failure,
     main,
+    private_controls,
 )
 
 
@@ -126,6 +127,15 @@ def test_helper_has_only_network_admin_in_the_target_namespace() -> None:
         check_process(status(), helper=True)
 
 
+def test_trusted_observer_identity_does_not_validate_as_a_workload() -> None:
+    observed = status(Uid="10002\t10002\t10002\t10002")
+    check_process(observed, uid=10002)
+    with pytest.raises(PrerequisiteError, match="^process$"):
+        check_process(observed)
+    with pytest.raises(PrerequisiteError, match="^process$"):
+        check_process(status(), uid=0)
+
+
 @pytest.mark.parametrize(
     ("message", "code"),
     [
@@ -188,3 +198,14 @@ def test_parent_chroot_privilege_is_never_accepted(monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr("os.waitpid", lambda pid, flags: (123, 0))
     with pytest.raises(PrerequisiteError, match="^unexpected_chroot$"):
         check_namespaces()
+
+
+def test_visible_private_file_is_closed_and_fails_without_reading_it(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    closed: list[int] = []
+    monkeypatch.setattr("os.open", lambda *args, **kwargs: 123)
+    monkeypatch.setattr("os.close", closed.append)
+    with pytest.raises(PrerequisiteError, match="^control_access$"):
+        private_controls()
+    assert closed == [123]
