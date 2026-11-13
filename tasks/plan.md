@@ -24,11 +24,27 @@ HTTPX/Chromium HTTPS/auth, Chromium NSS trust and independent delivery counters.
 Its real client probes live in `protocol.py`; the observer reads allowlisted admin
 counters plus origin delivery counts. Unit tests verify configuration and failure
 classification; they do not substitute for the real Docker gate.
-Final delivery-head quality gates remain required before review readiness. Runtime discovery: Chromium 158 reports an invalid-credential
+The user merged #41 and #42 to main. Their delivery head `2ce99b1` passed
+687 tests with 90.66% coverage in PR run 43404629205.
+Runtime discovery: Chromium 158 reports an invalid-credential
 407 CONNECT response as `ERR_HTTP_RESPONSE_CODE_FAILURE`; retain independent
 RBAC-denial and origin-delivery checks when classifying this outcome. Do not
 accept arbitrary browser errors as authentication proof.
-The complete matrix, checkpoint C and deployed IP protection remain unverified.
+E7 passed at `d8e0a3c` in
+[run 43422295581](https://github.com/StamKavid/nima-ai/actions/runs/43422295581):
+746 tests, 90.72% coverage, all three jobs green; three real Docker tests passed
+in 49.27 seconds. Seven destination/protocol counters increased while independent
+canary/host/metadata delivery counts stayed zero after successful controls.
+An inner user namespace could not map the observer's outer UID, administer the
+parent network namespace or bypass the rule using its own inner UID 10002.
+The normal helper reads back policy without rewriting it. Scope is Nima's named
+table only; existing Docker tables remain intact. nft 1.0.6 elides a redundant
+l4proto check beside a typed port selector; normalize that equivalent form only.
+The fixed nft/ip wrapper has two narrowly documented Bandit annotations, B404 and
+B603, with no shell or external command/argument/stdin selection. Review the
+annotations explicitly; no global scanner exclusions or threshold changes.
+The complete client/fault matrix, checkpoint C and deployed IP protection remain
+unverified. E8 moves execution into the bounded fixture-only runner.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
 not start because this executor lacks Docker storage. Hosted full tests used
 real PostgreSQL. Keep that validation limitation visible at delivery.
