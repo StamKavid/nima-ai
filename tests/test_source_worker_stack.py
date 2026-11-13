@@ -157,12 +157,12 @@ def test_startup_failures_do_not_create_verified_state(
 
 
 def test_work_deadline_reserves_cleanup_time(
-    monkeypatch: pytest.MonkeyPatch, controller: tuple[stack.FixtureStack, Daemon]
+    controller: tuple[stack.FixtureStack, Daemon],
 ) -> None:
     control, daemon = controller
     control.prepare()
     control.start()
-    monkeypatch.setattr(time, "monotonic", lambda: control.started + 550)
+    control.deadline = time.monotonic() + 50
     with pytest.raises(stack.StackError, match="deadline"):
         control.command("info")
     control.cleanup()
@@ -280,10 +280,10 @@ def test_partial_startup_still_has_owned_cleanup(
 
 
 def test_cleanup_expiry_cannot_become_success(
-    monkeypatch: pytest.MonkeyPatch, controller: tuple[stack.FixtureStack, Daemon]
+    controller: tuple[stack.FixtureStack, Daemon],
 ) -> None:
     control, _ = controller
-    monkeypatch.setattr(time, "monotonic", lambda: control.deadline + 1)
+    control.deadline = time.monotonic() - 1
     with pytest.raises(stack.StackError, match="deadline"):
         control.cleanup()
     assert not control.cleaned

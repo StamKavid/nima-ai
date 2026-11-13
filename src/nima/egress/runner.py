@@ -270,17 +270,18 @@ def run_http(output_dir: Path) -> Path:
         if not stack.cleaned or stack.network_identity is None:
             raise RunnerError("observation")
         fingerprint, inode = stack.network_identity
-        stage = HttpStage(
-            UUID(stack.run_id),
-            stack.images,
-            fingerprint,
-            inode,
-            started_at,
-            datetime.now(UTC),
-            time.monotonic() - stack.started,
-            stack.cleaned,
-            cases,
-        )
+    # Include destruction of the private temporary configuration in runtime.
+    stage = HttpStage(
+        UUID(stack.run_id),
+        stack.images,
+        fingerprint,
+        inode,
+        started_at,
+        datetime.now(UTC),
+        time.monotonic() - stack.started,
+        stack.cleaned,
+        cases,
+    )
     return publish_stage(output_dir, stage)
 
 
