@@ -139,3 +139,51 @@ def test_packet_controls_never_request_metadata_without_a_local_alias(
         with pytest.raises(FixtureError):
             observer.packet_control()
         control.assert_not_called()
+
+
+@pytest.mark.parametrize("fault", ["none", "client", "missing_delivery", "headers", "errors"])
+def test_gateway_controls_require_verified_body_and_independent_delivery(
+    monkeypatch: pytest.MonkeyPatch, fault: str
+) -> None:
+    from unittest.mock import Mock
+
+    from nima.egress import observer
+    from nima.egress.bootstrap import credentials
+    from nima.egress.fixtures import FixtureError
+    from nima.egress.receipt import ClientResult
+
+    auth = credentials("fixture-user-" + "u" * 16, "p" * 43)
+    monkeypatch.setattr(observer, "credentials", Mock(return_value=auth))
+    outcomes = Mock(
+        return_value=ClientResult.NETWORK_FAILURE
+        if fault == "client"
+        else ClientResult.FIXTURE_BODY
+    )
+    monkeypatch.setattr(observer, "execute", outcomes)
+    counts = Counters()
+    counts.request("html", clean=fault != "headers")
+    if fault == "errors":
+        counts.add("server_errors")
+    before = {
+        "version": "unused",
+        "allowed": 2,
+        "denied": 0,
+        "origin": Counters().snapshot(),
+        "bad": Counters().snapshot(),
+    }
+    after = {
+        **before,
+        "allowed": 4,
+        "origin": counts.snapshot(),
+        "bad": Counters().snapshot() if fault == "missing_delivery" else counts.snapshot(),
+    }
+    monkeypatch.setattr(observer, "gateway_observation", Mock(side_effect=[before, after]))
+    if fault == "none":
+        result = observer.gateway_control()
+        assert result["origin"]["application_requests"] == 1
+        assert result["bad"]["application_requests"] == 1
+        assert outcomes.call_args_list[0].args[2] == Path("/fixture-public/ca.pem")
+        assert outcomes.call_args_list[1].args[2] == Path("/fixture-private/bad-ca.pem")
+    else:
+        with pytest.raises(FixtureError, match="^observer_gateway$"):
+            observer.gateway_control()

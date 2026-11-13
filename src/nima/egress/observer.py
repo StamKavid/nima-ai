@@ -1,6 +1,7 @@
 """Independent fixture controls. Fixed CLI targets, never a live egress check."""
 
 import json
+import os
 import socket
 import ssl
 import struct
@@ -11,8 +12,11 @@ from typing import TypedDict
 
 import httpx
 
+from nima.egress.bootstrap import credentials
 from nima.egress.fixtures import FixtureError, read_counters
 from nima.egress.preflight import check_process, report
+from nima.egress.probe_http import execute
+from nima.egress.receipt import ClientResult
 
 OBSERVER_FAILURES = frozenset(
     "observer_" + phase
@@ -195,6 +199,39 @@ class PacketObservation(TypedDict):
     metadata: dict[str, int | bool]
 
 
+def gateway_control() -> GatewayObservation:
+    """Prove both origins serve verified HTTPS, including the deliberately bad CA.
+
+    Only this trusted observer can read bad-ca.pem. The worker trusts the public
+    fixture CA alone and must reject that same origin's certificate.
+    """
+    try:
+        auth = credentials(
+            os.environ.get("NIMA_FIXTURE_USERNAME"), os.environ.get("NIMA_FIXTURE_PASSWORD")
+        )
+        before = gateway_observation(reset=True)
+        for case, ca in (
+            ("http_allowed", Path("/fixture-public/ca.pem")),
+            ("http_invalid_tls", Path("/fixture-private/bad-ca.pem")),
+        ):
+            if execute(case, auth, ca) != ClientResult.FIXTURE_BODY:
+                raise FixtureError("observer_gateway")
+        after = gateway_observation()
+        if after["allowed"] - before["allowed"] != 2 or after["denied"] != before["denied"]:
+            raise FixtureError("observer_gateway")
+        for name in ("origin", "bad"):
+            counters = after[name]
+            if (
+                counters["application_requests"] != 1
+                or counters["headers_clean"] is not True
+                or counters["server_errors"] != 0
+            ):
+                raise FixtureError("observer_gateway")
+        return after
+    except Exception:
+        raise FixtureError("observer_gateway") from None
+
+
 def packet_observation(*, reset: bool = False) -> PacketObservation:
     return {
         "version": "source-worker-packet-observation-v1",
@@ -232,6 +269,8 @@ def main(argv: list[str] | None = None) -> int:
         ["fixture-smoke"],
         ["gateway-observe"],
         ["gateway-reset"],
+        ["gateway-control"],
+        ["origins-observe"],
         ["packet-control"],
         ["packet-reset"],
         ["packet-observe"],
@@ -243,7 +282,25 @@ def main(argv: list[str] | None = None) -> int:
         if arguments == ["fixture-smoke"]:
             fixture_smoke(FixtureTargets(), Path("/fixture-public/ca.pem"), Path("/control"))
         elif arguments[0].startswith("gateway-"):
-            print(json.dumps(gateway_observation(reset=arguments == ["gateway-reset"])))
+            print(
+                json.dumps(
+                    gateway_control()
+                    if arguments == ["gateway-control"]
+                    else gateway_observation(reset=arguments == ["gateway-reset"])
+                )
+            )
+            return 0
+        elif arguments == ["origins-observe"]:
+            # Explicit outage observation: never substitute zero for an absent
+            # gateway admin response. Origin UDS counters remain independent.
+            print(
+                json.dumps(
+                    {
+                        name: read_counters(Path("/control") / (name + ".sock"), role=name)
+                        for name in ("origin", "bad")
+                    }
+                )
+            )
             return 0
         else:
             print(

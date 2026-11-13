@@ -45,6 +45,11 @@ B603, with no shell or external command/argument/stdin selection. Review the
 annotations explicitly; no global scanner exclusions or threshold changes.
 The complete client/fault matrix, checkpoint C and deployed IP protection remain
 unverified. E8 moves execution into the bounded fixture-only runner.
+E8's first slice adds the 18 fixed HTTP-stage probes and an explicit Docker
+test with independent positive controls, delivery/counter reconciliation and
+actual gateway stop/restart. See `docs/verification/source-worker-http.md` and
+PR #46. The bounded host controller, private stage reports and all E9 browser
+cases remain pending; do not treat this slice as completed E8 or checkpoint C.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
 not start because this executor lacks Docker storage. Hosted full tests used
 real PostgreSQL. Keep that validation limitation visible at delivery.
