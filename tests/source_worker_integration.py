@@ -6,12 +6,8 @@ verifies and removes exact IDs. Application execution remains fixture-only.
 
 import json
 from pathlib import Path
-from typing import Any
 
 from nima.egress.fixtures import Counters, http_server
-from nima.egress.policy import CaseKind
-from nima.egress.probe_http import HTTP_CASES, read_result
-from nima.egress.receipt import CaseEvidence, validate_case
 from nima.egress.stack import FixtureStack
 
 
@@ -203,161 +199,18 @@ def test_packet_policy_blocks_real_delivery_and_user_namespace_bypass(tmp_path: 
 
 
 def test_all_http_cases_reconcile_real_controls_delivery_and_gateway_outage(tmp_path: Path) -> None:
-    stack = FixtureStack(tmp_path)
-    stack.prepare()
+    from nima.egress.runner import run_http
+    from nima.egress.stage import read_stage
 
-    def observe(command: str) -> dict[str, Any]:
-        value: dict[str, Any] = json.loads(
-            stack.compose(
-                "run",
-                "--rm",
-                "--no-deps",
-                "observer",
-                "python",
-                "-m",
-                "nima.egress.observer",
-                command,
-            )
-        )
-        assert type(value) is dict
-        return value
-
-    def network() -> dict[str, Any]:
-        value: dict[str, Any] = json.loads(
-            stack.compose("run", "--rm", "--no-deps", "network-inspect")
-        )
-        assert type(value) is dict
-        return value
-
-    drops = {
-        "http_direct_ipv4": "direct_tcp",
-        "http_proxy_removed": "direct_tcp",
-        "http_no_proxy": "direct_tcp",
-        "http_trust_env_false": "direct_tcp",
-        "http_host_bridge": "host_tcp",
-        "http_metadata": "metadata_tcp",
-        "http_dns": "dns_udp",
-        "http_udp": "direct_udp",
-    }
-    completed = []
-    stopped_gateway_id = None
-    try:
-        stack.start()
-        stack.compose("up", "-d", "--wait", "--no-deps", "metadata")
-        host = Counters()
-        with http_server(
-            ("172.30.240.1", 18080), host, role="host", context=None, credentials=stack.auth
-        ):
-            for case in HTTP_CASES:
-                if case.name == "gateway_restart":
-                    # Compose start also restarts the one-shot initializer.
-                    # Keep its refuse-overwrite guard and restart only the
-                    # exact gateway container observed stopped in the outage.
-                    assert stopped_gateway_id is not None
-                    stack.command("start", stopped_gateway_id)
-                gateway_id = stack.compose("ps", "--all", "--quiet", "gateway")
-                if case.name == "gateway_restart":
-                    assert stopped_gateway_id == gateway_id
-                assert (
-                    stack.command("inspect", gateway_id, "--format", "{{.State.Running}}") == "true"
-                )
-                # Healthy controls precede every attempt, including the outage.
-                controls = observe("gateway-control")
-                assert controls["allowed"] >= 2
-                observe("packet-control")
-                assert host.snapshot()["application_requests"] == 1
-                host.reset()
-                observe("packet-reset")
-                before_gateway = observe("gateway-reset")
-                before = network()
-                stopped = case.kind == CaseKind.GATEWAY_OUTAGE
-                if stopped:
-                    stack.compose("stop", "--timeout", "3", "gateway")
-                    assert (
-                        stack.command("inspect", gateway_id, "--format", "{{.State.Running}}")
-                        == "false"
-                    )
-                    stopped_gateway_id = gateway_id
-                raw = stack.compose(
-                    "run",
-                    "--rm",
-                    "--no-deps",
-                    "worker",
-                    "python",
-                    "-m",
-                    "nima.egress.probe_http",
-                    case.name,
-                )
-                result = read_result((raw + "\n").encode(), case.name)
-                after = network()
-                packets = observe("packet-observe")
-                gateway = observe("origins-observe" if stopped else "gateway-observe")
-                assert before["policy_sha256"] == after["policy_sha256"]
-                assert before["network_inode"] == after["network_inode"]
-                assert after["ipv6_disabled"] is True and after["metadata_alias"] is True
-                for role in ("canary", "metadata"):
-                    assert all(
-                        packets[role][metric] == 0
-                        for metric in (
-                            "tcp_accepts",
-                            "application_requests",
-                            "dns_queries",
-                            "udp_datagrams",
-                            "server_errors",
-                        )
-                    )
-                    assert packets[role]["headers_clean"] is True
-                assert host.snapshot()["tcp_accepts"] == 0
-                assert host.snapshot()["application_requests"] == 0
-                assert host.snapshot()["server_errors"] == 0
-                for role in ("origin", "bad"):
-                    assert gateway[role]["headers_clean"] is True
-                    assert gateway[role]["server_errors"] == 0
-                target = "bad" if case.kind == CaseKind.TLS_REJECTED else "origin"
-                deliveries: int | None
-                if case.kind == CaseKind.PACKET_BLOCKED:
-                    sink = (
-                        host.snapshot()
-                        if case.name == "http_host_bridge"
-                        else packets["metadata" if case.name == "http_metadata" else "canary"]
-                    )
-                    deliveries = int(sink[case.target_counter])
-                elif case.name.startswith("http_redirect_"):
-                    deliveries = packets["canary"][case.target_counter]
-                else:
-                    deliveries = (
-                        gateway[target][case.target_counter]
-                        if case.kind != CaseKind.IPV6_DISABLED
-                        else None
-                    )
-                policy_drops = (
-                    after["counters"][drops[case.name]]["packets"]
-                    - before["counters"][drops[case.name]]["packets"]
-                    if case.name in drops
-                    else None
-                )
-                evidence = CaseEvidence(
-                    case.name,
-                    case.target_counter,
-                    result,
-                    control_success=None if case.kind == CaseKind.IPV6_DISABLED else True,
-                    target_deliveries=deliveries,
-                    gateway_tunnels=None
-                    if stopped
-                    else gateway["allowed"] - before_gateway["allowed"],
-                    gateway_rejections=None
-                    if stopped
-                    else gateway["denied"] - before_gateway["denied"],
-                    policy_drops=policy_drops,
-                    observed_routes=frozenset({"html"})
-                    if gateway["origin"]["html"] == 1
-                    else frozenset(),
-                    headers_clean=gateway["origin"]["headers_clean"],
-                    gateway_stopped=True if stopped else None,
-                    gateway_restarted=True if case.name == "gateway_restart" else None,
-                )
-                validate_case(evidence)
-                completed.append(case.name)
-            assert completed == [case.name for case in HTTP_CASES]
-    finally:
-        stack.cleanup()
+    file = run_http(tmp_path / "http-reports")
+    stage = read_stage(file.read_bytes())
+    assert len(stage.cases) == 18
+    assert stage.cleanup_verified
+    assert stage.elapsed_seconds <= 600
+    assert all(
+        row.control_success is True for row in stage.cases if row.case_name != "ipv6_disabled"
+    )
+    value = json.loads(file.read_bytes())
+    assert len(value["pending_cases"]) == 10
+    assert value["complete_matrix"] is value["isolation_checks_passed"] is False
+    assert value["investigator_ip_protection_verified"] is value["production_ready"] is False
