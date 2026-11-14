@@ -43,8 +43,9 @@ l4proto check beside a typed port selector; normalize that equivalent form only.
 The fixed nft/ip wrapper has two narrowly documented Bandit annotations, B404 and
 B603, with no shell or external command/argument/stdin selection. Review the
 annotations explicitly; no global scanner exclusions or threshold changes.
-The complete client/fault matrix, checkpoint C and deployed IP protection remain
-unverified. E8 moves execution into the bounded fixture-only runner.
+At that checkpoint, the complete client/fault matrix and checkpoint C remained
+unverified. E8 moved execution into the bounded fixture-only runner. Deployed
+IP protection remains unverified throughout this increment.
 The user merged E8's HTTP probe slice in #46. E8 now has a reusable bounded
 controller and private HTTP-stage reports: delivery head `e866c97` passed all
 three jobs in run 43514084957 with 884 tests and 91.37% coverage. Four real Docker
@@ -70,12 +71,30 @@ Evidence archives, source data, credentials and databases remain outside Git.
 Candidate `c6e9c39` in #54 passes all three jobs in runs 43613463647/43613476257:
 967 tests, 91.55% coverage and six real Docker tests in 334.31 seconds, including
 the complete 28-case run and actual runtime receipt. This passes checkpoint C;
-the correction still requires a human merge. The full receipt validator is
+the correction was merged through #54 at `9562213`. The full receipt validator is
 unchanged; it still requires all 28 cases and actual runtime evidence. See
 `docs/verification/source-worker-browser.md`. Deployed IP protection is unverified.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
 not start because this executor lacks Docker storage. Hosted full tests used
 real PostgreSQL. Keep that validation limitation visible at delivery.
+
+E10 is merged through #61 at `920472e`. Final candidate `f3a063e` passed all
+three jobs in run 43622181210: 967 tests/91.55% coverage and 12 real Docker
+tests/853.96 seconds. Actual worker deadline, missing capability, controller
+signals, credential redaction, scoped reclamation and packet-rule restoration
+are measured. The hard-signal tests cover an explicit between-command boundary;
+they do not provide a deployed supervisor.
+
+E11 is merged through #63 at `9a4eddf`: the complete `just source-worker-check`
+recipe, fresh private full-receipt validation, success-only canonical JSON upload
+and matching proposed protection context. Candidate `4fe920d` passes all three
+jobs in run 43625798326: 987 tests/91.58% coverage and 12 real Docker tests in
+616.42 seconds. Downloaded artifact 14126851164 matches GitHub's ZIP digest and
+contains exactly one valid canonical 28-case JSON receipt, with deployment/privacy
+flags false. E12's runbook and five-axis review are prepared; the documentation
+candidate's hosted checks and human merge remain delivery gates. See
+`docs/verification/source-worker-egress.md` for commands, evidence and limits;
+older stage-specific reports retain their historical results.
 
 ### Selected stack and immutable pins
 
@@ -300,8 +319,9 @@ the approved stack or weaken sandbox/TLS/network controls to proceed.
 Add `source-worker-egress` as a dedicated `ubuntu-24.04` CI job, initially proving the
 image/sandbox prerequisite and extended to the complete matrix by delivery. It
 never claims deployed IP protection. Keep quality and orchestration-compose jobs
-unchanged in purpose. Use a 25-minute job bound for builds, the 10-minute runtime
-suite and cleanup; no live source secrets. Final exact-head local/hosted evidence,
+unchanged in purpose. Use a 25-minute job bound for builds, the complete integration
+suite and cleanup; each controller retains its 600-second budget. No live source
+secrets. Final exact-head local/hosted evidence,
 clean audit and the 90% coverage floor are required before marking delivery ready.
 Add the new check to the proposed main/dev ruleset payload. The repository is now
 public, but the current active ruleset targets no branches and effective rules for
@@ -312,11 +332,11 @@ their parents are merged/retargeted; human merges only.
 
 ### Risks, limits and remaining review
 
-The remaining feasibility risks are a real sandboxed Chromium launch, matching
-NSS trust and Envoy's CONNECT/auth handshake. They have explicit early checks.
-Only the primitive capabilities and publisher metadata above were tested during
-planning. The current small executor cannot claim the full browser/image checks;
-use a sufficient runner and report environment failures honestly.
+The original sandboxed-Chromium, NSS trust and Envoy CONNECT/auth feasibility
+checks have now passed on supported hosted runners. The current small executor
+cannot establish those physical fixture results locally: PostgreSQL is unavailable
+and Docker's data directory is inaccessible. Preserve that distinction, the final
+exact-head CI gate and the separate deployment/public-egress verification gate.
 
 There is no need for a GEMI key, Webshare account or VPN credential in this work.
 No source access, hosting purchase or deployment is authorized by this plan.
