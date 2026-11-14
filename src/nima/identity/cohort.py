@@ -7,6 +7,8 @@ https://www.psycopg.org/psycopg3/docs/basic/transactions.html
 from typing import cast
 from uuid import UUID
 
+from psycopg.pq import TransactionStatus
+
 from nima.identity import MAX_REPORT_BYTES, AssessmentError
 from nima.identity.policy import Occurrence
 from nima.ingestion.config import CONNECTOR_VERSION
@@ -67,43 +69,75 @@ def _coverage(connection: Connection, run: UUID, version: str) -> dict[str, obje
     }
 
 
-def read_cohort(
-    dsn: str, run: UUID, version: str, max_mentions: int
-) -> tuple[dict[str, object], list[Occurrence]]:
+def _validate(version: str, max_mentions: int) -> None:
     if type(max_mentions) is not int or not 1 <= max_mentions <= 10000:
         raise ValueError("max_mentions must be 1–10000")
     if version != PROJECTION_VERSION:
         raise AssessmentError("projection_version")
+
+
+def read_cohort(
+    dsn: str, run: UUID, version: str, max_mentions: int
+) -> tuple[dict[str, object], list[Occurrence]]:
+    _validate(version, max_mentions)
     check_schema(dsn)
     with _connect(dsn) as connection, connection.transaction():
         connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
         connection.execute("SET LOCAL TIME ZONE 'UTC'")
-        coverage = _coverage(connection, run, version)
-        if cast(int, coverage["expected_mentions"]) > max_mentions:
-            raise AssessmentError("assessment_limit")
-        # Bound decoded label data before transferring it into Python. JSON escaping
-        # and evidence add overhead; the serialized report has its own exact bound.
-        size = cast(
-            tuple[int],
-            connection.execute(
-                "SELECT coalesce(sum(octet_length(row_to_json(m)::text) + 512), 0)" + _MEMBERS,
-                (run, version),
-            ).fetchone(),
-        )[0]
-        if size > MAX_REPORT_BYTES:
-            raise AssessmentError("assessment_limit")
-        rows = connection.execute(
-            """SELECT to_jsonb(m) - 'projection_version' ||
+        return read_cohort_in_transaction(
+            connection, run, version, max_mentions, max_input_bytes=MAX_REPORT_BYTES
+        )
+
+
+def read_cohort_in_transaction(
+    connection: Connection,
+    run: UUID,
+    version: str,
+    max_mentions: int,
+    *,
+    max_input_bytes: int = MAX_REPORT_BYTES,
+) -> tuple[dict[str, object], list[Occurrence]]:
+    """Read in the caller's active read-only repeatable-read transaction.
+
+    The caller owns schema validation, UTC setup and transaction/connection
+    lifetime. A lower input budget reserves room for other evidence in the same
+    snapshot without changing the existing assessment wrapper's default guard.
+    """
+    _validate(version, max_mentions)
+    if type(max_input_bytes) is not int or not 1 <= max_input_bytes <= MAX_REPORT_BYTES:
+        raise ValueError("max_input_bytes")
+    if connection.info.transaction_status != TransactionStatus.INTRANS:
+        raise ValueError("cohort_transaction")
+    if connection.execute(
+        "SELECT current_setting('transaction_isolation'), current_setting('transaction_read_only')"
+    ).fetchone() != ("repeatable read", "on"):
+        raise ValueError("cohort_transaction")
+    coverage = _coverage(connection, run, version)
+    if cast(int, coverage["expected_mentions"]) > max_mentions:
+        raise AssessmentError("assessment_limit")
+    # Bound decoded label data before transferring it into Python. JSON escaping
+    # and evidence add overhead; the serialized report has its own exact bound.
+    size = cast(
+        tuple[int],
+        connection.execute(
+            "SELECT coalesce(sum(octet_length(row_to_json(m)::text) + 512), 0)" + _MEMBERS,
+            (run, version),
+        ).fetchone(),
+    )[0]
+    if size > max_input_bytes:
+        raise AssessmentError("assessment_limit")
+    rows = connection.execute(
+        """SELECT to_jsonb(m) - 'projection_version' ||
             jsonb_build_object('observation_id', o.observation_id, 'evidence',
                 jsonb_build_object('raw_sha256', p.raw_sha256,
                     'json_pointer', '/content/' || o.record_index, 'observed_at', p.observed_at))"""
-            + _MEMBERS
-            + " LIMIT %s",
-            (run, version, max_mentions + 1),
-        ).fetchall()
-        members = [cast(Occurrence, row[0]) for row in rows]
-        if len(members) != coverage["expected_mentions"]:
-            raise AssessmentError("projection_incomplete")
+        + _MEMBERS
+        + " LIMIT %s",
+        (run, version, max_mentions + 1),
+    ).fetchall()
+    members = [cast(Occurrence, row[0]) for row in rows]
+    if len(members) != coverage["expected_mentions"]:
+        raise AssessmentError("projection_incomplete")
     members.sort(
         key=lambda m: (
             m["source_id"],
