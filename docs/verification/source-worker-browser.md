@@ -127,3 +127,7 @@ gap are documented in [repository settings](../repository-settings.md).
 E10 interruption/real packet-guard mutation, E11 complete CI recipe/protection
 payload and E12 final delivery review remain subsequent tasks. No dependencies,
 TLS rules, browser sandbox permissions or acceptance validators were weakened.
+
+The [failure-experiment runbook](source-worker-failures.md) defines E10's real
+mutation, worker deadline, missing-capability and controller signal checks,
+including the independent-supervisor boundary and diagnostic requirements.
