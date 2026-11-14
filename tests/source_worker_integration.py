@@ -5,6 +5,7 @@ verifies and removes exact IDs. Application execution remains fixture-only.
 """
 
 import json
+import time
 from pathlib import Path
 
 import pytest
@@ -250,6 +251,115 @@ def test_all_http_cases_reconcile_real_controls_delivery_and_gateway_outage(tmp_
     assert len(value["pending_cases"]) == 10
     assert value["complete_matrix"] is value["isolation_checks_passed"] is False
     assert value["investigator_ip_protection_verified"] is value["production_ready"] is False
+
+
+def test_real_browser_deadline_removes_live_driver_and_controller_refuses_receipt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from nima.egress import runner
+    from nima.egress.preflight import CHROMIUM
+
+    # Trusted fixture fault injection: replace one worker attempt, preserving the
+    # real CLI alarm, real sandboxed Chromium, Docker and controller cleanup path.
+    stalled_browser = """
+import json
+import os
+import time
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+from nima.egress import probe_browser
+from nima.egress.preflight import check_sandbox, private_controls
+from nima.egress.runtime import observe_process
+
+def stalled(case, auth):
+    observe_process()
+    private_controls()
+    with sync_playwright() as api:
+        browser = api.chromium.launch(
+            channel='chromium', headless=True, chromium_sandbox=True,
+            args=['--disable-background-networking', '--no-first-run'], timeout=5000)
+        page = browser.new_page()
+        page.goto('chrome://sandbox', wait_until='domcontentloaded', timeout=3000)
+        check_sandbox(page.locator('body').inner_text(timeout=1000))
+        children = Path(f'/proc/self/task/{os.getpid()}/children').read_text().split()
+        pids = [int(value) for value in children]
+        states = [next(line.split()[1] for line in
+            Path(f'/proc/{pid}/status').read_text().splitlines()
+            if line.startswith('State:')) for pid in pids]
+        print(json.dumps({'version':'source-worker-live-driver-v1',
+            'chromium':browser.version,'pids':pids,'states':states}), flush=True)
+        time.sleep(120)
+        raise RuntimeError('worker_deadline_not_enforced')
+
+probe_browser.execute = stalled
+raise SystemExit(probe_browser.main(['browser_resources']))
+"""
+    compile(stalled_browser, "<fixture-browser-deadline>", "exec")
+    instances: list[FixtureStack] = []
+    deadline_seen = False
+
+    class DeadlineStack(FixtureStack):
+        def compose(self, *arguments: str, exact: bool = False) -> str:
+            nonlocal deadline_seen
+            if self not in instances:
+                instances.append(self)
+            if "worker" in arguments and arguments[-1] == "browser_resources":
+                try:
+                    return super().compose(
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "worker",
+                        "python",
+                        "-c",
+                        stalled_browser,
+                        exact=True,
+                    )
+                except ProbeCommandError as error:
+                    # Never put a sentinel or secret-bearing captured stream in
+                    # an assert expression that pytest might expand on failure.
+                    if any(
+                        secret in error.result.stdout + error.result.stderr for secret in self.auth
+                    ):
+                        raise AssertionError("fixture_secret_in_diagnostics") from None
+                    events = [json.loads(line) for line in error.result.stdout.splitlines()]
+                    assert error.result.returncode == 1 and len(events) == 2
+                    live, expired = events
+                    assert live["version"] == "source-worker-live-driver-v1"
+                    assert live["chromium"] == CHROMIUM
+                    assert live["pids"] and all(
+                        type(pid) is int and pid > 1 for pid in live["pids"]
+                    )
+                    assert len(live["pids"]) == len(live["states"])
+                    assert all(state in {"R", "S", "D", "I"} for state in live["states"])
+                    assert expired["status"] == "failed"
+                    assert expired["failure"] == "browser_attempt_deadline"
+                    # Check actual removal BEFORE the controller's finally cleanup.
+                    removal_deadline = time.monotonic() + 5
+                    while self.command(
+                        "ps",
+                        "-aq",
+                        "--filter",
+                        "label=com.docker.compose.project=" + self.project,
+                        "--filter",
+                        "label=com.docker.compose.service=worker",
+                        timeout=2,
+                    ):
+                        if time.monotonic() >= removal_deadline:
+                            raise AssertionError("expired_worker_not_removed") from None
+                        time.sleep(0.05)
+                    deadline_seen = True
+                    raise
+            return super().compose(*arguments, exact=exact)
+
+    monkeypatch.setattr(runner, "FixtureStack", DeadlineStack)
+    output = tmp_path / "deadline-reports"
+    assert (
+        runner.main(["--profile", "fixtures", "--stage", "all", "--output-dir", str(output)]) == 1
+    )
+    assert json.loads(capsys.readouterr().out) == {"status": "failed", "failure": "matrix_stage"}
+    assert deadline_seen and len(instances) == 1 and instances[0].cleaned
+    assert not list(output.glob("*.json"))
 
 
 def test_real_browser_cases_require_sandbox_and_kernel_delivery_evidence(tmp_path: Path) -> None:
