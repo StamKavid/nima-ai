@@ -110,7 +110,7 @@ uv still manages Python dependencies and package builds.
 ## Source-worker fixture check
 
 After building the pinned fixture images and passing the prerequisites in
-[the source-worker runbook](sources/source-worker-egress.md), run:
+[the source-worker runbook](verification/source-worker-runner.md), run:
 
 ```bash
 just source-worker-check
