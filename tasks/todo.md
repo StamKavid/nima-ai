@@ -1,5 +1,119 @@
 # Tasks
 
+## Current: offline registry comparison
+
+Specification: `docs/identity/registry-comparison.md`, approved through #65 and
+the user's continuation on 2026-11-14. Implementation plan: `tasks/plan.md`,
+**drafted for review**. These tasks are proposed, not implemented. Preserve all
+older incomplete access/administration/product work below. Execute sequentially;
+no new source access, migration, dependency, CI exception, accepted link or model.
+
+### RC1: Reuse the existing KIMDIS snapshot reader
+
+- [ ] Extract a connection-owned cohort read while retaining the current wrapper.
+- Acceptance: the public assessment API/default bounds and fixture report bytes
+  remain unchanged; the helper neither opens nor closes its caller's transaction;
+  real reads retain snapshot/receipt/coverage and existing failure semantics,
+  with an optional stricter helper input-byte budget checked before label transfer.
+- Verify: `uv run --frozen pytest tests/test_identity_cohort.py tests/test_identity_report.py tests/test_identity_crash.py`,
+  plus the unchanged quality/audit gates. The new cohort test file is added here.
+- Dependencies: approved plan. Scope: two files.
+- Files: `src/nima/identity/cohort.py`, `tests/test_identity_cohort.py`.
+
+### RC2: Compare typed reported identifiers without accepting identities
+
+- [ ] Add immutable comparison inputs/results, fixed errors and pure policy.
+- Acceptance: exact eligible AFM agreements produce the three specified outcomes;
+  GR/EL, leading zeros, unknowns and every repeated/404 observation survive;
+  conflicts are explicit and automatic identity links remain zero.
+- Verify: `uv run --frozen pytest tests/test_registry_policy.py tests/test_identity_policy.py`;
+  include Greek/lookalike/prefixed/missing/placeholder cases and both conflict kinds.
+- Dependencies: RC1 for delivery order; policy remains independent of SQL/I/O.
+- Scope: three files. Files: `src/nima/identity/registry_policy.py`,
+  `src/nima/identity/__init__.py`, `tests/test_registry_policy.py`.
+
+### Checkpoint A: Existing assessment and pure comparison contracts
+
+- [ ] Existing assessment is unchanged; pure candidate outcomes and exact unknowns pass.
+- [ ] Full quality/audit gates pass on a supported runner; review before SQL integration.
+
+### RC3: Read one bounded, consistent KIMDIS/GEMI evidence cohort
+
+- [ ] Read explicit imports and procurement evidence through one shared transaction.
+- Acceptance: preflight the combined 8 MiB input, requested mention budget and
+  100 registry-observation bound before labels; reconcile selected versions/counts/
+  responses/profiles and preserve allowed context/date/pointer/null values;
+  absent/unsupported/incomplete data fail without writes or implicit latest selection.
+- Verify: `uv run --frozen pytest tests/test_registry_cohort.py tests/test_identity_cohort.py tests/test_gemi_import.py`;
+  use real concurrent PostgreSQL connections, transfer-bound assertions and
+  source/outbox state comparisons. Unselected/new imports cannot enter the report.
+- Dependencies: RC1, RC2. Scope: two files.
+- Files: `src/nima/identity/registry_cohort.py`, `tests/test_registry_cohort.py`.
+
+### RC4: Publish the complete deterministic comparison report
+
+- [ ] Deliver the snapshot-to-private-report library path through `compare_run`.
+- Acceptance: one shared registry catalog and stable provenance references preserve
+  all occurrences/observations; selected evidence/coverage reproduce canonical
+  bytes regardless of selector order or repeated-version ties; exact 32 MiB bounds
+  and private no-clobber publication/reuse hold with zero automatic identity links.
+- Verify: `uv run --frozen pytest tests/test_registry_report.py tests/test_registry_cohort.py tests/test_identity_crash.py`;
+  exercise complete synthetic SQL imports, all-404/empty-party outcomes, coverage
+  changes, malformed publication paths, conflicts and exact byte limits.
+- Dependencies: RC2, RC3. Scope: two files.
+- Files: `src/nima/identity/registry_report.py`, `tests/test_registry_report.py`.
+
+### Checkpoint B: Working offline SQL-to-report path
+
+- [ ] Complete private reports reconcile typed outcomes, context/provenance and bounds.
+- [ ] Existing assessment/source/outbox behavior and all normal gates remain green.
+- [ ] Human review before exposing the operator command; no live key needed.
+
+### RC5: Expose the CLI and prove real interrupted replay/redaction
+
+- [ ] Add `identities compare` only after the complete library path passes.
+- Acceptance: selectors/limits are validated and fixed summaries/exits match the
+  approved 0/1/2/130 contract; actual pre/post-publication process termination
+  preserves only complete reusable reports; a narrow guard mutation fails its
+  regression, then exact restoration and the normal suite pass.
+- Verify: `uv run --frozen pytest tests/test_registry_cli.py tests/test_registry_crash.py tests/test_registry_policy.py tests/test_registry_cohort.py`;
+  use child-only boundary interception, runtime sentinels and immutable DB-state
+  checks. Run `just check`, `just audit` and exact-head hosted quality/Compose/
+  worker-fixture checks. No production pause/mutation hook or new skip/suppression.
+- Dependencies: checkpoint B. Scope: three principal files, at most five if a
+  missing material regression needs extension in the existing policy/cohort tests.
+- Files: `src/nima/__main__.py`, `tests/test_registry_cli.py`,
+  `tests/test_registry_crash.py`; optional existing `tests/test_registry_policy.py`
+  / `tests/test_registry_cohort.py` regression extension only.
+
+### Checkpoint C: Complete command and measured failure gates
+
+- [ ] Source assertions/unknowns, safe output, redaction and interrupted replay pass.
+- [ ] Mutant was detected and restored; exact-head checks/audit and ≥90% coverage pass.
+- [ ] No source request, identity acceptance, deployment or source-ledger mutation occurred.
+
+### RC6: Publish the measured operator runbook
+
+- [ ] Document implemented commands, setup, exact-head evidence and remaining limits.
+- Acceptance: the runbook distinguishes report agreement from identity/coverage/
+  authority proof and explains private files/replay/errors; source/architecture
+  capability notes match implemented behavior without live matching-quality claims.
+- Verify: five-axis review, actual CLI help, local links and final hosted gates;
+  reference concrete test/mutation results, not only this proposed task list.
+- Dependencies: checkpoint C. Scope: five files.
+- Files: `README.md`, `docs/verification/registry-comparison.md`,
+  `docs/identity/registry-comparison.md`, `docs/architecture.md`, `CAPABILITIES.md`.
+
+### RC7: Record delivery and the next product gate
+
+- [ ] Reconcile task/plan status and the capability-progress record after verification.
+- Acceptance: actual merges/commits/tests are recorded; original progress weights
+  remain and any estimate change is explained; reviewed reversible identity
+  decisions and graph projection stay subsequent, separately reviewed work.
+- Verify: cross-check final PR/CI/attribution and report scope; human merges only.
+- Dependencies: RC6. Scope: three files.
+- Files: `tasks/plan.md`, `tasks/todo.md`, `docs/progress.md`.
+
 ## Bounded KIMDIS evidence collector
 
 - [x] Validate and normalize a complete page in one JSON decode.
@@ -251,8 +365,10 @@ investigator workspace. These are roadmap items, not implementation tasks.
   - `docs/identity/registry-comparison.md` replaces the unpublished
     `docs/registry-comparison-spec` draft against main `127b3b8` and the current
     identity/GEMI storage contracts. This is documentation, not implementation.
-- [ ] Review/approve the comparison specification before implementation planning.
-  - Earlier worker/fallback approvals do not approve this report's new scope.
+- [x] Review/approve the comparison specification before implementation planning.
+  - #65 merged at `48a0778`; the user requested continuation. Candidate `a7331a7`
+    passed all three jobs in run 43629891127: 987 tests/91.58% coverage and
+    12 real Docker tests/643.90 seconds. RC1–RC7's implementation plan now awaits review.
 
 ## Private manual Publicity evidence intake
 
