@@ -5,6 +5,7 @@ verifies and removes exact IDs. Application execution remains fixture-only.
 """
 
 import json
+import re
 import time
 from pathlib import Path
 
@@ -536,3 +537,100 @@ def test_real_packet_guard_mutation_is_detected_restored_and_full_matrix_replaye
     value = json.loads(file.read_bytes())
     assert value["isolation_checks_passed"] is True
     assert value["investigator_ip_protection_verified"] is value["production_ready"] is False
+
+
+def test_missing_network_admin_is_observed_and_controller_cleans_without_receipt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from nima.egress import runner
+
+    # Test-only setup replacement: preserve the selected image, network namespace,
+    # read-only root and seccomp, but deliberately omit the NET_ADMIN capability.
+    missing_capability = """
+import json
+import os
+from pathlib import Path
+from nima.egress.network import main
+lines = Path('/proc/self/status').read_text().splitlines()
+fields = dict(line.split(':',1) for line in lines if ':' in line)
+print(json.dumps({'version':'source-worker-missing-capability-v1',
+    'uid':int(fields['Uid'].split()[0]),
+    'caps':[int(fields[name],16) for name in ('CapEff','CapPrm','CapBnd')],
+    'no_new_privs':int(fields['NoNewPrivs']), 'seccomp':int(fields['Seccomp']),
+    'root_readonly':bool(os.statvfs('/').f_flag & os.ST_RDONLY)}), flush=True)
+raise SystemExit(main(['install']))
+"""
+    compile(missing_capability, "<fixture-missing-capability>", "exec")
+    instances: list[FixtureStack] = []
+    rejected = False
+
+    class MissingCapabilityStack(FixtureStack):
+        def compose(self, *arguments: str, exact: bool = False) -> str:
+            nonlocal rejected
+            if self not in instances:
+                instances.append(self)
+            if arguments[-1] == "network-setup":
+                anchor = super().compose("ps", "--quiet", "anchor")
+                assert re.fullmatch(r"[0-9a-f]{64}", anchor)
+                try:
+                    return self.command(
+                        "run",
+                        "--rm",
+                        "--read-only",
+                        "--user",
+                        "0:0",
+                        "--cap-drop",
+                        "ALL",
+                        "--security-opt",
+                        "no-new-privileges",
+                        "--security-opt",
+                        "seccomp=" + str(self.state / "seccomp.json"),
+                        "--network",
+                        "container:" + anchor,
+                        "--pids-limit",
+                        "64",
+                        "--memory",
+                        "128m",
+                        "--cpus",
+                        "1",
+                        "--label",
+                        "io.nima.fixture.run_id=" + self.run_id,
+                        "--label",
+                        "com.docker.compose.project=" + self.project,
+                        "--label",
+                        "com.docker.compose.service=network-setup",
+                        dict(self.images)["helper"],
+                        "python",
+                        "-c",
+                        missing_capability,
+                        exact=True,
+                    )
+                except ProbeCommandError as error:
+                    if any(
+                        secret in error.result.stdout + error.result.stderr for secret in self.auth
+                    ):
+                        raise AssertionError("fixture_secret_in_diagnostics") from None
+                    rows = [json.loads(line) for line in error.result.stdout.splitlines()]
+                    assert error.result.returncode == 1 and len(rows) == 2
+                    observed, failure = rows
+                    assert observed == {
+                        "version": "source-worker-missing-capability-v1",
+                        "uid": 0,
+                        "caps": [0, 0, 0],
+                        "no_new_privs": 1,
+                        "seccomp": 2,
+                        "root_readonly": True,
+                    }
+                    assert failure["status"] == "failed" and failure["failure"] == "network_helper"
+                    rejected = True
+                    raise
+            return super().compose(*arguments, exact=exact)
+
+    monkeypatch.setattr(runner, "FixtureStack", MissingCapabilityStack)
+    output = tmp_path / "missing-capability-reports"
+    assert (
+        runner.main(["--profile", "fixtures", "--stage", "all", "--output-dir", str(output)]) == 1
+    )
+    assert json.loads(capsys.readouterr().out) == {"status": "failed", "failure": "matrix_stage"}
+    assert rejected and len(instances) == 1 and instances[0].cleaned
+    assert not list(output.glob("*.json"))
