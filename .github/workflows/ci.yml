@@ -77,6 +77,10 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
+      - name: Install checksum-pinned command runner
+        run: |
+          sh scripts/install-just.sh
+          echo "$PWD/.tools/bin" >> "$GITHUB_PATH"
       - name: Install locked development dependencies
         run: uv sync --frozen
       - name: Check Linux amd64 and Docker data capacity
@@ -131,8 +135,19 @@ jobs:
           --tmpfs /home/nima:rw,nosuid,size=128m,uid=10001,gid=10001,mode=0700
           nima-egress-worker:local python -m nima.egress.preflight browser
           > data/source-worker/browser-receipt.json
-      - name: Verify closed fixture services and private observer controls
-        run: uv run --frozen pytest tests/source_worker_integration.py
+      - name: Verify complete closed-fixture suite and fresh receipt publication
+        id: source-worker-check
+        run: |
+          task_receipt_dir=$(mktemp -d "$RUNNER_TEMP/nima-receipts.XXXXXXXX")
+          just source-worker-check "$task_receipt_dir"
+          echo "receipt_dir=$task_receipt_dir" >> "$GITHUB_OUTPUT"
+      - name: Upload validated full fixture receipt
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: source-worker-fixture-receipt
+          path: ${{ steps.source-worker-check.outputs.receipt_dir }}/*.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload bounded prerequisite receipts
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

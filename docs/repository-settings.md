@@ -41,7 +41,8 @@ branch-deletion push events, while commit pushes and PRs retain every quality ga
 `.github/rulesets/main-dev.json` is an importable ruleset covering both branches:
 
 - Pull requests, one independent approval, stale-approval dismissal and resolved threads.
-- Passing `quality` and `orchestration-compose`, with the branch up to date.
+- Passing `quality`, `orchestration-compose` and `source-worker-egress`, with the
+  branch up to date.
 - Blocked deletion and non-fast-forward pushes; no bypass actors.
 
 The existing project policy already specified one approval. A sole author cannot
@@ -105,6 +106,34 @@ executed at the time; current instructions and CI use just.
 just runs developer/CI commands. Prefect still orchestrates data workflows, and
 uv still manages Python dependencies and package builds.
 [Official just manual](https://just.systems/man/en/).
+
+## Source-worker fixture check
+
+After building the pinned fixture images and passing the prerequisites in
+[the source-worker runbook](sources/source-worker-egress.md), run:
+
+```bash
+just source-worker-check
+```
+
+This explicitly selects all tests in `tests/source_worker_integration.py`, including
+the complete 28-case matrix, failure controls and mutation/restoration replay. It
+exports one full receipt from the normal matrix after runtime and cleanup
+assertions. The final verifier requires the existing canonical receipt schema,
+exact case set, private files, and no unrelated directory entries. Partial reports,
+failure receipts, traces and configuration cannot become the full-receipt artifact.
+
+The default creates a new private directory under ignored
+`data/source-worker/receipts/`. An optional directory argument must be empty and
+private; existing receipts are never removed or accepted as a fresh run. CI uses
+the same recipe with a fresh runner-temporary directory and uploads only its
+validated `*.json` after the whole suite and verifier succeed. Receipt retention
+is seven days. The bounded prerequisite-receipt artifact remains separate.
+
+These are closed-fixture observations. Internet egress, investigator public-IP
+protection and production readiness remain unverified and false in the receipt.
+The proposed status context matches the CI job name; this file does not activate
+server-side branch protection.
 
 ## Why Python 3.12 today
 

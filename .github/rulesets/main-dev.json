@@ -39,6 +39,9 @@
           },
           {
             "context": "orchestration-compose"
+          },
+          {
+            "context": "source-worker-egress"
           }
         ]
       }
