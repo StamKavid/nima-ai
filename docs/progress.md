@@ -7,8 +7,9 @@ all three jobs in run 43627192150: 987 tests, 91.58% coverage and 12 real Docker
 tests/624.58 seconds. The complete recipe validates one 28-case receipt before
 upload; its implementation artifact was also downloaded and inspected. See the
 [delivery record](verification/source-worker-egress.md). Coverage is not product
-completion. The registry-comparison specification is now drafted for review;
-it is not an implemented matching capability.
+completion. The registry-comparison specification is approved through #65 at
+`48a0778`; its implementation plan is drafted for review. No implemented matching
+capability or progress credit is claimed for that planning work.
 
 ## Estimate and method
 
@@ -68,8 +69,9 @@ investigator workspace yet. Election-accountability work is outside this baselin
 
 ## Immediate direction
 
-1. Review the [offline registry-comparison specification](identity/registry-comparison.md),
-   then plan and implement its bounded evidence report after approval.
+1. Review the implementation plan/RC1–RC7 tasks for the approved
+   [offline registry-comparison specification](identity/registry-comparison.md),
+   then build its bounded evidence report after plan approval.
 2. Add reviewed, reversible identity decisions with explicit supporting/conflicting evidence.
 3. Build reproducible temporal graph projection with dated, inspectable evidence.
 4. Add eligible company/sector statistics and explainable rules, then evaluated ML.

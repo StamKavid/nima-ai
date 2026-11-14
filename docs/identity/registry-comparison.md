@@ -1,6 +1,7 @@
 # Offline KIMDIS / GEMI comparison report
 
-Status: **draft for approval**, refreshed 2026-11-14. Module: `entity-resolution`
+Status: **approved**, 2026-11-14, by user merge of #65 and continuation.
+Module: `entity-resolution`
 in [CAPABILITIES.md](../../CAPABILITIES.md). Supplements the approved
 [identity specification](../../SPEC-entity-resolution.md),
 [GEMI persistence contract](../sources/gemi-persistence.md) and
@@ -231,7 +232,8 @@ GEMI/identity contracts and stored versioned schema, not a new live API probe.
 
 No external credential blocks this offline scope. Operator run selectors are
 explicit future inputs; live compatibility and empirical matching quality remain
-unverified. Review the stated eligibility, bounds, catalog/provenance and report
-semantics before implementation planning. Approval covers this bounded read-only
-report increment; a reviewed reversible identity ledger and temporal graph follow
-as separate specifications.
+unverified. The user approved this specification through #65 at main `48a0778`.
+The implementation plan and RC1–RC7 tasks are now drafted for review in
+`tasks/plan.md` / `tasks/todo.md`. Approval covers this bounded read-only report
+increment; a reviewed reversible identity ledger and temporal graph follow as
+separate specifications. No comparison command is implemented by this planning PR.

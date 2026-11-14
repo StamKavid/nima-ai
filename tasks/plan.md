@@ -1,14 +1,144 @@
 # Delivery plan
 
-## Next increment: offline registry comparison
+## Current increment: offline registry comparison
 
-Status: **specification drafted for review**, 2026-11-14. The proposed scope is in
-`docs/identity/registry-comparison.md`, supplementing approved entity resolution.
-It is a bounded offline report over selected KIMDIS/GEMI SQL evidence. It needs
-no live key, migration, new dependency, accepted identity, graph edge or model.
-Implementation planning/task breakdown follow specification approval in a later
-turn. The previous unpublished draft is superseded by this concrete review copy;
-historical plans and pending access/administration tasks remain below.
+Status: **implementation plan drafted for review**, 2026-11-14. The user approved
+`docs/identity/registry-comparison.md` by merging #65 and requesting continuation.
+Base: main `48a0778`. Specification candidate `a7331a7` passes all three jobs in
+run 43629891127: 987 quality tests/91.58% coverage and 12 real Docker tests in
+643.90 seconds. The final worker verifier accepts one complete 28-case receipt.
+No comparison implementation or matching-quality result is claimed by those gates.
+
+Build one private, reproducible report comparing a selected KIMDIS run with
+1–10 selected stored GEMI imports. Keep all occurrences/observations, three fixed
+outcomes, source assertions, contradictions and unknowns. Automatic identity links
+stay zero. No live request, key, migration, dependency, graph, model or schedule
+change is required. The original access, administration and later-product tasks
+remain below; this plan extends the active comparison work without replacing them.
+
+### Dependency order and delivery slices
+
+RC1 shared cohort reader → RC2 typed comparison policy → checkpoint A →
+RC3 bounded registry snapshot → RC4 canonical private report → checkpoint B →
+RC5 operator CLI/crash/mutation checks → checkpoint C → RC6 measured runbook →
+RC7 capability/progress record. Execute sequentially, without agent delegation.
+Task acceptance criteria, commands and roughly 2–5 files per task are in
+`tasks/todo.md`. Human review/merge remains a checkpoint; do not automatically
+merge, deploy or start application changes before this plan is approved.
+
+RC1 leaves the existing assessment working through a reusable connection-owned
+reader. RC2 supplies tested pure comparisons without exposing a command. RC3/RC4
+then deliver the complete SQL-to-private-report library path. RC5 exposes that
+verified path to operators. No placeholder CLI, fake profile or separate normal
+worker-matrix invocation substitutes for a working slice. Combine compatible
+small tasks into a focused PR only while their complete diff remains reviewable;
+leave dependent PRs draft until their parents are merged or safely retargeted.
+
+### Shared snapshot and source boundary
+
+Extract the existing KIMDIS query/validation body into a reader that accepts an
+already configured connection. Preserve `read_cohort`'s public signature, default
+32 MiB guard, coverage semantics, sorting and existing assessment output. Its
+wrapper retains schema validation, connection ownership, repeatable-read/read-only
+transaction and UTC setup. The connection-owned helper must not open, commit or
+close another transaction. Give that new helper an optional stricter input-byte
+budget, defaulting to the current 32 MiB guard; the public wrapper stays unchanged.
+Comparison applies its own complete provenance ordering
+without changing the old assessment format.
+
+The comparison reader owns one connection/transaction and sets its characteristics
+before evidence queries. Preflight both the selected KIMDIS membership and selected
+GEMI metadata/counts/allowlisted scalar contexts in SQL before transferring labels.
+Reserve the registry/context estimate from the 8 MiB budget before the shared
+KIMDIS helper preflights/materializes its part; fetch registry/context labels only
+after the combined bound succeeds. Reuse the membership logic rather than copy
+its eligibility/coverage rules into a second KIMDIS reader.
+Enforce at most the requested 1–10,000-mention budget, 100 registry observations
+and 8 MiB aggregate input; zero KIMDIS occurrences are valid. Do not independently
+read the two sources and combine snapshots afterward. Reuse the existing driver's
+5-second connection, 30-second statement and 5-second lock timeouts.
+
+Reconcile import versions/counts and terminal response/profile references, including
+found versus 404 outcomes. Decode only the approved scalar fields and provenance;
+do not fetch full manifest bodies, whole profiles/activities or archive paths as
+report context. Retrieve procurement source dates from the matching existing
+contract facts. Preserve null/empty values and field pointers; malformed stored
+shapes or missing joins fail with a fixed reason. Do not rehash archives or write
+source, outbox, identity or scheduling tables. Close SQL before publication.
+
+### Comparison, report and publication contracts
+
+Keep new immutable evidence/result types and comparison functions in
+`registry_policy.py`, with no SQL or filesystem dependency. Reuse the existing
+KIMDIS assessment for eligibility. Compare only eligible reported AFM texts;
+preserve ASCII-only trimming, leading zeros, GR/EL distinction, buyer-key
+separation, unknown issuer and unchecked checksum/authority. Candidate agreement
+never accepts an identity. Index eligible registry keys, retaining every selected
+observation and explicit conflicting AFM/registry-number issues.
+
+`registry_cohort.py` materializes the bounded snapshot. `registry_report.py`
+assembles and publishes the complete result through a `compare_run` library entry
+point. Keep registry observations in one shared catalog; occurrences hold bounded
+references. Use complete provenance keys, including observation IDs, for stable
+ordering; selector order and repeated A→B→A versions cannot change replay bytes.
+Include observed coverage and import metadata in the report's inputs, with no
+wall-clock generation field. Keep temporal claims distinct and
+`archive_integrity=not_checked`.
+
+Use `report_format=nima-registry-comparison-report-v1` and
+`policy_version=registry-comparison-v1`. Reuse the current streaming canonical
+encoder's exact 32 MiB ceiling and the private no-clobber/hash-based publisher;
+do not create a second generic artifact framework. Hashes and input provenance
+distinguish this format from existing assessment reports. An interrupted publish
+may leave a complete reusable artifact; replay verifies exact bytes. Partial or
+conflicting files are never accepted or overwritten.
+
+Only after checkpoint B, add the approved `identities compare` interface. Validate
+UUID selectors, duplicate/count limits, projection and numeric bounds without
+echoing invalid source-bearing values. Preserve all other CLI routes. Use only
+environment-supplied `NIMA_DATABASE_URL`; do not inspect a GEMI API key. New
+comparison errors and reused assessment/database/publication errors must map to
+the specified fixed diagnostics and exits 0/1/2/130. Stdout remains IDs, counts,
+statuses and hash; names, AFMs, paths and driver text stay private.
+
+### Verification and release
+
+Use failing focused tests before behavior. Pure tests cover identifier eligibility,
+contradictions, 404s and observation preservation. Real PostgreSQL tests use
+independent connections and synchronization to prove the common snapshot,
+pre-transfer count/byte bounds, exact joins and unchanged evidence/outbox state.
+Synthetic cohorts exercise unknown/empty supplier lists and incomplete projection
+rejection. Report tests cover deterministic bytes and exact canonical output caps.
+
+CLI tests cover fixed outcomes/exits and redaction. Adapt the existing child-only
+publication-boundary interception pattern for actual pre/post-publication SIGKILL;
+add no production test switch or pause hook. Replays must leave one complete
+accepted report and preserve source state. Temporarily mutate one material
+eligibility/provenance guard, prove its regression fails, restore the exact bytes
+and rerun the normal suite. Never commit the mutant or make mutation a product API.
+
+Required commands remain `just check`, `just audit` and the additive
+`just source-worker-check`, with all three hosted jobs on the exact final head.
+Keep the 90% combined coverage floor, pins, timeouts and security checks. The local
+executor currently lacks PostgreSQL and cannot inspect Docker's data filesystem;
+record those setup failures honestly and use supported hosted runners for physical
+evidence. Source calls, external accounts, deployment and live administration are
+outside this plan. GEMI live-profile compatibility and empirical matching quality
+remain separate gates.
+
+### Risks and open questions
+
+| Risk | Planned control |
+|---|---|
+| Refactor changes existing assessment bytes/coverage | Keep the wrapper contract and verify existing reports plus caller-owned snapshot behavior in RC1 |
+| Different source snapshots or incomplete joins | One real read-only transaction, synchronized concurrency tests and exact reconciliation in RC3 |
+| Large text or repeated candidate expansion | SQL preflight for aggregate input, shared observation catalog and exact streaming output cap |
+| Report agreement mistaken for identity/history | Zero automatic links, explicit unknowns/dates, no transitive closure or inferred validity |
+| Secret/source values in CLI failures | Fixed codes, value-free validation and sentinels through actual command failures |
+| Process dies at publication | Real child termination and byte-verified no-clobber replay |
+
+No unresolved technical or credential question blocks the proposed offline build.
+Review this implementation order and its verification checkpoints before RC1.
 
 ## Completed increment: source-worker egress verification
 

@@ -229,9 +229,10 @@ tests and validates one fresh full receipt before CI upload. See the
 [delivery record](verification/source-worker-egress.md) for exact commits/results
 and undeployed public-IP/recovery limits.
 
-The next proposed increment is the
-[offline registry-comparison report](identity/registry-comparison.md), currently
-drafted for review. It compares selected stored assertions while retaining
+The next increment is the
+[offline registry-comparison report](identity/registry-comparison.md), approved
+through #65 with its implementation plan drafted for review. It will compare
+selected stored assertions while retaining
 unresolved identities and contradictory evidence. Reviewed reversible identities
 and a temporal graph follow as separate capabilities; this specification adds
 no implemented graph or matching model.
