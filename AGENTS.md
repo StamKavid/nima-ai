@@ -23,8 +23,9 @@ decisions. The upstream project policy was not copied into this repository.
 - Clarify consequential missing requirements; continue independently on authorized work.
 - Run `just check` and `just audit` before proposing a merge.
 - Review correctness, readability, architecture, security, and performance.
-- Do not merge or deploy without user authorization. Preserve the user-requested
-  private visibility; never publish the project or its source to a public repository.
+- Do not merge or deploy without user authorization. The owner explicitly confirmed
+  public repository visibility on 2026-11-14. Source code and reviewed documentation
+  may be pushed to `StamKavid/nima-ai`; keep evidence, source data and secrets outside Git.
 - Record incomplete work honestly; a local check is not evidence of hosted CI.
 - Use subagents only when the user or a relevant skill explicitly calls for them.
 

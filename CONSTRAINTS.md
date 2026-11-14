@@ -32,13 +32,20 @@ pinned. First-party tools do not execute scripts from the skill bundle.
 
 ## Remote controls
 
-Required visibility: private. Intended GitHub controls: PR-only changes to main, one
-approval, required `quality` check, resolved conversations, and blocked force
-pushes/deletions. Private visibility was independently verified for
-`StamKavid/nima-ai` before the initial bootstrap push. Activation remains blocked: GitHub returned a private-repository Pro requirement
-and integration-administration 403s. The proposed main/dev ruleset is saved in
-.github/rulesets/main-dev.json; it has not been enforced. A workflow
-file alone does not enforce branch protection.
+Repository visibility: public, explicitly confirmed by the owner on 2026-11-14.
+This supersedes the original private-hosting requirement; it changes no data,
+secret-handling or quality requirement. Original source evidence and databases
+remain outside Git.
+
+Intended GitHub controls remain PR-only changes to main/dev, one independent
+approval, required checks, resolved conversations and blocked force pushes/deletions.
+Read-only verification on 2026-11-14 found active ruleset `protect-main` (26812073)
+with an empty branch include list and only deletion/non-fast-forward rules.
+The effective-rules endpoints for main and dev both returned empty lists. Do not
+claim either branch is protected. The proposed full policy remains in
+.github/rulesets/main-dev.json. Earlier settings writes returned integration HTTP
+403; no administration or billing changes are part of this documentation update.
+A workflow file or an active ruleset matching no branches does not enforce protection.
 
 ## Measurements
 
