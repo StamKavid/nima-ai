@@ -5,18 +5,27 @@ import json
 import re
 import tempfile
 import time
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Never
 from uuid import UUID
 
 from nima.egress.fixtures import METRICS, Counters, http_server
-from nima.egress.policy import CaseKind, CaseSpec
+from nima.egress.policy import CASES, CaseKind, CaseSpec, FixturePolicy
+from nima.egress.probe_browser import BROWSER_CASES, BrowserResult
 from nima.egress.probe_browser import FAILURES as BROWSER_FAILURES
 from nima.egress.probe_browser import read_result as read_browser_result
 from nima.egress.probe_http import HTTP_CASES, read_result
-from nima.egress.receipt import CaseEvidence, validate_case
+from nima.egress.receipt import (
+    CaseEvidence,
+    Receipt,
+    RuntimeEvidence,
+    publish_receipt,
+    validate_case,
+)
 from nima.egress.rules import COUNTERS
+from nima.egress.runtime import ProcessState, validate_process
 from nima.egress.stack import FixtureStack, ProbeCommandError
 from nima.egress.stage import HttpStage, publish_stage
 
@@ -148,22 +157,178 @@ def _gateway_running(stack: FixtureStack, identity: str) -> bool:
     return bool(value["running"])
 
 
-def execute_cases(
-    stack: FixtureStack, cases: tuple[CaseSpec, ...] = HTTP_CASES
-) -> tuple[CaseEvidence, ...]:
+def _packet_control(stack: FixtureStack, host: Counters) -> None:
+    controls = _observe(stack, "packet-control")
+    _require(
+        controls["metadata"]["application_requests"] == 1
+        and host.snapshot()["application_requests"] == 1
+        and controls["canary"]["application_requests"] == 4
+        and controls["canary"]["dns_queries"] == 1
+        and controls["canary"]["udp_datagrams"] == 3
+    )
+    host.reset()
+    _observe(stack, "packet-reset")
+
+
+def _zero_delivery(stack: FixtureStack, host: Counters) -> None:
+    packets = _observe(stack, "packet-observe")
+    for counts in (packets["canary"], packets["metadata"], _delivery(host.snapshot())):
+        _require(
+            all(
+                counts[metric] == 0
+                for metric in (
+                    "tcp_accepts",
+                    "application_requests",
+                    "dns_queries",
+                    "udp_datagrams",
+                )
+            )
+        )
+
+
+def _process(value: Any, uid: int, inode: int | None = None) -> ProcessState:
+    _require(type(value) is dict)
+    try:
+        state = ProcessState(**value)
+        validate_process(state, uid=uid)
+    except (TypeError, ValueError):
+        raise RunnerError("runtime_process") from None
+    _require(inode is None or state.network_inode == inode)
+    return state
+
+
+def _runtime(stack: FixtureStack, host: Counters, browsers: list[BrowserResult]) -> RuntimeEvidence:
+    identity = stack.network_identity
+    if identity is None or len(browsers) != len(BROWSER_CASES):
+        raise RunnerError("runtime_observations")
+    inode = identity[1]
+    observer = _object(
+        stack.compose(
+            "run",
+            "--rm",
+            "--no-deps",
+            "observer",
+            "python",
+            "-m",
+            "nima.egress.runtime",
+            "observer",
+        )
+    )
+    gateway = _object(stack.compose("run", "--rm", "--no-deps", "gateway-inspect"))
+    for value, role in ((observer, "observer"), (gateway, "gateway")):
+        _require(
+            set(value) == {"version", "role", "process", "gateway_forwarding_disabled"}
+            and value["version"] == "source-worker-runtime-v1"
+            and value["role"] == role
+        )
+    observed = _process(observer["process"], 10002, inode)
+    gateway_process = _process(gateway["process"], 10002)
+    _require(
+        observer["gateway_forwarding_disabled"] is None
+        and gateway["gateway_forwarding_disabled"] is True
+        and gateway_process.network_inode != inode
+    )
+    _packet_control(stack, host)
+    _observe(stack, "gateway-reset")
+    before = _network(stack)
+    proof = _object(
+        stack.compose(
+            "run",
+            "--rm",
+            "--no-deps",
+            "network-probe",
+            "python",
+            "-m",
+            "nima.egress.probe_network",
+            "evidence",
+        )
+    )
+    _require(
+        set(proof)
+        == {
+            "version",
+            "process",
+            "observer_uid_denied",
+            "parent_net_admin_denied",
+            "controls_unreachable",
+        }
+        and proof["version"] == "source-worker-privileges-v1"
+        and all(
+            proof[name] is True
+            for name in ("observer_uid_denied", "parent_net_admin_denied", "controls_unreachable")
+        )
+    )
+    worker = _process(proof["process"], 10001, inode)
+    after = _network(stack)
+    for name in (
+        "direct_tcp",
+        "host_tcp",
+        "metadata_tcp",
+        "dns_udp",
+        "direct_udp",
+        "quic_udp",
+        "stun_udp",
+    ):
+        _require(after[name] > before[name])
+    _zero_delivery(stack, host)
+    origins = _observe(stack, "gateway-observe")
+    _require(
+        origins["origin"]["application_requests"] == origins["bad"]["application_requests"] == 0
+    )
+    _require(all(browser.process == worker for browser in browsers))
+    stack.verify_topology()
+    return RuntimeEvidence(
+        worker_uid=worker.uid,
+        observer_uid=observed.uid,
+        cap_effective=worker.cap_effective,
+        cap_permitted=worker.cap_permitted,
+        cap_bounding=worker.cap_bounding,
+        no_new_privs=worker.no_new_privs,
+        seccomp=worker.seccomp,
+        ipv6_disabled=True,  # Both readbacks require observed kernel disablement.
+        sandbox_pid=all(browser.sandbox_pid for browser in browsers),
+        sandbox_network=all(browser.sandbox_network for browser in browsers),
+        sandbox_seccomp=all(browser.sandbox_seccomp for browser in browsers),
+        root_readonly=worker.root_readonly
+        and observed.root_readonly
+        and gateway_process.root_readonly,
+        controls_unreachable=proof["controls_unreachable"]
+        and all(browser.controls_unreachable for browser in browsers),
+        observer_uid_denied=proof["observer_uid_denied"],
+        parent_net_admin_denied=proof["parent_net_admin_denied"],
+        external_networks=False,  # Actual topology inspection rejects external attachments.
+        gateway_forwarding_disabled=gateway["gateway_forwarding_disabled"],
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class CaseRun:
+    cases: tuple[CaseEvidence, ...]
+    runtime: RuntimeEvidence | None
+
+
+def execute_cases(stack: FixtureStack, cases: tuple[CaseSpec, ...] = HTTP_CASES) -> CaseRun:
     stack.start()
+    if cases == CASES:
+        stack.verify_topology()
     stack.compose("up", "-d", "--wait", "--no-deps", "metadata")
     host = Counters()
     completed = []
     stopped_id = None
+    down = False
+    browsers = []
+    runtime = None
     with http_server(
         ("172.30.240.1", 18080), host, role="host", context=None, credentials=stack.auth
     ):
         for case in cases:
             stack.remaining()
-            if case.kind == CaseKind.RESTARTED:
-                _require(stopped_id is not None)
+            if down:
+                if stopped_id is None:
+                    raise RunnerError("gateway_state")
+                _require(not _gateway_running(stack, stopped_id))
                 stack.command("start", str(stopped_id))
+                down = False
             gateway_id = stack.compose("ps", "--all", "--quiet", "gateway")
             _require(_gateway_running(stack, gateway_id))
             if case.kind == CaseKind.RESTARTED:
@@ -175,18 +340,7 @@ def execute_cases(
                 == controls["bad"]["application_requests"]
                 == 1
             )
-            controls = _observe(stack, "packet-control")
-            _require(
-                controls["metadata"]["application_requests"] == 1
-                and host.snapshot()["application_requests"] == 1
-            )
-            _require(
-                controls["canary"]["application_requests"] == 4
-                and controls["canary"]["dns_queries"] == 1
-                and controls["canary"]["udp_datagrams"] == 3
-            )
-            host.reset()
-            _observe(stack, "packet-reset")
+            _packet_control(stack, host)
             before_gateway = _observe(stack, "gateway-reset")
             before = _network(stack)
             stopped = case.kind == CaseKind.GATEWAY_OUTAGE
@@ -194,6 +348,7 @@ def execute_cases(
                 stack.command("stop", "--time", "3", gateway_id)
                 _require(not _gateway_running(stack, gateway_id))
                 stopped_id = gateway_id
+                down = True
             browser_case = case.name.startswith("browser_")
             try:
                 raw = stack.compose(
@@ -229,6 +384,7 @@ def execute_cases(
                     and browser.process.network_inode == stack.network_identity[1]
                 )
                 result = browser.client_result
+                browsers.append(browser)
             else:
                 result = read_result(raw.encode(), case.name)
             after = _network(stack)
@@ -306,8 +462,10 @@ def execute_cases(
             )
             validate_case(row)
             completed.append(row)
+        if cases == CASES:
+            runtime = _runtime(stack, host, browsers)
     stack.remaining()
-    return tuple(completed)
+    return CaseRun(tuple(completed), runtime)
 
 
 def run_http(output_dir: Path) -> Path:
@@ -316,7 +474,7 @@ def run_http(output_dir: Path) -> Path:
         started_at = datetime.now(UTC)
         try:
             stack.prepare()
-            cases = execute_cases(stack)
+            cases = execute_cases(stack).cases
         finally:
             stack.cleanup()
         if not stack.cleaned or stack.network_identity is None:
@@ -337,6 +495,33 @@ def run_http(output_dir: Path) -> Path:
     return publish_stage(output_dir, stage)
 
 
+def run_all(output_dir: Path) -> Path:
+    with tempfile.TemporaryDirectory(prefix="nima-egress-") as temporary:
+        stack = FixtureStack(Path(temporary))
+        started_at = datetime.now(UTC)
+        try:
+            stack.prepare()
+            execution = execute_cases(stack, CASES)
+        finally:
+            stack.cleanup()
+        _require(stack.cleaned)
+    _require(0 <= time.monotonic() - stack.started <= FixturePolicy().max_seconds)
+    if execution.runtime is None:
+        raise RunnerError("runtime_observations")
+    policy = FixturePolicy()
+    receipt = Receipt(
+        UUID(stack.run_id),
+        policy.digest,
+        policy.seccomp_sha256,
+        stack.images,
+        started_at,
+        datetime.now(UTC),
+        execution.runtime,
+        execution.cases,
+    )
+    return publish_receipt(output_dir, receipt)
+
+
 class _Parser(argparse.ArgumentParser):
     def error(self, message: str) -> Never:
         raise RunnerError("configuration")
@@ -346,28 +531,38 @@ def main(argv: list[str] | None = None) -> int:
     try:
         parser = _Parser()
         parser.add_argument("--profile", required=True, choices=("fixtures",))
-        parser.add_argument("--stage", required=True, choices=("http",))
+        parser.add_argument("--stage", required=True, choices=("http", "all"))
         parser.add_argument("--output-dir", required=True, type=Path)
         args = parser.parse_args(argv)
     except RunnerError:
         print(json.dumps({"status": "failed", "failure": "configuration"}))
         return 2
     try:
-        file = run_http(args.output_dir)
+        file = run_all(args.output_dir) if args.stage == "all" else run_http(args.output_dir)
     except KeyboardInterrupt:
         print(json.dumps({"status": "failed", "failure": "interrupted"}))
         return 130
     except Exception:
-        print(json.dumps({"status": "failed", "failure": "http_stage"}))
+        print(
+            json.dumps(
+                {
+                    "status": "failed",
+                    "failure": "matrix_stage" if args.stage == "all" else "http_stage",
+                }
+            )
+        )
         return 1
     print(
         json.dumps(
             {
-                "version": "source-worker-http-stage-summary-v1",
+                "version": "source-worker-matrix-summary-v1"
+                if args.stage == "all"
+                else "source-worker-http-stage-summary-v1",
                 "status": "passed",
                 "run_id": file.stem,
                 "http_cases": len(HTTP_CASES),
-                "complete_matrix": False,
+                "browser_cases": len(BROWSER_CASES) if args.stage == "all" else 0,
+                "complete_matrix": args.stage == "all",
                 "investigator_ip_protection_verified": False,
                 "production_ready": False,
             }
