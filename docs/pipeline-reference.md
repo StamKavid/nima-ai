@@ -29,7 +29,7 @@ has already been installed in Nima.
 | Bounded work and backpressure | Explicit windows, per-run limits and Retry-After handling; saved workflow attempt/execution/deadline budgets and a SQL source lease |
 | History and provenance | Raw SHA-256 references, JSON pointers, observation times and separate source dates; A→B→A history preserved |
 | Durable workflow execution | Self-hosted Prefect tasks/deployment, SQL request/dispatch journals and repeat-safe replay; no Inngest runtime |
-| Freshness and scheduling | Explicit fresh runs and safe resume; **no unattended poller or reviewed refresh cursor yet** |
+| Freshness and scheduling | Bounded daily refresh coordinator, immutable cycle/request identity, serialized enable/pause and local Prefect schedules; no live policy activated |
 | Graph and AI evaluation | Planned gated work; no graph store, embeddings, extraction LLM or model evaluation service installed |
 
 Existing data paths:
@@ -73,7 +73,9 @@ See the [approved workflow contract](sources/kimdis-orchestration.md).
 dbt remains a candidate for later SQL analytical models, tests and lineage.
 It complements orchestration and is not installed in this increment.
 
-Scheduling follows that verified workflow. KIMDIS documents daily refresh, so
+The bounded daily refresh increment extends that workflow with durable policy,
+cycle and request state plus local Prefect schedules; no live policy is activated.
+KIMDIS documents daily refresh, so
 five-minute RSS polling is not an appropriate default. Verify each provider's
 date/update semantics, late revisions and backfill needs; do not assume its API
 supports the reference's ETag/Last-Modified behavior. No source-wide freshness

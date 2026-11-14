@@ -207,20 +207,25 @@ GNN experiments need to demonstrate additional value before adoption.
 
 ## Current state and next milestone
 
-As of merged PRs #22–#26 (`e80e23f`), the CLI implements bounded KIMDIS contract
+As of 2026-11-14, main `1c9ac26` implements bounded KIMDIS contract
 collection, raw evidence archives, typed normalization, PostgreSQL versions and
 observations, safe resume, reported-participation projection and offline identity
 assessment. GEMI has a bounded archive collector and offline SQL import; accepted
-live profiles still require the personal-key pilot. The merged tree matches
-tested `749b9ee`: 435 tests and hosted quality/Compose checks passed there.
+live profiles still require the personal-key pilot. Manual Publicity evidence
+intake and the controlled-worker boundary are also implemented; no live Publicity
+scraper or deployed investigator IP protection is established.
 
-The merged increment adds operator-started self-hosted Prefect workflows over
-KIMDIS collection/resume and run-scoped projection. PostgreSQL stores immutable
+Self-hosted Prefect supports KIMDIS collection/resume, run-scoped projection and
+bounded daily refresh schedules. No live refresh policy has been activated.
+PostgreSQL stores immutable
 request identity, bounded retry budgets and dispatch history as well as evidence.
 The separate local Prefect control store contains workflow state, not source bodies.
-There is no recurring source schedule, Memgraph instance, model or investigator UI.
+There is no graph store, evaluated model or investigator UI.
 
-Scheduling/refresh policy and subsequent registry comparison remain explicit
-following increments. See the [workflow contract](sources/kimdis-orchestration.md),
+The current worker increment has passed the full 28-case matrix and actual
+packet-rule mutation/restoration test. E10's remaining failure experiments and
+E11–E12 integration/review follow before deployment validation. Registry comparison,
+reviewed identities and a temporal graph are the next product capabilities.
+See the [workflow contract](sources/kimdis-orchestration.md),
 [pipeline/reference mapping](pipeline-reference.md) and the
 [capability progress estimate](progress.md).
