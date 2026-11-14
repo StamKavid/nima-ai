@@ -1,12 +1,21 @@
 # Delivery plan
 
-## Current increment: source-worker egress verification
+## Next increment: offline registry comparison
 
-Status: **implementation approved**, 2026-11-12, by the user's “Continue”. The user approved
-`docs/sources/source-worker-egress.md`. This plan extends that same ingestion work;
-all previous plans and pending access/identity/administration tasks remain below.
-Execute the reviewed plan and its task acceptance criteria. Keep source collection
-and production deployment disabled throughout this fixture-only increment.
+Status: **specification drafted for review**, 2026-11-14. The proposed scope is in
+`docs/identity/registry-comparison.md`, supplementing approved entity resolution.
+It is a bounded offline report over selected KIMDIS/GEMI SQL evidence. It needs
+no live key, migration, new dependency, accepted identity, graph edge or model.
+Implementation planning/task breakdown follow specification approval in a later
+turn. The previous unpublished draft is superseded by this concrete review copy;
+historical plans and pending access/administration tasks remain below.
+
+## Completed increment: source-worker egress verification
+
+The user approved implementation on 2026-11-12 by “Continue”, following
+`docs/sources/source-worker-egress.md`. E1–E12 are merged through PR #64 at
+`127b3b8`. Source collection and deployment stayed disabled throughout this
+fixture-only increment. The implementation and measured checkpoint history follow.
 
 Implementation progress: E1–E3 and checkpoint A passed at `98fa958` in
 [hosted run 43267775558](https://github.com/StamKavid/nima-ai/actions/runs/43267775558)
@@ -91,8 +100,11 @@ and matching proposed protection context. Candidate `4fe920d` passes all three
 jobs in run 43625798326: 987 tests/91.58% coverage and 12 real Docker tests in
 616.42 seconds. Downloaded artifact 14126851164 matches GitHub's ZIP digest and
 contains exactly one valid canonical 28-case JSON receipt, with deployment/privacy
-flags false. E12's runbook and five-axis review are prepared; the documentation
-candidate's hosted checks and human merge remain delivery gates. See
+flags false. E12's runbook and five-axis review were merged in #64 at `127b3b8`.
+Its exact candidate `39fd05b` passes all three jobs in run 43627192150:
+987 quality tests/91.58% coverage and 12 real Docker tests/624.58 seconds.
+The final verifier accepted one complete 28-case receipt before successful upload.
+See
 `docs/verification/source-worker-egress.md` for commands, evidence and limits;
 older stage-specific reports retain their historical results.
 

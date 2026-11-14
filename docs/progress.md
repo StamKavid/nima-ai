@@ -1,10 +1,14 @@
 # Capability progress: 2026-11-14
 
 Planning estimate for CAPABILITIES.md and docs/architecture.md through main
-`1c9ac26`: bounded daily refresh, manual evidence intake, the full controlled-worker
-matrix and the real packet-rule mutation experiment are merged. Candidate
-`32244f7` passed all three jobs in run 43615164185: 967 tests, 91.47% coverage
-and seven real Docker tests/522.18 seconds. Coverage is not product completion.
+`127b3b8`: bounded daily refresh, manual evidence intake and the complete E1–E12
+controlled-worker delivery are merged. Final delivery candidate `39fd05b` passed
+all three jobs in run 43627192150: 987 tests, 91.58% coverage and 12 real Docker
+tests/624.58 seconds. The complete recipe validates one 28-case receipt before
+upload; its implementation artifact was also downloaded and inspected. See the
+[delivery record](verification/source-worker-egress.md). Coverage is not product
+completion. The registry-comparison specification is now drafted for review;
+it is not an implemented matching capability.
 
 ## Estimate and method
 
@@ -34,6 +38,8 @@ Ingestion credit rises from 40% to 55% for bounded daily refresh/coordinator sta
 local Prefect schedules, manual evidence intake and verified closed-worker routing.
 This is a judgment about delivered capability, not measured effort. Infrastructure
 work earns credit inside its existing capability; every PR is not another product stage.
+The E12 delivery record completes this worker increment within that existing
+credit. Scope weights and capability estimates remain unchanged.
 
 ## Evidence for partial credit
 
@@ -62,23 +68,24 @@ investigator workspace yet. Election-accountability work is outside this baselin
 
 ## Immediate direction
 
-1. Finish E10's real deadline/interruption, missing-capability and redaction
-   experiments, then E11's CI interface and E12's delivery review/runbook.
-2. Validate GEMI access when the key arrives; develop offline registry comparison
-   and reviewed, reversible identities without waiting for credentials.
+1. Review the [offline registry-comparison specification](identity/registry-comparison.md),
+   then plan and implement its bounded evidence report after approval.
+2. Add reviewed, reversible identity decisions with explicit supporting/conflicting evidence.
 3. Build reproducible temporal graph projection with dated, inspectable evidence.
 4. Add eligible company/sector statistics and explainable rules, then evaluated ML.
 5. Add evidence retrieval/cited AI and the investigator workspace.
 
-No later component is blocked from design or synthetic testing by GEMI access;
-live source compatibility and empirical evaluation still need real evidence.
+The GEMI personal-key pilot remains separate: validate live profiles when access
+arrives. Offline comparison can be built and tested against synthetic imports
+without credentials; live compatibility and empirical evaluation need real evidence.
 
 E9/checkpoint C passed the full 28-case HTTPX/Chromium matrix with independent
-controls and actual runtime evidence. E10's first merged experiment proves real
-forbidden delivery after a narrow packet-rule mutation, rejection by both policy
-validation and the browser probe, exact restoration and a fresh full-matrix replay.
-Remaining worker-failure checks and final integration/review are still pending.
-Deployed IP protection and production readiness remain unverified.
+controls and actual runtime evidence. E10 additionally proves forbidden delivery
+after a narrow packet-rule mutation, rejection, exact restoration and a fresh
+full-matrix replay, plus real worker deadline, missing-capability and controller
+signal failures with redaction/owned reclamation. E11/E12's complete recipe,
+success-only validated receipt upload and measured runbook are merged. Deployed
+IP protection and production readiness remain unverified.
 
 The first product milestone is a company → procurement → buyer investigation
 with dated corporate links, coverage limits and evidence export. Graph, ML and AI
