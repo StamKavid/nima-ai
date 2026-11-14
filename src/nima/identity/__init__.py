@@ -12,7 +12,17 @@ MAX_REGISTRY_OBSERVATIONS = 100
 class ComparisonError(Exception):
     """Fixed comparison failure; never include source assertions or selectors."""
 
-    def __init__(self, reason: Literal["registry_observation", "comparison_limit"]) -> None:
+    def __init__(
+        self,
+        reason: Literal[
+            "registry_observation",
+            "comparison_limit",
+            "registry_shape",
+            "registry_import_unavailable",
+            "registry_version",
+            "registry_incomplete",
+        ],
+    ) -> None:
         self.reason = reason
         super().__init__(reason)
 
