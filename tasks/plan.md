@@ -50,13 +50,29 @@ controller and private HTTP-stage reports: delivery head `e866c97` passed all
 three jobs in run 43514084957 with 884 tests and 91.37% coverage. Four real Docker
 tests passed in 149.92 seconds; the fourth executes the application runner,
 reconciles all 18 HTTP cases and reads its report after verified owned cleanup.
-PRs #47–#50 separate process bounds, shared fixture lifecycle, report semantics
-and runner integration; all target main and require human merges in that order.
-See `docs/verification/source-worker-runner.md`. Final-head checks remain required
-after the delivery's documentation and runtime-accounting review. All ten E9
-browser cases, checkpoint C and deployed IP protection remain pending. The HTTP
-report explicitly marks the full matrix incomplete; the full receipt validator
-still requires all 28 cases and actual browser runtime evidence.
+The user merged #47–#50 into main at `84ae48d`. Final E8 head `ec9bd87` passed
+all three jobs in runs 43515242251/43515327115: 884 tests, 91.37% coverage and
+four real Docker tests. See `docs/verification/source-worker-runner.md`.
+
+The user merged E9 PRs #51–#53 into main `c02ef94`: ten Chromium cases, independently
+observed runtime/topology and the combined 28-case runner. A small additional
+runtime slice reads actual process/forwarding state and privilege probe results;
+it does not infer receipt fields from Compose declarations. The initial real
+browser suite reached forced QUIC and reported `ERR_QUIC_HANDSHAKE_FAILED`;
+recognition of that client outcome still requires the positive independent
+QUIC control, named kernel drop increase and zero delivery. STUN now waits for
+asynchronous ICE gathering. The real matrix passes those transports and reaches
+browser gateway outage, where a timeout needs classification as a network
+failure while actual stopped-state/zero-delivery checks remain required. That
+correction is published in #54. The owner explicitly confirmed public repository
+visibility on 2026-11-14; that supersedes the original private-hosting requirement.
+Evidence archives, source data, credentials and databases remain outside Git.
+Candidate `c6e9c39` in #54 passes all three jobs in runs 43613463647/43613476257:
+967 tests, 91.55% coverage and six real Docker tests in 334.31 seconds, including
+the complete 28-case run and actual runtime receipt. This passes checkpoint C;
+the correction still requires a human merge. The full receipt validator is
+unchanged; it still requires all 28 cases and actual runtime evidence. See
+`docs/verification/source-worker-browser.md`. Deployed IP protection is unverified.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
 not start because this executor lacks Docker storage. Hosted full tests used
 real PostgreSQL. Keep that validation limitation visible at delivery.
@@ -274,7 +290,7 @@ SQL write, identity acceptance or model output is involved.
 E1 dependencies → E2 pins/helper → E3 sandbox prerequisite → checkpoint A →
 E4 policy/receipts → E5 controlled fixtures → E6 gateway TLS/auth → checkpoint B →
 E7 namespace enforcement → E8 HTTPX cases/runner → E9 browser cases → checkpoint C →
-E10 failure/mutation checks → E11 complete CI gates → E12 runbook/private PRs.
+E10 failure/mutation checks → E11 complete CI gates → E12 runbook/review PRs.
 
 Task acceptance criteria and roughly 3–5 files per task are in `tasks/todo.md`.
 Use focused failing tests before behaviour, small commits, sequential execution
@@ -287,9 +303,10 @@ never claims deployed IP protection. Keep quality and orchestration-compose jobs
 unchanged in purpose. Use a 25-minute job bound for builds, the 10-minute runtime
 suite and cleanup; no live source secrets. Final exact-head local/hosted evidence,
 clean audit and the 90% coverage floor are required before marking delivery ready.
-Add the new check to the proposed main/dev ruleset payload. The existing GitHub
-Pro/integration-administration block still prevents claiming server enforcement;
-this work updates the payload/instructions, not account settings or billing.
+Add the new check to the proposed main/dev ruleset payload. The repository is now
+public, but the current active ruleset targets no branches and effective rules for
+main/dev are empty. This work updates the payload/instructions, not account
+settings or billing; public visibility does not establish server enforcement.
 Split large delivery diffs into dependent PRs and leave dependents draft until
 their parents are merged/retargeted; human merges only.
 
