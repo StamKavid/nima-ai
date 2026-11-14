@@ -549,6 +549,18 @@ tracked above. The following test commands describe future implementation checks
 
 ### E9: Exercise Chromium subresources and alternate transports
 
+- [x] Implement ten fixed sandboxed Chromium cases with strict private results.
+- [x] Observe process/kernel state, forwarding, privileges and actual network attachments.
+- [x] Combine all 28 cases and publish the strict full receipt only after cleanup.
+- [ ] Verify final-head hosted browser and combined runtime matrix.
+  - #51 probes, #52 observed runtime/topology and #53 full matrix are merged at
+    `c02ef94`. QUIC/STUN now pass; the browser gateway-outage timeout correction
+    is prepared locally. Hosted acceptance is pending; publication is paused
+    while GitHub reports public visibility (restore-private attempt: HTTP 403).
+    See docs/verification/source-worker-browser.md.
+  - The runtime slice adds runtime.py, its focused tests and a cap-free gateway
+    inspection service so receipt fields come from observations, not declarations.
+
 - Acceptance: full Chromium uses the private NSS trust database and explicit
   sandbox; page/scripts/images/XHR/fetch use the gateway. DNS, UDP/QUIC/STUN and
   proxy-configuration changes cannot escape. Worker never mounts observer controls.

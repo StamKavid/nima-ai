@@ -63,20 +63,21 @@ Manual acquisition must use a remote browser or a separately verified protected
 connection. These offline commands do not deploy or verify that infrastructure.
 No live Publicity scraper or automatic API fallback is enabled.
 
-## Verify the HTTP fixture boundary
+## Verify the controlled fixture boundary
 
-The [bounded HTTP fixture runner](docs/verification/source-worker-runner.md)
-executes 18 synthetic egress cases with independent controls and owned cleanup:
+The [complete fixture runner](docs/verification/source-worker-browser.md)
+executes 28 HTTPX/Chromium egress cases with independent controls, observed
+runtime state and owned cleanup:
 
 ```bash
 uv run --frozen python -m nima.egress.runner \
-  --profile fixtures --stage http --output-dir data/source-worker/http
+  --profile fixtures --stage all --output-dir data/source-worker/matrix
 ```
 
 It requires the reviewed prebuilt fixture images, Linux/amd64, a local Docker
-daemon and conflict-free test subnets. Its private HTTP-stage report explicitly
-lists the ten pending browser cases. Full isolation acceptance and deployed
-investigator IP protection remain unverified.
+daemon and conflict-free test subnets. The separate `--stage http` interface
+publishes an explicitly incomplete 18-case report. Hosted complete-matrix
+acceptance is pending; deployed investigator IP protection remains unverified.
 
 ## Collect a bounded KIMDIS window
 
