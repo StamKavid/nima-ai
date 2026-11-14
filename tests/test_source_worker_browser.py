@@ -164,7 +164,6 @@ def test_unrelated_browser_failures_do_not_count_as_expected_denial(case: str, e
 @pytest.mark.parametrize(
     "marker,code",
     [
-        ("ERR_QUIC_HANDSHAKE_FAILED", "browser_quic_handshake"),
         ("ERR_QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED", "browser_quic_disabled"),
     ],
 )
@@ -172,6 +171,15 @@ def test_quic_diagnostic_classification_never_exposes_driver_text(marker: str, c
     with pytest.raises(probe_browser.BrowserProbeError, match=code) as error:
         probe_browser._failure("browser_quic", BrowserError(marker + " private-sentinel"))
     assert "private-sentinel" not in str(error.value)
+
+
+def test_observed_quic_handshake_failure_is_only_a_client_result() -> None:
+    assert (
+        probe_browser._failure(
+            "browser_quic", BrowserError("net::ERR_QUIC_HANDSHAKE_FAILED private-sentinel")
+        )
+        == ClientResult.NETWORK_FAILURE
+    )
 
 
 @pytest.mark.parametrize("fault", ["none", "configuration", "driver", "interrupt"])

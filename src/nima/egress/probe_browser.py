@@ -46,7 +46,6 @@ FAILURES = frozenset(
         "package_version",
         "resolver",
         "browser_probe",
-        "browser_quic_handshake",
         "browser_quic_disabled",
     }
 )
@@ -69,10 +68,11 @@ class BrowserResult:
 
 def _failure(case: str, error: BrowserError) -> ClientResult:
     if case == "browser_quic":
-        for marker, code in (
-            ("ERR_QUIC_HANDSHAKE_FAILED", "browser_quic_handshake"),
-            ("ERR_QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED", "browser_quic_disabled"),
-        ):
+        if "ERR_QUIC_HANDSHAKE_FAILED" in str(error):
+            # Pinned Chromium reports this when the fixture's QUIC packets drop.
+            # The host independently requires a positive quic_udp drop delta.
+            return ClientResult.NETWORK_FAILURE
+        for marker, code in (("ERR_QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED", "browser_quic_disabled"),):
             if marker in str(error):
                 raise BrowserProbeError(code)
     if case in {"browser_invalid_auth", "browser_redirect_host"}:

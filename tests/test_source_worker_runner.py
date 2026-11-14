@@ -76,9 +76,7 @@ class FixtureDriver:
             return ""
         if "worker" in args:
             if self.fault.startswith("probe_"):
-                code = (
-                    "browser_quic_handshake" if self.fault == "probe_known" else "private-sentinel"
-                )
+                code = "browser_outcome" if self.fault == "probe_known" else "private-sentinel"
                 raise ProbeCommandError(
                     CommandResult(
                         1, json.dumps({"status": "failed", "failure": code}), "private-sentinel"
@@ -272,7 +270,7 @@ def test_probe_failures_expose_only_allowlisted_codes(
     with pytest.raises(runner.RunnerError) as error:
         runner.run_http(tmp_path / "reports")
     assert "private-sentinel" not in str(error.value)
-    assert ("browser_quic_handshake" in str(error.value)) == (fault == "probe_known")
+    assert ("browser_outcome" in str(error.value)) == (fault == "probe_known")
     assert FixtureDriver.instances[-1].cleaned
 
 
