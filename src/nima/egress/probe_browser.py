@@ -36,6 +36,19 @@ STUN = """async () => {
   await pc.setLocalDescription(await pc.createOffer());
   return pc.iceGatheringState;
 }"""
+FAILURES = frozenset(
+    {
+        "browser_outcome",
+        "browser_body",
+        "unexpected_delivery",
+        "stun_not_started",
+        "browser_version",
+        "package_version",
+        "resolver",
+        "browser_probe",
+        "browser_quic_disabled",
+    }
+)
 
 
 class BrowserProbeError(ValueError):
@@ -54,6 +67,14 @@ class BrowserResult:
 
 
 def _failure(case: str, error: BrowserError) -> ClientResult:
+    if case == "browser_quic":
+        if "ERR_QUIC_HANDSHAKE_FAILED" in str(error):
+            # Pinned Chromium reports this when the fixture's QUIC packets drop.
+            # The host independently requires a positive quic_udp drop delta.
+            return ClientResult.NETWORK_FAILURE
+        for marker, code in (("ERR_QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED", "browser_quic_disabled"),):
+            if marker in str(error):
+                raise BrowserProbeError(code)
     if case in {"browser_invalid_auth", "browser_redirect_host"}:
         if any(
             marker in str(error)
@@ -254,8 +275,14 @@ def main(argv: list[str] | None = None) -> int:
     except KeyboardInterrupt:
         report("failed", "interrupted")
         return 130
-    except Exception:
-        report("failed", "browser_probe")
+    except Exception as error:
+        reason = str(error)
+        report(
+            "failed",
+            reason
+            if isinstance(error, BrowserProbeError) and reason in FAILURES
+            else "browser_probe",
+        )
         return 1
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)

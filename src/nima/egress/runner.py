@@ -12,11 +12,12 @@ from uuid import UUID
 
 from nima.egress.fixtures import METRICS, Counters, http_server
 from nima.egress.policy import CaseKind, CaseSpec
+from nima.egress.probe_browser import FAILURES as BROWSER_FAILURES
 from nima.egress.probe_browser import read_result as read_browser_result
 from nima.egress.probe_http import HTTP_CASES, read_result
 from nima.egress.receipt import CaseEvidence, validate_case
 from nima.egress.rules import COUNTERS
-from nima.egress.stack import FixtureStack
+from nima.egress.stack import FixtureStack, ProbeCommandError
 from nima.egress.stage import HttpStage, publish_stage
 
 DROPS = {
@@ -206,6 +207,19 @@ def execute_cases(
                     case.name,
                     exact=True,
                 )
+            except ProbeCommandError as error:
+                code = ""
+                try:
+                    failure = _object(error.result.stdout)
+                    if (
+                        failure.get("status") == "failed"
+                        and type(failure.get("failure")) is str
+                        and failure.get("failure") in BROWSER_FAILURES
+                    ):
+                        code = "_" + failure["failure"]
+                except ValueError:
+                    pass
+                raise RunnerError("case_" + case.name + code) from None
             except RuntimeError:
                 raise RunnerError("case_" + case.name) from None
             if browser_case:

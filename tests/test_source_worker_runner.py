@@ -10,11 +10,13 @@ from uuid import uuid4
 import pytest
 
 from nima.egress import runner
+from nima.egress.commands import CommandResult
 from nima.egress.fixtures import Counters
 from nima.egress.policy import CaseKind
 from nima.egress.probe_http import HTTP_CASES, encode_result
 from nima.egress.receipt import ClientResult
 from nima.egress.rules import COUNTERS
+from nima.egress.stack import ProbeCommandError
 from nima.egress.stage import read_stage
 
 
@@ -73,6 +75,13 @@ class FixtureDriver:
         if args[-1] == "metadata":
             return ""
         if "worker" in args:
+            if self.fault.startswith("probe_"):
+                code = "browser_outcome" if self.fault == "probe_known" else "private-sentinel"
+                raise ProbeCommandError(
+                    CommandResult(
+                        1, json.dumps({"status": "failed", "failure": code}), "private-sentinel"
+                    )
+                )
             if self.fault == "interrupt":
                 raise KeyboardInterrupt
             self.case = next(case for case in HTTP_CASES if case.name == args[-1])
@@ -251,6 +260,18 @@ def test_cli_reports_only_the_http_stage(
 def test_invalid_observer_documents_fail_closed(raw: str) -> None:
     with pytest.raises(runner.RunnerError):
         runner._object(raw)
+
+
+@pytest.mark.parametrize("fault", ["probe_known", "probe_private"])
+def test_probe_failures_expose_only_allowlisted_codes(
+    tmp_path: Path, fixture_driver: None, fault: str
+) -> None:
+    FixtureDriver.fault = fault
+    with pytest.raises(runner.RunnerError) as error:
+        runner.run_http(tmp_path / "reports")
+    assert "private-sentinel" not in str(error.value)
+    assert ("browser_outcome" in str(error.value)) == (fault == "probe_known")
+    assert FixtureDriver.instances[-1].cleaned
 
 
 @pytest.mark.parametrize("value", [True, -1, 0.5, 1000001])

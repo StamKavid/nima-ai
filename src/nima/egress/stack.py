@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from nima.egress.commands import capture
+from nima.egress.commands import CommandResult, capture
 from nima.egress.policy import FixturePolicy
 from nima.egress.preflight import check_host
 from nima.egress.seccomp import build_profile
@@ -52,6 +52,14 @@ SERVICES = {
 
 class StackError(RuntimeError):
     """Fixed codes; never include Docker output or private fixture configuration."""
+
+
+class ProbeCommandError(StackError):
+    """Private captured output for fixed-code classification, never exception text."""
+
+    def __init__(self, result: CommandResult) -> None:
+        super().__init__("fixture_command")
+        self.result = result
 
 
 def executable(name: str) -> str:
@@ -133,6 +141,8 @@ class FixtureStack:
             timeout=min(timeout, self.remaining()),
         )
         if result.returncode:
+            if exact:
+                raise ProbeCommandError(result)
             raise StackError("fixture_command")
         return result.stdout if exact else result.stdout.strip()
 
