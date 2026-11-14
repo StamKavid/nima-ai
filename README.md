@@ -76,8 +76,9 @@ uv run --frozen python -m nima.egress.runner \
 
 It requires the reviewed prebuilt fixture images, Linux/amd64, a local Docker
 daemon and conflict-free test subnets. The separate `--stage http` interface
-publishes an explicitly incomplete 18-case report. Hosted complete-matrix
-acceptance is pending; deployed investigator IP protection remains unverified.
+publishes an explicitly incomplete 18-case report. The complete controlled-fixture
+matrix passes the documented hosted checks; deployed investigator IP protection
+remains unverified.
 
 ## Collect a bounded KIMDIS window
 

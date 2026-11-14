@@ -2,8 +2,9 @@
 
 This is E9 and checkpoint C of the approved source-worker egress plan. The
 implementation extends the [bounded HTTP runner](source-worker-runner.md) with
-ten sandboxed Chromium cases and a combined 28-case receipt. Hosted verification
-is pending; implementation alone does not establish acceptance. There is no live
+ten sandboxed Chromium cases and a combined 28-case receipt. Candidate `c6e9c39`
+in PR #54 passes hosted acceptance; its correction still requires human merge.
+There is no live
 source profile, Internet-egress measurement or deployed investigator IP protection.
 
 ## Commands and prerequisites
@@ -101,14 +102,27 @@ passed QUIC/STUN and reached browser gateway outage, where a connection timeout
 was rejected by an overly narrow client classifier. Run 43570012078 therefore
 failed two of six Docker tests; checkpoint C is not complete.
 
-The outage correction is prepared locally. A stopped container can leave
+The outage correction is published in #54. A stopped container can leave
 unanswered address resolution instead of immediately refusing TCP. Recognized
 connection timeouts are only client outcomes; actual stopped-container state,
 healthy preceding controls and zero independent delivery remain mandatory.
 All 391 focused source-worker tests pass, including the timeout regressions and
 a caught/restored classifier mutation. Lint, strict types, build and security
 pass. The local full check has 836 passing tests and 131 PostgreSQL setup errors;
-it is not a passing full gate. Hosted verification of the correction is pending.
+it is not a passing full gate.
+
+Candidate `c6e9c393246820ee8a1638d11c374d420a75c84f` passes all three jobs in
+[push run 43613463647](https://github.com/StamKavid/nima-ai/actions/runs/43613463647)
+and [PR run 43613476257](https://github.com/StamKavid/nima-ai/actions/runs/43613476257).
+Hosted quality supplies real PostgreSQL: 967 tests, 91.55% combined coverage,
+successful build/security and no known dependency advisories. All six real Docker
+tests pass in 334.31 seconds, including the full 28-case matrix and strict runtime
+receipt after cleanup. This passes checkpoint C for controlled fixtures.
+
+The owner explicitly confirmed public repository hosting on 2026-11-14. This
+supersedes the old private-hosting requirement; evidence, credentials and databases
+remain outside Git. Current branch-protection observations and the effective-rules
+gap are documented in [repository settings](../repository-settings.md).
 
 E10 interruption/real packet-guard mutation, E11 complete CI recipe/protection
 payload and E12 final delivery review remain subsequent tasks. No dependencies,

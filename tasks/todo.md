@@ -552,11 +552,13 @@ tracked above. The following test commands describe future implementation checks
 - [x] Implement ten fixed sandboxed Chromium cases with strict private results.
 - [x] Observe process/kernel state, forwarding, privileges and actual network attachments.
 - [x] Combine all 28 cases and publish the strict full receipt only after cleanup.
-- [ ] Verify final-head hosted browser and combined runtime matrix.
+- [x] Verify final-head hosted browser and combined runtime matrix.
   - #51 probes, #52 observed runtime/topology and #53 full matrix are merged at
     `c02ef94`. QUIC/STUN now pass; the browser gateway-outage timeout correction
-    is prepared locally. Hosted acceptance is pending; publication is paused
-    while GitHub reports public visibility (restore-private attempt: HTTP 403).
+    is verified in #54 at `c6e9c39`: runs 43613463647/43613476257 pass all three
+    jobs, 967 tests/91.55% coverage and six real Docker tests/334.31 seconds.
+    The correction requires a human merge. The owner explicitly confirmed public
+    hosting on 2026-11-14; private evidence handling is unchanged.
     See docs/verification/source-worker-browser.md.
   - The runtime slice adds runtime.py, its focused tests and a cap-free gateway
     inspection service so receipt fields come from observations, not declarations.
@@ -573,10 +575,22 @@ tracked above. The following test commands describe future implementation checks
 
 ### Checkpoint C: Complete named acceptance matrix
 
-- [ ] All required HTTPX/browser cases and controls reconcile within budgets.
-- [ ] Receipt distinguishes observed fixture isolation from undeployed IP protection.
+- [x] All required HTTPX/browser cases and controls reconcile within budgets.
+- [x] Receipt distinguishes observed fixture isolation from undeployed IP protection.
 
 ### E10: Prove failure, redaction and mutation behaviour
+
+- [ ] Run missing-capability and worker deadline failures on actual fixtures;
+  require nonzero outcomes, no accepted receipt and scoped resource cleanup.
+- [ ] Terminate an actual controller/worker process while work is active;
+  prove no success receipt, then reclaim only independently verified run-owned
+  resources. A killed controller cannot perform its own finally block.
+- [ ] Mutate one narrow packet guard inside the disposable worker namespace;
+  independently observe forbidden delivery and require the negative case to fail.
+  Restore the exact owned change in finally, verify the original policy/namespace,
+  destroy the fixtures and rerun the normal complete matrix.
+- [ ] Verify runtime-generated credential sentinels stay out of diagnostics;
+  preserve the full case/runtime validator and all isolation/TLS/sandbox controls.
 
 - Acceptance: stopped gateway, missing capabilities, absent cases, interrupted/
   timed-out controller or invalid ownership never create a successful receipt or
@@ -604,7 +618,7 @@ tracked above. The following test commands describe future implementation checks
 ### E12: Review and publish the measured delivery
 
 - Acceptance: runbook and evidence state actual results/prerequisites and limits.
-  Small dependent private PRs use StamKavid attribution; no dependent merge to an
+  Small dependent PRs use StamKavid attribution; no dependent merge to an
   obsolete base, automatic merge, source request, purchase or deployment.
 - Verify: five-axis review, final exact-head checks and public-IP/privacy flags
   remain false in fixture receipts. Human review/merge is the final delivery gate.

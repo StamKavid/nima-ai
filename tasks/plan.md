@@ -64,9 +64,13 @@ QUIC control, named kernel drop increase and zero delivery. STUN now waits for
 asynchronous ICE gathering. The real matrix passes those transports and reaches
 browser gateway outage, where a timeout needs classification as a network
 failure while actual stopped-state/zero-delivery checks remain required. That
-correction is prepared locally; publication is paused because GitHub now reports
-public visibility and restoring private returned integration HTTP 403. Hosted
-acceptance and checkpoint C remain pending. The full receipt validator is
+correction is published in #54. The owner explicitly confirmed public repository
+visibility on 2026-11-14; that supersedes the original private-hosting requirement.
+Evidence archives, source data, credentials and databases remain outside Git.
+Candidate `c6e9c39` in #54 passes all three jobs in runs 43613463647/43613476257:
+967 tests, 91.55% coverage and six real Docker tests in 334.31 seconds, including
+the complete 28-case run and actual runtime receipt. This passes checkpoint C;
+the correction still requires a human merge. The full receipt validator is
 unchanged; it still requires all 28 cases and actual runtime evidence. See
 `docs/verification/source-worker-browser.md`. Deployed IP protection is unverified.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
@@ -286,7 +290,7 @@ SQL write, identity acceptance or model output is involved.
 E1 dependencies → E2 pins/helper → E3 sandbox prerequisite → checkpoint A →
 E4 policy/receipts → E5 controlled fixtures → E6 gateway TLS/auth → checkpoint B →
 E7 namespace enforcement → E8 HTTPX cases/runner → E9 browser cases → checkpoint C →
-E10 failure/mutation checks → E11 complete CI gates → E12 runbook/private PRs.
+E10 failure/mutation checks → E11 complete CI gates → E12 runbook/review PRs.
 
 Task acceptance criteria and roughly 3–5 files per task are in `tasks/todo.md`.
 Use focused failing tests before behaviour, small commits, sequential execution
@@ -299,9 +303,10 @@ never claims deployed IP protection. Keep quality and orchestration-compose jobs
 unchanged in purpose. Use a 25-minute job bound for builds, the 10-minute runtime
 suite and cleanup; no live source secrets. Final exact-head local/hosted evidence,
 clean audit and the 90% coverage floor are required before marking delivery ready.
-Add the new check to the proposed main/dev ruleset payload. The existing GitHub
-Pro/integration-administration block still prevents claiming server enforcement;
-this work updates the payload/instructions, not account settings or billing.
+Add the new check to the proposed main/dev ruleset payload. The repository is now
+public, but the current active ruleset targets no branches and effective rules for
+main/dev are empty. This work updates the payload/instructions, not account
+settings or billing; public visibility does not establish server enforcement.
 Split large delivery diffs into dependent PRs and leave dependents draft until
 their parents are merged/retargeted; human merges only.
 
