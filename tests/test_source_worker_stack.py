@@ -83,6 +83,61 @@ def controller(
     return control, daemon
 
 
+@pytest.mark.parametrize("fault", ["", "external", "owner", "attachment", "network_id", "stopped"])
+def test_runtime_topology_requires_owned_internal_networks_and_exact_attachments(
+    controller: tuple[stack.FixtureStack, Daemon], monkeypatch: pytest.MonkeyPatch, fault: str
+) -> None:
+    control, _ = controller
+    front, back = control.project + "_front", control.project + "_back"
+
+    def command(*args: str) -> str:
+        if args[:2] == ("network", "ls"):
+            return front + "\n" + back
+        if args[:2] == ("network", "inspect"):
+            return json.dumps(
+                {
+                    "name": args[2],
+                    "internal": fault != "external",
+                    "run": "foreign" if fault == "owner" else control.run_id,
+                    "id": ("a" if args[2] == front else "b") * 64,
+                }
+            )
+        role = args[1]
+        names = (
+            (front, back)
+            if role == "gateway"
+            else (back,)
+            if role in {"origin", "bad"}
+            else (front,)
+        )
+        if fault == "attachment":
+            names = (*names, "external")
+        return json.dumps(
+            {
+                "role": role,
+                "run": control.run_id,
+                "running": fault != "stopped",
+                "networks": {
+                    name: {
+                        "NetworkID": (
+                            "c" if fault == "network_id" else "a" if name == front else "b"
+                        )
+                        * 64
+                    }
+                    for name in names
+                },
+            }
+        )
+
+    monkeypatch.setattr(control, "command", command)
+    monkeypatch.setattr(control, "compose", lambda *args: args[-1])
+    if fault:
+        with pytest.raises(stack.StackError, match="fixture_topology"):
+            control.verify_topology()
+    else:
+        control.verify_topology()
+
+
 def test_owned_stack_prepares_verifies_and_removes_only_its_resources(
     controller: tuple[stack.FixtureStack, Daemon],
 ) -> None:

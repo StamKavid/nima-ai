@@ -16,6 +16,25 @@ def test_closed_fixture_services_and_private_controls(tmp_path: Path) -> None:
     stack.prepare()
     try:
         stack.start()
+        assert stack.network_identity is not None
+        stack.verify_topology()
+        observed_runtime = json.loads(
+            stack.compose(
+                "run",
+                "--rm",
+                "--no-deps",
+                "observer",
+                "python",
+                "-m",
+                "nima.egress.runtime",
+                "observer",
+            )
+        )
+        gateway_runtime = json.loads(stack.compose("run", "--rm", "--no-deps", "gateway-inspect"))
+        assert observed_runtime["process"]["uid"] == gateway_runtime["process"]["uid"] == 10002
+        assert observed_runtime["process"]["network_inode"] == stack.network_identity[1]
+        assert gateway_runtime["process"]["network_inode"] != stack.network_identity[1]
+        assert gateway_runtime["gateway_forwarding_disabled"] is True
         host = Counters()
         # Native host listener: Docker-published ports on an internal bridge do
         # not provide a reachable host-boundary positive control. Bind only the
@@ -151,8 +170,23 @@ def test_packet_policy_blocks_real_delivery_and_user_namespace_bypass(tmp_path: 
             assert reset["canary"]["tcp_accepts"] == 0
             assert reset["metadata"]["application_requests"] == 0
             before = json.loads(stack.compose("run", "--rm", "--no-deps", "network-inspect"))
-            result = json.loads(stack.compose("run", "--rm", "--no-deps", "network-probe"))
-            assert result["status"] == "passed"
+            result = json.loads(
+                stack.compose(
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "network-probe",
+                    "python",
+                    "-m",
+                    "nima.egress.probe_network",
+                    "evidence",
+                )
+            )
+            assert result["version"] == "source-worker-privileges-v1"
+            assert result["process"]["uid"] == 10001
+            assert result["process"]["network_inode"] == before["network_inode"]
+            assert result["observer_uid_denied"] is result["parent_net_admin_denied"] is True
+            assert result["controls_unreachable"] is True
             after = json.loads(stack.compose("run", "--rm", "--no-deps", "network-inspect"))
             targets = json.loads(
                 stack.compose(

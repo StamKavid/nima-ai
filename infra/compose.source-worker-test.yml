@@ -145,6 +145,13 @@ services:
       - gateway-private:/gateway-private:ro
       - gateway-admin:/gateway-admin
 
+  gateway-inspect:
+    <<: *service
+    profiles: [probes]
+    image: ${NIMA_HELPER_IMAGE:?}
+    network_mode: service:gateway
+    command: [python, -m, nima.egress.runtime, gateway]
+
   network-setup: &network-helper
     <<: *service
     profiles: [probes]

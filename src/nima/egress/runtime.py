@@ -1,10 +1,13 @@
 """Observed process/kernel state, independent of declared container settings."""
 
+import json
 import os
-from dataclasses import dataclass
+import sys
+from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any
 
-from nima.egress.preflight import check_process
+from nima.egress.preflight import check_process, report
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,3 +61,41 @@ def observe_process(*, uid: int = 10001) -> ProcessState:
     )
     validate_process(state, uid=uid)
     return state
+
+
+def snapshot(role: str) -> dict[str, Any]:
+    if role not in {"observer", "gateway"}:
+        raise ValueError("configuration")
+    process = observe_process(uid=10002)
+    forwarding = None
+    if role == "gateway":
+        forwarding = Path("/proc/sys/net/ipv4/ip_forward").read_text() == "0\n"
+        if not forwarding:
+            raise ValueError("runtime_forwarding")
+    return {
+        "version": "source-worker-runtime-v1",
+        "role": role,
+        "process": asdict(process),
+        "gateway_forwarding_disabled": forwarding,
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = sys.argv[1:] if argv is None else argv
+    if len(args) != 1 or args[0] not in {"observer", "gateway"}:
+        report("failed", "configuration")
+        return 2
+    try:
+        value = snapshot(args[0])
+    except KeyboardInterrupt:
+        report("failed", "interrupted")
+        return 130
+    except Exception:
+        report("failed", "runtime_observation")
+        return 1
+    print(json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
