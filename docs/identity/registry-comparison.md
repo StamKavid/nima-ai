@@ -139,8 +139,10 @@ Do not put a wall-clock generation timestamp into artifact identity.
 
 Reuse canonical JSON and the existing private publication primitives: owner-only
 0700 directories/0600 files, no symlink traversal, bounded reads, no-clobber atomic
-publication and byte-verified reuse. Version comparison artifacts separately from
-assessment artifacts. Preserve raw source evidence, database rows and prior reports.
+publication and byte-verified reuse. Use
+`report_format=nima-registry-comparison-report-v1` and
+`policy_version=registry-comparison-v1`, separately versioned from assessment
+artifacts. Preserve raw source evidence, database rows and prior reports.
 
 Proposed interface, **not implemented**; repeat `--gemi-import` for up to ten imports:
 

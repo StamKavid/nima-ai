@@ -231,7 +231,7 @@ investigator workspace. These are roadmap items, not implementation tasks.
 
 ## Repository controls and just
 
-- [x] Verify merges and create dev from current main; keep repository private.
+- [x] Verify merges and create dev from the then-current main.
 - [x] Pin just and preserve every existing recipe/check in the migration.
 - [x] Verify cleanup policy/leases and clean eligible old merged heads.
   - Seven matching remote heads deleted; local refs retained. Mutation caught;
@@ -242,8 +242,11 @@ investigator workspace. These are roadmap items, not implementation tasks.
   - Prior evidence: docs/verification/repository-controls.md; 486 tests, 92.53%
     coverage. Final-head hosted runs 43171630805/43171639562 passed before merge.
 - [ ] Enforce GitHub-side main/dev rules and native deletion setting.
-  - Blocked: private-repository rulesets require GitHub Pro; settings writes
-    returned 403 for this integration. Prepared .github/rulesets/main-dev.json.
+  - The owner approved public visibility on 2026-11-14, superseding the original
+    private-hosting requirement. Last verification found no effective rules for
+    main/dev; active `protect-main` targeted no branches. Historical settings
+    writes returned integration HTTP 403. The prepared ruleset now names all
+    three CI checks; no administration change is part of this specification PR.
 - [x] Refresh the offline registry-comparison specification for review.
   - `docs/identity/registry-comparison.md` replaces the unpublished
     `docs/registry-comparison-spec` draft against main `127b3b8` and the current
