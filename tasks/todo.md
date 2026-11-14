@@ -557,7 +557,7 @@ tracked above. The following test commands describe future implementation checks
     `c02ef94`. QUIC/STUN now pass; the browser gateway-outage timeout correction
     is verified in #54 at `c6e9c39`: runs 43613463647/43613476257 pass all three
     jobs, 967 tests/91.55% coverage and six real Docker tests/334.31 seconds.
-    The correction requires a human merge. The owner explicitly confirmed public
+    The correction is merged through #54 at `9562213`. The owner explicitly confirmed public
     hosting on 2026-11-14; private evidence handling is unchanged.
     See docs/verification/source-worker-browser.md.
   - The runtime slice adds runtime.py, its focused tests and a cap-free gateway
@@ -585,10 +585,14 @@ tracked above. The following test commands describe future implementation checks
 - [ ] Terminate an actual controller/worker process while work is active;
   prove no success receipt, then reclaim only independently verified run-owned
   resources. A killed controller cannot perform its own finally block.
-- [ ] Mutate one narrow packet guard inside the disposable worker namespace;
+- [x] Mutate one narrow packet guard inside the disposable worker namespace;
   independently observe forbidden delivery and require the negative case to fail.
   Restore the exact owned change in finally, verify the original policy/namespace,
   destroy the fixtures and rerun the normal complete matrix.
+  - #57 is merged at `1c9ac26`; candidate `32244f7` passes all three jobs in
+    run 43615164185: seven real Docker tests/522.18 seconds and 967 quality
+    tests/91.47% coverage. The mutant causes actual forbidden delivery, both
+    validators reject it, and restored blocking/full-matrix replay pass.
 - [ ] Verify runtime-generated credential sentinels stay out of diagnostics;
   preserve the full case/runtime validator and all isolation/TLS/sandbox controls.
 
@@ -628,5 +632,5 @@ tracked above. The following test commands describe future implementation checks
 
 Progress-only updates to this plan/spec remain separate from behaviour changes.
 The implementation progress above records passing prerequisite, offline and
-closed-fixture gates. The complete network matrix and deployed IP protection
-remain unverified.
+closed-fixture gates, including the full network matrix. Remaining failure
+experiments, final integration and deployed IP protection remain unverified.
