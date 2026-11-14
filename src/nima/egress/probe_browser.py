@@ -3,6 +3,7 @@
 https://playwright.dev/python/docs/api/class-browser#browser-new-context-option-proxy
 https://chromium.googlesource.com/website/+/refs/heads/main/site/quic/playing-with-quic/index.md
 https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/setLocalDescription
+https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/iceGatheringState
 """
 
 import json
@@ -160,8 +161,15 @@ def execute(case: str, auth: ProxyCredentials) -> BrowserResult:
                 ]
                 if case == "browser_stun":
                     page.goto("data:text/html,<title>Nima fixture</title>", timeout=1000)
-                    if page.evaluate(STUN) not in {"gathering", "complete"}:
-                        raise BrowserProbeError("stun_not_started")
+                    page.evaluate(STUN)
+                    try:
+                        page.wait_for_function(
+                            "() => ['gathering','complete'].includes("
+                            "window.nimaPeer.iceGatheringState)",
+                            timeout=2000,
+                        )
+                    except BrowserTimeout:
+                        raise BrowserProbeError("stun_not_started") from None
                     page.wait_for_timeout(1200)
                     result = ClientResult.ATTEMPTED
                 else:

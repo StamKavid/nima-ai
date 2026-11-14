@@ -12,6 +12,7 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 from playwright.sync_api import Error as BrowserError
+from playwright.sync_api import TimeoutError as BrowserTimeout
 
 from nima.egress import probe_browser
 from nima.egress.bootstrap import credentials
@@ -38,9 +39,12 @@ def test_process_evidence_cannot_be_configuration_claims(process: ProcessState, 
         validate_process(value, uid=10001)
 
 
-@pytest.mark.parametrize("case", [row.name for row in probe_browser.BROWSER_CASES])
+@pytest.mark.parametrize(
+    "case,ice_timeout",
+    [(row.name, False) for row in probe_browser.BROWSER_CASES] + [("browser_stun", True)],
+)
 def test_browser_cases_keep_sandbox_tls_and_fixed_destinations(
-    monkeypatch: pytest.MonkeyPatch, process: ProcessState, case: str
+    monkeypatch: pytest.MonkeyPatch, process: ProcessState, case: str, ice_timeout: bool
 ) -> None:
     auth = credentials("fixture-user-" + "u" * 16, "p" * 43)
     browser, page, context = Mock(), Mock(), MagicMock()
@@ -52,7 +56,8 @@ def test_browser_cases_keep_sandbox_tls_and_fixed_destinations(
         "PID namespaces Yes Network namespaces Yes Seccomp-BPF sandbox Yes Nima fixture"
     )
     page.content.return_value = "Nima fixture"
-    page.evaluate.return_value = "gathering"
+    # setLocalDescription can finish before ICE has left its initial state.
+    page.evaluate.return_value = "new"
 
     def goto(url: str, **kwargs: object) -> object:
         if url == "chrome://sandbox" or url.startswith("data:"):
@@ -84,6 +89,12 @@ def test_browser_cases_keep_sandbox_tls_and_fixed_destinations(
         "read_bytes",
         lambda path: b"nameserver 172.30.240.4\noptions ndots:0 timeout:1 attempts:1\n",
     )
+    if ice_timeout:
+        page.wait_for_function.side_effect = BrowserTimeout("private-sentinel")
+        with pytest.raises(probe_browser.BrowserProbeError, match="stun_not_started"):
+            probe_browser.execute(case, auth)
+        assert context.__exit__.called and browser.close.called
+        return
     result = probe_browser.execute(case, auth)
     assert result.process == process and result.chromium == CHROMIUM
     assert result.sandbox_pid and result.sandbox_network and result.sandbox_seccomp
@@ -99,6 +110,8 @@ def test_browser_cases_keep_sandbox_tls_and_fixed_destinations(
         assert "--origin-to-force-quic-on=172.30.240.4:443" in launch["args"]
     if case == "browser_stun":
         assert "stun:172.30.240.4:3478" in page.evaluate.call_args.args[0]
+        assert "window.nimaPeer.iceGatheringState" in page.wait_for_function.call_args.args[0]
+        assert page.wait_for_function.call_args.kwargs["timeout"] == 2000
         assert result.client_result == ClientResult.ATTEMPTED
     raw = probe_browser.encode_result(case, result)
     assert "private-sentinel" not in raw.decode() and auth.password not in raw.decode()
