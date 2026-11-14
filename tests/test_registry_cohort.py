@@ -351,3 +351,44 @@ def test_incomplete_projection_and_mention_overflow_never_become_empty_cohorts(
     database.commit_page(pending, body(), observed_at=datetime.now(UTC))
     with pytest.raises(AssessmentError, match="projection_incomplete"):
         registry_cohort.read_comparison_cohort(pg_dsn, pending, (selected,), PROJECTION_VERSION)
+
+
+def test_combined_budget_rejects_individually_small_source_contexts(
+    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    run = seed(
+        pg_dsn,
+        tmp_path,
+        {
+            **record(),
+            "contractingDataDetails": {
+                "contractingMembersDataList": [
+                    {"name": "P" * 10000, "vatNumber": "001234567", "country": {"key": "GR"}}
+                ]
+            },
+        },
+    )
+    selected = registry_import(pg_dsn, tmp_path, profile(coNameEl="R" * 10000))
+    monkeypatch.setattr(registry_cohort, "MAX_INPUT_BYTES", 20000)
+    original = registry_cohort._preflight
+    checked = False
+
+    def preflight(
+        connection: Connection, selected_run: UUID, imports: tuple[UUID, ...], version: str
+    ) -> int:
+        nonlocal checked
+        reserved = original(connection, selected_run, imports, version)
+        # Registry context alone fits; neither source's long label exceeds the cap.
+        assert 10000 < reserved < 20000
+        checked = True
+        return reserved
+
+    def prohibited_transfer(*args: object, **kwargs: object) -> Never:
+        raise AssertionError("combined_budget_not_enforced")
+
+    monkeypatch.setattr(registry_cohort, "_preflight", preflight)
+    for name in ("_parties", "_imports", "_registry_evidence"):
+        monkeypatch.setattr(registry_cohort, name, prohibited_transfer)
+    with pytest.raises(AssessmentError, match="assessment_limit"):
+        registry_cohort.read_comparison_cohort(pg_dsn, run, (selected,), PROJECTION_VERSION)
+    assert checked
