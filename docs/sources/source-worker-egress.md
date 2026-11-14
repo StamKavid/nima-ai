@@ -4,7 +4,7 @@ Status: **approved**, 2026-11-12, by the user's “I approve”.
 Existing capability: `source-ingestion`. Implementation plan and task acceptance
 criteria are in `tasks/plan.md` and `tasks/todo.md`, approved by the user's
 “Continue” on 2026-11-12. Runtime discoveries and verification limits are recorded
-in that plan and the draft implementation PR.
+in that plan and the [delivery runbook](../verification/source-worker-egress.md).
 Supplements the approved GEMI Publicity fallback and its personal-IP requirement.
 Base: main `ed52c38`, after merged manual-evidence PRs #32–#34.
 
@@ -110,10 +110,13 @@ target/observer actually works. Distinguish policy rejection from a dead fixture
 unroutable environment or timeout. Use observer counters and policy/namespace
 observations, not only application exceptions or an IP-echo response.
 
-Proposed bounds: one browser, at most 30 named cases, 15 seconds per network
-attempt, one attempt per case, 10-minute suite deadline, 1 MiB per synthetic
-response and 64 KiB per report. Exceeding a bound fails without truncating a case
-into success. These are local test budgets, not provider rate allowances.
+Implemented bounds: one browser, 28 named cases, 15 seconds per network attempt,
+one attempt per case, 600 seconds per controller invocation with the last 60
+reserved for cleanup, 1 MiB per synthetic response and 64 KiB per report.
+The complete integration suite exercises multiple controller invocations,
+including failure and restoration runs; its CI job retains a 25-minute bound.
+Exceeding a bound fails without truncating a case into success. These are local
+test budgets, not provider rate allowances.
 
 ## Receipt and evidence semantics
 
@@ -123,7 +126,7 @@ from configuration declarations. Keep payloads, URLs with credentials, browser
 state, authentication material and unfiltered HAR/trace files out of receipts/logs.
 Private test artifacts remain outside Git with restrictive access.
 
-Example required result semantics (illustrative, not an implemented schema):
+Selected fields from the implemented full receipt (not a complete valid document):
 
 ```json
 {
@@ -150,13 +153,14 @@ accepted identity, graph edge, SQL migration or detector is part of this release
 ## Stack, structure and commands
 
 Current application baseline: Python 3.12, HTTPX 0.28.1, Psycopg 3.3.8 and
-self-hosted Prefect 3.9.2. Proposed worker image, proxy implementation, Playwright
-package/browser pair and supporting OS packages must be selected, licence-reviewed
-and pinned by version/digest in the implementation plan. Do not use `latest`.
+self-hosted Prefect 3.9.2. The implementation selects Envoy CONNECT, nftables,
+Playwright 1.65.1 and Chromium 158.0.8127.18. Publisher image digests, supporting
+OS packages and sandbox-profile hashes are fixed in `infra/source-worker/pins.json`
+and the reviewed implementation plan. Do not use `latest`.
 Use the official Playwright test image only for controlled-fixture testing, not
 as an assumed production image for untrusted source websites.
 
-Proposed first-party policy/probes: `src/nima/egress/`; synthetic tests:
+First-party policy/probes: `src/nima/egress/`; synthetic tests:
 `tests/test_source_worker_*.py`; isolated Compose topology under `infra/`;
 verification evidence under `docs/verification/`. Keep existing Prefect/SQL Compose
 services and normal collector behaviour unchanged.
@@ -169,17 +173,20 @@ just check
 just audit
 ```
 
-Proposed integration entry point, **not implemented**:
+Implemented integration entry point, after the pinned build/prerequisite phase:
 
 ```bash
 just source-worker-check
 ```
 
-The recipe must build pinned test images, run only fixture cases, validate the
-receipt and clean up only its own explicitly named resources. It may not contact
-GEMI. Add a dedicated CI integration gate alongside the existing quality and
-orchestration gates; never replace them. The exact files, dependency pins and
-commands belong in the reviewed implementation plan.
+CI builds the pinned test images and verifies host/kernel/browser prerequisites
+before invoking the recipe. The recipe runs the explicit integration file without
+a redundant second normal matrix, validates one fresh canonical full receipt and
+fails if any case or publication check fails. Controllers clean only resources
+whose exact identities and ownership are verified. It makes no GEMI requests.
+The dedicated CI gate is additive to quality and orchestration-compose; all three
+names appear in the proposed protection payload. Server-side enforcement remains
+unverified. See the delivery runbook for commands, measured evidence and limits.
 
 Code style: strict types, small immutable policy/result values, Ruff formatting,
 fixed redacted failure codes, no shell interpolation of user configuration.
@@ -201,9 +208,9 @@ setup capabilities, resource bounds and additive CI changes.
 Never: buy services, publish a browser/control port, deploy infrastructure, disable
 TLS/browser sandboxing, activate source automation or treat IP rotation as recovery.
 
-The implementation plan selects pinned Envoy, Playwright/Chromium and nftables,
-and records limited capability probes and the untested browser/TLS prerequisites.
-Review that concrete plan before implementing the worker or changing dependencies.
+The implementation plan records the pinned stack, actual sandbox/TLS/network
+measurements and failure experiments. Review that evidence before changing
+dependencies or broadening the fixture policy.
 Live access still needs provider permission and a separate deployment decision;
 neither is a blocker for this fixture-only increment. No external credentials are
 needed now. Existing registry-comparison and pending GEMI-key work remain tracked.

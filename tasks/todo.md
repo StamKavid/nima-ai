@@ -580,9 +580,9 @@ tracked above. The following test commands describe future implementation checks
 
 ### E10: Prove failure, redaction and mutation behaviour
 
-- [ ] Run missing-capability and worker deadline failures on actual fixtures;
+- [x] Run missing-capability and worker deadline failures on actual fixtures;
   require nonzero outcomes, no accepted receipt and scoped resource cleanup.
-- [ ] Terminate an actual controller/worker process while work is active;
+- [x] Terminate an actual controller/worker process while work is active;
   prove no success receipt, then reclaim only independently verified run-owned
   resources. A killed controller cannot perform its own finally block.
 - [x] Mutate one narrow packet guard inside the disposable worker namespace;
@@ -593,8 +593,11 @@ tracked above. The following test commands describe future implementation checks
     run 43615164185: seven real Docker tests/522.18 seconds and 967 quality
     tests/91.47% coverage. The mutant causes actual forbidden delivery, both
     validators reject it, and restored blocking/full-matrix replay pass.
-- [ ] Verify runtime-generated credential sentinels stay out of diagnostics;
+- [x] Verify runtime-generated credential sentinels stay out of diagnostics;
   preserve the full case/runtime validator and all isolation/TLS/sandbox controls.
+  - #59–#61 are merged through `920472e`. Candidate `f3a063e` passed all
+    three jobs in run 43622181210: 967 quality tests/91.55% coverage and
+    12 real Docker tests/853.96 seconds. See the failure-experiment runbook.
 
 - Acceptance: stopped gateway, missing capabilities, absent cases, interrupted/
   timed-out controller or invalid ownership never create a successful receipt or
@@ -607,6 +610,15 @@ tracked above. The following test commands describe future implementation checks
   src/nima/egress/runner.py (three).
 
 ### E11: Integrate the complete CI gate
+
+- [x] Add the complete recipe and private canonical full-receipt artifact validator.
+- [x] Wire CI and matching proposed required contexts; preserve existing gates.
+- [x] Verify the final real-Docker recipe and downloaded artifact.
+  - #62/#63 are merged through `9a4eddf`; final candidate `4fe920d` passes
+    all three jobs in run 43625798326: 987 tests/91.58% coverage and 12 real
+    Docker tests/616.42 seconds. Downloaded artifact 14126851164 matches its
+    ZIP digest and contains one canonical 10,109-byte full 28-case JSON receipt,
+    with deployment/privacy flags false and no extra files.
 
 - Acceptance: `just source-worker-check` and a mandatory additive CI job run the
   complete explicit integration file and publish only redacted receipts. Existing
@@ -621,6 +633,10 @@ tracked above. The following test commands describe future implementation checks
 
 ### E12: Review and publish the measured delivery
 
+- [x] Document actual setup, complete command, measured gates and recovery limits.
+- [x] Review correctness, readability, architecture, security and performance.
+- Delivery-candidate hosted checks and human review/merge are tracked in its PR.
+
 - Acceptance: runbook and evidence state actual results/prerequisites and limits.
   Small dependent PRs use StamKavid attribution; no dependent merge to an
   obsolete base, automatic merge, source request, purchase or deployment.
@@ -632,5 +648,7 @@ tracked above. The following test commands describe future implementation checks
 
 Progress-only updates to this plan/spec remain separate from behaviour changes.
 The implementation progress above records passing prerequisite, offline and
-closed-fixture gates, including the full network matrix. Remaining failure
-experiments, final integration and deployed IP protection remain unverified.
+closed-fixture gates, including the full network matrix, real failure/mutation
+experiments and final recipe/downloaded artifact. E12's documentation candidate
+still needs its hosted checks and human review/merge. Deployed IP protection
+remains unverified; registry comparison needs its separate specification review.

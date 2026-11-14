@@ -65,20 +65,19 @@ No live Publicity scraper or automatic API fallback is enabled.
 
 ## Verify the controlled fixture boundary
 
-The [complete fixture runner](docs/verification/source-worker-browser.md)
-executes 28 HTTPX/Chromium egress cases with independent controls, observed
-runtime state and owned cleanup:
+The [fixture delivery runbook](docs/verification/source-worker-egress.md) describes
+the Linux/Docker prerequisites and pinned image setup. Run the complete gate:
 
 ```bash
-uv run --frozen python -m nima.egress.runner \
-  --profile fixtures --stage all --output-dir data/source-worker/matrix
+just source-worker-check
 ```
 
-It requires the reviewed prebuilt fixture images, Linux/amd64, a local Docker
-daemon and conflict-free test subnets. The separate `--stage http` interface
-publishes an explicitly incomplete 18-case report. The complete controlled-fixture
-matrix passes the documented hosted checks; deployed investigator IP protection
-remains unverified.
+It runs all 12 Docker tests, including the 28-case HTTPX/Chromium matrix, observed
+runtime/cleanup, actual failure controls and packet-rule mutation/restoration.
+CI uploads one validated canonical full receipt only after the whole gate passes.
+The separate runner's `--stage http` interface publishes an explicitly incomplete
+18-case report. These tests collect no company data; deployed investigator IP
+protection remains unverified.
 
 ## Collect a bounded KIMDIS window
 
