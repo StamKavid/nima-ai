@@ -11,11 +11,13 @@ from typing import Any, Never
 from uuid import UUID
 
 from nima.egress.fixtures import METRICS, Counters, http_server
-from nima.egress.policy import CaseKind
+from nima.egress.policy import CaseKind, CaseSpec
+from nima.egress.probe_browser import FAILURES as BROWSER_FAILURES
+from nima.egress.probe_browser import read_result as read_browser_result
 from nima.egress.probe_http import HTTP_CASES, read_result
 from nima.egress.receipt import CaseEvidence, validate_case
 from nima.egress.rules import COUNTERS
-from nima.egress.stack import FixtureStack
+from nima.egress.stack import FixtureStack, ProbeCommandError
 from nima.egress.stage import HttpStage, publish_stage
 
 DROPS = {
@@ -27,6 +29,11 @@ DROPS = {
     "http_metadata": "metadata_tcp",
     "http_dns": "dns_udp",
     "http_udp": "direct_udp",
+    "browser_proxy_bypass": "direct_tcp",
+    "browser_metadata": "metadata_tcp",
+    "browser_dns": "dns_udp",
+    "browser_quic": "quic_udp",
+    "browser_stun": "stun_udp",
 }
 
 
@@ -141,7 +148,9 @@ def _gateway_running(stack: FixtureStack, identity: str) -> bool:
     return bool(value["running"])
 
 
-def execute_http(stack: FixtureStack) -> tuple[CaseEvidence, ...]:
+def execute_cases(
+    stack: FixtureStack, cases: tuple[CaseSpec, ...] = HTTP_CASES
+) -> tuple[CaseEvidence, ...]:
     stack.start()
     stack.compose("up", "-d", "--wait", "--no-deps", "metadata")
     host = Counters()
@@ -150,7 +159,7 @@ def execute_http(stack: FixtureStack) -> tuple[CaseEvidence, ...]:
     with http_server(
         ("172.30.240.1", 18080), host, role="host", context=None, credentials=stack.auth
     ):
-        for case in HTTP_CASES:
+        for case in cases:
             stack.remaining()
             if case.kind == CaseKind.RESTARTED:
                 _require(stopped_id is not None)
@@ -185,18 +194,43 @@ def execute_http(stack: FixtureStack) -> tuple[CaseEvidence, ...]:
                 stack.command("stop", "--time", "3", gateway_id)
                 _require(not _gateway_running(stack, gateway_id))
                 stopped_id = gateway_id
-            raw = stack.compose(
-                "run",
-                "--rm",
-                "--no-deps",
-                "worker",
-                "python",
-                "-m",
-                "nima.egress.probe_http",
-                case.name,
-                exact=True,
-            )
-            result = read_result(raw.encode(), case.name)
+            browser_case = case.name.startswith("browser_")
+            try:
+                raw = stack.compose(
+                    "run",
+                    "--rm",
+                    "--no-deps",
+                    "worker",
+                    "python",
+                    "-m",
+                    "nima.egress.probe_browser" if browser_case else "nima.egress.probe_http",
+                    case.name,
+                    exact=True,
+                )
+            except ProbeCommandError as error:
+                code = ""
+                try:
+                    failure = _object(error.result.stdout)
+                    if (
+                        failure.get("status") == "failed"
+                        and type(failure.get("failure")) is str
+                        and failure.get("failure") in BROWSER_FAILURES
+                    ):
+                        code = "_" + failure["failure"]
+                except ValueError:
+                    pass
+                raise RunnerError("case_" + case.name + code) from None
+            except RuntimeError:
+                raise RunnerError("case_" + case.name) from None
+            if browser_case:
+                browser = read_browser_result(raw.encode(), case.name)
+                _require(
+                    stack.network_identity is not None
+                    and browser.process.network_inode == stack.network_identity[1]
+                )
+                result = browser.client_result
+            else:
+                result = read_result(raw.encode(), case.name)
             after = _network(stack)
             packets = _observe(stack, "packet-observe")
             gateway = _observe(stack, "origins-observe" if stopped else "gateway-observe")
@@ -212,10 +246,22 @@ def execute_http(stack: FixtureStack) -> tuple[CaseEvidence, ...]:
                         )
                     )
                 )
-            positive = case.kind in {CaseKind.ALLOWED, CaseKind.RESTARTED}
-            redirect = case.name.startswith("http_redirect_")
+            positive = case.kind in {
+                CaseKind.ALLOWED,
+                CaseKind.RESTARTED,
+                CaseKind.BROWSER_RESOURCES,
+            }
+            redirect = case.name in {
+                "http_redirect_host",
+                "http_redirect_ip",
+                "http_redirect_port",
+                "browser_redirect_host",
+            }
+            expected_requests = (
+                5 if case.kind == CaseKind.BROWSER_RESOURCES else int(positive or redirect)
+            )
             _require(
-                gateway["origin"]["application_requests"] == int(positive or redirect)
+                gateway["origin"]["application_requests"] == expected_requests
                 and gateway["bad"]["application_requests"] == 0
             )
             deliveries = None
@@ -225,7 +271,11 @@ def execute_http(stack: FixtureStack) -> tuple[CaseEvidence, ...]:
                     sink = (
                         host.snapshot()
                         if case.name == "http_host_bridge"
-                        else packets["metadata" if case.name == "http_metadata" else "canary"]
+                        else packets[
+                            "metadata"
+                            if case.name in {"http_metadata", "browser_metadata"}
+                            else "canary"
+                        ]
                     )
                     deliveries = _count(sink[case.target_counter])
                 elif redirect:
@@ -245,9 +295,11 @@ def execute_http(stack: FixtureStack) -> tuple[CaseEvidence, ...]:
                 policy_drops=after[DROPS[case.name]] - before[DROPS[case.name]]
                 if case.name in DROPS
                 else None,
-                observed_routes=frozenset({"html"})
-                if gateway["origin"]["html"] == 1
-                else frozenset(),
+                observed_routes=frozenset(
+                    role
+                    for role in ("html", "script", "image", "xhr", "fetch")
+                    if gateway["origin"][role] > 0
+                ),
                 headers_clean=gateway["origin"]["headers_clean"],
                 gateway_stopped=True if stopped else None,
                 gateway_restarted=True if case.kind == CaseKind.RESTARTED else None,
@@ -264,7 +316,7 @@ def run_http(output_dir: Path) -> Path:
         started_at = datetime.now(UTC)
         try:
             stack.prepare()
-            cases = execute_http(stack)
+            cases = execute_cases(stack)
         finally:
             stack.cleanup()
         if not stack.cleaned or stack.network_identity is None:

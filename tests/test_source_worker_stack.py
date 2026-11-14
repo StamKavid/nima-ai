@@ -98,6 +98,18 @@ def test_owned_stack_prepares_verifies_and_removes_only_its_resources(
     assert all("prune" not in row and "down" not in row for row in daemon.calls)
 
 
+def test_failed_probe_capture_remains_private_in_exception_text(
+    controller: tuple[stack.FixtureStack, Daemon], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    control, _ = controller
+    result = CommandResult(1, "private-sentinel", "private-sentinel")
+    monkeypatch.setattr(stack, "capture", lambda *args, **kwargs: result)
+    with pytest.raises(stack.ProbeCommandError) as error:
+        control.command("test", exact=True)
+    assert error.value.result is result
+    assert "private-sentinel" not in repr(error.value) + str(error.value) + repr(result)
+
+
 def test_bad_ownership_prevents_every_deletion(
     controller: tuple[stack.FixtureStack, Daemon],
 ) -> None:
