@@ -195,6 +195,18 @@ def test_observed_quic_handshake_failure_is_only_a_client_result() -> None:
     )
 
 
+@pytest.mark.parametrize(
+    "error",
+    [
+        BrowserTimeout("private-sentinel"),
+        BrowserError("net::ERR_CONNECTION_TIMED_OUT private-sentinel"),
+        BrowserError("net::ERR_TIMED_OUT private-sentinel"),
+    ],
+)
+def test_stopped_proxy_can_timeout_without_being_a_direct_fallback(error: BrowserError) -> None:
+    assert probe_browser._failure("browser_gateway_outage", error) == ClientResult.NETWORK_FAILURE
+
+
 @pytest.mark.parametrize("fault", ["none", "configuration", "driver", "interrupt"])
 def test_cli_redacts_errors_and_restores_alarm(
     monkeypatch: pytest.MonkeyPatch,
