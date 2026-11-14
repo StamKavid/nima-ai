@@ -42,6 +42,7 @@ SERVICES = {
     "worker",
     "gateway",
     "gateway-validate",
+    "gateway-inspect",
     "network-setup",
     "network-inspect",
     "metadata",
@@ -263,6 +264,73 @@ class FixtureStack:
         if installed != observed:
             raise StackError("fixture_policy")
         self.network_identity = observed
+
+    def verify_topology(self) -> None:
+        """Observe real attachments, not the networks declared by Compose."""
+        names = {role: self.project + "_" + role for role in ("front", "back")}
+        observed = self.command(
+            "network",
+            "ls",
+            "--format",
+            "{{.Name}}",
+            "--filter",
+            "label=com.docker.compose.project=" + self.project,
+        ).splitlines()
+        if len(observed) != 2 or set(observed) != set(names.values()):
+            raise StackError("fixture_topology")
+        identities = {}
+        for name in observed:
+            value = _json(
+                self.command(
+                    "network",
+                    "inspect",
+                    name,
+                    "--format",
+                    '{"name":"{{.Name}}","id":"{{.Id}}","internal":{{.Internal}},'
+                    '"run":"{{index .Labels "io.nima.fixture.run_id"}}"}',
+                )
+            )
+            if (
+                type(value) is not dict
+                or value.get("name") != name
+                or value.get("internal") is not True
+                or value.get("run") != self.run_id
+                or type(value.get("id")) is not str
+                or re.fullmatch(r"[0-9a-f]{64}", value["id"]) is None
+            ):
+                raise StackError("fixture_topology")
+            identities[name] = value["id"]
+        for role, sides in (
+            ("anchor", ("front",)),
+            ("canary", ("front",)),
+            ("origin", ("back",)),
+            ("bad", ("back",)),
+            ("gateway", ("front", "back")),
+        ):
+            identity = self.compose("ps", "--quiet", role)
+            value = _json(
+                self.command(
+                    "inspect",
+                    identity,
+                    "--format",
+                    '{"running":{{.State.Running}},"networks":{{json .NetworkSettings.Networks}},'
+                    '"run":"{{index .Config.Labels "io.nima.fixture.run_id"}}",'
+                    '"role":"{{index .Config.Labels "com.docker.compose.service"}}"}',
+                )
+            )
+            if (
+                type(value) is not dict
+                or value.get("running") is not True
+                or value.get("run") != self.run_id
+                or value.get("role") != role
+                or type(value.get("networks")) is not dict
+                or set(value["networks"]) != {names[side] for side in sides}
+                or any(
+                    type(row) is not dict or row.get("NetworkID") != identities[name]
+                    for name, row in value["networks"].items()
+                )
+            ):
+                raise StackError("fixture_topology")
 
     def cleanup(self) -> None:
         self.in_cleanup = True

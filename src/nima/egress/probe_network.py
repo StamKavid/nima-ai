@@ -1,14 +1,17 @@
 """Fixed synthetic packet/privilege probes. No configurable targets or live mode."""
 
 import errno
+import json
 import os
 import socket
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 from nima.egress.network import NETWORK_FAILURES, _run, namespace_state
-from nima.egress.preflight import check_process, check_socket_mark, report
+from nima.egress.preflight import check_process, check_socket_mark, private_controls, report
 from nima.egress.rules import NetworkError
+from nima.egress.runtime import observe_process
 
 
 def blocked_tcp(address: str, port: int) -> None:
@@ -104,11 +107,31 @@ def probe() -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
-    if (sys.argv[1:] if argv is None else argv) != ["raw"]:
+    args = sys.argv[1:] if argv is None else argv
+    if len(args) != 1 or args[0] not in {"raw", "evidence"}:
         report("failed", "configuration")
         return 2
     try:
         probe()
+        if args[0] == "evidence":
+            process = observe_process()
+            private_controls()
+            # Successful socket-mark, UID, nft and nested-userns denial probes
+            # precede these assertions. They are not container declarations.
+            print(
+                json.dumps(
+                    {
+                        "version": "source-worker-privileges-v1",
+                        "process": asdict(process),
+                        "observer_uid_denied": True,
+                        "parent_net_admin_denied": True,
+                        "controls_unreachable": True,
+                    },
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            )
+            return 0
     except KeyboardInterrupt:
         report("failed", "interrupted")
         return 130
