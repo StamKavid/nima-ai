@@ -252,8 +252,10 @@ def test_sql_to_report_replay_coverage_change_and_source_state(
     assert suppliers[0]["comparison"]["outcome"] == "reported_identifier_agreement"
     assert len(suppliers[0]["comparison"]["registry_observation_refs"]) == 2
     assert summary["automatic_identity_links"] == 0
-    # A repeated observation changes report identity without duplicating source versions.
-    database.commit_page(run, body(1, 2, **row), observed_at=datetime.now(UTC))
+    # New selected procurement evidence changes coverage and report identity.
+    database.commit_page(
+        run, body(1, 2, **{**row, "referenceNumber": "later"}), observed_at=datetime.now(UTC)
+    )
     drain(pg_dsn)
     changed_before = counts(pg_dsn), registry_counts(pg_dsn), snapshot(tmp_path / "gemi")
     changed = registry_report.compare_run(pg_dsn, run, selected, PROJECTION_VERSION, output)
