@@ -257,7 +257,7 @@ def test_real_browser_cases_require_sandbox_and_kernel_delivery_evidence(tmp_pat
     stack = FixtureStack(tmp_path)
     try:
         stack.prepare()
-        rows = execute_cases(stack, BROWSER_CASES)
+        rows = execute_cases(stack, BROWSER_CASES).cases
         assert tuple(row.case_name for row in rows) == tuple(case.name for case in BROWSER_CASES)
         for row in rows:
             assert row.control_success is True
@@ -265,3 +265,20 @@ def test_real_browser_cases_require_sandbox_and_kernel_delivery_evidence(tmp_pat
     finally:
         stack.cleanup()
     assert stack.cleaned
+
+
+def test_full_matrix_receipt_requires_runtime_observations_and_cleanup(tmp_path: Path) -> None:
+    from nima.egress.policy import CASES
+    from nima.egress.receipt import read_receipt
+    from nima.egress.runner import run_all
+
+    file = run_all(tmp_path / "matrix-reports")
+    receipt = read_receipt(file.read_bytes())
+    assert tuple(row.case_name for row in receipt.cases) == tuple(case.name for case in CASES)
+    assert receipt.runtime.observer_uid_denied is True
+    assert receipt.runtime.parent_net_admin_denied is True
+    assert receipt.runtime.gateway_forwarding_disabled is True
+    assert receipt.runtime.external_networks is False
+    value = json.loads(file.read_bytes())
+    assert value["isolation_checks_passed"] is True
+    assert value["investigator_ip_protection_verified"] is value["production_ready"] is False

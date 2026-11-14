@@ -3,6 +3,7 @@
 import json
 import time
 from contextlib import nullcontext
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -12,10 +13,13 @@ import pytest
 from nima.egress import runner
 from nima.egress.commands import CommandResult
 from nima.egress.fixtures import Counters
-from nima.egress.policy import CaseKind
+from nima.egress.policy import CASES, CaseKind
+from nima.egress.probe_browser import BrowserResult
+from nima.egress.probe_browser import encode_result as encode_browser
 from nima.egress.probe_http import HTTP_CASES, encode_result
-from nima.egress.receipt import ClientResult
+from nima.egress.receipt import ClientResult, read_receipt
 from nima.egress.rules import COUNTERS
+from nima.egress.runtime import ProcessState
 from nima.egress.stack import ProbeCommandError
 from nima.egress.stage import read_stage
 
@@ -37,6 +41,8 @@ class FixtureDriver:
         self.running = True
         self.case = HTTP_CASES[0]
         self.after = False
+        self.privileges = False
+        self.topology_checks = 0
         self.instances.append(self)
 
     def remaining(self) -> float:
@@ -48,6 +54,11 @@ class FixtureDriver:
 
     def start(self) -> None:
         if self.fault == "start":
+            raise ValueError("private-sentinel")
+
+    def verify_topology(self) -> None:
+        self.topology_checks += 1
+        if self.fault == "topology":
             raise ValueError("private-sentinel")
 
     def cleanup(self) -> None:
@@ -74,6 +85,31 @@ class FixtureDriver:
             return "a" * 64
         if args[-1] == "metadata":
             return ""
+        if "nima.egress.runtime" in args or args[-1] == "gateway-inspect":
+            role = "gateway" if args[-1] == "gateway-inspect" else "observer"
+            state = ProcessState(10002, 0, 0, 0, 1, 2, True, 456 if role == "gateway" else 123)
+            return json.dumps(
+                {
+                    "version": "source-worker-runtime-v1",
+                    "role": role,
+                    "process": asdict(state),
+                    "gateway_forwarding_disabled": self.fault != "forwarding"
+                    if role == "gateway"
+                    else None,
+                }
+            )
+        if "network-probe" in args:
+            self.privileges = True
+            self.after = True
+            return json.dumps(
+                {
+                    "version": "source-worker-privileges-v1",
+                    "process": asdict(ProcessState(10001, 0, 0, 0, 1, 2, True, 123)),
+                    "controls_unreachable": True,
+                    "observer_uid_denied": self.fault != "privileges",
+                    "parent_net_admin_denied": True,
+                }
+            )
         if "worker" in args:
             if self.fault.startswith("probe_"):
                 code = "browser_outcome" if self.fault == "probe_known" else "private-sentinel"
@@ -84,10 +120,11 @@ class FixtureDriver:
                 )
             if self.fault == "interrupt":
                 raise KeyboardInterrupt
-            self.case = next(case for case in HTTP_CASES if case.name == args[-1])
+            self.case = next(case for case in CASES if case.name == args[-1])
             self.after = True
             result = {
                 CaseKind.ALLOWED: ClientResult.FIXTURE_BODY,
+                CaseKind.BROWSER_RESOURCES: ClientResult.FIXTURE_BODY,
                 CaseKind.RESTARTED: ClientResult.FIXTURE_BODY,
                 CaseKind.PACKET_BLOCKED: ClientResult.NETWORK_FAILURE,
                 CaseKind.GATEWAY_REJECTED: ClientResult.PROXY_REJECTED,
@@ -95,6 +132,14 @@ class FixtureDriver:
                 CaseKind.GATEWAY_OUTAGE: ClientResult.NETWORK_FAILURE,
                 CaseKind.IPV6_DISABLED: ClientResult.IPV6_UNAVAILABLE,
             }[self.case.kind]
+            if self.case.name.startswith("browser_"):
+                state = ProcessState(
+                    10001, 0, 0, 0, 1, 2, True, 124 if self.fault == "browser_namespace" else 123
+                )
+                return encode_browser(
+                    self.case.name,
+                    BrowserResult(result, "158.0.8127.18", state, True, True, True, True),
+                ).decode()
             return encode_result(self.case.name, result).decode()
         if args[-1] == "network-inspect":
             drop = {
@@ -106,6 +151,11 @@ class FixtureDriver:
                 "http_metadata": "metadata_tcp",
                 "http_dns": "dns_udp",
                 "http_udp": "direct_udp",
+                "browser_proxy_bypass": "direct_tcp",
+                "browser_metadata": "metadata_tcp",
+                "browser_dns": "dns_udp",
+                "browser_quic": "quic_udp",
+                "browser_stun": "stun_udp",
             }.get(self.case.name)
             return json.dumps(
                 {
@@ -118,7 +168,25 @@ class FixtureDriver:
                     "ipv6_disabled": True,
                     "counters": {
                         name: {
-                            "packets": int(self.after and name == drop and self.fault != "drops"),
+                            "packets": int(
+                                self.after
+                                and (
+                                    name == drop
+                                    or self.privileges
+                                    and name
+                                    in {
+                                        "direct_tcp",
+                                        "host_tcp",
+                                        "metadata_tcp",
+                                        "dns_udp",
+                                        "direct_udp",
+                                        "quic_udp",
+                                        "stun_udp",
+                                    }
+                                )
+                                and self.fault != "drops"
+                                and not (self.privileges and self.fault == "privilege_drops")
+                            ),
                             "bytes": 0,
                         }
                         for name in COUNTERS
@@ -156,10 +224,20 @@ class FixtureDriver:
             bad.request("html", clean=True)
         if command == "gateway-reset":
             self.after = False
-        if self.after and self.case.kind in {CaseKind.ALLOWED, CaseKind.RESTARTED}:
+            self.privileges = False
+        if (
+            self.after
+            and not self.privileges
+            and self.case.kind in {CaseKind.ALLOWED, CaseKind.RESTARTED}
+        ):
             origin.request("html", clean=True)
         if self.after and self.case.name.startswith("http_redirect_"):
             origin.request(None, clean=True)
+        if self.after and self.case.name == "browser_redirect_host":
+            origin.request(None, clean=True)
+        if self.after and self.case.kind == CaseKind.BROWSER_RESOURCES:
+            for route in ("html", "script", "image", "xhr", "fetch"):
+                origin.request(route, clean=True)
         if command == "origins-observe":
             return json.dumps({"origin": origin.snapshot(), "bad": bad.snapshot()})
         return json.dumps(
@@ -278,3 +356,74 @@ def test_probe_failures_expose_only_allowlisted_codes(
 def test_counter_types_and_limits_cannot_be_coerced(value: object) -> None:
     with pytest.raises(runner.RunnerError):
         runner._count(value)
+
+
+def test_full_matrix_publishes_observed_runtime_after_cleanup(
+    tmp_path: Path, fixture_driver: None
+) -> None:
+    report = runner.run_all(tmp_path / "matrix")
+    receipt = read_receipt(report.read_bytes())
+    assert tuple(row.case_name for row in receipt.cases) == tuple(case.name for case in CASES)
+    assert receipt.runtime.worker_uid == 10001 and receipt.runtime.observer_uid == 10002
+    driver = FixtureDriver.instances[-1]
+    assert driver.cleaned and driver.topology_checks >= 2 and driver.running
+    value = json.loads(report.read_bytes())
+    assert value["isolation_checks_passed"] is True
+    assert value["investigator_ip_protection_verified"] is value["production_ready"] is False
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "topology",
+        "forwarding",
+        "privileges",
+        "privilege_drops",
+        "browser_namespace",
+        "cleanup",
+        "interrupt",
+    ],
+)
+def test_full_matrix_faults_never_publish_success(
+    tmp_path: Path, fixture_driver: None, fault: str
+) -> None:
+    FixtureDriver.fault = fault
+    output = tmp_path / "matrix"
+    with pytest.raises(KeyboardInterrupt if fault == "interrupt" else (ValueError, RuntimeError)):
+        runner.run_all(output)
+    assert not list(output.glob("*.json"))
+    if fault != "cleanup":
+        assert FixtureDriver.instances[-1].cleaned
+
+
+@pytest.mark.parametrize("fault", ["", "prepare", "interrupt"])
+def test_cli_can_report_complete_fixture_matrix_without_claiming_deployed_privacy(
+    tmp_path: Path, fixture_driver: None, capsys: pytest.CaptureFixture[str], fault: str
+) -> None:
+    FixtureDriver.fault = fault
+    code = runner.main(
+        ["--profile", "fixtures", "--stage", "all", "--output-dir", str(tmp_path / "matrix")]
+    )
+    value = json.loads(capsys.readouterr().out)
+    assert code == (130 if fault == "interrupt" else 1 if fault else 0)
+    if not fault:
+        assert value["complete_matrix"] is True and value["browser_cases"] == 10
+        assert value["production_ready"] is value["investigator_ip_protection_verified"] is False
+    else:
+        assert "private-sentinel" not in json.dumps(value)
+
+
+def test_missing_runtime_observations_cannot_be_replaced_with_defaults(
+    tmp_path: Path, fixture_driver: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(runner, "execute_cases", lambda *args: runner.CaseRun((), None))
+    with pytest.raises(runner.RunnerError, match="runtime_observations"):
+        runner.run_all(tmp_path / "matrix")
+    assert FixtureDriver.instances[-1].cleaned
+    assert not list((tmp_path / "matrix").glob("*.json"))
+
+
+@pytest.mark.parametrize("value", [None, {}, {"uid": True}])
+def test_runtime_process_schema_is_checked_before_receipt(value: object) -> None:
+    with pytest.raises(runner.RunnerError):
+        runner._process(value, 10001)
