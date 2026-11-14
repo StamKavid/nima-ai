@@ -4,6 +4,17 @@ from typing import Literal
 
 MAX_REPORT_BYTES = 32 * 1024 * 1024
 POLICY_VERSION = "kimdis-identifier-assessment-v1"
+REGISTRY_POLICY_VERSION = "registry-comparison-v1"
+MAX_COMPARISON_MENTIONS = 10000
+MAX_REGISTRY_OBSERVATIONS = 100
+
+
+class ComparisonError(Exception):
+    """Fixed comparison failure; never include source assertions or selectors."""
+
+    def __init__(self, reason: Literal["registry_observation", "comparison_limit"]) -> None:
+        self.reason = reason
+        super().__init__(reason)
 
 
 class AssessmentError(Exception):
