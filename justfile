@@ -50,4 +50,17 @@ container-lock-check:
     uv export --frozen --all-groups --no-emit-project --no-header --output-file work/image-requirements.txt > /dev/null
     cmp infra/requirements-orchestration.txt work/image-requirements.txt
 
+# Run every Docker case and validate one fresh full fixture receipt for export.
+source-worker-check receipt_dir="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    task_receipt_dir={{quote(receipt_dir)}}
+    if [ -z "$task_receipt_dir" ]; then
+        mkdir -p data/source-worker/receipts
+        task_receipt_dir=$(mktemp -d data/source-worker/receipts/check.XXXXXXXX)
+    fi
+    uv run --frozen python -m nima.egress.receipt_check prepare "$task_receipt_dir"
+    NIMA_SOURCE_WORKER_RECEIPT_DIR="$task_receipt_dir" uv run --frozen pytest tests/source_worker_integration.py
+    uv run --frozen python -m nima.egress.receipt_check verify "$task_receipt_dir"
+
 check: skills-check container-lock-check lint typecheck test build security

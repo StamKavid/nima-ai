@@ -387,7 +387,7 @@ def test_real_browser_cases_require_sandbox_and_kernel_delivery_evidence(tmp_pat
 
 def test_full_matrix_receipt_requires_runtime_observations_and_cleanup(tmp_path: Path) -> None:
     from nima.egress.policy import CASES
-    from nima.egress.receipt import read_receipt
+    from nima.egress.receipt import publish_receipt, read_receipt
     from nima.egress.runner import run_all
 
     file = run_all(tmp_path / "matrix-reports")
@@ -400,6 +400,9 @@ def test_full_matrix_receipt_requires_runtime_observations_and_cleanup(tmp_path:
     value = json.loads(file.read_bytes())
     assert value["isolation_checks_passed"] is True
     assert value["investigator_ip_protection_verified"] is value["production_ready"] is False
+    artifact_dir = os.environ.get("NIMA_SOURCE_WORKER_RECEIPT_DIR")
+    if artifact_dir:
+        publish_receipt(Path(artifact_dir), receipt)
 
 
 def test_real_packet_guard_mutation_is_detected_restored_and_full_matrix_replayed(
