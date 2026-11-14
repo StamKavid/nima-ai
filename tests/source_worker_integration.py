@@ -7,8 +7,10 @@ verifies and removes exact IDs. Application execution remains fixture-only.
 import json
 from pathlib import Path
 
+import pytest
+
 from nima.egress.fixtures import Counters, http_server
-from nima.egress.stack import FixtureStack
+from nima.egress.stack import FixtureStack, ProbeCommandError
 
 
 def test_closed_fixture_services_and_private_controls(tmp_path: Path) -> None:
@@ -279,6 +281,148 @@ def test_full_matrix_receipt_requires_runtime_observations_and_cleanup(tmp_path:
     assert receipt.runtime.parent_net_admin_denied is True
     assert receipt.runtime.gateway_forwarding_disabled is True
     assert receipt.runtime.external_networks is False
+    value = json.loads(file.read_bytes())
+    assert value["isolation_checks_passed"] is True
+    assert value["investigator_ip_protection_verified"] is value["production_ready"] is False
+
+
+def test_real_packet_guard_mutation_is_detected_restored_and_full_matrix_replayed(
+    tmp_path: Path,
+) -> None:
+    """Trusted test helper only; never expose mutation through the application CLI.
+
+    https://manpages.debian.org/bookworm/nftables/nft.8.en.html#RULES
+    Insert one narrow rule at the head; delete only its observed kernel handle.
+    No host namespace, table flush, persistent policy edit or external target.
+    """
+    from nima.egress.probe_browser import read_result
+    from nima.egress.receipt import ClientResult, read_receipt
+    from nima.egress.rules import nft_objects, policy_payload
+    from nima.egress.runner import _network, _observe, _packet_control, _zero_delivery, run_all
+
+    state = tmp_path / "mutation-state"
+    state.mkdir(mode=0o700)
+    stack = FixtureStack(state)
+
+    def nft(*args: str) -> str:
+        return stack.compose("run", "--rm", "--no-deps", "network-setup", "/usr/sbin/nft", *args)
+
+    def handles() -> set[int]:
+        rows = nft_objects(
+            nft("--json", "--numeric", "--handle", "list", "table", "inet", "nima_worker").encode()
+        )
+        rules = [row["rule"] for row in rows if "rule" in row]
+        assert rules and all(
+            row["family"] == "inet" and row["table"] == "nima_worker" and row["chain"] == "output"
+            for row in rules
+        )
+        values = [row["handle"] for row in rules]
+        assert all(type(value) is int and 0 < value < 2**64 for value in values)
+        assert len(set(values)) == len(values)
+        return set(values)
+
+    try:
+        stack.prepare()
+        stack.start()
+        stack.compose("up", "-d", "--wait", "--no-deps", "metadata")
+        original_bytes = policy_payload()
+        _network(stack)  # Require the original full policy before any mutation.
+        original_handles = handles()
+        host = Counters()
+        with http_server(
+            ("172.30.240.1", 18080), host, role="host", context=None, credentials=stack.auth
+        ):
+            _packet_control(stack, host)
+            added_handle = None
+            try:
+                nft(
+                    "insert",
+                    "rule",
+                    "inet",
+                    "nima_worker",
+                    "output",
+                    "meta",
+                    "skuid",
+                    "10001",
+                    "ip",
+                    "daddr",
+                    "172.30.240.4",
+                    "tcp",
+                    "dport",
+                    "8443",
+                    "accept",
+                )
+                changed = handles()
+                assert original_handles < changed and len(changed) == len(original_handles) + 1
+                added_handle = (changed - original_handles).pop()
+                # The unchanged host validator must reject the actual mutated policy.
+                with pytest.raises(ProbeCommandError) as rejected_policy:
+                    stack.compose("run", "--rm", "--no-deps", "network-inspect", exact=True)
+                policy_outcome = json.loads(rejected_policy.value.result.stdout)
+                assert policy_outcome["status"] == "failed"
+                assert policy_outcome["failure"] == "network_policy"
+                # Run the real negative probe directly to demonstrate its regression:
+                # it must FAIL after a forbidden canary response, rather than call it isolation.
+                with pytest.raises(ProbeCommandError) as failed_probe:
+                    stack.compose(
+                        "run",
+                        "--rm",
+                        "--no-deps",
+                        "worker",
+                        "python",
+                        "-m",
+                        "nima.egress.probe_browser",
+                        "browser_proxy_bypass",
+                        exact=True,
+                    )
+                outcome = json.loads(failed_probe.value.result.stdout)
+                assert outcome["status"] == "failed" and outcome["failure"] == "unexpected_delivery"
+                delivered = _observe(stack, "packet-observe")["canary"]
+                assert delivered["application_requests"] > 0 and delivered["tcp_accepts"] > 0
+                assert delivered["headers_clean"] is True
+            finally:
+                if added_handle is not None:
+                    nft(
+                        "delete",
+                        "rule",
+                        "inet",
+                        "nima_worker",
+                        "output",
+                        "handle",
+                        str(added_handle),
+                    )
+                assert handles() == original_handles
+                assert policy_payload() == original_bytes
+                _network(stack)  # Exact original policy digest and namespace must be restored.
+
+            _packet_control(stack, host)
+            before = _network(stack)
+            raw = stack.compose(
+                "run",
+                "--rm",
+                "--no-deps",
+                "worker",
+                "python",
+                "-m",
+                "nima.egress.probe_browser",
+                "browser_proxy_bypass",
+                exact=True,
+            )
+            assert (
+                read_result(raw.encode(), "browser_proxy_bypass").client_result
+                == ClientResult.NETWORK_FAILURE
+            )
+            assert _network(stack)["direct_tcp"] > before["direct_tcp"]
+            _zero_delivery(stack, host)
+    finally:
+        stack.cleanup()
+    assert stack.cleaned
+
+    # Use fresh, independently owned fixtures after mutation cleanup. The ordinary
+    # strict full runner and publisher must still accept every normal case.
+    file = run_all(tmp_path / "restored-matrix")
+    receipt = read_receipt(file.read_bytes())
+    assert len(receipt.cases) == 28
     value = json.loads(file.read_bytes())
     assert value["isolation_checks_passed"] is True
     assert value["investigator_ip_protection_verified"] is value["production_ready"] is False
