@@ -9,6 +9,7 @@ import multiprocessing
 import os
 import re
 import signal
+import tempfile
 import time
 from contextlib import ExitStack, redirect_stderr, redirect_stdout, suppress
 from pathlib import Path
@@ -682,7 +683,7 @@ def test_real_controller_signals_refuse_success_and_preserve_unrelated_resources
             signal.signal(signal.SIGTERM, signal.SIG_DFL)
             signal.signal(signal.SIGALRM, signal.SIG_DFL)
             signal.alarm(180)  # Harness fails boundedly if synchronization breaks.
-            runner.tempfile.tempdir = str(temporary_root)
+            monkeypatch.setattr(tempfile, "tempdir", str(temporary_root))
             descriptor = os.open(trace, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
             with (
                 os.fdopen(descriptor, "w") as stream,
@@ -705,8 +706,8 @@ def test_real_controller_signals_refuse_success_and_preserve_unrelated_resources
             if process.pid is not None:
                 if process.is_alive():
                     if controller_pidfd is None:
-                        # Fallback for pidfd_open failure: a live child, or its
-                        # unreaped exit, still pins this immediate parent's PID.
+                        # Fallback for pidfd_open failure: this immediate parent
+                        # has not reaped the child, so the child's PID is pinned.
                         process.kill()
                     else:
                         with suppress(ProcessLookupError):
