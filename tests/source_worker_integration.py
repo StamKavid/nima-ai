@@ -214,3 +214,20 @@ def test_all_http_cases_reconcile_real_controls_delivery_and_gateway_outage(tmp_
     assert len(value["pending_cases"]) == 10
     assert value["complete_matrix"] is value["isolation_checks_passed"] is False
     assert value["investigator_ip_protection_verified"] is value["production_ready"] is False
+
+
+def test_real_browser_cases_require_sandbox_and_kernel_delivery_evidence(tmp_path: Path) -> None:
+    from nima.egress.probe_browser import BROWSER_CASES
+    from nima.egress.runner import execute_cases
+
+    stack = FixtureStack(tmp_path)
+    try:
+        stack.prepare()
+        rows = execute_cases(stack, BROWSER_CASES)
+        assert tuple(row.case_name for row in rows) == tuple(case.name for case in BROWSER_CASES)
+        for row in rows:
+            assert row.control_success is True
+        assert rows[0].observed_routes == frozenset({"html", "script", "image", "xhr", "fetch"})
+    finally:
+        stack.cleanup()
+    assert stack.cleaned
