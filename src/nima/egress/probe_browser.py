@@ -90,7 +90,16 @@ def _failure(case: str, error: BrowserError) -> ClientResult:
         if "ERR_CERT_AUTHORITY_INVALID" in str(error):
             return ClientResult.CERTIFICATE_REJECTED
     elif case == "browser_gateway_outage":
-        if "ERR_PROXY_CONNECTION_FAILED" in str(error):
+        if isinstance(error, BrowserTimeout) or any(
+            marker in str(error)
+            for marker in (
+                "ERR_PROXY_CONNECTION_FAILED",
+                "ERR_CONNECTION_TIMED_OUT",
+                "ERR_TIMED_OUT",
+            )
+        ):
+            # A stopped container can leave unanswered ARP instead of a TCP reset.
+            # The host must also prove the gateway stopped and no delivery occurred.
             return ClientResult.NETWORK_FAILURE
     elif case != "browser_resources" and (
         isinstance(error, BrowserTimeout)
