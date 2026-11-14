@@ -2,7 +2,8 @@
 
 This is the HTTP probe slice of E8 in `tasks/plan.md`. It adds no live source
 access and does not establish deployed investigator IP protection. The bounded
-host runner and private stage reports remain pending. The full receipt validator
+host runner and private stage reports are now described in
+[the runner runbook](source-worker-runner.md). The full receipt validator
 still requires all 28 HTTP/browser cases and actual browser runtime evidence.
 
 ## What is exercised
@@ -68,6 +69,7 @@ described above. Final-head results and the corrected matrix are linked in
 
 Review covered correctness, readability, architecture, security and performance.
 The probe has no source-storage, database or orchestration side effects. It
-reuses existing case validation and the temporary fixture controller; extracting
-that controller with run-wide bounds/ownership failure tests is the next E8
-slice. There are no dependency, permission, sandbox, TLS or check changes.
+reuses existing case validation. The later E8 slices replace the temporary test
+controller with the bounded shared controller and verify its private stage report.
+Browser cases remain E9 work. There are no dependency, permission, sandbox, TLS
+or check changes.

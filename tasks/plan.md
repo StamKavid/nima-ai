@@ -45,11 +45,18 @@ B603, with no shell or external command/argument/stdin selection. Review the
 annotations explicitly; no global scanner exclusions or threshold changes.
 The complete client/fault matrix, checkpoint C and deployed IP protection remain
 unverified. E8 moves execution into the bounded fixture-only runner.
-E8's first slice adds the 18 fixed HTTP-stage probes and an explicit Docker
-test with independent positive controls, delivery/counter reconciliation and
-actual gateway stop/restart. See `docs/verification/source-worker-http.md` and
-PR #46. The bounded host controller, private stage reports and all E9 browser
-cases remain pending; do not treat this slice as completed E8 or checkpoint C.
+The user merged E8's HTTP probe slice in #46. E8 now has a reusable bounded
+controller and private HTTP-stage reports: delivery head `e866c97` passed all
+three jobs in run 43514084957 with 884 tests and 91.37% coverage. Four real Docker
+tests passed in 149.92 seconds; the fourth executes the application runner,
+reconciles all 18 HTTP cases and reads its report after verified owned cleanup.
+PRs #47–#50 separate process bounds, shared fixture lifecycle, report semantics
+and runner integration; all target main and require human merges in that order.
+See `docs/verification/source-worker-runner.md`. Final-head checks remain required
+after the delivery's documentation and runtime-accounting review. All ten E9
+browser cases, checkpoint C and deployed IP protection remain pending. The HTTP
+report explicitly marks the full matrix incomplete; the full receipt validator
+still requires all 28 cases and actual browser runtime evidence.
 Local focused tests/types/security passed; the full local PostgreSQL gate could
 not start because this executor lacks Docker storage. Hosted full tests used
 real PostgreSQL. Keep that validation limitation visible at delivery.
