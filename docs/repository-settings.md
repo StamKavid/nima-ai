@@ -1,7 +1,11 @@
 # Repository controls and development commands
 
-Updated 2026-11-12. Repository: private `StamKavid/nima-ai`. The account and commit
-identity remain StamKavid. PRs #27–#29 are merged; main `242e9bb` passed hosted
+Updated 2026-11-14. Repository: public `StamKavid/nima-ai`, explicitly confirmed by
+the owner after changing visibility. This supersedes the original private-hosting
+policy. Source data, evidence archives, credentials and databases remain outside
+Git. The account and commit identity remain StamKavid.
+
+Historical setup: PRs #27–#29 are merged; main `242e9bb` passed hosted
 quality/Compose run 43165010871. `dev` was created from that exact commit.
 
 ## Branch cleanup
@@ -44,16 +48,24 @@ The existing project policy already specified one approval. A sole author cannot
 approve their own PR; an independent reviewer is required when this rule is enabled.
 Do not silently lower that requirement to get a merge through.
 
-Actual GitHub responses blocked activation:
+Historical GitHub responses blocked activation while the repository was private:
 
 - Reading private rulesets returned 403 with “Upgrade to GitHub Pro or make this
-  repository public to enable this feature.” The repository stays private.
+  repository public to enable this feature.”
 - Creating the ruleset and changing `delete_branch_on_merge` returned 403
   “Resource not accessible by integration.” Account admin status does not grant
   this integration the corresponding settings permissions.
 
-Use a plan supporting private branch protection and an administration-capable
-GitHub session. Import the JSON at Settings → Rules → Rulesets, or create once:
+The owner has since made the repository public. Read-only verification on
+2026-11-14 found active ruleset `protect-main` (ID 26812073), but its branch
+include/exclude lists are empty and it contains only deletion and non-fast-forward
+rules. `GET /rules/branches/main` and `/rules/branches/dev` both returned `[]`.
+Neither branch has verified effective protection. The separate classic-protection
+endpoint still returned integration HTTP 403; that does not override the effective
+rules observations. No settings were changed during this verification.
+
+Use an administration-capable GitHub session to configure the intended policy.
+Import the JSON at Settings → Rules → Rulesets, or create once:
 
 ```bash
 gh api -X POST repos/StamKavid/nima-ai/rulesets --input .github/rulesets/main-dev.json
