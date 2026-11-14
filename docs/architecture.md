@@ -207,7 +207,7 @@ GNN experiments need to demonstrate additional value before adoption.
 
 ## Current state and next milestone
 
-As of 2026-11-14, main `1c9ac26` implements bounded KIMDIS contract
+As of 2026-11-14, main `127b3b8` implements bounded KIMDIS contract
 collection, raw evidence archives, typed normalization, PostgreSQL versions and
 observations, safe resume, reported-participation projection and offline identity
 assessment. GEMI has a bounded archive collector and offline SQL import; accepted
@@ -222,10 +222,19 @@ request identity, bounded retry budgets and dispatch history as well as evidence
 The separate local Prefect control store contains workflow state, not source bodies.
 There is no graph store, evaluated model or investigator UI.
 
-The current worker increment has passed the full 28-case matrix and actual
-packet-rule mutation/restoration test. E10's remaining failure experiments and
-E11–E12 integration/review follow before deployment validation. Registry comparison,
-reviewed identities and a temporal graph are the next product capabilities.
+The controlled-worker increment is delivered through E12: the full 28-case matrix,
+actual packet-rule mutation/restoration, real failure controls, complete CI recipe
+and measured runbook are merged. `just source-worker-check` runs all 12 Docker
+tests and validates one fresh full receipt before CI upload. See the
+[delivery record](verification/source-worker-egress.md) for exact commits/results
+and undeployed public-IP/recovery limits.
+
+The next proposed increment is the
+[offline registry-comparison report](identity/registry-comparison.md), currently
+drafted for review. It compares selected stored assertions while retaining
+unresolved identities and contradictory evidence. Reviewed reversible identities
+and a temporal graph follow as separate capabilities; this specification adds
+no implemented graph or matching model.
 See the [workflow contract](sources/kimdis-orchestration.md),
 [pipeline/reference mapping](pipeline-reference.md) and the
 [capability progress estimate](progress.md).

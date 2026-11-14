@@ -244,9 +244,12 @@ investigator workspace. These are roadmap items, not implementation tasks.
 - [ ] Enforce GitHub-side main/dev rules and native deletion setting.
   - Blocked: private-repository rulesets require GitHub Pro; settings writes
     returned 403 for this integration. Prepared .github/rulesets/main-dev.json.
-- [ ] Continue with offline registry-comparison specification.
-  - Existing draft remains on `docs/registry-comparison-spec`; it is not discarded
-    or treated as approved by the Publicity fallback decision.
+- [x] Refresh the offline registry-comparison specification for review.
+  - `docs/identity/registry-comparison.md` replaces the unpublished
+    `docs/registry-comparison-spec` draft against main `127b3b8` and the current
+    identity/GEMI storage contracts. This is documentation, not implementation.
+- [ ] Review/approve the comparison specification before implementation planning.
+  - Earlier worker/fallback approvals do not approve this report's new scope.
 
 ## Private manual Publicity evidence intake
 
@@ -635,7 +638,11 @@ tracked above. The following test commands describe future implementation checks
 
 - [x] Document actual setup, complete command, measured gates and recovery limits.
 - [x] Review correctness, readability, architecture, security and performance.
-- Delivery-candidate hosted checks and human review/merge are tracked in its PR.
+- [x] Verify exact-head hosted gates and human delivery merge.
+  - #64 is merged at `127b3b8`. Candidate `39fd05b` passed all three jobs in
+    run 43627192150: 987 quality tests/91.58% coverage and 12 real Docker
+    tests/624.58 seconds. One full 28-case receipt passed final verification and
+    was uploaded as artifact 14126678873. Deployment/privacy flags stay false.
 
 - Acceptance: runbook and evidence state actual results/prerequisites and limits.
   Small dependent PRs use StamKavid attribution; no dependent merge to an
@@ -649,6 +656,6 @@ tracked above. The following test commands describe future implementation checks
 Progress-only updates to this plan/spec remain separate from behaviour changes.
 The implementation progress above records passing prerequisite, offline and
 closed-fixture gates, including the full network matrix, real failure/mutation
-experiments and final recipe/downloaded artifact. E12's documentation candidate
-still needs its hosted checks and human review/merge. Deployed IP protection
-remains unverified; registry comparison needs its separate specification review.
+experiments, final recipe/downloaded artifact and E12's measured delivery merge.
+Deployed IP protection remains unverified; registry comparison needs its separate
+specification review before planning or implementation.
