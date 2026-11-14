@@ -231,6 +231,7 @@ def test_selected_import_committed_after_snapshot_is_not_mixed_into_it(
     run = seed(pg_dsn, tmp_path, record())
     root = tmp_path / "gemi"
     selected = archive_run(root)
+    before = procurement_counts(pg_dsn)
     original = registry_cohort._preflight
 
     def concurrent_import(
@@ -243,7 +244,8 @@ def test_selected_import_committed_after_snapshot_is_not_mixed_into_it(
     monkeypatch.setattr(registry_cohort, "_preflight", concurrent_import)
     with pytest.raises(ComparisonError, match="registry_import_unavailable"):
         registry_cohort.read_comparison_cohort(pg_dsn, run, (selected,), PROJECTION_VERSION)
-    assert registry_counts(pg_dsn) == (1, 2, 1, 2, 0)
+    assert registry_counts(pg_dsn) == (1, 2, 1, 2, 1)
+    assert procurement_counts(pg_dsn) == before
 
 
 @pytest.mark.parametrize(
