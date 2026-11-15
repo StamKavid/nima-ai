@@ -1,15 +1,16 @@
 # Delivery plan
 
-## Current: bounded investigation graph — proposed implementation plan
+## Current: bounded investigation graph — technical delivery
 
-Status: **contract approved; implementation plan proposed for owner review**,
-2026-11-15. The owner approved [scope #87](../docs/graph/investigation-pilot.md),
-merged at eb3d2e0. Candidate research #88 and its requested technical revision #89
-compare performance, recovery, resources, query/tooling, support and licensing;
-no database is adopted. This plan delivers the approved private JSON graph and
-optional focused CLI view using existing dependencies. No graph implementation,
-adapter, extension, migration, service, model, live Greek-source request or deployment
-is included in this planning increment. Execute sequentially without delegation.
+Status: **G1–G5 owner-merged through checkpoint C**, 2026-11-15, main `4a33a3e`.
+Scope #87 and implementation plan #90 were approved. The private JSON graph,
+optional selected-history focus and operator CLI are implemented using existing
+dependencies. G6's measured runbook #96 is owner-merged at `66712bd`; this G7
+reconciliation requires the remaining owner review/merge at checkpoint D.
+Candidate verification is
+recorded in their PRs separately from the merged runtime's measured evidence.
+Execute sequentially without delegation; no database adapter, extension, migration,
+model/provider, live Greek-source request or deployment is added by this delivery.
 
 The requested [database assessment](../docs/graph/database-candidates.md) identifies
 Memgraph/FalkorDB as prototype candidates, Neo4j as a tooling baseline and AGE/HydraDB
@@ -33,7 +34,7 @@ each checkpoint; no automatic merge/deploy. G5 gets its own checkpoint because i
 exposes the operator interface. The exact 2–5-file slices and focused commands are
 in tasks/todo.md; a slice cannot expand scope silently when a new risk is found.
 
-### Architecture and ownership
+### Approved architecture and ownership
 
 **One authoritative read.** The current review_snapshot.read_snapshot owns its
 connection, so chaining it with another fact read would mix snapshots. G1 extracts
@@ -133,13 +134,52 @@ review checks batch access, bounded input/output and linear graph/focus construc
 | A small graph is mistaken for an evaluated product | Separate real-cohort source recovery and observed investigator tasks; no benchmark or product-value credit from fixtures |
 | Database choice becomes a hidden prerequisite | Portable contract first; separately scoped adapters compare technical/runtime results and actual-use license fit |
 
-No blocking external-access or graph-database selection question remains for this
-offline plan. Plan approval is still required before G1. It does not approve a
-store adapter, package, service, source request, purchase, deployment or admin change.
-Real-cohort availability, empirical identity precision and investigator task-time
-study remain separate gates after technical delivery. Overall capability progress
-stays approximately 30% during planning; eventual credit requires measured delivery
-and preserved baseline weights, not PR/test counts or newly written documents.
+The merged offline workflow needs no live GEMI key or graph-store choice. Broader
+adapters, packages, services, source requests, purchases, deployment and admin changes
+still need their own scope. Real-cohort availability, source recovery, empirical
+identity/edge/time checks and observed investigator tasks remain separate gates.
+The [progress estimate](../docs/progress.md) is approximately 33% using unchanged
+weights and limited credit for the implemented bounded graph; documentation and
+PR/test counts add no credit.
+
+### Measured delivery and remaining owner checkpoint
+
+| Slice | Delivery | Owner merge |
+|---|---|---|
+| G1 caller-owned review read | #91 / `964c33a` | `0f623a1` |
+| G2 complete graph source snapshot | #92 / `7e7660b` | `7de0b9c` — checkpoint A |
+| G3 pure graph/focus | #93 / `1f39df4` | `652e609` |
+| G4 private export/races | #94 / `8518a7f` | `eb5d9dd` — checkpoint B |
+| G5 CLI/physical publication recovery | #95 / `e406c02` | `4a33a3e` — checkpoint C |
+| G6 measured operation | #96 / `cab6769` | `66712bd` |
+| G7 delivery/progress reconciliation | This candidate | Owner review/merge pending |
+
+Every runtime candidate passes all three exact-head hosted jobs. Final runtime
+`e406c02` in run 43739790204 passes 1,508 tests/92.37%, quality/build/security/audit,
+Compose and 12 Docker tests/833.86 s with one fresh validated 28-case receipt.
+Internet-egress/IP-protection/production flags stay false. The
+[graph runbook](../docs/verification/investigation-graph.md) records full candidates,
+runs, source/identity/time/value limits, 26-relation read-only checks, independent
+revoke interleavings, mutations and actual pre/post-link SIGKILL/Ctrl+C retry.
+The disposable local PostgreSQL baseline now supports complete SQL checks; earlier
+local-prerequisite limitations remain historical, and supported Docker evidence
+still comes from hosted CI. Documentation candidates run their own normal gates.
+
+Checkpoint D remains open until G7 is owner-reviewed/merged and both documentation
+candidates' checks pass. This reconciliation records known merges rather than
+assuming its
+own future merge. The approved design above and all earlier incomplete tasks and
+historical delivery records below remain preserved.
+
+After checkpoint D, prepare a separate real-company investigation-pilot scope:
+authorize a small private cohort, recover source bytes/locations for every displayed
+active link, record contradictions/unknowns and audit identity, dates and amounts.
+Then observe participation/citation/revocation tasks against the manual workflow,
+including completion, critical errors, time and familiarity. METLEN remains a
+candidate from the owner's earlier request; no real-company retrieval or validated
+demonstration is asserted here. A thin read-only dossier/explorer and separately
+scoped graph-store benchmarks can follow the evidence/value gate. Wider sources,
+eligible signals, ML, cited AI, public auth and production operation remain later.
 
 ## Completed: reviewed identity decisions — implementation plan
 

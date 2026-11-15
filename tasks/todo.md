@@ -1,25 +1,30 @@
 # Tasks
 
-## Current: bounded investigation graph — implementation plan review
+## Current: bounded investigation graph — documentation handoff
 
-Scope #87 is owner-approved. Requested candidate research is in #88 with the
-technical revision in #89. This plan is proposed, not executed. Preserve the
-approved [graph contract](../docs/graph/investigation-pilot.md), prior incomplete
-work, existing constraints and the historical records below. Execute sequentially.
+Scope #87 and plan #90 are owner-approved. G1–G5 are owner-merged through #95 at
+`4a33a3e`, completing checkpoints A–C. G6 runbook #96 (`cab6769`) is owner-merged at
+`66712bd`; G7 is this reconciliation candidate. Checked documentation tasks record
+authored
+content; their candidate checks and owner merges remain explicit in checkpoint D.
+Preserve the approved [graph contract](../docs/graph/investigation-pilot.md), all
+earlier incomplete work, existing constraints and historical records below.
+Execute sequentially without delegation.
 
 - [x] Record contract approval and revise candidate research across technical,
   operating/support and licensing factors; no graph/database installed or benchmark run.
 - [x] Draft the bounded graph implementation plan and verifiable slices below.
-- [ ] Owner review/approval of this implementation plan before G1.
+- [x] Owner review/approval of this implementation plan before G1 (#90).
 
 Every code slice runs its focused tests, just check, just audit and all three
 exact-head hosted jobs. No test is skipped or gate weakened for local prerequisites.
-All commands for new graph files below are proposed verification after those files
-are implemented, not claims of passing tests today.
+G1–G5's measured passing commands/results are in the
+[graph runbook](../docs/verification/investigation-graph.md). G6/G7 require their own
+normal checks and owner checkpoint; no future candidate result is assumed here.
 
 ### G1: Reuse a connection-owned reviewed snapshot read
 
-- [ ] Extract the guarded reader without adding graph behavior.
+- [x] Extract the guarded reader without adding graph behavior (#91).
 - Acceptance: existing wrapper preserves validation/error/byte behavior; a caller-
   owned read requires active RR/read-only/UTC and does not commit/close the caller;
   shared identity evidence/history/fold logic remains authoritative.
@@ -30,7 +35,7 @@ are implemented, not claims of passing tests today.
 
 ### G2: Validate complete graph facts in one SQL snapshot
 
-- [ ] Add the complete bounded graph source-read library.
+- [x] Add the complete bounded graph source-read library (#92).
 - Acceptance: one owned snapshot revalidates selected review state and exact full
   contract projection/digest; additional normalized/projection bytes reserve the
   same 8 MiB before labels; typed results omit unselected source labels, writes,
@@ -43,12 +48,12 @@ are implemented, not claims of passing tests today.
 
 ### Checkpoint A: Complete consistent inputs
 
-- [ ] Shared-read regressions, real count/byte/corruption checks and normal hosted
+- [x] Shared-read regressions, real count/byte/corruption checks and normal hosted
   gates pass; owner review/merge before graph construction.
 
 ### G3: Build deterministic graph and focused party views
 
-- [ ] Deliver pure construction from the complete typed snapshot.
+- [x] Deliver pure construction from the complete typed snapshot (#93).
 - Acceptance: exact approved kinds/keys/metadata and sorted collision-free graph;
   active-only reviewed links, all unresolved/history members and focus outcomes;
   exact money/date/evidence semantics, 600/500 limits and no out-of-scope labels.
@@ -58,7 +63,7 @@ are implemented, not claims of passing tests today.
 
 ### G4: Publish a complete private graph artifact
 
-- [ ] Connect SQL read, pure build and existing canonical publisher.
+- [x] Connect SQL read, pure build and existing canonical publisher (#94).
 - Acceptance: SQL closes before encoding/publication; exact 32 MiB output, canonical
   hashes/reuse and old artifact immutability; independent concurrent-revoke tests
   prove one coherent snapshot and full source/review row snapshots prove no writes.
@@ -71,12 +76,12 @@ are implemented, not claims of passing tests today.
 
 ### Checkpoint B: Complete graph export library
 
-- [ ] Deterministic exact graph/focus results, actual SQL consistency/read-only
+- [x] Deterministic exact graph/focus results, actual SQL consistency/read-only
   evidence and normal hosted gates pass; owner review/merge before CLI exposure.
 
 ### G5: Expose the CLI and verify physical retry
 
-- [ ] Add graph snapshot and exercise actual publication interruption/retry.
+- [x] Add graph snapshot and exercise actual publication interruption/retry (#95).
 - Acceptance: strict private input/configuration and fixed 0/1/2/130 behavior,
   source-value-free errors and unchanged old routes; real before/after-publication
   SIGKILL then normal-CLI retry preserves one artifact/closed SQL/unchanged rows;
@@ -88,12 +93,12 @@ are implemented, not claims of passing tests today.
 
 ### Checkpoint C: Private operator graph workflow
 
-- [ ] Actual command/parser/physical recovery/mutation and all hosted gates pass;
+- [x] Actual command/parser/physical recovery/mutation and all hosted gates pass;
   owner review/merge before recording the measured runbook.
 
 ### G6: Document measured graph operation
 
-- [ ] Record implemented commands, setup, exact results and empirical limits.
+- [x] Record implemented commands, setup, exact results and empirical limits (#96, owner-merged).
 - Acceptance: actual help/examples/private artifacts, resource/error/recovery and
   identity/time/value/coverage limits match code; measured CI/source-state evidence
   is distinct from unrun real-user, database-adapter and production evaluations.
@@ -104,7 +109,7 @@ are implemented, not claims of passing tests today.
 
 ### G7: Reconcile delivery and the next product gate
 
-- [ ] Record actual merges/checkpoints, capability evidence and remaining evaluation.
+- [x] Record actual merges/checkpoints, capability evidence and remaining evaluation (this candidate).
 - Acceptance: all earlier incomplete tasks and fixed weights remain; any delivery
   credit cites working/evaluated capability, not documentation/PR/test counts;
   real-cohort recovery, investigator tasks and separately scoped database tests remain explicit.
