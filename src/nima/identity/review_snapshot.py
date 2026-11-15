@@ -56,7 +56,7 @@ class ResolutionSnapshot:
 def read_snapshot(
     dsn: str, report: ReviewReport, *, max_events: int = MAX_REVIEW_EVENTS
 ) -> ResolutionSnapshot:
-    subjects = _subjects(report, max_events)
+    subjects = validate_inputs(report, max_events=max_events)
     try:
         check_schema(dsn)
         with _connect(dsn) as connection, connection.transaction():
@@ -75,18 +75,29 @@ def read_snapshot(
 
 
 def read_snapshot_in_transaction(
-    connection: Connection, report: ReviewReport, *, max_events: int = MAX_REVIEW_EVENTS
+    connection: Connection,
+    report: ReviewReport,
+    *,
+    max_events: int = MAX_REVIEW_EVENTS,
+    reserve_bytes: int = 0,
 ) -> ResolutionSnapshot:
     """Read without owning the caller's connection or active SQL transaction.
 
     The caller owns schema checks, RR/read-only/UTC setup, connection lifetime
     and database-exception translation. Invalid input is rejected before SQL;
-    an unsupported transaction raises the fixed review_state failure.
+    an unsupported transaction raises the fixed review_state failure. Additional
+    consumer provenance reserves the same combined SQL budget before labels.
     """
-    return _read(connection, report, _subjects(report, max_events), max_events)
+    subjects = validate_inputs(report, max_events=max_events)
+    if type(reserve_bytes) is not int or not 0 <= reserve_bytes <= review_evidence.MAX_INPUT_BYTES:
+        raise ReviewError("review_limit")
+    return _read(connection, report, subjects, max_events, reserve_bytes)
 
 
-def _subjects(report: ReviewReport, max_events: int) -> tuple[ReviewSubject, ...]:
+def validate_inputs(
+    report: ReviewReport, *, max_events: int = MAX_REVIEW_EVENTS
+) -> tuple[ReviewSubject, ...]:
+    """Validate typed/hash inputs without SQL; readers still validate on entry."""
     if type(max_events) is not int or not 1 <= max_events <= MAX_REVIEW_EVENTS:
         raise ValueError("review_configuration")
     try:
@@ -106,6 +117,7 @@ def _read(
     report: ReviewReport,
     subjects: tuple[ReviewSubject, ...],
     max_events: int,
+    reserve_bytes: int = 0,
 ) -> ResolutionSnapshot:
     if connection.info.transaction_status != TransactionStatus.INTRANS:
         raise ReviewError("review_state")
@@ -151,7 +163,7 @@ def _read(
     ).fetchall()
     entities = tuple(cast(UUID, row[0]) for row in rows)
     checked = review_evidence.validate_evidence(
-        connection, report, entity_ids=entities, reserve_bytes=extra
+        connection, report, entity_ids=entities, reserve_bytes=extra + reserve_bytes
     )
     rows = connection.execute(
         sql.SQL("""WITH selected AS ({}) SELECT to_jsonb(e),to_jsonb(o)

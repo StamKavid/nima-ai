@@ -175,6 +175,44 @@ def test_invalid_additional_byte_reservation_fails_before_sql(reserved: int) -> 
         )
 
 
+@pytest.mark.parametrize("reserved", [-1, True, 8 * 1024 * 1024 + 1])
+def test_shared_snapshot_rejects_invalid_reservation_before_sql(reserved: int) -> None:
+    with pytest.raises(ReviewError, match="^review_limit$"):
+        review_snapshot.read_snapshot_in_transaction(
+            cast(Connection, None), decode_report(report_body()), reserve_bytes=reserved
+        )
+
+
+def test_shared_snapshot_reservation_reduces_the_same_combined_budget(
+    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    parsed = seed_report(pg_dsn, tmp_path)
+    review_store.review(pg_dsn, request(parsed), report=parsed)
+    expected = review_snapshot.read_snapshot(pg_dsn, parsed)
+    with _connect(pg_dsn) as connection, connection.transaction():
+        connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+        connection.execute("SET LOCAL TIME ZONE 'UTC'")
+        reserved = review_snapshot.read_snapshot_in_transaction(
+            connection, parsed, reserve_bytes=1234
+        )
+        assert reserved == replace(expected, input_bytes=expected.input_bytes + 1234)
+        monkeypatch.setattr(review_evidence, "MAX_INPUT_BYTES", reserved.input_bytes)
+        assert (
+            review_snapshot.read_snapshot_in_transaction(connection, parsed, reserve_bytes=1234)
+            == reserved
+        )
+        monkeypatch.setattr(review_evidence, "MAX_INPUT_BYTES", reserved.input_bytes - 1)
+
+        def forbidden(*args: object, **kwargs: object) -> Never:
+            pytest.fail("Reserved budget must be checked before private labels")
+
+        monkeypatch.setattr(review_evidence, "_party", forbidden)
+        with pytest.raises(ReviewError, match="^review_limit$"):
+            review_snapshot.read_snapshot_in_transaction(connection, parsed, reserve_bytes=1234)
+        assert not connection.closed
+        assert connection.info.transaction_status == TransactionStatus.INTRANS
+
+
 def test_unreviewed_members_need_no_head_writes(pg_dsn: str, tmp_path: Path) -> None:
     parsed = seed_report(pg_dsn, tmp_path)
     before = source_snapshot(pg_dsn)
