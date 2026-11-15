@@ -1,7 +1,7 @@
 # Reviewed, reversible identity decisions
 
-Status: **draft for scope review**, 2026-11-15. No interface or migration below
-is implemented. Module: `entity-resolution` in [CAPABILITIES.md](../../CAPABILITIES.md).
+Status: **scope approved** by owner merge #74 at `2428b9d`, 2026-11-15.
+No interface or migration below is implemented. Module: `entity-resolution` in [CAPABILITIES.md](../../CAPABILITIES.md).
 Supplements the [approved identity specification](../../SPEC-entity-resolution.md)
 and [implemented comparison contract](registry-comparison.md). Base: main
 `d6c1552`, after human merge of #73. This proposal earns no completion credit.
@@ -23,7 +23,8 @@ No live source call, GEMI key, hosted model or empirical accuracy claim is neede
 The proposed new scope includes append-only identity tables, an explicit migration,
 a local decision-write command and a read-only private snapshot command. Scope
 approval must cover those changes; this specification does not execute them.
-The technical implementation plan and tasks follow only after approval.
+The implementation plan/tasks are now proposed for their own review in
+[tasks/plan.md](../../tasks/plan.md) and [tasks/todo.md](../../tasks/todo.md).
 
 ## Review unit and stable identifiers
 
@@ -311,7 +312,7 @@ explicit review for each accepted occurrence and retain unresolved selection mem
 Never merge by name/AFM shape, mutate source history, create automatic links,
 infer legal form/ownership/collusion, or silently rewrite a published snapshot.
 
-Scope approval is requested for the local database-principal trust model, bounded
+Scope approval through #74 covers the local database-principal trust model, bounded
 eligible-candidate review, stable unclassified handles, explicit additive ledger
 migration/writes and private snapshot export. Changes to dependencies, CI, source
 access, public services, multi-user authentication, manual unmatched adjudication,
@@ -319,5 +320,6 @@ entity merge/split/reanchoring, graph projection or models need separate review.
 
 No external credential blocks this proposed offline scope. There are no additional
 required operator preferences before scope review; the stated assumptions can be
-changed here. After human approval, draft the implementation plan/tasks in a later
-turn. Do not implement this proposal or apply database/admin changes in this PR.
+changed by explicit scope review. The proposed implementation plan/tasks remain
+unapproved; do not implement them or apply database/admin changes before that
+review. This planning PR contains no application code, DDL or role/grant action.

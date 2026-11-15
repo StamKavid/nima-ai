@@ -12,7 +12,8 @@ with one validated full 28-case receipt. See the
 RC6–RC7 documentation was merged through #73; its candidate `9e5e4ac` passed
 all three checks (1,106 tests/91.82%, 12 Docker tests/660.33 s and a validated
 28-case receipt). The next [reviewed-decision specification](identity/reviewed-decisions.md)
-is a draft and earns no implementation credit. The delivered comparison has
+was approved through #74 at `2428b9d`; its implementation plan is under review
+and earns no implementation credit. The delivered comparison has
 zero accepted identity links. Test coverage is not product completion, matching
 accuracy or production readiness.
 
@@ -80,10 +81,10 @@ investigator workspace yet. Election-accountability work is outside this baselin
 
 ## Immediate direction
 
-1. Review the [draft reviewed-decision scope](identity/reviewed-decisions.md);
-   the offline comparison and its RC6–RC7 runbook/progress work are merged.
-2. After scope approval, plan reviewed reversible decisions with supporting and
-   conflicting evidence, audit history and evaluation before implementing writes.
+1. Review the [implementation plan](../tasks/plan.md) for the
+   [approved reviewed-decision scope](identity/reviewed-decisions.md), merged as #74.
+2. After plan approval, implement/test reviewed reversible decisions and private
+   snapshots with audit history and evaluation; the ledger is not implemented yet.
 3. Build reproducible temporal graph projection with dated, inspectable evidence.
 4. Add eligible company/sector statistics and explainable rules, then evaluated ML.
 5. Add evidence retrieval/cited AI and the investigator workspace.

@@ -1,19 +1,194 @@
 # Delivery plan
 
-## Current: reviewed identity decisions — specification review
+## Current: reviewed identity decisions — implementation plan
 
-Status: **scope proposal; not an implementation plan**, 2026-11-15. The user
-requested continuation after the registry-comparison increment. The draft is
-[reviewed-decisions.md](../docs/identity/reviewed-decisions.md), within the existing
-`entity-resolution` module. It proposes a trusted local operator CLI, append-only
-accept/reject/revoke history, stable unclassified party handles and private
-resolution snapshots. Source history, comparison behavior and automatic links stay
-unchanged; no ledger migration/write command is implemented by this proposal.
+Status: **plan drafted for review**, 2026-11-15. The owner approved
+[reviewed-decisions.md](../docs/identity/reviewed-decisions.md) by merging #74 as
+`2428b9d`. Its candidate `fb1cd9b` passes all three jobs in run 43683755019:
+1,106 existing tests/91.90%, clean quality/security/audit, Compose, and 12 Docker
+tests/725.30 s with one full validated 28-case receipt. Those tests do not prove
+an implemented ledger. This PR plans work; it adds no application code or DDL.
 
-Review the proposed trust, evidence, reversal and concurrency boundaries before
-an implementation plan. Planning/tasks follow scope approval in a later turn;
-no new implementation ordering or tasks are introduced here. Preserve the complete
-previous delivery record and all older incomplete source/access/product work.
+Deliver explicit local accept/reject/revoke operations, stable unclassified party
+handles and private reviewed-resolution exports. Preserve all original evidence,
+source/projection/outbox/workflow state and existing CLI/report behavior. No source
+request, key, model, graph, dependency, public service or production/admin action
+is included. Execute sequentially without agent delegation. Older incomplete
+access/product work and the complete RC1–RC7 delivery record remain below.
+
+### Dependency order and review checkpoints
+
+RI1 strict private input/request types → RI2 pure state rules → checkpoint A →
+RI3 additive ledger schema → RI4 SQL evidence validation → checkpoint B →
+RI5 atomic acceptance library → RI6 rejection/revocation library →
+RI7 concurrency, permissions and actual SQL-commit recovery → checkpoint C →
+RI8 private resolution-export library → RI9 operator CLI/export crash checks →
+checkpoint D → RI10 measured runbook → RI11 delivery/progress reconciliation →
+checkpoint E. The roughly 2–5-file tasks, acceptance and focused commands are in
+`tasks/todo.md`. Every checkpoint includes human review/merge of working slices;
+no automatic merge/deploy. Keep dependent PRs draft or target main with their
+complete approved prerequisites included. Do not start RI1 before plan approval.
+
+### Typed input and evidence boundary
+
+RI1 uses `nima.evidence.artifacts`' descriptor-based private regular-file reader;
+translate its errors into fixed review diagnostics rather than building another
+file framework. Require 0700/0600 ownership, no symlink traversal, bounded reads
+and unchanged-file checks. Bound the request at 16 KiB/rationale at 4 KiB UTF-8
+and comparison bytes at 32 MiB. Reject duplicate/unknown JSON keys, excessive
+nesting, wrong types (including bool-as-int), non-finite/oversized numbers, blank
+rationales and unsupported versions before database access. Preserve original
+Unicode/free text. Canonical request identity includes operation, source keys,
+expected revision, entity/reversal fields, rationale, acknowledged issues and the
+expected report hash; exclude local file paths and server recording time.
+
+Keep parsing/type validation, pure state folding and I/O separate. Exact request
+and report schemas are versioned together with the accepted specification; no
+private source-bearing parser error can escape. Pure RI2 transitions forbid direct
+replacement/rejection of an active acceptance, cross-pair revocation, resurrection
+and implicit propagation. A rejection may be superseded explicitly. At most one
+pair is actively accepted for a subject; no rejection creates an entity.
+
+RI4 validates selected immutable SQL tuples through a caller-owned connection.
+Do not call the current-run cohort wrapper as if it reproduced historical coverage:
+that wrapper would include later collection. Resolve the frozen report occurrence
+keys against observations/receipts/mentions and complete declared GEMI imports,
+terminal responses/profiles and approved scalar pointers/dates. Reuse existing
+normalization codecs and the pure comparison policy. Report hashes are byte
+identity, not authentication. Supplied coverage stays labeled report context;
+it neither authorizes a write nor certifies historical completeness.
+
+A new accept/reject validates the chosen subject and complete registry catalog.
+An existing target handle adds its exact anchor, including AFM-change issues even
+outside the report. Resolution validates every selected subject plus needed anchors
+and ledger history. Count overlapping observation keys once against the combined
+100-observation budget; never discard unmatched/404 rows to fit. Preflight combined
+SQL source/ledger context at 8 MiB before transferring labels/notes. No source or
+archive repair/import is implicit. Recompute eligibility/issues from SQL facts,
+never copied file outcomes. New writes cannot use caller-supplied validation flags
+or a fabricated typed proof to bypass that database boundary.
+
+### Additive storage and first working write path
+
+RI3 adds migration `0007.sql` and registers it in `_migrations()`; migrations
+0001–0006 and their hashes remain untouched. New authoritative relations hold
+immutable entity anchors and request/event history; mutable subject heads contain
+only concurrency state that must reconcile with the event fold. Key subjects by
+observation/projection/role/ordinal and cross-check their run/source/content keys.
+Use foreign keys to existing source observations, projected mentions and GEMI
+observations where their existing unique keys support exact references.
+
+Use request UUID as the single immutable event UUID/primary idempotency identity;
+store a canonical payload digest, server-derived `session_user`, UTC recording
+time, subject revision, exact source/report/candidate refs, policy, rationale,
+issues, target entity and reversal reference. Constrain allowed operation/target
+shapes, unique `(subject, revision)`, exact anchor ownership and compatible entity
+references. Entity creation and its creating event may use deferred mutual foreign
+keys checked at commit; no orphan entity is accepted. New immutable triggers use
+the existing mutation-rejection mechanism. Add no PUBLIC or dedicated worker-role
+grants. Database owners/shared owner credentials remain privileged and are not
+claimed to be isolated reviewers or tamper-proof actors.
+
+RI5 owns one READ COMMITTED write transaction with per-subject row locking. Source
+facts/anchors are immutable; a fresh statement after acquiring the head lock lets
+a waiting identical request observe its winner. Read the database principal,
+check committed UUID/payload/principal identity, then create/lock the subject head
+and check idempotency again before comparing the expected revision. The latter
+check prevents a concurrent exact replay from becoming a false stale-head failure.
+
+For a new request, validate source/anchor context, fold current subject events,
+check the expected revision and single-active-accept invariant, create/select the
+compatible entity, append the event and advance the head exactly once atomically.
+Initialize a new subject at revision zero only inside that transaction; failed
+validation leaves no partial head/entity/event. Entity/anchor uniqueness races
+must not bypass winner-anchor validation; safe rollback with a fixed conflict is
+acceptable. A global request UUID collision on a different subject also rolls back
+all local work before classification. No unbounded retry or hidden reassignment.
+
+An identical committed replay returns the original acknowledgment/revision, without
+reapplying a decision, checking the now-stale head or claiming that old acceptance
+is current. Its declared report hash is part of the stored request identity;
+committed replay need not revalidate current source coverage. Changed content or
+another principal cannot reuse a committed UUID. An uncommitted rolled-back
+request leaves no reserved identity. Print success only after commit; a lost
+acknowledgment is recovered with the same request UUID/payload.
+
+RI6 adds rejection and revocation through the same transaction boundary. Revoke
+resolves the stored current pair event and expected subject revision without a
+report/archive file; it can undo a decision made under an older policy. It appends
+history and returns that pair to unreviewed without reviving older decisions or
+removing another pair's acceptance. Reassignment remains explicit revoke, then
+accept, so interruption between them is safely unresolved.
+
+### Permissions, races and physical recovery
+
+RI7 uses independent PostgreSQL connections to race same/different UUIDs and
+expected revisions, including same-subject competing targets and entity-creation
+collisions. Verify one accepted pair, one event per committed request, exact head
+fold and unchanged source/outbox/workflow state. SQL privileges are checked using
+separate disposable test principals, not a request's claimed actor. Read-only
+principals cannot perform new writes; another principal cannot replay a UUID as
+its own. Shared/trust-authenticated test credentials prove database attribution,
+not human authentication.
+
+Create only uniquely named test roles on the supported disposable local PostgreSQL
+server; revoke test grants and drop them in guaranteed cleanup. No role/admin setup
+runs against production or through an application command. Use child-only database
+commit interception/locks for real pre/post-COMMIT SIGKILL and lost-ack replay.
+No production pause hook, crash switch or weakening of immutable source controls.
+Retain the existing 5-second connection/lock and 30-second statement bounds.
+
+### Resolution export and CLI exposure
+
+RI8 reads one repeatable-read, read-only transaction, then closes SQL before private
+publication. Preflight selected event count (requested 1–10,000), source/ledger
+context bytes and catalog/anchor count before materialization. Fold every selected
+subject, including unresolved/rejected/revoked cases; reconcile each head with its
+history and exact immutable anchors. Expose selected ambiguity rather than global
+entity uniqueness. Keep review status, unchecked authority/issuer fields and source
+claims separate. Preserve original report/context and count reviewed accepted links
+separately from `automatic_identity_links=0`.
+
+The canonical artifact binds report hash, policy, selected subject revisions/events
+and provenance; server event times are retained, but no generation timestamp or
+sequence-as-global-commit-order claim is added. Reuse `identity.artifacts.encode`
+and `publish`, their exact 32 MiB guard, private permissions and verified no-clobber
+reuse. Later decisions yield a new artifact; old snapshots and comparison reports
+remain unchanged. No second generic artifact/persistence framework.
+
+RI9 exposes `identities review` and `identities resolution` only after complete
+library paths pass. Existing routes remain unchanged. Fixed IDs/counts/statuses/hash
+summaries and 0/1/2/130 exits must redact private files, notes, labels and raw driver
+messages, including malformed parser options and transaction errors. It reads no
+GEMI key and creates no HTTP client. Test actual export publication termination
+and normal-CLI replay using child-only interception. Temporarily mutate a material
+revision/reversal guard, prove its regression fails, restore exact bytes, then run
+all normal gates. No mutant is committed or exposed as product configuration.
+
+### Verification, delivery and remaining gates
+
+Use failing focused tests before behavior. Every slice runs its listed tests and
+unchanged `just check`/`just audit`; final heads also require all three hosted jobs
+and the complete `just source-worker-check` receipt. Keep the 90% combined coverage
+floor, pins, timeouts and all security/advisory checks. Local PostgreSQL/Docker
+prerequisites are currently unavailable; report setup failures honestly and use
+supported hosted runners for real evidence. Do not install/pull large local images
+into an executor below the worker's storage prerequisite.
+
+RI10/RI11 document measured commands, mutation/physical recovery, grant/trust limits
+and exact-head results, then reconcile delivery without crediting proposals or PR
+counts as product completion. Live GEMI compatibility, empirical matching quality,
+public-service authentication, entity consolidation and graph projection remain
+separate gates. No external key or missing operator preference blocks this plan.
+
+| Main risk | Planned control |
+|---|---|
+| Forged/partial report hides conflicts | Full selected import reconciliation, SQL source checks and existing-handle anchor union |
+| Retry reactivates a revoked match | Committed-request acknowledgment before CAS; no state mutation on replay |
+| Competing accepted links or orphan handles | Per-subject lock, revision compare, unique constraints and one transaction |
+| Shared credentials mistaken for a human | Server principal and explicit assurance/trust limits; no public API |
+| Incorrect reversal or stale export | Pure fold, no resurrection, immutable revision/event-bound snapshots |
+| Huge private history or leaked rationale | SQL preflight, bounded private readers/encoder and fixed CLI diagnostics |
 
 ## Completed increment: offline registry comparison
 
