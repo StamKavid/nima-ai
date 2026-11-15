@@ -6,10 +6,11 @@
   from implemented source/review contracts, with exact evidence, identity, date,
   value, resource and verification limits. No graph code or implementation plan.
 - [x] Owner approved the contract following merged #87 at `eb3d2e0`.
-- [x] Compare Apache AGE, Neo4j Community and Memgraph from official license/docs;
-  record open-source eligibility, operational fit and unresolved release checks in
-  the [candidate assessment](../docs/graph/database-candidates.md). This is research,
-  not an executed benchmark or database-adoption decision.
+- [x] Revise the [candidate assessment](../docs/graph/database-candidates.md) for
+  Memgraph/FalkorDB/Neo4j plus AGE/HydraDB: latency/concurrency, resource/recovery,
+  dialect/tooling, maintenance/support evidence and actual-use licensing. Declare
+  vendor benchmark limits and a reproducible Nima protocol; no measured winner,
+  installed engine or database-adoption decision.
 - [ ] Draft the graph implementation plan from the approved contract; preserve older
   incomplete work. Database adapters remain a separately scoped follow-on.
 
