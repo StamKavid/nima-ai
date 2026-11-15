@@ -40,10 +40,13 @@ flowchart TD
 ```
 
 PostgreSQL is authoritative for record history and work state; original evidence
-is archived separately. Memgraph is the initial graph-store candidate, consistent
-with the reference architecture. The graph is rebuildable from reviewed records.
+is archived separately. The implemented bounded graph is a rebuildable private
+JSON view of selected reviewed records. The [database assessment](graph/database-candidates.md)
+compares Memgraph/FalkorDB as prototype candidates, Neo4j as a tooling baseline and
+AGE/HydraDB alternatives across technical, operating/support and licensing factors.
+No store or adapter has been adopted or benchmarked.
 Self-hosted Prefect is the selected Apache 2.0 workflow engine for the local
-KIMDIS pipeline. Memgraph and production hosting remain later decisions.
+KIMDIS pipeline. Graph-store adoption and production hosting remain later decisions.
 
 The local outbox consumer now materializes versioned contract facts and reported
 buyer/supplier occurrences in PostgreSQL. Its evidence-linked relationship view
@@ -79,6 +82,15 @@ Primary source contracts:
 ## Graph model
 
 Keep source observations, resolved identity, and analytical inference distinct.
+
+The implemented [bounded pilot contract](graph/investigation-pilot.md) uses exact
+contract versions, selected party occurrences, unclassified reviewed handles,
+registry anchor observations and raw-evidence references. Active-only reviewed
+links retain their acceptance event/candidate/current revision; unresolved/history
+members and duplicate selected handles remain visible. The private artifact/focus
+and its measured limits are in the [operator runbook](verification/investigation-graph.md).
+The wider domain model below remains a target beyond that bounded representation;
+the pilot does not classify legal entities or infer ownership/validity intervals.
 
 | Node | Meaning |
 |---|---|
@@ -207,7 +219,7 @@ GNN experiments need to demonstrate additional value before adoption.
 
 ## Current state and next milestone
 
-As of 2026-11-15, main `50b43be` implements bounded KIMDIS contract
+As of 2026-11-15, main `4a33a3e` implements bounded KIMDIS contract
 collection, raw evidence archives, typed normalization, PostgreSQL versions and
 observations, safe resume, reported-participation projection and offline identity
 assessment. GEMI has a bounded archive collector and offline SQL import; accepted
@@ -254,13 +266,23 @@ documents commands, limits, database-principal-only attribution and actual expor
 interruption/replay evidence. No public authentication, production deployment,
 identity consolidation or empirical false-merge accuracy is claimed.
 
-The next product gate is a reproducible company → procurement → buyer graph pilot,
-with dated, inspectable source links and reviewed identity quality checks. A thin
+The bounded graph CLI is implemented through #95 after owner-reviewed checkpoints
+A–C of plan #90. One repeatable-read/read-only/UTC SQL snapshot revalidates selected
+review state and complete contract facts in a combined byte budget. Pure construction
+retains exact version/occurrence/evidence keys, source dates and decimal-text money;
+focus adds selected-history references without collecting more data. SQL closes
+before canonical 0700/0600 publication, and old artifacts retain their original
+revisions. Actual concurrent revokes, 26-table read-only snapshots and pre/post-link
+SIGKILL/Ctrl+C retry are measured in the [graph runbook](verification/investigation-graph.md).
+
+The next product gate is an authorized real-company cohort: recover original
+sources for every displayed active link and audit identity, edge, date and amount
+correctness, then observe investigator tasks against the manual workflow. A thin
 read-only company dossier/explorer is a product-validation candidate for that
 separate specification; the full case workspace remains later scope. Evaluate
 investigator task completion and verification time before expanding the graph,
 detectors or model stack. No graph store, trained model or detector is implemented
-by the reviewed-decision commands.
+by the graph CLI; live GEMI compatibility and production/IP-protection gates remain.
 See the [workflow contract](sources/kimdis-orchestration.md),
 [pipeline/reference mapping](pipeline-reference.md) and the
 [capability progress estimate](progress.md).
