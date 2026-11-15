@@ -1,15 +1,24 @@
 # Delivery plan
 
-## Current: reviewed identity decisions — implementation plan
+## Current: investigation graph specification review
 
-Status: **implementation merged through checkpoint D; documentation release review**,
+The reviewed-identity release completed owner checkpoint E when #85/#86 merged
+through `ef58c38`. The next [bounded graph specification](../docs/graph/investigation-pilot.md)
+is proposed for owner review. It defines a private read-only SQL-to-graph snapshot
+and optional focused CLI view; graph code and its implementation plan are not
+started. Preserve the complete approved plan and older incomplete work below.
+The overall capability estimate remains approximately 30%; a spec earns no credit.
+
+## Completed: reviewed identity decisions — implementation plan
+
+Status: **implementation and measured documentation merged through checkpoint E**,
 2026-11-15. Scope #74 and plan #75 were approved. The owner merged RI1–RI9 through
 #84 at `50b43be`. Final implementation `fdf8289` passes all three jobs in run
 43707453503: 1,375 tests/92.13%, clean build/security/audit, Compose and 12 Docker
 tests/855.34 s with one full validated 28-case fixture receipt. Production/privacy
 flags stay false. See the [measured runbook](../docs/verification/reviewed-decisions.md).
-RI10 is prepared in #85; this RI11 delivery/progress candidate completes authoring
-for checkpoint E, which still requires exact-head checks and owner review/merge.
+RI10 #85 and RI11 #86 are owner-merged through `ef58c38`. Both final documentation
+heads pass quality, Compose and the full worker suite; see their PR delivery evidence.
 No completion credit is added for documentation, PR counts or test counts.
 
 The sections below preserve the approved design and its boundaries. The merged
