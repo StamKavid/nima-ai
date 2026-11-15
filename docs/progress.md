@@ -1,6 +1,6 @@
 # Capability progress: 2026-11-15
 
-Planning estimate through main `c764dcb`: RC1–RC5 offline registry comparison is
+Planning estimate through main `d6c1552`: RC1–RC7 offline registry comparison is
 merged, alongside the existing ingestion/refresh/manual-evidence and complete
 E1–E12 controlled-worker capabilities. Final implementation candidate `8c46f14`
 passes all three jobs in [run 43679268034](https://github.com/StamKavid/nima-ai/actions/runs/43679268034):
@@ -9,8 +9,10 @@ with one validated full 28-case receipt. See the
 [comparison operator/delivery record](verification/registry-comparison.md) and
 [worker delivery record](verification/source-worker-egress.md).
 
-RC6–RC7 documentation is the current review candidate; its human merge is still
-pending. The implementation is an offline reported-identifier comparison, with
+RC6–RC7 documentation was merged through #73; its candidate `9e5e4ac` passed
+all three checks (1,106 tests/91.82%, 12 Docker tests/660.33 s and a validated
+28-case receipt). The next [reviewed-decision specification](identity/reviewed-decisions.md)
+is a draft and earns no implementation credit. The delivered comparison has
 zero accepted identity links. Test coverage is not product completion, matching
 accuracy or production readiness.
 
@@ -78,9 +80,9 @@ investigator workspace yet. Election-accountability work is outside this baselin
 
 ## Immediate direction
 
-1. Review/merge the RC6–RC7 operator runbook and delivery/progress documentation
-   for the implemented [offline comparison](identity/registry-comparison.md).
-2. Specify reviewed, reversible identity decisions with explicit supporting and
+1. Review the [draft reviewed-decision scope](identity/reviewed-decisions.md);
+   the offline comparison and its RC6–RC7 runbook/progress work are merged.
+2. After scope approval, plan reviewed reversible decisions with supporting and
    conflicting evidence, audit history and evaluation before implementing writes.
 3. Build reproducible temporal graph projection with dated, inspectable evidence.
 4. Add eligible company/sector statistics and explainable rules, then evaluated ML.

@@ -34,3 +34,8 @@ existing `source-ingestion` module. Archive-only bounded profile lookup and
 Personal-key/live validation and source-aware downstream dispatch remain later
 gates. Stored imports support offline reported-identifier comparison; they do not
 establish verified corporate identity or issuer authority.
+
+The next `entity-resolution` scope is the
+[draft reviewed-decision contract](docs/identity/reviewed-decisions.md): explicit
+accept/reject/revoke history and private resolution snapshots. It is a proposal;
+no ledger migration, write command or reviewed identity link is implemented yet.

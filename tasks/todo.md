@@ -1,10 +1,18 @@
 # Tasks
 
-## Current: offline registry comparison
+## Current: reviewed identity decisions — scope review only
+
+- [ ] Human review of the [draft specification](../docs/identity/reviewed-decisions.md),
+  including database-principal attribution, ledger writes/migration, eligible
+  candidate review, reversal semantics and private snapshot bounds.
+- Implementation plan and tasks are intentionally not drafted before scope approval.
+  No new write interface, schema, graph or model is implemented in this proposal.
+
+## Completed: offline registry comparison
 
 Specification #65 and plan #66 were approved. RC1–RC5 and checkpoints A–C
-are merged through #72 at main `c764dcb`. RC6–RC7 documentation is delivered in
-this review candidate; its human merge remains pending. See
+are merged through #72 at main `c764dcb`. RC6–RC7 documentation was merged
+through #73 at main `d6c1552`. See
 [measured verification](../docs/verification/registry-comparison.md) and the
 [delivery plan](plan.md). Preserve older incomplete access/administration/product
 work below. No new source access, migration, dependency, CI exception, accepted
@@ -116,8 +124,8 @@ identity link, graph or model is included in this documentation increment.
 - Dependencies: RC6. Scope: three files.
 - Files: `tasks/plan.md`, `tasks/todo.md`, `docs/progress.md`.
 
-- [ ] Human review and merge of the RC6–RC7 documentation delivery candidate;
-  final candidate checks are recorded in its PR. No automatic merge or deployment.
+- [x] Human review/merge of RC6–RC7 through #73; all three checks pass on
+  `9e5e4ac`. No automatic merge or deployment was performed.
 
 ## Bounded KIMDIS evidence collector
 
