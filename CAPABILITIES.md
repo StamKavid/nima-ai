@@ -26,7 +26,8 @@ The model strategy, graph boundaries, and per-stage validation gates are in
 offline identifier assessment and source-scoped review reports. The merged
 [offline registry comparison](docs/verification/registry-comparison.md) adds bounded,
 evidence-linked reported-AFM agreements with zero automatic identity links.
-Reviewed reversible identity decisions and evaluated matching remain later gates.
+The merged reviewed-decision workflow adds explicit reversible identity links;
+empirical matching and false-merge evaluation remain later gates.
 
 The approved GEMI source contract is in `docs/sources/gemi.md`, supplementing the
 existing `source-ingestion` module. Archive-only bounded profile lookup and
@@ -35,8 +36,16 @@ Personal-key/live validation and source-aware downstream dispatch remain later
 gates. Stored imports support offline reported-identifier comparison; they do not
 establish verified corporate identity or issuer authority.
 
-The next `entity-resolution` scope is the
-[approved reviewed-decision contract](docs/identity/reviewed-decisions.md): explicit
-accept/reject/revoke history and private resolution snapshots. Scope is approved through #74; the implementation plan
-is under review. No ledger migration, write command or reviewed identity link
-is implemented yet.
+The [reviewed-decision contract](docs/identity/reviewed-decisions.md) is implemented
+through #84 at `50b43be`, following approved scope #74/plan #75 and owner-reviewed
+checkpoints A–D. Explicit local accept/reject/revoke commands keep immutable
+history, stable unclassified handles and private resolution snapshots. SQL source
+revalidation, exact UUID/principal replay, races, limited grants and actual
+COMMIT/publication interruption have measured tests. See the
+[operator/delivery record](docs/verification/reviewed-decisions.md).
+
+Attribution is `database_principal_only`; accepted review does not certify legal
+identity or source authority. Coverage stays report context, automatic links stay
+zero, and live GEMI compatibility/consolidation/matching evaluation remain gates.
+The next implementation scope is a reproducible temporal graph and bounded
+company → procurement → buyer investigation pilot, with its own spec/evaluation.

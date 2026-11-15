@@ -13,8 +13,9 @@ It also projects reported participation and compares selected stored KIMDIS/GEMI
 identifier assertions in private, reproducible review reports.
 Self-hosted Prefect can execute explicitly requested KIMDIS workflows while SQL
 preserves their identity, budgets and progress across retries.
-Reviewed identity resolution, a graph store, trained
-models, and the investigation workspace are subsequent milestones.
+Local operators can record reversible accept/reject/revoke decisions and export
+private resolution snapshots with source provenance and audit history. A temporal
+graph, evaluated models, and the investigation workspace are subsequent milestones.
 An investigative signal is not a finding of wrongdoing.
 
 ## Investigator questions
@@ -29,6 +30,23 @@ An investigative signal is not a finding of wrongdoing.
 
 The practical deliverable is a reviewable case with an evidence trail. Read the
 [architecture and model strategy](docs/architecture.md) for the stages and gates.
+
+## Review stored company matches
+
+The [reviewed-decision runbook](docs/verification/reviewed-decisions.md) covers
+explicit database setup, private request/report files, limited operator grants,
+accept/reject/revoke, exact request replay and private resolution exports:
+
+```bash
+uv run --frozen python -m nima identities review --help
+uv run --frozen python -m nima identities resolution --help
+```
+
+These offline commands use stored KIMDIS/GEMI facts and need no GEMI key. A
+reviewed acceptance is an investigator's occurrence-scoped decision, not verified
+issuer authority, corporate ownership or wrongdoing. Attribution remains
+`database_principal_only`; no public/multi-user service is exposed. Live GEMI
+compatibility, empirical matching quality and production deployment remain gates.
 
 ## Development
 
@@ -47,8 +65,9 @@ just audit
 tests, package build, and source security. `just audit` checks locked third-party Python dependencies against
 the Python Packaging Advisory Database. The unpublished project is checked
 by first-party tests and static analysis rather than a public package database.
-These checks cover first-party tooling and collection behavior. They do not
-prove full-source coverage, crash recovery, or model quality.
+These checks cover first-party tooling and implemented collection/review behavior.
+They do not prove full-source coverage, production recovery or model quality.
+Measured process-kill/retry evidence and its limits are recorded in the runbooks.
 
 ## Stage manually captured GEMI evidence offline
 

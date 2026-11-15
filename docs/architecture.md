@@ -207,7 +207,7 @@ GNN experiments need to demonstrate additional value before adoption.
 
 ## Current state and next milestone
 
-As of 2026-11-15, main `c764dcb` implements bounded KIMDIS contract
+As of 2026-11-15, main `50b43be` implements bounded KIMDIS contract
 collection, raw evidence archives, typed normalization, PostgreSQL versions and
 observations, safe resume, reported-participation projection and offline identity
 assessment. GEMI has a bounded archive collector and offline SQL import; accepted
@@ -237,10 +237,30 @@ procurement occurrences reference it without accepting identities or graph edges
 The [operator/delivery record](verification/registry-comparison.md) documents the
 CLI, bounds, redaction and actual interrupted-publication/replay evidence.
 
-The next identity capability needs a separate specification for reviewed,
-reversible decisions, supporting/conflicting evidence and empirical matching
-quality. A reproducible temporal graph follows that gate. No matching model,
-resolved company graph or detector is implemented by the comparison command.
+The [reviewed-decision workflow](identity/reviewed-decisions.md) is implemented
+through #84 after scope #74, plan #75 and owner-reviewed checkpoints A–D. A trusted
+local operator records explicit accept/reject/revoke decisions against immutable
+SQL source facts; one atomic transaction preserves event, entity anchor and head.
+Exact request/principal replay returns an old receipt without reapplying a decision.
+Separate disposable DB logins, independent writer races and actual pre/post-COMMIT
+SIGKILL/retry tests exercise the trust/concurrency boundary.
+
+The private resolution export reads one bounded read-only snapshot and closes SQL
+before publication. It retains unresolved members, original source/report context,
+all selected history/anchors and explicit selected-handle ambiguity. Accepted
+occurrences are counted separately from zero automatic links; old artifacts retain
+their original revisions. The [measured runbook](verification/reviewed-decisions.md)
+documents commands, limits, database-principal-only attribution and actual export
+interruption/replay evidence. No public authentication, production deployment,
+identity consolidation or empirical false-merge accuracy is claimed.
+
+The next product gate is a reproducible company → procurement → buyer graph pilot,
+with dated, inspectable source links and reviewed identity quality checks. A thin
+read-only company dossier/explorer is a product-validation candidate for that
+separate specification; the full case workspace remains later scope. Evaluate
+investigator task completion and verification time before expanding the graph,
+detectors or model stack. No graph store, trained model or detector is implemented
+by the reviewed-decision commands.
 See the [workflow contract](sources/kimdis-orchestration.md),
 [pipeline/reference mapping](pipeline-reference.md) and the
 [capability progress estimate](progress.md).

@@ -1,10 +1,12 @@
 # Reviewed, reversible identity decisions
 
-Status: **scope approved** by owner merge #74 at `2428b9d`, 2026-11-15.
-No interface or migration below is implemented. Module: `entity-resolution` in [CAPABILITIES.md](../../CAPABILITIES.md).
+Status: **implemented through RI9 / owner-reviewed checkpoint D**, #84 at
+`50b43be`, 2026-11-15. Scope #74 and plan #75 were approved; RI1–RI9 are merged.
+The [measured operator runbook](../verification/reviewed-decisions.md) records actual
+commands, tests, trust limits and recovery. Module: `entity-resolution` in [CAPABILITIES.md](../../CAPABILITIES.md).
 Supplements the [approved identity specification](../../SPEC-entity-resolution.md)
 and [implemented comparison contract](registry-comparison.md). Base: main
-`d6c1552`, after human merge of #73. This proposal earns no completion credit.
+`d6c1552`, after human merge of #73. Specification/PR/test counts alone earn no completion credit.
 
 ## Objective and assumptions
 
@@ -20,11 +22,11 @@ browser UI, shared-reviewer service or external identity provider is included.
 Reviewer attribution is the database session principal, not a verified human name.
 No live source call, GEMI key, hosted model or empirical accuracy claim is needed.
 
-The proposed new scope includes append-only identity tables, an explicit migration,
-a local decision-write command and a read-only private snapshot command. Scope
-approval must cover those changes; this specification does not execute them.
-The implementation plan/tasks are now proposed for their own review in
-[tasks/plan.md](../../tasks/plan.md) and [tasks/todo.md](../../tasks/todo.md).
+The approved scope includes append-only identity tables, an explicit migration,
+a local decision-write command and a read-only private snapshot command. These
+are implemented; the specification itself executes no database/admin action.
+The approved sequence remains in [tasks/plan.md](../../tasks/plan.md) and
+[tasks/todo.md](../../tasks/todo.md); RI10/RI11 finish documentation/reconciliation.
 
 ## Review unit and stable identifiers
 
@@ -171,9 +173,10 @@ owners/superusers are trusted administrators who can bypass ordinary constraints
 this ledger is not tamper-proof evidence against them. Multi-user attribution,
 permissions and deployment require a separate authentication/authorization design.
 
-## Proposed private CLI and artifacts
+## Private CLI and artifacts
 
-These commands are proposed and must not appear as implemented help routes yet:
+These commands are implemented. Replace UUID/hash/path placeholders with actual
+private inputs; see the runbook for request schema, permissions and replay:
 
 ```bash
 uv run --frozen python -m nima identities review REQUEST_UUID \
@@ -242,12 +245,12 @@ No batch acceptance, bulk import, public read endpoint or free-text search is in
 ## Stack, structure and style
 
 Retain Python 3.12, PostgreSQL 17, locked Psycopg and current dependencies/CI.
-Implementation will stay within `src/nima/identity/`, an explicit additive storage
+Implementation stays within `src/nima/identity/`, an explicit additive storage
 migration, existing CLI routing, `tests/test_identity_review_*.py` and verification
 docs. Exact table/module decomposition belongs to the later implementation plan.
 Separate pure event folding, SQL transactions and private artifact publication.
 Use immutable typed values, explicit unknowns, parameterized SQL, Ruff and strict
-mypy. Illustrative style only, not a committed implementation:
+mypy. Illustrative style; actual types and transaction code live in the review modules:
 
 ```python
 from dataclasses import dataclass
@@ -318,8 +321,8 @@ migration/writes and private snapshot export. Changes to dependencies, CI, sourc
 access, public services, multi-user authentication, manual unmatched adjudication,
 entity merge/split/reanchoring, graph projection or models need separate review.
 
-No external credential blocks this proposed offline scope. There are no additional
-required operator preferences before scope review; the stated assumptions can be
-changed by explicit scope review. The proposed implementation plan/tasks remain
-unapproved; do not implement them or apply database/admin changes before that
-review. This planning PR contains no application code, DDL or role/grant action.
+No external credential blocks the implemented offline workflow. Plan #75 was
+approved and checkpoints A–D are merged through #84. RI10/RI11 finish measured
+documentation and delivery reconciliation before checkpoint E. The stated trust
+and product boundaries still require separate review to change. This document
+does not apply a migration, provision a role or perform an administrative action.
