@@ -1,9 +1,10 @@
-# Proposed scope: one-company evidence-recovery pilot
+# Specification: one-company evidence-recovery pilot
 
-Status: **proposed, awaiting owner approval**, 2026-11-15. This follows graph
+Status: **owner-approved and merged in #98**, 2026-11-15, main `aef9f53`. This follows graph
 scope #87, plan #90 and completed checkpoint D (#97, main `686875d`). It specifies
 one evaluation capability: determine whether a bounded real-company graph can be
-traced to its original records. It does not approve an implementation plan.
+traced to its original records. The owner approved the scope in a later turn.
+The proposed [delivery plan](../../tasks/plan.md) needs separate review before code.
 
 ## Objective and assumptions
 
