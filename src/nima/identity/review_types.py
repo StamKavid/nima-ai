@@ -9,6 +9,7 @@ from nima.identity.artifacts import encode
 
 if TYPE_CHECKING:
     from nima.identity.registry_cohort import ComparisonCohort
+    from nima.identity.registry_policy import RegistryObservation
 
 REQUEST_FORMAT = "nima-identity-review-request-v1"
 REVIEW_POLICY_VERSION = "reviewed-identity-v1"
@@ -113,3 +114,49 @@ class ReviewReport:
 
     sha256: str
     cohort: "ComparisonCohort"
+
+
+@dataclass(frozen=True)
+class ReviewAnchor:
+    """Policy view of a handle's anchor; storage must validate the SQL reference."""
+
+    entity_id: UUID
+    observation: "RegistryObservation"
+
+
+@dataclass(frozen=True)
+class ReviewEvent:
+    """Pure decision view, not a committed or authenticated database event."""
+
+    request: ReviewRequest
+    subject_revision: int
+    issues: tuple[str, ...] = ()
+    policy_version: str = REVIEW_POLICY_VERSION
+
+    @property
+    def event_id(self) -> UUID:
+        return self.request.request_id
+
+
+@dataclass(frozen=True)
+class ReviewPairState:
+    candidate: ReviewCandidate
+    state: Literal["unreviewed", "accepted", "rejected"]
+    event_id: UUID | None
+    entity_id: UUID | None
+    issues: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class ReviewHead:
+    subject: ReviewSubject
+    revision: int
+    pairs: tuple[ReviewPairState, ...] = ()
+
+    @property
+    def accepted_entity_id(self) -> UUID | None:
+        return next((pair.entity_id for pair in self.pairs if pair.state == "accepted"), None)
+
+    @property
+    def automatic_identity_links(self) -> Literal[0]:
+        return 0
