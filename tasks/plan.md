@@ -1,12 +1,33 @@
 # Delivery plan
 
-## Current: one-company evidence recovery — proposed delivery plan
+## Current: evidence recovery and Publicity-first source priority
 
 The owner approved [scope #98](../docs/graph/company-evidence-pilot.md) in a later
-turn and merged it at `aef9f53`. **This implementation plan awaits approval.**
+turn and merged it at `aef9f53`. The owner approved plan #99 and merged it at
+`36bcb80`; PE1–PE3 are authorized. The latest instruction prioritizes Publicity
+acquisition development, with the official API secondary while its key is pending.
 METLEN remains the preferred candidate; exact entity identifiers, usable private
 archives, selection window and accountable reviewer are not confirmed. Scope
 approval supplies none of those inputs and authorizes no live acquisition.
+
+### Owner steering: keep development independent of the API key
+
+Use the [Publicity-first acquisition design](../docs/sources/gemi-publicity-fallback.md).
+No remote worker/gateway exists yet. Finish the approved PE1 read-only recovery
+slice now; develop the protected Publicity capture/source contract next, while the
+remaining offline PE2–PE3 work remains available without API access. The owner also
+requested self-hosted storage/retrieval research: PostgreSQL plus private original
+files remains the baseline; pgvector/Qdrant/OpenSearch/Milvus/MongoDB are compared
+in that design, with no new store adopted.
+
+Manual intake and controlled browser fixtures are implemented; the live collector,
+field extractor and channel-specific SQL/graph bridge are not. Current manual
+captures do not replace complete API-profile imports in the approved graph reader.
+Define that bridge separately rather than relabeling captures or weakening the
+existing graph's evidence checks. Source-family cooldowns and fail-closed egress
+remain; there is no automatic channel/IP switch after a block. Preserve existing
+PE tasks and historical work. This owner-directed reprioritization splits PE1
+from the earlier proposed combined PE1–PE3 batch; it does not claim checkpoint A.
 
 ### Outcome and dependency order
 

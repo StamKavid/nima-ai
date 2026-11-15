@@ -1,26 +1,33 @@
 # Tasks
 
-## Current: one-company evidence recovery — plan awaiting approval
+## Current: approved evidence recovery and Publicity-first priority
 
 The owner approved [scope #98](../docs/graph/company-evidence-pilot.md) and merged
-it at `aef9f53`. The proposed plan above the preserved graph delivery in
-`tasks/plan.md` needs owner approval before implementation. All existing incomplete
-tasks and historical records remain. Execute sequentially without delegation.
+it at `aef9f53`, then approved/merged plan #99 at `36bcb80`. Publicity is now the
+primary acquisition development path and the API secondary. Finish PE1, then
+prioritize protected capture/source-contract work; PE2–PE3 remain key-independent.
+The [source design](../docs/sources/gemi-publicity-fallback.md) records the proposed
+remote topology/storage and unfinished extraction/import bridge. No live worker
+is configured. All earlier incomplete tasks and history remain; execute sequentially.
 
 - [x] Record owner approval of the evidence-recovery scope (#98).
 - [x] Draft the bounded implementation plan and slices below.
-- [ ] Owner approval of this plan before PE1.
+- [x] Owner approval of this plan before PE1 (#99).
 
 ### PE1: Recover explicitly referenced original archive objects
 
-- [ ] Add typed bounded read-only recovery using existing private file primitives.
+- [x] Implement typed bounded read-only recovery (this candidate; hosted checks/merge pending).
 - Acceptance: explicit root/reference binding and stable hash-verified bytes;
   missing/corrupt/unsafe files fail visibly without creation, repair, source-value
   errors or network access; exact 32-object/8 MiB-object/64 MiB-total bounds and
   safe descriptors hold on success, failure and interruption.
 - Verify: `uv run --frozen pytest tests/test_graph_pilot_archive.py` plus normal gates.
 - Files: `src/nima/graph/pilot_archive.py`, `tests/test_graph_pilot_archive.py`.
-- Scope: 2 files. Dependency: plan approval; independent of real company inputs.
+- Scope: 2 code/test files. Dependency: approved plan #99; independent of real company inputs.
+- Local evidence: 65 new recovery cases; real private files/descriptor cleanup, alias
+  and count/byte/source limits, replacement/hash failures and unchanged archives.
+  Removing hash verification makes the corruption regression fail; exact source
+  restored. Full local/hosted verification remains recorded in the delivery PR.
 
 ### PE2: Reconcile active-link evidence with the pinned snapshot
 
