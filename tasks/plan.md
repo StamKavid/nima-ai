@@ -2,13 +2,12 @@
 
 ## Current: bounded investigation graph — technical delivery
 
-Status: **G1–G5 owner-merged through checkpoint C**, 2026-11-15, main `4a33a3e`.
+Status: **G1–G7 owner-merged through checkpoint D**, 2026-11-15, main `686875d`.
 Scope #87 and implementation plan #90 were approved. The private JSON graph,
-optional selected-history focus and operator CLI are implemented using existing
-dependencies. G6's measured runbook #96 is owner-merged at `66712bd`; this G7
-reconciliation requires the remaining owner review/merge at checkpoint D.
-Candidate verification is
-recorded in their PRs separately from the merged runtime's measured evidence.
+optional selected-history focus, operator CLI and measured runbook are delivered.
+G6 #96 and G7 #97 both pass all three exact-head hosted checks and are owner-merged.
+The [next evidence-recovery scope](../docs/graph/company-evidence-pilot.md) is a
+proposal awaiting approval; no new pilot implementation plan is approved here.
 Execute sequentially without delegation; no database adapter, extension, migration,
 model/provider, live Greek-source request or deployment is added by this delivery.
 
@@ -142,7 +141,7 @@ The [progress estimate](../docs/progress.md) is approximately 33% using unchange
 weights and limited credit for the implemented bounded graph; documentation and
 PR/test counts add no credit.
 
-### Measured delivery and remaining owner checkpoint
+### Measured delivery and completed owner checkpoints
 
 | Slice | Delivery | Owner merge |
 |---|---|---|
@@ -152,7 +151,7 @@ PR/test counts add no credit.
 | G4 private export/races | #94 / `8518a7f` | `eb5d9dd` — checkpoint B |
 | G5 CLI/physical publication recovery | #95 / `e406c02` | `4a33a3e` — checkpoint C |
 | G6 measured operation | #96 / `cab6769` | `66712bd` |
-| G7 delivery/progress reconciliation | This candidate | Owner review/merge pending |
+| G7 delivery/progress reconciliation | #97 / `24a9fa4` | `686875d` — checkpoint D |
 
 Every runtime candidate passes all three exact-head hosted jobs. Final runtime
 `e406c02` in run 43739790204 passes 1,508 tests/92.37%, quality/build/security/audit,
@@ -165,13 +164,12 @@ The disposable local PostgreSQL baseline now supports complete SQL checks; earli
 local-prerequisite limitations remain historical, and supported Docker evidence
 still comes from hosted CI. Documentation candidates run their own normal gates.
 
-Checkpoint D remains open until G7 is owner-reviewed/merged and both documentation
-candidates' checks pass. This reconciliation records known merges rather than
-assuming its
-own future merge. The approved design above and all earlier incomplete tasks and
-historical delivery records below remain preserved.
+Checkpoint D is complete. G7 `24a9fa4` passes quality (1,508 tests/92.37%),
+Compose and the full worker suite (12 tests/861.28 s, one fresh 28-case receipt)
+in run 43744988054. Production/privacy flags remain false. The approved design
+above and all earlier incomplete tasks and historical records below are preserved.
 
-After checkpoint D, prepare a separate real-company investigation-pilot scope:
+The proposed next scope is a separate real-company evidence-recovery pilot:
 authorize a small private cohort, recover source bytes/locations for every displayed
 active link, record contradictions/unknowns and audit identity, dates and amounts.
 Then observe participation/citation/revocation tasks against the manual workflow,
