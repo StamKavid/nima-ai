@@ -5,7 +5,7 @@ relationships and public spending, then develop evidence-backed investigative
 leads. Its mission is to make relationships, spending patterns, and changes over
 time inspectable and reproducible.
 
-The product combines a temporal relationship graph, sector comparisons,
+The planned product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
 Current code implements bounded KIMDIS contract collection, a private raw-evidence
 archive, typed normalization, optional PostgreSQL collection, and durable run inspection.
@@ -14,8 +14,10 @@ identifier assertions in private, reproducible review reports.
 Self-hosted Prefect can execute explicitly requested KIMDIS workflows while SQL
 preserves their identity, budgets and progress across retries.
 Local operators can record reversible accept/reject/revoke decisions and export
-private resolution snapshots with source provenance and audit history. A temporal
-graph, evaluated models, and the investigation workspace are subsequent milestones.
+private resolution snapshots with source provenance and audit history. The local
+graph CLI now exports bounded links between selected reported occurrences, exact
+contract versions, reviewed unclassified handles and evidence. Broader temporal
+relationships, evaluated models and the investigation workspace remain later milestones.
 An investigative signal is not a finding of wrongdoing.
 
 ## Investigator questions
@@ -47,6 +49,30 @@ reviewed acceptance is an investigator's occurrence-scoped decision, not verifie
 issuer authority, corporate ownership or wrongdoing. Attribution remains
 `database_principal_only`; no public/multi-user service is exposed. Live GEMI
 compatibility, empirical matching quality and production deployment remain gates.
+
+## Export a bounded investigation graph
+
+The [graph runbook](docs/verification/investigation-graph.md) covers read-only setup,
+private input/output, focus states, exact limits and measured recovery evidence:
+
+```bash
+uv run --frozen python -m nima graph snapshot --help
+uv run --frozen python -m nima graph snapshot \
+  --report-file data/registry-review/REPORT_SHA256.json \
+  --output-dir data/investigation-graph
+```
+
+Replace `REPORT_SHA256` with an existing private comparison artifact's hash and
+configure `NIMA_DATABASE_URL` privately. Optional `--entity-id ENTITY_UUID` adds a
+view within selected review history. The artifact retains the full selection and
+embedded comparison/resolution, including private notes. SQL closes before private
+0700/0600 publication; identical state reuses identical bytes. No GEMI key or source
+request is needed, and graph export changes no authoritative rows.
+
+Source-reported participation, active reviewed links and unknown identity remain
+distinct. Contract money is not allocated to joint suppliers or summed into spend.
+Real-company source recovery and observed investigator tasks remain product gates;
+the CLI's fixture correctness does not establish those outcomes.
 
 ## Development
 
@@ -426,7 +452,8 @@ Client bounds are 3 attempts per ID, 20 requests/minute, 20-second HTTP inactivi
 entry cap. Limits fail visibly without truncation; Retry-After is honored or the run
 stops. After abrupt termination, manifests/derived JSONL may be incomplete: trust
 verified raw bodies for reprocessing and start a fresh run. Automatic resume and
-graph integration are later work. This collector has synthetic transport and
+downstream dispatch from this collector remain later work. Stored SQL imports can
+already be reviewed and graphed offline. This collector has synthetic transport and
 process-interruption evidence; credentialed live payload compatibility is unverified.
 See [contract](docs/sources/gemi.md) and [verification](docs/verification/gemi-profiles.md).
 For pending access, documented Swagger testing and a small credentialed pilot,
@@ -506,8 +533,8 @@ Redispatch can create another Prefect flow run while retaining the original Nima
 collection run. SQL leases, checkpoints and receipts govern replay. Saved caps
 are 300 provider-attempt reservations, four collection executions, 30 minutes
 from first execution and 100 projection batches. Reservations survive crashes.
-Exhausted budgets require review; redispatch does not reset them. No recurring
-poller, graph, model or live GEMI validation is added. See the
+Exhausted budgets require review; redispatch does not reset them. This workflow does
+not schedule graph exports or model execution; live GEMI validation remains separate. See the
 [contract](docs/sources/kimdis-orchestration.md) and
 [verification record](docs/verification/kimdis-orchestration.md).
 

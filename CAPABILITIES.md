@@ -47,5 +47,19 @@ COMMIT/publication interruption have measured tests. See the
 Attribution is `database_principal_only`; accepted review does not certify legal
 identity or source authority. Coverage stays report context, automatic links stay
 zero, and live GEMI compatibility/consolidation/matching evaluation remain gates.
-The next implementation scope is a reproducible temporal graph and bounded
-company → procurement → buyer investigation pilot, with its own spec/evaluation.
+
+The `temporal-graph` module now has a bounded offline graph workflow through
+owner-merged #91–#95 at `4a33a3e`, following approved scope #87/plan #90 and
+checkpoints A–C. `graph snapshot` connects selected reported occurrences, exact
+contract versions, unclassified reviewed handles, exact registry anchors and raw
+evidence references. Optional focus stays inside selected history. One read-only
+SQL snapshot, complete projection/byte revalidation and private deterministic
+publication preserve unknowns, money/date semantics and prior artifacts.
+
+The [graph operator/delivery record](docs/verification/investigation-graph.md)
+documents unchanged 26-table state, concurrent-revoke snapshots, actual SIGKILL/
+Ctrl+C publication recovery and full hosted gates. This is partial graph capability;
+there is no installed graph store, global as-of/ownership model or investigator UI.
+Real-company source recovery, sampled identity/edge/time checks and observed
+investigator tasks remain the next product gate. Database adapters, eligible
+signals/ML and cited AI remain separately scoped work.

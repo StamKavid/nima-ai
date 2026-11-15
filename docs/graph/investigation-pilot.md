@@ -1,9 +1,11 @@
 # Specification: bounded investigation graph
 
-Status: **contract approved by the owner**, 2026-11-15, following merged scope #87
-at `eb3d2e0`. The owner also requested the [database candidate assessment](database-candidates.md).
-This approved contract follows reviewed-identity release #85/#86; no graph code,
-implementation plan, new dependency, service or deployment is included here.
+Status: **contract approved; G1–G5 implementation owner-merged through #95**,
+2026-11-15, main `4a33a3e`. Scope #87 (`eb3d2e0`) and implementation plan #90 were
+approved; checkpoints A–C are complete. The [measured operator runbook](../verification/investigation-graph.md)
+records implemented commands, exact candidates/checks, recovery evidence and
+remaining empirical gates. The contract below retains its approved scope and limits.
+The requested [database candidate assessment](database-candidates.md) adopts no store.
 
 ## Objective and product boundary
 
@@ -26,7 +28,7 @@ No GEMI key, live collection, model/provider call or public service is needed.
 
 ## User outcome and command
 
-Proposed commands, **not implemented commands**:
+Commands implemented through #95; prepare private inputs as described in the runbook:
 
 ~~~bash
 uv run --frozen python -m nima graph snapshot \
@@ -283,8 +285,8 @@ separately specified follow-ons; this CLI feature does not complete the workspac
   intervals; commit evidence/credentials; silently consolidate entities; change
   source/review rows; weaken gates or auto-merge/deploy.
 
-No blocking external-access question prevents specifying this offline increment.
-The owner approved the CLI-first scope and graph contract on 2026-11-15.
-Real-cohort availability and observed investigator testing remain explicit later
-gates. Contract approval permits the next implementation-plan phase; it does not
-itself approve code, dependencies, database adoption, source requests or deployment.
+The owner approved the CLI-first scope, graph contract and plan, and merged G1–G5
+on 2026-11-15. Measured documentation/delivery reconciliation follows separately.
+Real-cohort availability, source recovery and observed investigator testing remain
+explicit later gates. This delivery status adds no dependency, database adoption,
+source request, model/provider, public service or deployment approval.
