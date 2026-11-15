@@ -1,12 +1,11 @@
 # Tasks
 
-## Current: bounded investigation graph — documentation handoff
+## Completed: bounded investigation graph — technical delivery
 
-Scope #87 and plan #90 are owner-approved. G1–G5 are owner-merged through #95 at
-`4a33a3e`, completing checkpoints A–C. G6 runbook #96 (`cab6769`) is owner-merged at
-`66712bd`; G7 is this reconciliation candidate. Checked documentation tasks record
-authored
-content; their candidate checks and owner merges remain explicit in checkpoint D.
+Scope #87 and plan #90 are owner-approved. G1–G7 are owner-merged through #97 at
+`686875d`, completing checkpoints A–D. G6 #96 and G7 #97 both pass their three
+exact-head hosted jobs. The next [evidence-recovery scope](../docs/graph/company-evidence-pilot.md)
+is proposed only; pilot implementation tasks await separate scope/plan approval.
 Preserve the approved [graph contract](../docs/graph/investigation-pilot.md), all
 earlier incomplete work, existing constraints and historical records below.
 Execute sequentially without delegation.
@@ -20,7 +19,7 @@ Every code slice runs its focused tests, just check, just audit and all three
 exact-head hosted jobs. No test is skipped or gate weakened for local prerequisites.
 G1–G5's measured passing commands/results are in the
 [graph runbook](../docs/verification/investigation-graph.md). G6/G7 require their own
-normal checks and owner checkpoint; no future candidate result is assumed here.
+normal checks and owner checkpoint, now complete.
 
 ### G1: Reuse a connection-owned reviewed snapshot read
 
@@ -109,7 +108,7 @@ normal checks and owner checkpoint; no future candidate result is assumed here.
 
 ### G7: Reconcile delivery and the next product gate
 
-- [x] Record actual merges/checkpoints, capability evidence and remaining evaluation (this candidate).
+- [x] Record actual merges/checkpoints, capability evidence and remaining evaluation (#97, owner-merged).
 - Acceptance: all earlier incomplete tasks and fixed weights remain; any delivery
   credit cites working/evaluated capability, not documentation/PR/test counts;
   real-cohort recovery, investigator tasks and separately scoped database tests remain explicit.
@@ -119,7 +118,7 @@ normal checks and owner checkpoint; no future candidate result is assumed here.
 
 ### Checkpoint D: Reviewed graph technical release
 
-- [ ] Measured delivery and exact-head checks reviewed/merged by the owner; no
+- [x] Measured delivery and exact-head checks reviewed/merged by the owner; no
   automatic database adoption, source request, public service or deployment.
 
 ## Completed: reviewed identity delivery

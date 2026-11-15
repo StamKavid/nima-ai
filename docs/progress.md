@@ -5,12 +5,11 @@ approved [scope #87](graph/investigation-pilot.md)/plan #90 and checkpoints A–
 Local operators can export a bounded private graph connecting selected reported
 parties, exact contracts, reviewed unclassified handles, registry anchors and
 evidence. Focus stays inside selected history; old artifacts retain their original
-decisions. G6 runbook #96 is owner-merged at `66712bd`; this G7 reconciliation awaits
-the remaining owner checkpoint D. Documentation candidate checks are separate from
-the already-merged runtime evidence.
+decisions. G6 #96 and G7 #97 are owner-merged through `686875d`, completing
+checkpoint D; both pass all three exact-head hosted checks.
 
-The next product gate is a real-company evidence-recovery and investigator-task
-pilot. The [database assessment](graph/database-candidates.md) balances technical
+The next proposed scope is [real-company evidence recovery](graph/company-evidence-pilot.md),
+followed separately by investigator-task validation. The [database assessment](graph/database-candidates.md) balances technical
 performance, recovery/resources, query/tooling, community/support and licensing;
 no store/adapter has been adopted or benchmarked. Evaluated models, cited-AI service
 and the browser investigator workspace remain unimplemented.
@@ -120,9 +119,10 @@ Final runtime `e406c02` passes all three jobs in
 [run 43739790204](https://github.com/StamKavid/nima-ai/actions/runs/43739790204):
 1,508 tests/92.37%, build/security/audit, Compose and 12 Docker tests/833.86 s with
 one fresh full 28-case receipt. The fixture's production/privacy flags remain false.
-G6 #96 is owner-merged; it and this G7 record have their own candidate checks, with
-G7's owner checkpoint D remaining. Neither documentation increment adds runtime
-capability or assumes G7's future merge.
+G6 #96 and G7 #97 are owner-merged and verified. G7 `24a9fa4` passes all three
+jobs in run 43744988054: 1,508 tests/92.37%, Compose and 12 Docker tests/861.28 s
+with one fresh full 28-case receipt. Production/privacy flags remain false.
+Checkpoint D is complete; documentation adds no runtime capability credit.
 
 The graph shares one validated SQL snapshot across contract facts and selected
 review state; independent committed revokes during/after the read yield coherent
@@ -172,8 +172,9 @@ work is outside this baseline.
 | Milestone | Investigator outcome | Remaining gate |
 |---|---|---|
 | Private review release — delivered | Reproducible operator setup, review and evidence export | RI10/RI11 and owner checkpoint E completed in #85/#86 |
-| Bounded graph technical workflow — implemented | Inspect selected participation, active/historical reviewed links and source references in a reproducible private artifact | G1–G6 merged; G7/checkpoint D and candidate verification remain; broader graph stays partial |
-| Real-company investigation pilot — next | Recover evidence for a selected company/contracts/buyers cohort and validate useful investigator tasks | Authorized cohort, all displayed active-link source recovery, critical identity/edge/date/amount audit and observed manual-workflow comparison |
+| Bounded graph technical workflow — implemented | Inspect selected participation, active/historical reviewed links and source references in a reproducible private artifact | G1–G7 and checkpoint D complete; real-company validation and broader graph remain |
+| Real-company evidence recovery — proposed next | Trace a small selected company/contracts/buyers cohort back to original records | Approve the linked scope; exact entity and available archives; all active-link source recovery and critical identity/edge/date/amount audit |
+| Investigator-task validation — follow-on | Establish whether the workflow helps investigators | Separate scope after evidence recovery; observed tasks and manual-workflow comparison |
 | Broader source coverage | Follow decisions/documents and procurement lifecycle changes | Live GEMI profile pilot; Diavgeia/TED; native text/OCR with location accuracy; distinct stage/value semantics |
 | Company/sector signals | Review concentration, repeated relationships, eligible amendments and other explainable patterns | Coverage/denominators, comparable CPV cohorts and legal/context controls; no silent scoring of missing data |
 | Evaluated ML and graph features | Prioritize useful leads at a realistic analyst review budget | Credible reviewed tasks, temporal/group-aware evaluation and improvement over simple baselines |
