@@ -1,11 +1,17 @@
 # Tasks
 
-## Current: investigation graph specification review
+## Current: approved graph contract / database candidate assessment
 
 - [x] Draft the [bounded graph specification](../docs/graph/investigation-pilot.md)
   from implemented source/review contracts, with exact evidence, identity, date,
   value, resource and verification limits. No graph code or implementation plan.
-- [ ] Owner review/approval of this proposed scope before the implementation-plan phase.
+- [x] Owner approved the contract following merged #87 at `eb3d2e0`.
+- [x] Compare Apache AGE, Neo4j Community and Memgraph from official license/docs;
+  record open-source eligibility, operational fit and unresolved release checks in
+  the [candidate assessment](../docs/graph/database-candidates.md). This is research,
+  not an executed benchmark or database-adoption decision.
+- [ ] Draft the graph implementation plan from the approved contract; preserve older
+  incomplete work. Database adapters remain a separately scoped follow-on.
 
 ## Completed: reviewed identity delivery
 

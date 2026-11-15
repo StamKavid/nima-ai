@@ -1,12 +1,15 @@
 # Delivery plan
 
-## Current: investigation graph specification review
+## Current: approved graph contract / database candidate assessment
 
 The reviewed-identity release completed owner checkpoint E when #85/#86 merged
 through `ef58c38`. The next [bounded graph specification](../docs/graph/investigation-pilot.md)
-is proposed for owner review. It defines a private read-only SQL-to-graph snapshot
-and optional focused CLI view; graph code and its implementation plan are not
-started. Preserve the complete approved plan and older incomplete work below.
+was approved by the owner and merged in #87 at `eb3d2e0`. It defines a private
+read-only SQL-to-graph snapshot and optional focused CLI view. The requested
+[database comparison](../docs/graph/database-candidates.md) recommends AGE for first
+evaluation and Neo4j Community as the alternative; Memgraph is source-available
+under BSL. No database is adopted or installed. Graph code and its implementation
+plan are not started. Preserve the approved historical plan and incomplete work below.
 The overall capability estimate remains approximately 30%; a spec earns no credit.
 
 ## Completed: reviewed identity decisions — implementation plan
