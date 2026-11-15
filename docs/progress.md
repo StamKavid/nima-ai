@@ -1,15 +1,18 @@
-# Capability progress: 2026-11-14
+# Capability progress: 2026-11-15
 
-Planning estimate for CAPABILITIES.md and docs/architecture.md through main
-`127b3b8`: bounded daily refresh, manual evidence intake and the complete E1–E12
-controlled-worker delivery are merged. Final delivery candidate `39fd05b` passed
-all three jobs in run 43627192150: 987 tests, 91.58% coverage and 12 real Docker
-tests/624.58 seconds. The complete recipe validates one 28-case receipt before
-upload; its implementation artifact was also downloaded and inspected. See the
-[delivery record](verification/source-worker-egress.md). Coverage is not product
-completion. The registry-comparison specification is approved through #65 at
-`48a0778`; its implementation plan is drafted for review. No implemented matching
-capability or progress credit is claimed for that planning work.
+Planning estimate through main `c764dcb`: RC1–RC5 offline registry comparison is
+merged, alongside the existing ingestion/refresh/manual-evidence and complete
+E1–E12 controlled-worker capabilities. Final implementation candidate `8c46f14`
+passes all three jobs in [run 43679268034](https://github.com/StamKavid/nima-ai/actions/runs/43679268034):
+1,106 tests, 91.82% combined coverage, Compose and 12 real Docker tests/648.64 s,
+with one validated full 28-case receipt. See the
+[comparison operator/delivery record](verification/registry-comparison.md) and
+[worker delivery record](verification/source-worker-egress.md).
+
+RC6–RC7 documentation is the current review candidate; its human merge is still
+pending. The implementation is an offline reported-identifier comparison, with
+zero accepted identity links. Test coverage is not product completion, matching
+accuracy or production readiness.
 
 ## Estimate and method
 
@@ -17,30 +20,34 @@ The original plan defined capabilities and release gates, not numerical weights
 or effort estimates. The table introduces an approximate planning rubric for the
 original product scope. It is not a measured percentage of elapsed effort, source
 records covered, production readiness or time remaining. Values are judgment
-estimates; a sensible headline is **25–30% overall**, approximately **26%** below.
+estimates; a sensible headline is **25–30% overall**, approximately **27%** below.
 
 | Original capability | Scope weight | Estimated delivered | Weighted credit |
 |---|---:|---:|---:|
 | Engineering foundation | 10% | 90% | 9% |
 | Source ingestion and data pipeline | 25% | 55% | 13.75% |
-| Entity resolution | 15% | 20% | 3% |
+| Entity resolution | 15% | 30% | 4.5% |
 | Temporal graph | 15% | 0% | 0% |
 | Risk analytics and ML | 15% | 0% | 0% |
 | Evidence-cited AI research | 10% | 0% | 0% |
 | Investigator workspace | 10% | 0% | 0% |
-| **Total** | **100%** | — | **25.75%, rounded to 26%** |
+| **Total** | **100%** | — | **27.25%, rounded to 27%** |
 
 Weights express product scope for tracking; they were not present in the initial
 plan and are not promises about which capability will cost most. Keep this
 baseline when reporting future progress, and explain scope/weight changes.
 
-The previous 2026-11-11 snapshot estimated 22%. The weights are unchanged.
-Ingestion credit rises from 40% to 55% for bounded daily refresh/coordinator state,
-local Prefect schedules, manual evidence intake and verified closed-worker routing.
-This is a judgment about delivered capability, not measured effort. Infrastructure
-work earns credit inside its existing capability; every PR is not another product stage.
-The E12 delivery record completes this worker increment within that existing
-credit. Scope weights and capability estimates remain unchanged.
+The 2026-11-14 baseline was 25.75%, rounded to 26%. Scope weights and all
+other capability estimates are unchanged. Entity-resolution credit rises from
+20% to 30% for the merged cross-source comparison: one consistent bounded
+snapshot, explicit agreements/conflicts/unknowns, provenance-linked private reports
+and verified CLI replay/redaction. That adds 1.5 weighted percentage points.
+It does not credit verified identities, live matching quality or a resolved graph.
+No credit is added for the number of PRs, test counts or this documentation work.
+
+The earlier 2026-11-11 estimate was 22%; the unchanged 55% ingestion estimate
+already includes bounded refresh, Prefect schedules, manual intake and verified
+closed-worker routing. Those capabilities are not counted again here.
 
 ## Evidence for partial credit
 
@@ -59,7 +66,9 @@ activated. Manual Publicity intake verifies opaque evidence files without provid
 a live scraper. This estimate is not a percentage of Greek data or a source's records.
 
 Identity: conservative source-scoped identifier assessment and reproducible
-candidate reports exist. Registry corroboration, reviewer decisions, reversible
+candidate reports exist. The merged registry comparison adds selected stored
+AFM-text agreements, contradictions, dated provenance and safe replay. It does
+not verify issuer/authority or accept identities. Reviewer decisions, reversible
 accepted identities and empirical matching evaluation remain.
 
 Graph, analytics, AI and workspace: architecture and candidate-model research
@@ -69,17 +78,17 @@ investigator workspace yet. Election-accountability work is outside this baselin
 
 ## Immediate direction
 
-1. Review the implementation plan/RC1–RC7 tasks for the approved
-   [offline registry-comparison specification](identity/registry-comparison.md),
-   then build its bounded evidence report after plan approval.
-2. Add reviewed, reversible identity decisions with explicit supporting/conflicting evidence.
+1. Review/merge the RC6–RC7 operator runbook and delivery/progress documentation
+   for the implemented [offline comparison](identity/registry-comparison.md).
+2. Specify reviewed, reversible identity decisions with explicit supporting and
+   conflicting evidence, audit history and evaluation before implementing writes.
 3. Build reproducible temporal graph projection with dated, inspectable evidence.
 4. Add eligible company/sector statistics and explainable rules, then evaluated ML.
 5. Add evidence retrieval/cited AI and the investigator workspace.
 
 The GEMI personal-key pilot remains separate: validate live profiles when access
-arrives. Offline comparison can be built and tested against synthetic imports
-without credentials; live compatibility and empirical evaluation need real evidence.
+arrives. Offline comparison is built and tested against synthetic imports without
+credentials; live compatibility and empirical evaluation still need real evidence.
 
 E9/checkpoint C passed the full 28-case HTTPX/Chromium matrix with independent
 controls and actual runtime evidence. E10 additionally proves forbidden delivery

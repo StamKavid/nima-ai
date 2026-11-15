@@ -207,7 +207,7 @@ GNN experiments need to demonstrate additional value before adoption.
 
 ## Current state and next milestone
 
-As of 2026-11-14, main `127b3b8` implements bounded KIMDIS contract
+As of 2026-11-15, main `c764dcb` implements bounded KIMDIS contract
 collection, raw evidence archives, typed normalization, PostgreSQL versions and
 observations, safe resume, reported-participation projection and offline identity
 assessment. GEMI has a bounded archive collector and offline SQL import; accepted
@@ -229,13 +229,18 @@ tests and validates one fresh full receipt before CI upload. See the
 [delivery record](verification/source-worker-egress.md) for exact commits/results
 and undeployed public-IP/recovery limits.
 
-The next increment is the
-[offline registry-comparison report](identity/registry-comparison.md), approved
-through #65 with its implementation plan drafted for review. It will compare
-selected stored assertions while retaining
-unresolved identities and contradictory evidence. Reviewed reversible identities
-and a temporal graph follow as separate capabilities; this specification adds
-no implemented graph or matching model.
+The [offline registry-comparison report](identity/registry-comparison.md) is
+implemented through #72. One read-only snapshot supplies a bounded selected
+KIMDIS/GEMI cohort to a pure reported-AFM policy, then a canonical private report.
+The shared registry catalog retains repeated/404 observations and conflicts;
+procurement occurrences reference it without accepting identities or graph edges.
+The [operator/delivery record](verification/registry-comparison.md) documents the
+CLI, bounds, redaction and actual interrupted-publication/replay evidence.
+
+The next identity capability needs a separate specification for reviewed,
+reversible decisions, supporting/conflicting evidence and empirical matching
+quality. A reproducible temporal graph follows that gate. No matching model,
+resolved company graph or detector is implemented by the comparison command.
 See the [workflow contract](sources/kimdis-orchestration.md),
 [pipeline/reference mapping](pipeline-reference.md) and the
 [capability progress estimate](progress.md).

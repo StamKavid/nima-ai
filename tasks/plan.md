@@ -2,12 +2,35 @@
 
 ## Current increment: offline registry comparison
 
-Status: **implementation plan drafted for review**, 2026-11-14. The user approved
-`docs/identity/registry-comparison.md` by merging #65 and requesting continuation.
-Base: main `48a0778`. Specification candidate `a7331a7` passes all three jobs in
-run 43629891127: 987 quality tests/91.58% coverage and 12 real Docker tests in
-643.90 seconds. The final worker verifier accepts one complete 28-case receipt.
-No comparison implementation or matching-quality result is claimed by those gates.
+Status: **RC1–RC5 merged; RC6–RC7 documentation prepared for review**, 2026-11-15.
+The user approved the specification through #65 and the implementation plan
+through #66, then merged the implementation/review checkpoints through #72.
+Main `c764dcb` includes the complete offline comparison CLI. This documentation
+candidate records delivery; its own final checks and human merge are recorded in
+the delivery PR. No new application behavior is included here.
+
+| Delivered slice | Human merge / evidence |
+|---|---|
+| RC1 shared reader | #67, `fd65387`; unchanged assessment and caller-owned transaction checks |
+| RC2 pure policy / checkpoint A | #68, `8885aa6`; typed three-way outcomes and zero accepted links |
+| RC3 bounded shared snapshot | #69, `09975d2`; SQL limits, exact joins, concurrency and unchanged evidence |
+| RC4 private report / checkpoint B | #70 merged to its dependency branch at `6232f71`; #71 integrated its unchanged files into main at `054ca5f` |
+| RC5 CLI / checkpoint C | #72, `c764dcb`; redaction, actual pre/post-publication SIGKILL and deterministic replay |
+| RC6–RC7 | Operator runbook, capability notes, task and progress reconciliation in this review candidate; human merge pending |
+
+Final implementation candidate `8c46f144e6ec2f889b56a8f76170e7c5dd9d07b6`
+passes all three jobs in [run 43679268034](https://github.com/StamKavid/nima-ai/actions/runs/43679268034):
+1,106 quality tests, 91.82% combined coverage, clean build/security/audit,
+Compose, and 12 real Docker tests in 648.64 seconds. The worker verifier accepts
+one full 28-case controlled-fixture receipt. All 23 new CLI cases and both actual
+SIGKILL/replay cases pass on hosted PostgreSQL. Local PostgreSQL is unavailable;
+its fixture setup errors were not represented as passes.
+
+A temporary material eligibility-guard bypass caused 10 regression failures;
+exact original bytes were restored, then 63 focused policy/CLI tests and the
+full hosted suite passed. No mutant or production pause hook is committed.
+See the [operator and delivery record](../docs/verification/registry-comparison.md)
+for exact slice-level evidence, limits and the policy-file restoration hash.
 
 Build one private, reproducible report comparing a selected KIMDIS run with
 1–10 selected stored GEMI imports. Keep all occurrences/observations, three fixed
@@ -23,8 +46,9 @@ RC3 bounded registry snapshot → RC4 canonical private report → checkpoint B 
 RC5 operator CLI/crash/mutation checks → checkpoint C → RC6 measured runbook →
 RC7 capability/progress record. Execute sequentially, without agent delegation.
 Task acceptance criteria, commands and roughly 2–5 files per task are in
-`tasks/todo.md`. Human review/merge remains a checkpoint; do not automatically
-merge, deploy or start application changes before this plan is approved.
+`tasks/todo.md`. Human review/merge remains a checkpoint; do not automatically merge or deploy.
+The order below records the approved implementation contract, now delivered
+through RC5; documentation/reconciliation is the current review candidate.
 
 RC1 leaves the existing assessment working through a reusable connection-owned
 reader. RC2 supplies tested pure comparisons without exposing a command. RC3/RC4
@@ -137,8 +161,10 @@ remain separate gates.
 | Secret/source values in CLI failures | Fixed codes, value-free validation and sentinels through actual command failures |
 | Process dies at publication | Real child termination and byte-verified no-clobber replay |
 
-No unresolved technical or credential question blocks the proposed offline build.
-Review this implementation order and its verification checkpoints before RC1.
+No credential blocked the delivered offline build. The next product work needs
+a separate specification for reviewed, reversible identity decisions, evidence
+selection and empirical evaluation before temporal graph projection. GEMI live
+profile compatibility remains a separate access/pilot gate.
 
 ## Completed increment: source-worker egress verification
 
