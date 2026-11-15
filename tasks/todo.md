@@ -1,12 +1,161 @@
 # Tasks
 
-## Current: reviewed identity decisions — scope review only
+## Current: reviewed identity decisions — implementation plan review
 
-- [ ] Human review of the [draft specification](../docs/identity/reviewed-decisions.md),
-  including database-principal attribution, ledger writes/migration, eligible
-  candidate review, reversal semantics and private snapshot bounds.
-- Implementation plan and tasks are intentionally not drafted before scope approval.
-  No new write interface, schema, graph or model is implemented in this proposal.
+Scope approved by owner merge #74 at `2428b9d`. Implementation plan is the current
+review candidate in [plan.md](plan.md); no new ledger/write command is implemented.
+All tasks below depend on plan approval and execute sequentially. Existing quality,
+security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
+
+### RI1: Strict private request/report inputs
+
+- [ ] Add immutable typed inputs, fixed failures and bounded file/JSON codecs.
+- Acceptance: exact versions/types/fields, private ownership/no-follow/changed-file
+  checks, 16 KiB request/4 KiB rationale/32 MiB report bounds; canonical request
+  identity retains original text and excludes paths/server times. Invalid inputs
+  fail without database access or source-bearing diagnostics.
+- Verify: `uv run --frozen pytest tests/test_identity_review_inputs.py`.
+- Files: `src/nima/identity/review_types.py`, `review_inputs.py` in that directory,
+  `tests/test_identity_review_inputs.py`. Scope: three files. Dependencies: approval.
+
+### RI2: Pure review transitions
+
+- [ ] Implement accept/reject/revoke state folding and compatibility/issue rules.
+- Acceptance: one accepted pair, required conflict acknowledgment (including an
+  outside anchor), no direct replacement/rejection of active acceptance, no
+  resurrection or propagation; rejection creates no handle and revocation keeps
+  other pair states intact. Original inputs remain immutable.
+- Verify: `uv run --frozen pytest tests/test_identity_review_state.py tests/test_registry_policy.py`.
+- Files: `src/nima/identity/review_state.py`, `review_types.py`,
+  `tests/test_identity_review_state.py`. Scope: three files. Dependencies: RI1.
+
+### Checkpoint A: Pure contracts
+
+- [ ] Input/state and unchanged comparison tests, quality/audit pass; human review.
+
+### RI3: Explicit additive ledger migration
+
+- [ ] Add event/anchor/head schema and register migration 0007.
+- Acceptance: preserve checksums 0001–0006 and populated source/workflow evidence;
+  events/anchors immutable, revisions/request/anchor identities constrained and
+  entity/event creation references checked at commit; no PUBLIC/worker-role grants
+  or implicit migration. Required version-count tests advance without weakening them.
+- Verify: `uv run --frozen pytest tests/test_identity_review_schema.py tests/test_postgres.py tests/test_workflow_requests.py`.
+- Files: `src/nima/storage/migrations/0007.sql`, `src/nima/storage/postgres.py`,
+  `tests/test_identity_review_schema.py`, `tests/test_postgres.py`.
+- Scope: four files. Dependencies: checkpoint A.
+
+### RI4: Revalidate frozen review evidence in SQL
+
+- [ ] Add connection-owned selected-evidence verification for writes/exports.
+- Acceptance: exact occurrence/candidate/anchor joins and complete declared catalog,
+  forged outcomes/labels/omissions rejected, old report coverage stays context,
+  shared pure policy and combined 100-observation/8 MiB SQL bounds before labels;
+  do not substitute current whole-run membership for historical report selection.
+- Verify: `uv run --frozen pytest tests/test_identity_review_evidence.py tests/test_registry_cohort.py`.
+- Files: `src/nima/identity/review_evidence.py`, `review_types.py`,
+  `tests/test_identity_review_evidence.py`. Scope: three files. Dependencies: RI1–RI3.
+
+### Checkpoint B: Storage and evidence boundary
+
+- [ ] Real upgrade/immutability/evidence/budget cases and normal gates pass; human review.
+
+### RI5: First atomic acceptance library path
+
+- [ ] Deliver complete accept/new-or-existing-handle library transactions.
+- Acceptance: database principal, UUID replay before/after subject lock, expected
+  revision, anchor conflict validation and entity/event/head commit are atomic;
+  stale/conflicting requests roll back; exact replay returns the old acknowledgment
+  without changing current state. No CLI or source/outbox writes yet.
+- Verify: `uv run --frozen pytest tests/test_identity_review_accept.py tests/test_identity_review_evidence.py`.
+- Files: `src/nima/identity/review_store.py`, `review_types.py`,
+  `tests/test_identity_review_accept.py`. Scope: three files. Dependencies: checkpoint B.
+
+### RI6: Complete rejection and revocation library paths
+
+- [ ] Extend the working store with reject/revoke through the same transaction boundary.
+- Acceptance: reject records no entity; revoke needs only stored current pair/event
+  and expected revision, works without report/archive or current-policy eligibility,
+  preserves other accepted pairs and never resurrects a prior decision. Reassignment
+  is explicit revoke then accept; lost/interrupted intermediate state is unresolved.
+- Verify: `uv run --frozen pytest tests/test_identity_review_reversal.py tests/test_identity_review_accept.py`.
+- Files: `src/nima/identity/review_store.py`, `tests/test_identity_review_reversal.py`.
+- Scope: two files. Dependencies: RI5.
+
+### RI7: Prove races, principal permissions and SQL-commit recovery
+
+- [ ] Add independent-connection and actual child-kill verification of the full store.
+- Acceptance: exact/different request UUIDs, competing accepts and entity collisions
+  cannot create duplicate events/links; separate DB logins/grants enforce principal
+  attribution and deny new read-only writes; actual before/after-COMMIT SIGKILL and
+  lost-ack replay preserve one complete event and unchanged source state.
+- Verify: `uv run --frozen pytest tests/test_identity_review_races.py tests/test_identity_review_permissions.py tests/test_identity_review_commit_crash.py`.
+- Files: those three test files; at most `src/nima/identity/review_store.py` and
+  `tests/test_identity_review_support.py` if a material regression/helper is needed.
+- Scope: three to five files. Dependencies: RI5–RI6. Disposable test roles only,
+  guaranteed cleanup, no production role grants or pause hooks.
+
+### Checkpoint C: Complete verified write library
+
+- [ ] All actions, actual commit recovery, conflicts, principal/grant checks and
+  unchanged sources pass with full normal gates; human review before CLI exposure.
+
+### RI8: Private reviewed-resolution export library
+
+- [ ] Deliver the complete read-only SQL-to-canonical-private-artifact path.
+- Acceptance: one consistent selected source/head/history/anchor snapshot, explicit
+  coverage context and unresolved members, 1–10,000-event/100-observation/8 MiB SQL
+  preflight, exact 32 MiB output, old snapshot immutability and deterministic
+  verified reuse. Close SQL before publishing and keep automatic links zero.
+- Verify: `uv run --frozen pytest tests/test_identity_review_snapshot.py tests/test_identity_review_export.py tests/test_registry_report.py`.
+- Files: `src/nima/identity/review_snapshot.py`, `review_export.py`,
+  `tests/test_identity_review_snapshot.py`, `tests/test_identity_review_export.py`;
+  optional `review_types.py`. Scope: four to five files. Dependencies: checkpoint C.
+
+### RI9: Expose CLI and prove export interruption/redaction/mutation
+
+- [ ] Add working review/resolution routes after both complete library paths pass.
+- Acceptance: private request validation and existing routes, fixed 0/1/2/130 exits,
+  no key/HTTP access, value-free parser/driver/publication failures, actual export
+  publication SIGKILL and normal-CLI replay. A material revision/reversal mutation
+  must fail a regression, then exact restoration and normal gates pass.
+- Verify: `uv run --frozen pytest tests/test_identity_review_cli.py tests/test_identity_review_export_crash.py tests/test_identity_review_state.py tests/test_identity_review_races.py`;
+  `just check`, `just audit`, exact-head full hosted quality/Compose/worker checks.
+- Files: `src/nima/__main__.py`, `tests/test_identity_review_cli.py`,
+  `tests/test_identity_review_export_crash.py`; optional one existing material
+  state/race regression. Scope: three to four files. Dependencies: RI8.
+
+### Checkpoint D: Operator workflow
+
+- [ ] Complete command, principal/reversal/snapshot semantics, actual recovery,
+  restored mutation, ≥90% coverage and all three hosted checks pass; human review.
+
+### RI10: Measured operator runbook
+
+- [ ] Document implemented setup/commands, trust/grants, outcomes and evidence limits.
+- Acceptance: actual commands and exact-head results, private request/artifact
+  examples and safe recovery, replay acknowledgment versus current state, selected
+  context/unchecked authority and no empirical matching claims; no product-credit
+  claim for merely writing docs.
+- Verify: actual CLI help, local links, five-axis/prose review and unchanged gates.
+- Files: `docs/verification/reviewed-decisions.md`, `README.md`, `CAPABILITIES.md`,
+  `docs/architecture.md`, `docs/identity/reviewed-decisions.md`.
+- Scope: five files. Dependencies: checkpoint D.
+
+### RI11: Delivery and progress reconciliation
+
+- [ ] Record real merges/checkpoints and the next graph/evaluation gate.
+- Acceptance: preserve old incomplete work and fixed scope weights; any capability
+  credit requires delivered/evaluated evidence, not PR/test counts; unresolved
+  live-access/authentication/consolidation/graph work remains explicit.
+- Verify: cross-check commits/CI/attribution and human merges only.
+- Files: `tasks/plan.md`, `tasks/todo.md`, `docs/progress.md`.
+- Scope: three files. Dependencies: RI10.
+
+### Checkpoint E: Reviewed release
+
+- [ ] Final measured runbook/delivery record and exact-head gates reviewed/merged
+  by the owner; no automatic deployment, source request or external account action.
 
 ## Completed: offline registry comparison
 

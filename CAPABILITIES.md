@@ -36,6 +36,7 @@ gates. Stored imports support offline reported-identifier comparison; they do no
 establish verified corporate identity or issuer authority.
 
 The next `entity-resolution` scope is the
-[draft reviewed-decision contract](docs/identity/reviewed-decisions.md): explicit
-accept/reject/revoke history and private resolution snapshots. It is a proposal;
-no ledger migration, write command or reviewed identity link is implemented yet.
+[approved reviewed-decision contract](docs/identity/reviewed-decisions.md): explicit
+accept/reject/revoke history and private resolution snapshots. Scope is approved through #74; the implementation plan
+is under review. No ledger migration, write command or reviewed identity link
+is implemented yet.
