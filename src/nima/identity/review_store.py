@@ -23,6 +23,7 @@ from nima.identity.review_types import (
     ReviewAnchor,
     ReviewError,
     ReviewEvent,
+    ReviewOperation,
     ReviewReport,
     ReviewRequest,
     ReviewSubject,
@@ -44,14 +45,12 @@ def _request(request: ReviewRequest) -> None:
         raise ReviewError("review_limit") from None
     except (AttributeError, TypeError, ValueError, RecursionError):
         raise ReviewError("review_input") from None
-    if request.operation != "accept":
-        raise ReviewError("review_input")
 
 
 def review(
     dsn: str, request: ReviewRequest, *, report: ReviewReport | None = None
 ) -> ReviewAcknowledgment:
-    """Commit an explicit acceptance or replay its original receipt.
+    """Commit an explicit accept/reject/revoke or replay its original receipt.
 
     Evidence views are never accepted as authorization. This function always
     validates new evidence inside its own locked read-committed transaction.
@@ -70,7 +69,7 @@ def review(
                 # the winner's lock/commit, before checking the stale revision.
                 acknowledgment = _replay(connection, request)
                 if acknowledgment is None:
-                    acknowledgment = _accept(connection, request, report, head)
+                    acknowledgment = _apply(connection, request, report, head)
         return acknowledgment
     except MigrationError:
         raise ReviewError("review_schema") from None
@@ -173,7 +172,7 @@ def _events(connection: Connection, subject: ReviewSubject) -> tuple[ReviewEvent
             _key(subject),
         ).fetchone(),
     )
-    if count > MAX_REVIEW_EVENTS or size > review_evidence.MAX_INPUT_BYTES:
+    if count > MAX_REVIEW_EVENTS or size + 4096 > review_evidence.MAX_INPUT_BYTES:
         raise ReviewError("review_limit")
     rows = connection.execute(
         sql.SQL("""SELECT event_id,request_payload,request_sha256,
@@ -214,7 +213,7 @@ def _events(connection: Connection, subject: ReviewSubject) -> tuple[ReviewEvent
     return tuple(events)
 
 
-def _accept(
+def _apply(
     connection: Connection,
     request: ReviewRequest,
     report: ReviewReport | None,
@@ -222,20 +221,24 @@ def _accept(
 ) -> ReviewAcknowledgment:
     if request.expected_revision != head[0]:
         raise ReviewError("review_conflict")
-    if report is None or report.sha256 != request.report_sha256:
-        raise ReviewError("review_evidence")
-    existing = (
-        connection.execute(
-            "SELECT 1 FROM nima.identity_entities WHERE entity_id=%s", (request.entity_id,)
-        ).fetchone()
-        is not None
-    )
-    checked = review_evidence.validate_evidence(
-        connection,
-        report,
-        subjects=(request.subject,),
-        entity_ids=(cast(UUID, request.entity_id),) if existing else (),
-    )
+    existing = False
+    checked = None
+    if request.operation != "revoke":
+        if report is None or report.sha256 != request.report_sha256:
+            raise ReviewError("review_evidence")
+        if request.operation == "accept":
+            existing = (
+                connection.execute(
+                    "SELECT 1 FROM nima.identity_entities WHERE entity_id=%s", (request.entity_id,)
+                ).fetchone()
+                is not None
+            )
+        checked = review_evidence.validate_evidence(
+            connection,
+            report,
+            subjects=(request.subject,),
+            entity_ids=(cast(UUID, request.entity_id),) if existing else (),
+        )
     events = _events(connection, request.subject)
     folded = fold_events(request.subject, events)
     if (folded.revision, events[-1].event_id if events else None) != head:
@@ -244,11 +247,13 @@ def _accept(
         ReviewAnchor(
             cast(UUID, request.entity_id), checked.anchors[cast(UUID, request.entity_id)].claim
         )
-        if existing
+        if existing and checked is not None
         else None
     )
-    event = propose(request, events, cohort=checked.cohort, anchor=anchor)
-    if not existing:
+    event = propose(
+        request, events, cohort=checked.cohort if checked is not None else None, anchor=anchor
+    )
+    if request.operation == "accept" and not existing:
         connection.execute(
             """INSERT INTO nima.identity_entities
             (entity_id,anchor_import_id,registry_number,creating_event_id)
@@ -260,20 +265,38 @@ def _accept(
                 request.request_id,
             ),
         )
-    _append(connection, event)
+    reversed_operation = (
+        next(
+            (
+                prior.request.operation
+                for prior in events
+                if prior.event_id == request.reverses_event_id
+            ),
+            None,
+        )
+        if request.operation == "revoke"
+        else None
+    )
+    _append(connection, event, reversed_operation=reversed_operation)
     return ReviewAcknowledgment(
         event.event_id, event.subject_revision, request.operation, request.entity_id, False
     )
 
 
-def _append(connection: Connection, event: ReviewEvent) -> None:
+def _append(
+    connection: Connection,
+    event: ReviewEvent,
+    *,
+    reversed_operation: ReviewOperation | None = None,
+) -> None:
     request = event.request
     connection.execute(
         """INSERT INTO nima.identity_review_events
         (event_id,observation_id,projection_version,role,ordinal,subject_revision,
          candidate_import_id,registry_number,operation,entity_id,request_sha256,
-         request_payload,report_sha256,rationale,issues,policy_version,database_principal)
-        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,session_user)""",
+         request_payload,report_sha256,rationale,issues,policy_version,
+         reverses_event_id,reversed_operation,database_principal)
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,session_user)""",
         (
             request.request_id,
             *_key(request.subject),
@@ -288,6 +311,8 @@ def _append(connection: Connection, event: ReviewEvent) -> None:
             request.rationale,
             list(event.issues),
             event.policy_version,
+            request.reverses_event_id,
+            reversed_operation,
         ),
     )
     row = connection.execute(
