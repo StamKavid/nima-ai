@@ -283,7 +283,7 @@ def test_sql_anchor_union_preserves_afm_change_and_counts_overlap_once(
         if overlap:
             assert propose(request, (), cohort=checked.cohort, anchor=anchor).issues == ()
         else:
-            with pytest.raises(ReviewError, match="^review_conflict$"):
+            with pytest.raises(ReviewError, match="^review_evidence$"):
                 propose(request, (), cohort=checked.cohort, anchor=anchor)
             issue = "reported_afm_changed_for_registry_number"
             assert propose(
