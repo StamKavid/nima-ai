@@ -5,8 +5,10 @@ following approved scope #74/plan #75 and checkpoints A–D. Local operators can
 review exact company candidates, preserve reversible audit history and export
 private evidence-backed resolution snapshots. The measured runbook #85 and delivery
 record #86 are now owner-merged through `ef58c38`, completing checkpoint E with
-all three exact-head gates green. The next [graph specification](graph/investigation-pilot.md)
-is proposed for review; no graph code or additional capability credit is included.
+all three exact-head gates green. The [graph contract](graph/investigation-pilot.md)
+is owner-approved following merged #87 at `eb3d2e0`. The requested
+[database assessment](graph/database-candidates.md) identifies AGE and Neo4j Community
+as open-source candidates; no graph code, installed store or capability credit is added.
 
 The product is at the trusted-data/private-review milestone. The next major
 user-facing target is a company → procurement → buyer investigation with dated,

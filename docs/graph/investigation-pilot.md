@@ -1,7 +1,8 @@
 # Specification: bounded investigation graph
 
-Status: **proposed for owner review**, 2026-11-15. This is the next specification
-after reviewed-identity release #85/#86, merged through `ef58c38`. No graph code,
+Status: **contract approved by the owner**, 2026-11-15, following merged scope #87
+at `eb3d2e0`. The owner also requested the [database candidate assessment](database-candidates.md).
+This approved contract follows reviewed-identity release #85/#86; no graph code,
 implementation plan, new dependency, service or deployment is included here.
 
 ## Objective and product boundary
@@ -19,7 +20,7 @@ the [reviewed-decision contract](../identity/reviewed-decisions.md) remains auth
 for accept/reject/revoke and unclassified handles. No inference or source coverage
 is added merely by displaying stored data as a graph.
 
-Assumptions proposed for approval: offline stored evidence, one frozen comparison
+Approved scope assumptions: offline stored evidence, one frozen comparison
 selection, trusted local PostgreSQL credentials and private filesystem output.
 No GEMI key, live collection, model/provider call or public service is needed.
 
@@ -283,7 +284,7 @@ separately specified follow-ons; this CLI feature does not complete the workspac
   source/review rows; weaken gates or auto-merge/deploy.
 
 No blocking external-access question prevents specifying this offline increment.
-Owner review is requested for the proposed CLI-first scope and graph contract.
+The owner approved the CLI-first scope and graph contract on 2026-11-15.
 Real-cohort availability and observed investigator testing remain explicit later
-gates. Approval of this document permits the next implementation-plan phase; it
-does not itself approve code, dependencies, source requests or deployment.
+gates. Contract approval permits the next implementation-plan phase; it does not
+itself approve code, dependencies, database adoption, source requests or deployment.
