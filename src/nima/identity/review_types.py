@@ -170,3 +170,15 @@ class ReviewEvidence:
     cohort: "ComparisonCohort"
     anchors: Mapping[UUID, "RegistryEvidence"]
     input_bytes: int
+
+
+@dataclass(frozen=True)
+class ReviewAcknowledgment:
+    """One committed event's receipt; replay never asserts that it is current."""
+
+    event_id: UUID
+    subject_revision: int
+    operation: ReviewOperation
+    entity_id: UUID | None
+    replayed: bool
+    attribution_assurance: Literal["database_principal_only"] = "database_principal_only"
