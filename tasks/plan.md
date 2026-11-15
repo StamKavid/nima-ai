@@ -1,13 +1,29 @@
 # Delivery plan
 
-## Current increment: offline registry comparison
+## Current: reviewed identity decisions — specification review
 
-Status: **RC1–RC5 merged; RC6–RC7 documentation prepared for review**, 2026-11-15.
+Status: **scope proposal; not an implementation plan**, 2026-11-15. The user
+requested continuation after the registry-comparison increment. The draft is
+[reviewed-decisions.md](../docs/identity/reviewed-decisions.md), within the existing
+`entity-resolution` module. It proposes a trusted local operator CLI, append-only
+accept/reject/revoke history, stable unclassified party handles and private
+resolution snapshots. Source history, comparison behavior and automatic links stay
+unchanged; no ledger migration/write command is implemented by this proposal.
+
+Review the proposed trust, evidence, reversal and concurrency boundaries before
+an implementation plan. Planning/tasks follow scope approval in a later turn;
+no new implementation ordering or tasks are introduced here. Preserve the complete
+previous delivery record and all older incomplete source/access/product work.
+
+## Completed increment: offline registry comparison
+
+Status: **RC1–RC7 merged**, 2026-11-15, through #73 at main `d6c1552`.
 The user approved the specification through #65 and the implementation plan
 through #66, then merged the implementation/review checkpoints through #72.
-Main `c764dcb` includes the complete offline comparison CLI. This documentation
-candidate records delivery; its own final checks and human merge are recorded in
-the delivery PR. No new application behavior is included here.
+Main `c764dcb` introduced the complete offline comparison CLI. #73 adds the
+measured runbook and progress reconciliation; its candidate `9e5e4ac` passes all
+three jobs in run 43681084835 (1,106 tests/91.82%, 12 Docker tests/660.33 s and
+one validated 28-case receipt). No new behavior is claimed by that documentation.
 
 | Delivered slice | Human merge / evidence |
 |---|---|
@@ -16,7 +32,7 @@ the delivery PR. No new application behavior is included here.
 | RC3 bounded shared snapshot | #69, `09975d2`; SQL limits, exact joins, concurrency and unchanged evidence |
 | RC4 private report / checkpoint B | #70 merged to its dependency branch at `6232f71`; #71 integrated its unchanged files into main at `054ca5f` |
 | RC5 CLI / checkpoint C | #72, `c764dcb`; redaction, actual pre/post-publication SIGKILL and deterministic replay |
-| RC6–RC7 | Operator runbook, capability notes, task and progress reconciliation in this review candidate; human merge pending |
+| RC6–RC7 | #73, `d6c1552`; measured runbook, capability notes and reconciled task/progress record |
 
 Final implementation candidate `8c46f144e6ec2f889b56a8f76170e7c5dd9d07b6`
 passes all three jobs in [run 43679268034](https://github.com/StamKavid/nima-ai/actions/runs/43679268034):
@@ -48,7 +64,7 @@ RC7 capability/progress record. Execute sequentially, without agent delegation.
 Task acceptance criteria, commands and roughly 2–5 files per task are in
 `tasks/todo.md`. Human review/merge remains a checkpoint; do not automatically merge or deploy.
 The order below records the approved implementation contract, now delivered
-through RC5; documentation/reconciliation is the current review candidate.
+through RC7, including documentation/reconciliation.
 
 RC1 leaves the existing assessment working through a reusable connection-owned
 reader. RC2 supplies tested pure comparisons without exposing a command. RC3/RC4
