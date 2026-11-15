@@ -40,7 +40,7 @@ def _connect(dsn: str) -> Connection:
 
 def _migrations() -> list[tuple[int, str, str]]:
     result = []
-    for version in (1, 2, 3, 4, 5, 6):
+    for version in (1, 2, 3, 4, 5, 6, 7):
         body = files("nima.storage").joinpath(f"migrations/{version:04d}.sql").read_text()
         result.append((version, body, hashlib.sha256(body.encode()).hexdigest()))
     return result
