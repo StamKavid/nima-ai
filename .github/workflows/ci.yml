@@ -205,7 +205,7 @@ jobs:
               assert response.json()['entrypoint'] == 'nima.orchestration.refresh_flow.refresh_flow'
               assert not response.json().get('schedules')
           with psycopg.connect(os.environ['NIMA_DATABASE_URL']) as connection:
-              assert connection.execute('SELECT count(*) FROM nima.schema_migrations').fetchone() == (6,)
+              assert connection.execute('SELECT count(*) FROM nima.schema_migrations').fetchone() == (7,)
               assert connection.execute('SELECT count(*) FROM nima.workflow_requests').fetchone() == (0,)
               assert connection.execute('SELECT count(*) FROM nima.refresh_policies').fetchone() == (0,)
               assert connection.execute('SELECT count(*) FROM nima.observations').fetchone() == (0,)
