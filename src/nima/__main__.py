@@ -13,6 +13,8 @@ from uuid import UUID
 import httpx
 import psycopg
 
+from nima.graph.commands import configure as configure_graph
+from nima.graph.commands import run as run_graph
 from nima.identity import AssessmentError, ComparisonError
 from nima.identity.registry_report import compare_run
 from nima.identity.report import assess_run
@@ -54,6 +56,7 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     parser = parser_type(prog="python -m nima")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("evidence", help="Offline manual evidence intake and verification")
+    configure_graph(commands.add_parser("graph", help="Offline private investigation graph"))
     refresh = commands.add_parser("refresh").add_subparsers(dest="operation", required=True)
     create = refresh.add_parser("create").add_subparsers(dest="source", required=True)
     policy = create.add_parser("kimdis")
@@ -272,14 +275,18 @@ def main(argv: list[str] | None = None) -> int:
         from nima.evidence.cli import run as evidence_run
 
         return evidence_run(arguments[1:])
+    private_graph = bool(arguments and arguments[0] == "graph")
     try:
         private_identity = bool(
             arguments and arguments[0] == "identities" and arguments[1:2] != ["assess"]
         )
-        args = _parser(comparison=private_identity).parse_args(arguments)
+        args = _parser(comparison=private_identity or private_graph).parse_args(arguments)
     except ValueError:
-        print(json.dumps({"status": "failed", "failure": "configuration"}))
+        reason = "graph_configuration" if private_graph else "configuration"
+        print(json.dumps({"status": "failed", "failure": reason}))
         return 2
+    if args.command == "graph":
+        return run_graph(args)
     if args.command == "identities" and args.operation == "compare":
         return _compare(args)
     if args.command == "identities" and args.operation in {"review", "resolution"}:
