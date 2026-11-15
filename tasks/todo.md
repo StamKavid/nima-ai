@@ -1,15 +1,23 @@
 # Tasks
 
-## Current: reviewed identity decisions — implementation plan review
+## Current: reviewed identity delivery / next graph product gate
 
-Scope approved by owner merge #74 at `2428b9d`. Implementation plan is the current
-review candidate in [plan.md](plan.md); no new ledger/write command is implemented.
-All tasks below depend on plan approval and execute sequentially. Existing quality,
-security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
+Scope #74 and plan #75 were approved. RI1–RI9 and owner checkpoints A–D are
+merged through #84 at `50b43be`. RI10's measured runbook is prepared in #85; RI11
+reconciles actual delivery/progress here. Checked authoring/implementation tasks
+below do not imply checkpoint E is merged: documentation delivery/review is still
+pending. Execute sequentially; existing quality/security/audit, coverage and all
+three exact-head hosted gates apply unchanged. Preserve older incomplete work.
+
+Implementation mapping: RI1 #76, RI2 #77, RI3 #78, RI4 #79, RI5 #80, RI6 #81,
+RI7 #82, RI8 #83, RI9 #84. See the [measured runbook](../docs/verification/reviewed-decisions.md)
+for exact candidates/runs, trust limits and physical recovery evidence. Next scope
+is a separately specified company → procurement → buyer graph pilot with identity/
+edge/time evaluation; no graph, model or workspace is implemented by this release.
 
 ### RI1: Strict private request/report inputs
 
-- [ ] Add immutable typed inputs, fixed failures and bounded file/JSON codecs.
+- [x] Add immutable typed inputs, fixed failures and bounded file/JSON codecs.
 - Acceptance: exact versions/types/fields, private ownership/no-follow/changed-file
   checks, 16 KiB request/4 KiB rationale/32 MiB report bounds; canonical request
   identity retains original text and excludes paths/server times. Invalid inputs
@@ -20,7 +28,7 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### RI2: Pure review transitions
 
-- [ ] Implement accept/reject/revoke state folding and compatibility/issue rules.
+- [x] Implement accept/reject/revoke state folding and compatibility/issue rules.
 - Acceptance: one accepted pair, required conflict acknowledgment (including an
   outside anchor), no direct replacement/rejection of active acceptance, no
   resurrection or propagation; rejection creates no handle and revocation keeps
@@ -31,11 +39,11 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### Checkpoint A: Pure contracts
 
-- [ ] Input/state and unchanged comparison tests, quality/audit pass; human review.
+- [x] Input/state and unchanged comparison tests, quality/audit pass; human review.
 
 ### RI3: Explicit additive ledger migration
 
-- [ ] Add event/anchor/head schema and register migration 0007.
+- [x] Add event/anchor/head schema and register migration 0007.
 - Acceptance: preserve checksums 0001–0006 and populated source/workflow evidence;
   events/anchors immutable, revisions/request/anchor identities constrained and
   entity/event creation references checked at commit; no PUBLIC/worker-role grants
@@ -47,7 +55,7 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### RI4: Revalidate frozen review evidence in SQL
 
-- [ ] Add connection-owned selected-evidence verification for writes/exports.
+- [x] Add connection-owned selected-evidence verification for writes/exports.
 - Acceptance: exact occurrence/candidate/anchor joins and complete declared catalog,
   forged outcomes/labels/omissions rejected, old report coverage stays context,
   shared pure policy and combined 100-observation/8 MiB SQL bounds before labels;
@@ -58,11 +66,11 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### Checkpoint B: Storage and evidence boundary
 
-- [ ] Real upgrade/immutability/evidence/budget cases and normal gates pass; human review.
+- [x] Real upgrade/immutability/evidence/budget cases and normal gates pass; human review.
 
 ### RI5: First atomic acceptance library path
 
-- [ ] Deliver complete accept/new-or-existing-handle library transactions.
+- [x] Deliver complete accept/new-or-existing-handle library transactions.
 - Acceptance: database principal, UUID replay before/after subject lock, expected
   revision, anchor conflict validation and entity/event/head commit are atomic;
   stale/conflicting requests roll back; exact replay returns the old acknowledgment
@@ -73,7 +81,7 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### RI6: Complete rejection and revocation library paths
 
-- [ ] Extend the working store with reject/revoke through the same transaction boundary.
+- [x] Extend the working store with reject/revoke through the same transaction boundary.
 - Acceptance: reject records no entity; revoke needs only stored current pair/event
   and expected revision, works without report/archive or current-policy eligibility,
   preserves other accepted pairs and never resurrects a prior decision. Reassignment
@@ -84,7 +92,7 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### RI7: Prove races, principal permissions and SQL-commit recovery
 
-- [ ] Add independent-connection and actual child-kill verification of the full store.
+- [x] Add independent-connection and actual child-kill verification of the full store.
 - Acceptance: exact/different request UUIDs, competing accepts and entity collisions
   cannot create duplicate events/links; separate DB logins/grants enforce principal
   attribution and deny new read-only writes; actual before/after-COMMIT SIGKILL and
@@ -97,12 +105,12 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### Checkpoint C: Complete verified write library
 
-- [ ] All actions, actual commit recovery, conflicts, principal/grant checks and
+- [x] All actions, actual commit recovery, conflicts, principal/grant checks and
   unchanged sources pass with full normal gates; human review before CLI exposure.
 
 ### RI8: Private reviewed-resolution export library
 
-- [ ] Deliver the complete read-only SQL-to-canonical-private-artifact path.
+- [x] Deliver the complete read-only SQL-to-canonical-private-artifact path.
 - Acceptance: one consistent selected source/head/history/anchor snapshot, explicit
   coverage context and unresolved members, 1–10,000-event/100-observation/8 MiB SQL
   preflight, exact 32 MiB output, old snapshot immutability and deterministic
@@ -114,7 +122,7 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### RI9: Expose CLI and prove export interruption/redaction/mutation
 
-- [ ] Add working review/resolution routes after both complete library paths pass.
+- [x] Add working review/resolution routes after both complete library paths pass.
 - Acceptance: private request validation and existing routes, fixed 0/1/2/130 exits,
   no key/HTTP access, value-free parser/driver/publication failures, actual export
   publication SIGKILL and normal-CLI replay. A material revision/reversal mutation
@@ -127,12 +135,12 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### Checkpoint D: Operator workflow
 
-- [ ] Complete command, principal/reversal/snapshot semantics, actual recovery,
+- [x] Complete command, principal/reversal/snapshot semantics, actual recovery,
   restored mutation, ≥90% coverage and all three hosted checks pass; human review.
 
 ### RI10: Measured operator runbook
 
-- [ ] Document implemented setup/commands, trust/grants, outcomes and evidence limits.
+- [x] Document implemented setup/commands, trust/grants, outcomes and evidence limits.
 - Acceptance: actual commands and exact-head results, private request/artifact
   examples and safe recovery, replay acknowledgment versus current state, selected
   context/unchecked authority and no empirical matching claims; no product-credit
@@ -144,13 +152,14 @@ security/audit, coverage and exact-head Compose/Docker gates apply unchanged.
 
 ### RI11: Delivery and progress reconciliation
 
-- [ ] Record real merges/checkpoints and the next graph/evaluation gate.
+- [x] Record real merges/checkpoints and the next graph/evaluation gate.
 - Acceptance: preserve old incomplete work and fixed scope weights; any capability
   credit requires delivered/evaluated evidence, not PR/test counts; unresolved
   live-access/authentication/consolidation/graph work remains explicit.
 - Verify: cross-check commits/CI/attribution and human merges only.
 - Files: `tasks/plan.md`, `tasks/todo.md`, `docs/progress.md`.
 - Scope: three files. Dependencies: RI10.
+- RI10/RI11 are prepared documentation candidates; checkpoint E remains pending owner delivery.
 
 ### Checkpoint E: Reviewed release
 

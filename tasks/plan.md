@@ -2,12 +2,18 @@
 
 ## Current: reviewed identity decisions — implementation plan
 
-Status: **plan drafted for review**, 2026-11-15. The owner approved
-[reviewed-decisions.md](../docs/identity/reviewed-decisions.md) by merging #74 as
-`2428b9d`. Its candidate `fb1cd9b` passes all three jobs in run 43683755019:
-1,106 existing tests/91.90%, clean quality/security/audit, Compose, and 12 Docker
-tests/725.30 s with one full validated 28-case receipt. Those tests do not prove
-an implemented ledger. This PR plans work; it adds no application code or DDL.
+Status: **implementation merged through checkpoint D; documentation release review**,
+2026-11-15. Scope #74 and plan #75 were approved. The owner merged RI1–RI9 through
+#84 at `50b43be`. Final implementation `fdf8289` passes all three jobs in run
+43707453503: 1,375 tests/92.13%, clean build/security/audit, Compose and 12 Docker
+tests/855.34 s with one full validated 28-case fixture receipt. Production/privacy
+flags stay false. See the [measured runbook](../docs/verification/reviewed-decisions.md).
+RI10 is prepared in #85; this RI11 delivery/progress candidate completes authoring
+for checkpoint E, which still requires exact-head checks and owner review/merge.
+No completion credit is added for documentation, PR counts or test counts.
+
+The sections below preserve the approved design and its boundaries. The merged
+implementation is a trusted-local-operator workflow, not a deployed public service.
 
 Deliver explicit local accept/reject/revoke operations, stable unclassified party
 handles and private reviewed-resolution exports. Preserve all original evidence,
@@ -27,7 +33,41 @@ checkpoint D → RI10 measured runbook → RI11 delivery/progress reconciliation
 checkpoint E. The roughly 2–5-file tasks, acceptance and focused commands are in
 `tasks/todo.md`. Every checkpoint includes human review/merge of working slices;
 no automatic merge/deploy. Keep dependent PRs draft or target main with their
-complete approved prerequisites included. Do not start RI1 before plan approval.
+complete approved prerequisites included. RI1 followed owner approval of plan #75.
+
+### Measured implementation delivery and product handoff
+
+| Slice | Owner-reviewed delivery | Main merge |
+|---|---|---|
+| RI1 private inputs | #76 | `3a6d1fc` |
+| RI2 pure transitions / checkpoint A | #77 | `d07bfb2` |
+| RI3 ledger schema | #78 | `3667518` |
+| RI4 SQL evidence / checkpoint B | #79 | `623bbf5` |
+| RI5 atomic acceptance | #80 | `e9f1e1c` |
+| RI6 reject/revoke | #81 | `120febb` |
+| RI7 races/principals/COMMIT recovery / checkpoint C | #82 | `b37ec70` |
+| RI8 private resolution snapshots | #83 | `cda2c07` |
+| RI9 operator CLI/publication recovery / checkpoint D | #84 | `50b43be` |
+
+All final candidates pass quality/Compose/full worker checks; the runbook records
+exact results. These are implemented local capabilities, not empirical matching
+accuracy or production operations. Local PostgreSQL/Docker setup limitations were
+reported rather than skipped. RI10/RI11 candidates have their own final checks.
+
+Capability tracking remains scope-weighted: approximately 30% overall (28–33%
+planning range), up from 27% for the complete merged manual review/audit/export
+workflow. Weights and other estimates stay unchanged; identity rises 30%→50%,
+adding three weighted points. See [progress](../docs/progress.md) for arithmetic,
+partial-credit limits and older baseline history.
+
+After checkpoint E, draft a separate reproducible temporal-graph/company-investigation
+pilot specification: selected company → procurement → public buyer → dated evidence,
+with sampled identity/edge/time correctness and reproducible rebuilds. A thin
+read-only dossier/explorer is a product-validation candidate for that scope; full
+workspace, broader sources, eligible signals, evaluated ML and cited AI remain later
+milestones. Live GEMI compatibility, public-service authentication, consolidation,
+production operation and deployed egress are still unverified. No next-stage code
+or deployment is authorized by this delivery record itself.
 
 ### Typed input and evidence boundary
 
