@@ -16,6 +16,10 @@ import psycopg
 from nima.identity import AssessmentError, ComparisonError
 from nima.identity.registry_report import compare_run
 from nima.identity.report import assess_run
+from nima.identity.review_export import export_resolution
+from nima.identity.review_inputs import read_report, read_request
+from nima.identity.review_store import review as record_review
+from nima.identity.review_types import ReviewError
 from nima.ingestion.archive import Archive, ArchiveError
 from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits, Query
@@ -88,6 +92,20 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     compare.add_argument("--projection-version", required=True)
     compare.add_argument("--output-dir", type=Path, required=True)
     compare.add_argument("--max-mentions", type=int, default=10000)
+    review = identities.add_parser("review", help="Record or replay one explicit private review")
+    review.add_argument("request_id", type=UUID)
+    review.add_argument("--request-file", type=Path, required=True)
+    review.add_argument(
+        "--report-file",
+        type=Path,
+        help="Comparison file for new accept/reject; omit for revoke or committed replay",
+    )
+    resolution = identities.add_parser(
+        "resolution", help="Export one private reviewed-resolution snapshot"
+    )
+    resolution.add_argument("--report-file", type=Path, required=True)
+    resolution.add_argument("--output-dir", type=Path, required=True)
+    resolution.add_argument("--max-events", type=int, default=10000)
     project = commands.add_parser("outbox").add_subparsers(dest="operation", required=True)
     project.add_parser(
         "project", help="Project reported participation in one bounded batch"
@@ -197,6 +215,57 @@ def _compare(args: argparse.Namespace) -> int:
     return code
 
 
+def _reviewed_identity(args: argparse.Namespace) -> int:
+    code = 0
+    try:
+        if args.operation == "review":
+            request = read_request(args.request_id, args.request_file)
+            report = (
+                read_report(args.report_file, expected_sha256=request.report_sha256)
+                if request.operation != "revoke" and args.report_file is not None
+                else None
+            )
+            ack = record_review(_database_url(), request, report=report)
+            result: dict[str, object] = {
+                "status": "committed",
+                "request_id": str(ack.event_id),
+                "event_id": str(ack.event_id),
+                "entity_id": str(ack.entity_id) if ack.entity_id else None,
+                "subject_revision": ack.subject_revision,
+                "operation": ack.operation,
+                "replayed": ack.replayed,
+                "attribution_assurance": ack.attribution_assurance,
+            }
+        else:
+            if not 1 <= args.max_events <= 10000:
+                raise ValueError("configuration")
+            report = read_report(args.report_file)
+            result = export_resolution(
+                _database_url(), report, args.output_dir, max_events=args.max_events
+            )
+    except ReviewError as error:
+        result = {"status": "failed", "failure": error.reason}
+        code = 2 if error.reason == "review_input" else 1
+    except MigrationError:
+        result, code = {"status": "failed", "failure": "review_schema"}, 1
+    except psycopg.Error:
+        result, code = {"status": "failed", "failure": "review_database"}, 1
+    except OSError:
+        result, code = (
+            {
+                "status": "failed",
+                "failure": "review_output" if args.operation == "resolution" else "review_input_io",
+            },
+            1,
+        )
+    except ValueError:
+        result, code = {"status": "failed", "failure": "configuration"}, 2
+    except KeyboardInterrupt:
+        result, code = {"status": "failed", "failure": "interrupted"}, 130
+    print(json.dumps(result, allow_nan=False))
+    return code
+
+
 def main(argv: list[str] | None = None) -> int:
     arguments = sys.argv[1:] if argv is None else argv
     if arguments and arguments[0] == "evidence":
@@ -204,12 +273,17 @@ def main(argv: list[str] | None = None) -> int:
 
         return evidence_run(arguments[1:])
     try:
-        args = _parser(comparison=arguments[:2] == ["identities", "compare"]).parse_args(arguments)
+        private_identity = bool(
+            arguments and arguments[0] == "identities" and arguments[1:2] != ["assess"]
+        )
+        args = _parser(comparison=private_identity).parse_args(arguments)
     except ValueError:
         print(json.dumps({"status": "failed", "failure": "configuration"}))
         return 2
     if args.command == "identities" and args.operation == "compare":
         return _compare(args)
+    if args.command == "identities" and args.operation in {"review", "resolution"}:
+        return _reviewed_identity(args)
     if args.command == "refresh":
         from nima.orchestration.refresh_cli import run as refresh_run
 
