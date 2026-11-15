@@ -3,9 +3,10 @@
 Main `50b43be` includes the owner-merged reviewed-decision workflow through #84,
 following approved scope #74/plan #75 and checkpoints A–D. Local operators can
 review exact company candidates, preserve reversible audit history and export
-private evidence-backed resolution snapshots. The measured runbook is prepared
-in #85; this delivery/progress candidate finishes RI11 for checkpoint E review.
-Documentation candidates still require their own checks and owner delivery merge.
+private evidence-backed resolution snapshots. The measured runbook #85 and delivery
+record #86 are now owner-merged through `ef58c38`, completing checkpoint E with
+all three exact-head gates green. The next [graph specification](graph/investigation-pilot.md)
+is proposed for review; no graph code or additional capability credit is included.
 
 The product is at the trusted-data/private-review milestone. The next major
 user-facing target is a company → procurement → buyer investigation with dated,
@@ -122,7 +123,7 @@ work is outside this baseline.
 
 | Milestone | Investigator outcome | Remaining gate |
 |---|---|---|
-| Close the private review release | Reproducible operator setup, review and evidence export | RI10/RI11 documentation and owner checkpoint E |
+| Private review release — delivered | Reproducible operator setup, review and evidence export | RI10/RI11 and owner checkpoint E completed in #85/#86 |
 | Company-investigation graph pilot | Inspect a selected company, its contracts/public buyers and dated source links | Separate graph spec, reproducible rebuild, sampled edge/time correctness and identity review audit |
 | Broader source coverage | Follow decisions/documents and procurement lifecycle changes | Live GEMI profile pilot; Diavgeia/TED; native text/OCR with location accuracy; distinct stage/value semantics |
 | Company/sector signals | Review concentration, repeated relationships, eligible amendments and other explainable patterns | Coverage/denominators, comparable CPV cohorts and legal/context controls; no silent scoring of missing data |

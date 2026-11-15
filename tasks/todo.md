@@ -1,13 +1,19 @@
 # Tasks
 
-## Current: reviewed identity delivery / next graph product gate
+## Current: investigation graph specification review
+
+- [x] Draft the [bounded graph specification](../docs/graph/investigation-pilot.md)
+  from implemented source/review contracts, with exact evidence, identity, date,
+  value, resource and verification limits. No graph code or implementation plan.
+- [ ] Owner review/approval of this proposed scope before the implementation-plan phase.
+
+## Completed: reviewed identity delivery
 
 Scope #74 and plan #75 were approved. RI1–RI9 and owner checkpoints A–D are
-merged through #84 at `50b43be`. RI10's measured runbook is prepared in #85; RI11
-reconciles actual delivery/progress here. Checked authoring/implementation tasks
-below do not imply checkpoint E is merged: documentation delivery/review is still
-pending. Execute sequentially; existing quality/security/audit, coverage and all
-three exact-head hosted gates apply unchanged. Preserve older incomplete work.
+merged through #84 at `50b43be`. RI10 #85 and RI11 #86 are also owner-merged
+through `ef58c38`, completing checkpoint E. Exact-head quality/Compose/full worker
+gates pass for both documentation candidates. Existing quality/security/audit,
+coverage and all three hosted gates remain unchanged. Preserve older incomplete work.
 
 Implementation mapping: RI1 #76, RI2 #77, RI3 #78, RI4 #79, RI5 #80, RI6 #81,
 RI7 #82, RI8 #83, RI9 #84. See the [measured runbook](../docs/verification/reviewed-decisions.md)
@@ -159,11 +165,11 @@ edge/time evaluation; no graph, model or workspace is implemented by this releas
 - Verify: cross-check commits/CI/attribution and human merges only.
 - Files: `tasks/plan.md`, `tasks/todo.md`, `docs/progress.md`.
 - Scope: three files. Dependencies: RI10.
-- RI10/RI11 are prepared documentation candidates; checkpoint E remains pending owner delivery.
+- RI10 #85 / RI11 #86 are owner-merged; checkpoint E is complete.
 
 ### Checkpoint E: Reviewed release
 
-- [ ] Final measured runbook/delivery record and exact-head gates reviewed/merged
+- [x] Final measured runbook/delivery record and exact-head gates reviewed/merged
   by the owner; no automatic deployment, source request or external account action.
 
 ## Completed: offline registry comparison
