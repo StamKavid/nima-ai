@@ -94,11 +94,11 @@ class ReviewRequest:
             "rationale": self.rationale,
         }
         if self.operation in ("accept", "reject"):
-            result["report_sha256"] = self.report_sha256
-        if self.operation == "accept":
             result.update(
-                entity_id=str(self.entity_id), acknowledged_issues=list(self.acknowledged_issues)
+                report_sha256=self.report_sha256, acknowledged_issues=list(self.acknowledged_issues)
             )
+        if self.operation == "accept":
+            result["entity_id"] = str(self.entity_id)
         if self.operation == "revoke":
             result["reverses_event_id"] = str(self.reverses_event_id)
         return result
