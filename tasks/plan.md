@@ -1,6 +1,159 @@
 # Delivery plan
 
-## Current: bounded investigation graph — technical delivery
+## Current: one-company evidence recovery — proposed delivery plan
+
+The owner approved [scope #98](../docs/graph/company-evidence-pilot.md) in a later
+turn and merged it at `aef9f53`. **This implementation plan awaits approval.**
+METLEN remains the preferred candidate; exact entity identifiers, usable private
+archives, selection window and accountable reviewer are not confirmed. Scope
+approval supplies none of those inputs and authorizes no live acquisition.
+
+### Outcome and dependency order
+
+Build small internal offline helpers to recover referenced archive bytes and
+reconcile them with one validated graph snapshot. Then run a private, nonempty
+real-company audit with explicit human identity/context review. Mechanical checks
+cannot declare a company identity verified or certify source truth.
+
+PE1 bounded recovery → PE2 source reconciliation → PE3 integrated synthetic rehearsal
+and operator recipe → checkpoint A (technical review) → PE4 real input gate →
+checkpoint B (cohort ready) → PE5 real audit → PE6 measured handoff → checkpoint C.
+PE1–PE3 can be built without a GEMI key or company data. PE4–PE6 remain input-gated.
+Execute sequentially without delegation; preserve all earlier incomplete work.
+
+PE1–PE3 target one focused implementation PR with five files in total: two internal
+modules, their two test files and one runbook. Verify/commit each task separately,
+then obtain checkpoint A review after the three tasks. Split an oversized candidate
+into smaller reviewed PRs rather than expanding its scope or weakening checks.
+PE4–PE5 generate private case files, not source-data commits. PE6 records only
+reviewed non-sensitive measurements. No automatic merge or deployment.
+
+### Architecture and trust boundaries
+
+**Use the existing authoritative inputs.** Reuse strict comparison loading and
+`graph.snapshot.read_snapshot` for a single read-only repeatable-read UTC snapshot.
+Call `build_graph` once for the pinned graph and reuse the canonical encoder/private
+publisher. Pin the comparison, embedded resolution and graph hashes from that same
+read. Close SQL before archive recovery. A later review creates a separate artifact;
+never compare a pinned audit with a subsequently changing review head. Do not add
+SQL reads, imports, schema changes, migrations or shared normalization refactors.
+
+**Recover only explicit references.** `src/nima/graph/pilot_archive.py` owns small
+typed reference/result/limit definitions and bounded recovery. Operators supply an
+explicit source/run/import-to-archive-root mapping; SQL paths and source strings
+cannot select arbitrary files. Validate collector markers and digest-derived object
+names. Reuse `nima.evidence.artifacts.directory`, `child_directory` and `read` with
+creation disabled, private ownership/modes, descriptor-relative no-follow traversal,
+regular-file checks and changed-file detection. Do not call the collector `Archive`
+constructor: it initializes directories and changes permissions. Close descriptors
+on every outcome. Hash-check actual bytes; missing/corrupt/unsafe evidence is a
+recorded failure or fixed-code error, never a silent skip or automatic repair.
+These primitives do not validate the separate Publicity manual-bundle format as a
+GEMI profile; no capture-to-profile conversion is included.
+
+**Reconcile with existing source semantics.** `src/nima/graph/pilot_checks.py` owns
+evaluation-specific typed rows/results and reconciliation. It consumes a validated
+typed snapshot, its deterministically rebuilt graph and recovered bytes; it does
+not add a second general graph/report decoder. Enumerate every active `reviewed_as`
+edge in the complete graph, including outside focus. Recover the procurement
+occurrence, selected buyer context, accepted registry candidate and creating anchor
+evidence; candidate and anchor may come from different imports. Bind exact subject,
+contract-version, role/ordinal, event and current-revision keys. Recover candidate
+references from the validated recorded-event provenance, including older imports.
+
+Use `normalize_page`/`normalize_contract`, `normalize_profile` and `project_contract`
+to check record hashes, existing record/field pointers and claimed values. Preserve
+the normalizers' exact Decimal/text/null semantics; do not invent new identity or
+date rules. Check contract source dates against raw bytes. Observation/review times
+belong to pinned SQL/receipt context, not the response body; state that trust limit.
+Do not claim whole-archive/issuer authentication or independent observation-time
+corroboration from a body hash. Recovered profile values absent from stored selected
+field context remain explicit human checks, not fabricated machine comparisons.
+
+**Keep assessment separate from verification mechanics.** Helper output records
+per-check recovered/missing/mismatch/unknown/not-applicable rows, exact keys/locators,
+private expected/observed values and checked/required counts. It never emits
+`verified_selected_cohort`. Human review records identity rationale, conflicts,
+reviewer/self-review, required checks and the final scope-defined outcome in the
+private assessment. Required identity/provenance checks cannot be waived as unknown;
+source-consistent unknown money/dates remain unknown. Empty denominators cannot pass.
+Retain graph assurance fields and `automatic_identity_links=0` unchanged.
+
+Use existing Python 3.12/uv/just/PostgreSQL 17 dependencies. These are internal
+evaluation helpers exercised by tests and a documented local Python recipe;
+there is no new root CLI route, service endpoint or general evaluator API.
+The scope's permission for small evaluation tooling is implemented only after this
+plan is approved. New public interfaces need separate scope review.
+
+### Finite evaluation bounds
+
+Keep existing graph/report/SQL bounds unchanged. Add evaluation ceilings: 1–10
+contract versions, 32 distinct raw object locations, 8 MiB per raw object, 64 MiB
+cumulative raw bytes, 5,000 check rows and 32 MiB canonical output. Source codecs'
+smaller limits still apply. Count each distinct root/digest read once; preserve all
+reference aliases. Preflight reference counts and safe file sizes; enforce remaining
+bytes during reads. Reject bool/negative/non-integer limits and overflow before
+further work. No truncation or unbounded directory scans. Keep source bodies out of
+results; discard cached bytes after reconciliation. Human notes retain the existing
+4 KiB rationale ceiling. Any over-budget case fails closed and requires a smaller,
+newly declared cohort, not silently dropped evidence.
+
+Private case files use 0700 directories/0600 files outside Git. Reuse existing
+canonical no-clobber publication for generated records; private local paths belong
+only in the inventory, not reproducible assessment identity or terminal diagnostics.
+No new manifest reader/wire format is needed: the runbook defines the private
+selection/inventory/matrix records and shows their construction with existing
+helpers. All original records, Greek text, conflicts and unknowns are preserved.
+
+### Verification and checkpoints
+
+PE1 tests unsafe paths/modes, symlinks, non-regular/changed files, hash mismatch,
+missing objects and exact byte/count limits. PE2 tests independently expected keys,
+wrong pointers/identity/role/version, exact money/dates, unknowns, repeated observations,
+joint suppliers, older candidate/anchor imports, revoked links and outside-focus
+active links. Tests distinguish mechanical source agreement from human adjudication.
+
+PE3 uses real disposable PostgreSQL plus clearly synthetic collector-layout files.
+Prove no HTTP/key lookup, SQL closure before file reads, unchanged all 26 relations,
+unchanged archive bytes/modes/mtimes, graph-hash equality with existing graph behavior
+and reproducible no-clobber assessment publication. Missing/tampered evidence and
+zero active links must block success. A material hash-check/active-link mutation
+must fail its regression before exact restoration. Run focused tests, `just check`,
+`just audit` and all three exact-head hosted jobs; retain ≥90% combined coverage.
+Record local prerequisites honestly; hosted worker fixtures do not prove live IP
+protection. Documentation-only work gets link/prose checks, not mirrored new tests.
+
+Checkpoint A requires technical review/merge and all required checks. Checkpoint B
+requires confirmed entity/archives/reviewer, the frozen selection and nonempty target
+participation/buyer context. Existing explicit import/review preparation, if needed,
+finishes before the audit baseline; never manufacture acceptance to meet a target.
+The audit itself is read-only. Checkpoint C requires reviewed findings/outcome and
+safe handoff; a blocked/failed audit remains incomplete against real-pilot success.
+
+### Risks and unresolved inputs
+
+| Risk | Mitigation / stop condition |
+|---|---|
+| Key or real archives unavailable | Build/rehearse PE1–PE3; mark PE4 blocked, with no fixture-based real-company claim |
+| METLEN brand spans multiple legal entities | Require one officially supported exact identity and record exclusions before selection |
+| Hashes/SQL consistency mistaken for identity truth | Human adjudication and contradictions remain mandatory; scope-limited outcome |
+| Older acceptance and anchor differ | Recover both exact imports and all complete active-edge references |
+| Mutable files or later review contaminate the audit | Stable descriptor reads and one hash-pinned snapshot; new assessment for later revisions |
+| Output leaks other selected parties or review notes | Focus retains full selection; keep all evidence/matrix private and review any redacted summary |
+| Evaluation grows into a second product interface | Two bounded internal modules; reuse codecs/storage, scope new APIs separately |
+
+The outstanding inputs are the exact legal entity/GEMI/AFM identifiers, private
+archive/database/comparison locations, selection window and accountable reviewer.
+The GEMI key, if received, stays in environment settings; acquisition/egress needs
+its own authorization. Formal investigator usability/timing, UI, graph stores,
+broader sources, analytics/ML and cited AI follow separate gates. Progress stays
+approximately 33%: a plan, rehearsal or documentation adds no capability credit.
+
+
+The completed delivery sections below preserve their historical status wording;
+the active scope and approval status are recorded above.
+
+## Completed: bounded investigation graph — technical delivery
 
 Status: **G1–G7 owner-merged through checkpoint D**, 2026-11-15, main `686875d`.
 Scope #87 and implementation plan #90 were approved. The private JSON graph,

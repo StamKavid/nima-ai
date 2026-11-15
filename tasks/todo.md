@@ -1,5 +1,114 @@
 # Tasks
 
+## Current: one-company evidence recovery — plan awaiting approval
+
+The owner approved [scope #98](../docs/graph/company-evidence-pilot.md) and merged
+it at `aef9f53`. The proposed plan above the preserved graph delivery in
+`tasks/plan.md` needs owner approval before implementation. All existing incomplete
+tasks and historical records remain. Execute sequentially without delegation.
+
+- [x] Record owner approval of the evidence-recovery scope (#98).
+- [x] Draft the bounded implementation plan and slices below.
+- [ ] Owner approval of this plan before PE1.
+
+### PE1: Recover explicitly referenced original archive objects
+
+- [ ] Add typed bounded read-only recovery using existing private file primitives.
+- Acceptance: explicit root/reference binding and stable hash-verified bytes;
+  missing/corrupt/unsafe files fail visibly without creation, repair, source-value
+  errors or network access; exact 32-object/8 MiB-object/64 MiB-total bounds and
+  safe descriptors hold on success, failure and interruption.
+- Verify: `uv run --frozen pytest tests/test_graph_pilot_archive.py` plus normal gates.
+- Files: `src/nima/graph/pilot_archive.py`, `tests/test_graph_pilot_archive.py`.
+- Scope: 2 files. Dependency: plan approval; independent of real company inputs.
+
+### PE2: Reconcile active-link evidence with the pinned snapshot
+
+- [ ] Add evaluation rows/checks reusing existing normalizers, projection and graph.
+- Acceptance: all complete-graph active edges, exact subject/version/role/event/
+  revision, accepted-candidate and creating-anchor evidence are checked; expected
+  keys/values/counts are independent of the helper under test; failures, source-
+  consistent unknowns and missing human context stay distinct, with no automated
+  verified-company outcome or zero-denominator pass.
+- Verify: `uv run --frozen pytest tests/test_graph_pilot_checks.py tests/test_graph_pilot_archive.py`.
+- Files: `src/nima/graph/pilot_checks.py`, `tests/test_graph_pilot_checks.py`;
+  `src/nima/graph/pilot_archive.py` only if a shared recovery type needs adjustment.
+- Scope: 2–3 files. Dependency: PE1.
+
+### PE3: Rehearse the full offline audit and document actual operation
+
+- [ ] Exercise the integrated SQL/archive workflow and write the operator recipe.
+- Acceptance: real disposable SQL and labeled synthetic archives prove pinned
+  hashes, closed SQL before reads, all 26 relations and archive bytes/metadata
+  unchanged, private canonical retry/reuse, missing/tampered/zero-link failure and
+  a meaningful mutation failure; recipe separates machine checks from human review.
+- Verify: `uv run --frozen pytest tests/test_graph_pilot_checks.py tests/test_graph_pilot_archive.py tests/test_graph_export.py`;
+  `just check`, `just audit`, Markdown links/prose and all three hosted jobs.
+- Files: `tests/test_graph_pilot_checks.py`, `docs/verification/company-evidence-pilot.md`.
+- Scope: 2 files. Dependency: PE2. PE1–PE3 target one five-file implementation PR;
+  per-task commits/verification remain separate; split if the candidate is too large.
+
+### Checkpoint A: Reviewed technical evaluation kit
+
+- [ ] Full rehearsal/quality/audit/exact-head hosted checks pass and owner review/
+  merge completes; implemented behavior and remaining empirical limits are explicit.
+
+### PE4: Confirm real inputs and freeze a nonempty cohort
+
+- [ ] Obtain the exact supported target identity, archives and accountable reviewer.
+- Acceptance: private selection/inventory names one official entity, 1–10 exact
+  contract versions, selection/window/omissions, report/import IDs and archive
+  mappings, with source-supported active target participation and selected buyer;
+  unavailable inputs yield `blocked_inputs`/`insufficient_evidence`, not success.
+- Verify: private inventory against actual source files and supported SQL/report;
+  confirm explicit preparation ends before the read-only audit baseline.
+- Files: private `selection.json` and `inventory.json` outside Git; no source data
+  commit, live request or new code. Scope: 2 private records.
+- Dependency: checkpoint A and supplied real inputs. **Currently blocked on inputs.**
+
+### Checkpoint B: Real cohort ready
+
+- [ ] Exact identity/evidence availability, frozen cohort and reviewer confirmed;
+  prerequisite gaps/conflicts recorded and no unsupported acceptance fabricated.
+
+### PE5: Execute and review the real-company audit
+
+- [ ] Recover all active-link evidence and complete the human audit matrix.
+- Acceptance: exact pinned comparison/resolution/graph hashes and nonzero checked/
+  required denominators; every required identity/provenance/edge/date/amount check
+  complete, conflicts retained, reviewer/self-review disclosed; critical mismatch
+  gives `failed_audit`, missing evidence gives `insufficient_evidence`, and only a
+  fully supported nonempty cohort can be human-assessed `verified_selected_cohort`.
+- Verify: existing helper/recipe on actual archives; independently trace each
+  required matrix row and confirm database/archive state unchanged by the audit.
+- Files: private graph/recovery/matrix/assessment records outside Git, published
+  using existing private no-clobber helpers. Scope: bounded private case bundle.
+- Dependency: checkpoint B; no human identity attestation is supplied by a model.
+
+### PE6: Record the measured result and remaining product gate
+
+- [ ] Reconcile delivery with actual technical and real-audit outcomes.
+- Acceptance: distinguish shipped helpers, synthetic rehearsal, real audited counts
+  and blocked/failed/verified outcome; preserve prior incomplete work/weights and
+  all source privacy; public summary requires owner review and contains no case
+  evidence or private review notes. Investigator usefulness remains unmeasured.
+- Verify: exact candidates/checks, private audit receipt review, local links/prose
+  and normal gates for any documentation candidate.
+- Files: `docs/verification/company-evidence-pilot.md`, `tasks/plan.md`,
+  `tasks/todo.md`; `docs/progress.md` only if a separately justified capability
+  estimate changes (maximum 4 files, never credit PR/test/document counts).
+- Scope: 3–4 documentation files. Dependency: PE5 or an explicitly recorded blocked
+  PE4 outcome; a blocked handoff leaves PE4/PE5 and real-pilot success incomplete.
+
+### Checkpoint C: Reviewed evidence handoff
+
+- [ ] Owner reviews the recorded outcome and safe handoff. Real-pilot success is
+  checked only for a supported nonempty audit; no automatic model/store/UI rollout.
+
+
+The completed delivery sections below preserve their historical status wording;
+the active scope and approval status are recorded above.
+
 ## Completed: bounded investigation graph — technical delivery
 
 Scope #87 and plan #90 are owner-approved. G1–G7 are owner-merged through #97 at
