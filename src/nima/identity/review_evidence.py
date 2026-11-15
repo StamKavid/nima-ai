@@ -121,16 +121,21 @@ def validate_evidence(
     *,
     subjects: Sequence[ReviewSubject] | None = None,
     entity_ids: Sequence[UUID] = (),
+    reserve_bytes: int = 0,
 ) -> ReviewEvidence:
     """Read selected occurrences (all by default), full catalog and exact existing anchors.
 
     Caller owns schema validation, transaction lifetime and UTC setup. Read committed
     supports a locked writer; repeatable read supports a consistent resolution export.
     Mutable run coverage is retained from the file as unverified context only.
+    reserve_bytes includes a consumer's additional SQL provenance in the same
+    preflight; it can only reduce the remaining budget, never enlarge it.
     """
     try:
         selected = _selection(report, subjects, entity_ids)
-        return _validate(connection, report, selected, tuple(entity_ids))
+        if type(reserve_bytes) is not int or not 0 <= reserve_bytes <= MAX_INPUT_BYTES:
+            raise ReviewError("review_limit")
+        return _validate(connection, report, selected, tuple(entity_ids), reserve_bytes)
     except ComparisonError as error:
         raise ReviewError(
             "review_limit" if error.reason == "comparison_limit" else "review_evidence"
@@ -150,6 +155,7 @@ def _validate(
     report: ReviewReport,
     subjects: tuple[ReviewSubject, ...],
     entity_ids: tuple[UUID, ...],
+    reserve_bytes: int,
 ) -> ReviewEvidence:
     if connection.info.transaction_status != TransactionStatus.INTRANS:
         raise ReviewError("review_state")
@@ -257,6 +263,7 @@ def _validate(
         + ledger_bytes
         + sum(cast(int, row[3]) for row in anchor_rows)
         + 4096
+        + reserve_bytes
     )
     if total > MAX_INPUT_BYTES:
         raise ReviewError("review_limit")
