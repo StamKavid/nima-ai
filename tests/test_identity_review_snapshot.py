@@ -4,19 +4,23 @@ from collections.abc import Sequence
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Never, cast
 from uuid import UUID, uuid4
 
 import psycopg
 import pytest
+from psycopg.pq import TransactionStatus
 from psycopg.types.json import Jsonb
 
 from nima.identity import review_evidence, review_snapshot, review_store
+from nima.identity.artifacts import encode
 from nima.identity.registry_cohort import read_comparison_cohort
+from nima.identity.review_export import build_resolution
 from nima.identity.review_inputs import decode_report
 from nima.identity.review_types import ReviewError, ReviewEvidence, ReviewReport, ReviewSubject
 from nima.projections.worker import PROJECTION_VERSION
-from nima.storage.postgres import Connection
+from nima.storage.postgres import Connection, _connect
 from tests.test_collection import QUERY
 from tests.test_identity_review_accept import request
 from tests.test_identity_review_evidence import report as comparison_report
@@ -28,6 +32,125 @@ from tests.test_identity_review_support import source_snapshot
 from tests.test_kimdis_pages import page_body
 from tests.test_page_store import store
 from tests.test_registry_cohort import registry_import
+
+
+@pytest.mark.parametrize(
+    "status",
+    [
+        TransactionStatus.IDLE,
+        TransactionStatus.INERROR,
+        TransactionStatus.UNKNOWN,
+        TransactionStatus.ACTIVE,
+    ],
+)
+def test_inactive_caller_connection_is_rejected_before_any_sql(
+    status: TransactionStatus,
+) -> None:
+    def forbidden(*args: object, **kwargs: object) -> Never:
+        pytest.fail("Caller must supply an active transaction before SQL")
+
+    connection = cast(
+        Connection,
+        SimpleNamespace(info=SimpleNamespace(transaction_status=status), execute=forbidden),
+    )
+    with pytest.raises(ReviewError, match="^review_state$"):
+        review_snapshot.read_snapshot_in_transaction(connection, decode_report(report_body()))
+
+
+@pytest.mark.parametrize("limit", [0, -1, 10001, True])
+def test_caller_owned_read_validates_limits_before_connection_access(limit: int) -> None:
+    with pytest.raises(ValueError, match="^review_configuration$"):
+        review_snapshot.read_snapshot_in_transaction(
+            cast(Connection, None), decode_report(report_body()), max_events=limit
+        )
+
+
+def test_both_reader_paths_reject_changed_report_before_connection_access(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    parsed = replace(decode_report(report_body()), sha256="0" * 64)
+
+    def forbidden(*args: object, **kwargs: object) -> Never:
+        pytest.fail("Changed report must fail before any database access")
+
+    monkeypatch.setattr(review_snapshot, "check_schema", forbidden)
+    with pytest.raises(ReviewError, match="^review_evidence$"):
+        review_snapshot.read_snapshot("private-sentinel", parsed)
+    with pytest.raises(ReviewError, match="^review_evidence$"):
+        review_snapshot.read_snapshot_in_transaction(cast(Connection, None), parsed)
+
+
+def test_caller_owned_reader_preserves_transaction_and_canonical_resolution(
+    pg_dsn: str, tmp_path: Path
+) -> None:
+    parsed = seed_report(pg_dsn, tmp_path)
+    review_store.review(pg_dsn, request(parsed), report=parsed)
+    expected = review_snapshot.read_snapshot(pg_dsn, parsed)
+    before = source_snapshot(pg_dsn)
+    with _connect(pg_dsn) as connection:
+        with connection.transaction():
+            connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+            connection.execute("SET LOCAL TIME ZONE 'UTC'")
+            connection.execute("SET LOCAL application_name='nima_snapshot_owner'")
+            identity = connection.execute(
+                "SELECT pg_backend_pid(), pg_current_snapshot()::text"
+            ).fetchone()
+            actual = review_snapshot.read_snapshot_in_transaction(connection, parsed)
+            assert actual == expected
+            assert encode(build_resolution(actual)) == encode(build_resolution(expected))
+            assert not connection.closed
+            assert connection.info.transaction_status == TransactionStatus.INTRANS
+            assert (
+                connection.execute(
+                    "SELECT pg_backend_pid(), pg_current_snapshot()::text"
+                ).fetchone()
+                == identity
+            )
+            assert connection.execute("SHOW application_name").fetchone() == (
+                "nima_snapshot_owner",
+            )
+            assert review_snapshot.read_snapshot_in_transaction(connection, parsed) == actual
+        assert connection.info.transaction_status.name == "IDLE"
+        assert connection.execute("SELECT 42").fetchone() == (42,)
+    assert source_snapshot(pg_dsn) == before
+
+
+@pytest.mark.parametrize(
+    ("isolation", "read_only", "zone"),
+    [
+        (psycopg.IsolationLevel.READ_COMMITTED, True, "UTC"),
+        (psycopg.IsolationLevel.REPEATABLE_READ, False, "UTC"),
+        (psycopg.IsolationLevel.REPEATABLE_READ, True, "Europe/Athens"),
+        (psycopg.IsolationLevel.SERIALIZABLE, True, "UTC"),
+    ],
+)
+def test_caller_owned_read_rejects_unsafe_context_without_ending_transaction(
+    pg_dsn: str,
+    tmp_path: Path,
+    isolation: psycopg.IsolationLevel,
+    read_only: bool,
+    zone: str,
+) -> None:
+    parsed = seed_report(pg_dsn, tmp_path)
+    with _connect(pg_dsn) as connection:
+        connection.isolation_level = isolation
+        connection.read_only = read_only
+        with connection.transaction():
+            connection.execute("SELECT set_config('TimeZone',%s,true)", (zone,))
+            with pytest.raises(ReviewError, match="^review_state$"):
+                review_snapshot.read_snapshot_in_transaction(connection, parsed)
+            assert not connection.closed
+            assert connection.info.transaction_status == TransactionStatus.INTRANS
+            assert connection.execute("SELECT 1").fetchone() == (1,)
+
+
+def test_caller_owned_read_does_not_begin_an_idle_connection(pg_dsn: str, tmp_path: Path) -> None:
+    parsed = seed_report(pg_dsn, tmp_path)
+    with _connect(pg_dsn) as connection:
+        assert connection.info.transaction_status == TransactionStatus.IDLE
+        with pytest.raises(ReviewError, match="^review_state$"):
+            review_snapshot.read_snapshot_in_transaction(connection, parsed)
+        assert connection.info.transaction_status == TransactionStatus.IDLE
 
 
 @pytest.mark.parametrize("limit", [0, -1, 10001, True])

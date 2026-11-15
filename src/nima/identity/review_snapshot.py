@@ -1,4 +1,8 @@
-"""One private resolution view from a bounded repeatable-read, read-only transaction."""
+"""Bounded review views in owned or caller-owned repeatable-read, read-only SQL.
+
+https://www.postgresql.org/docs/17/sql-set-transaction.html
+https://www.psycopg.org/psycopg3/docs/basic/transactions.html
+"""
 
 from collections import defaultdict
 from dataclasses import dataclass
@@ -8,6 +12,7 @@ from uuid import UUID
 
 import psycopg
 from psycopg import sql
+from psycopg.pq import TransactionStatus
 from psycopg.types.json import Jsonb
 
 from nima.identity import AssessmentError, ComparisonError, review_evidence
@@ -51,18 +56,7 @@ class ResolutionSnapshot:
 def read_snapshot(
     dsn: str, report: ReviewReport, *, max_events: int = MAX_REVIEW_EVENTS
 ) -> ResolutionSnapshot:
-    if type(max_events) is not int or not 1 <= max_events <= MAX_REVIEW_EVENTS:
-        raise ValueError("review_configuration")
-    try:
-        subjects = review_evidence._selection(report, None, ())
-    except AssessmentError:
-        raise ReviewError("review_limit") from None
-    except ReviewError as error:
-        if error.reason in {"review_input", "review_input_io"}:
-            raise ReviewError("review_evidence") from None
-        raise
-    except (ComparisonError, TypeError, ValueError, KeyError, AttributeError):
-        raise ReviewError("review_evidence") from None
+    subjects = _subjects(report, max_events)
     try:
         check_schema(dsn)
         with _connect(dsn) as connection, connection.transaction():
@@ -80,12 +74,46 @@ def read_snapshot(
         raise ReviewError("review_limit") from None
 
 
+def read_snapshot_in_transaction(
+    connection: Connection, report: ReviewReport, *, max_events: int = MAX_REVIEW_EVENTS
+) -> ResolutionSnapshot:
+    """Read without owning the caller's connection or active SQL transaction.
+
+    The caller owns schema checks, RR/read-only/UTC setup, connection lifetime
+    and database-exception translation. Invalid input is rejected before SQL;
+    an unsupported transaction raises the fixed review_state failure.
+    """
+    return _read(connection, report, _subjects(report, max_events), max_events)
+
+
+def _subjects(report: ReviewReport, max_events: int) -> tuple[ReviewSubject, ...]:
+    if type(max_events) is not int or not 1 <= max_events <= MAX_REVIEW_EVENTS:
+        raise ValueError("review_configuration")
+    try:
+        return review_evidence._selection(report, None, ())
+    except AssessmentError:
+        raise ReviewError("review_limit") from None
+    except ReviewError as error:
+        if error.reason in {"review_input", "review_input_io"}:
+            raise ReviewError("review_evidence") from None
+        raise
+    except (ComparisonError, TypeError, ValueError, KeyError, AttributeError):
+        raise ReviewError("review_evidence") from None
+
+
 def _read(
     connection: Connection,
     report: ReviewReport,
     subjects: tuple[ReviewSubject, ...],
     max_events: int,
 ) -> ResolutionSnapshot:
+    if connection.info.transaction_status != TransactionStatus.INTRANS:
+        raise ReviewError("review_state")
+    if connection.execute(
+        "SELECT current_setting('transaction_isolation'),"
+        "current_setting('transaction_read_only'),current_setting('TimeZone')"
+    ).fetchone() != ("repeatable read", "on", "UTC"):
+        raise ReviewError("review_state")
     keys = Jsonb(
         [
             {"observation_id": item.observation_id, "role": item.role, "ordinal": item.ordinal}
