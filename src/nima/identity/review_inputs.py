@@ -161,6 +161,10 @@ def decode_request(request_id: UUID, body: bytes) -> ReviewRequest:
     fields += " reverses_event_id" if operation == "revoke" else " report_sha256"
     if operation == "accept":
         fields += " entity_id acknowledged_issues"
+    elif operation == "reject" and "acknowledged_issues" in data:
+        fields += " acknowledged_issues"
+        if data["acknowledged_issues"] != []:
+            raise ReviewError("review_input")
     _keys(data, fields)
     candidate = _object(data["candidate"])
     _keys(candidate, "import_id registry_number")

@@ -35,6 +35,7 @@ def request(operation: str = "accept") -> dict[str, object]:
     }
     if operation in ("accept", "reject"):
         value["report_sha256"] = "b" * 64
+        value["acknowledged_issues"] = []
     if operation == "accept":
         value.update(entity_id=str(UUID(int=3)), acknowledged_issues=[])
     if operation == "revoke":
@@ -423,3 +424,16 @@ def test_codec_accepts_real_stored_comparison_without_opening_sql_or_http(
     parsed = review_inputs.read_report(next(output.glob("*.json")))
     assert parsed.cohort.run_id == run and len(parsed.cohort.parties) == 1
     assert len(parsed.cohort.registry) == 2
+
+
+def test_rejection_accepts_empty_acknowledgment_without_requiring_conflict_consent() -> None:
+    data = request("reject")
+    data.pop("acknowledged_issues", None)
+    legacy = review_inputs.decode_request(UUID(int=9), encode(data))
+    data["acknowledged_issues"] = []
+    explicit = review_inputs.decode_request(UUID(int=9), encode(data))
+    assert explicit == legacy and explicit.payload()["acknowledged_issues"] == []
+    assert explicit.digest == legacy.digest
+    data["acknowledged_issues"] = ["reported_afm_changed_for_registry_number"]
+    with pytest.raises(ReviewError, match="^review_input$"):
+        review_inputs.decode_request(UUID(int=9), encode(data))
