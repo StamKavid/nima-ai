@@ -2,15 +2,17 @@
 
 ## Current: offline registry comparison
 
-Specification: `docs/identity/registry-comparison.md`, approved through #65 and
-the user's continuation on 2026-11-14. Implementation plan: `tasks/plan.md`,
-**drafted for review**. These tasks are proposed, not implemented. Preserve all
-older incomplete access/administration/product work below. Execute sequentially;
-no new source access, migration, dependency, CI exception, accepted link or model.
+Specification #65 and plan #66 were approved. RC1–RC5 and checkpoints A–C
+are merged through #72 at main `c764dcb`. RC6–RC7 documentation is delivered in
+this review candidate; its human merge remains pending. See
+[measured verification](../docs/verification/registry-comparison.md) and the
+[delivery plan](plan.md). Preserve older incomplete access/administration/product
+work below. No new source access, migration, dependency, CI exception, accepted
+identity link, graph or model is included in this documentation increment.
 
 ### RC1: Reuse the existing KIMDIS snapshot reader
 
-- [ ] Extract a connection-owned cohort read while retaining the current wrapper.
+- [x] Extract a connection-owned cohort read while retaining the current wrapper.
 - Acceptance: the public assessment API/default bounds and fixture report bytes
   remain unchanged; the helper neither opens nor closes its caller's transaction;
   real reads retain snapshot/receipt/coverage and existing failure semantics,
@@ -22,7 +24,7 @@ no new source access, migration, dependency, CI exception, accepted link or mode
 
 ### RC2: Compare typed reported identifiers without accepting identities
 
-- [ ] Add immutable comparison inputs/results, fixed errors and pure policy.
+- [x] Add immutable comparison inputs/results, fixed errors and pure policy.
 - Acceptance: exact eligible AFM agreements produce the three specified outcomes;
   GR/EL, leading zeros, unknowns and every repeated/404 observation survive;
   conflicts are explicit and automatic identity links remain zero.
@@ -34,12 +36,12 @@ no new source access, migration, dependency, CI exception, accepted link or mode
 
 ### Checkpoint A: Existing assessment and pure comparison contracts
 
-- [ ] Existing assessment is unchanged; pure candidate outcomes and exact unknowns pass.
-- [ ] Full quality/audit gates pass on a supported runner; review before SQL integration.
+- [x] Existing assessment is unchanged; pure candidate outcomes and exact unknowns pass.
+- [x] Full quality/audit gates pass on a supported runner; review before SQL integration.
 
 ### RC3: Read one bounded, consistent KIMDIS/GEMI evidence cohort
 
-- [ ] Read explicit imports and procurement evidence through one shared transaction.
+- [x] Read explicit imports and procurement evidence through one shared transaction.
 - Acceptance: preflight the combined 8 MiB input, requested mention budget and
   100 registry-observation bound before labels; reconcile selected versions/counts/
   responses/profiles and preserve allowed context/date/pointer/null values;
@@ -52,7 +54,7 @@ no new source access, migration, dependency, CI exception, accepted link or mode
 
 ### RC4: Publish the complete deterministic comparison report
 
-- [ ] Deliver the snapshot-to-private-report library path through `compare_run`.
+- [x] Deliver the snapshot-to-private-report library path through `compare_run`.
 - Acceptance: one shared registry catalog and stable provenance references preserve
   all occurrences/observations; selected evidence/coverage reproduce canonical
   bytes regardless of selector order or repeated-version ties; exact 32 MiB bounds
@@ -65,13 +67,13 @@ no new source access, migration, dependency, CI exception, accepted link or mode
 
 ### Checkpoint B: Working offline SQL-to-report path
 
-- [ ] Complete private reports reconcile typed outcomes, context/provenance and bounds.
-- [ ] Existing assessment/source/outbox behavior and all normal gates remain green.
-- [ ] Human review before exposing the operator command; no live key needed.
+- [x] Complete private reports reconcile typed outcomes, context/provenance and bounds.
+- [x] Existing assessment/source/outbox behavior and all normal gates remain green.
+- [x] Human review before exposing the operator command; no live key needed.
 
 ### RC5: Expose the CLI and prove real interrupted replay/redaction
 
-- [ ] Add `identities compare` only after the complete library path passes.
+- [x] Add `identities compare` only after the complete library path passes.
 - Acceptance: selectors/limits are validated and fixed summaries/exits match the
   approved 0/1/2/130 contract; actual pre/post-publication process termination
   preserves only complete reusable reports; a narrow guard mutation fails its
@@ -88,13 +90,13 @@ no new source access, migration, dependency, CI exception, accepted link or mode
 
 ### Checkpoint C: Complete command and measured failure gates
 
-- [ ] Source assertions/unknowns, safe output, redaction and interrupted replay pass.
-- [ ] Mutant was detected and restored; exact-head checks/audit and ≥90% coverage pass.
-- [ ] No source request, identity acceptance, deployment or source-ledger mutation occurred.
+- [x] Source assertions/unknowns, safe output, redaction and interrupted replay pass.
+- [x] Mutant was detected and restored; exact-head checks/audit and ≥90% coverage pass.
+- [x] No source request, identity acceptance, deployment or source-ledger mutation occurred.
 
 ### RC6: Publish the measured operator runbook
 
-- [ ] Document implemented commands, setup, exact-head evidence and remaining limits.
+- [x] Document implemented commands, setup, exact-head evidence and remaining limits.
 - Acceptance: the runbook distinguishes report agreement from identity/coverage/
   authority proof and explains private files/replay/errors; source/architecture
   capability notes match implemented behavior without live matching-quality claims.
@@ -106,13 +108,16 @@ no new source access, migration, dependency, CI exception, accepted link or mode
 
 ### RC7: Record delivery and the next product gate
 
-- [ ] Reconcile task/plan status and the capability-progress record after verification.
+- [x] Reconcile task/plan status and the capability-progress record after verification.
 - Acceptance: actual merges/commits/tests are recorded; original progress weights
   remain and any estimate change is explained; reviewed reversible identity
   decisions and graph projection stay subsequent, separately reviewed work.
 - Verify: cross-check final PR/CI/attribution and report scope; human merges only.
 - Dependencies: RC6. Scope: three files.
 - Files: `tasks/plan.md`, `tasks/todo.md`, `docs/progress.md`.
+
+- [ ] Human review and merge of the RC6–RC7 documentation delivery candidate;
+  final candidate checks are recorded in its PR. No automatic merge or deployment.
 
 ## Bounded KIMDIS evidence collector
 
