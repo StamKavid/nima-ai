@@ -7,12 +7,14 @@ import sys
 from dataclasses import asdict
 from datetime import date
 from pathlib import Path
+from typing import NoReturn
 from uuid import UUID
 
 import httpx
 import psycopg
 
-from nima.identity import AssessmentError
+from nima.identity import AssessmentError, ComparisonError
+from nima.identity.registry_report import compare_run
 from nima.identity.report import assess_run
 from nima.ingestion.archive import Archive, ArchiveError
 from nima.ingestion.collector import RunError, collect
@@ -38,8 +40,14 @@ def _date(text: str) -> date:
     raise argparse.ArgumentTypeError("Use an explicit YYYY-MM-DD date")
 
 
-def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="python -m nima")
+class _ComparisonParser(argparse.ArgumentParser):
+    def error(self, message: str) -> NoReturn:
+        raise ValueError("configuration")
+
+
+def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
+    parser_type = _ComparisonParser if comparison else argparse.ArgumentParser
+    parser = parser_type(prog="python -m nima")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("evidence", help="Offline manual evidence intake and verification")
     refresh = commands.add_parser("refresh").add_subparsers(dest="operation", required=True)
@@ -74,6 +82,12 @@ def _parser() -> argparse.ArgumentParser:
     assess.add_argument("--projection-version", required=True)
     assess.add_argument("--output-dir", type=Path, required=True)
     assess.add_argument("--max-mentions", type=int, default=10000)
+    compare = identities.add_parser("compare", help="Compare reported identifiers offline")
+    compare.add_argument("run_id", type=UUID)
+    compare.add_argument("--gemi-import", action="append", type=UUID, required=True)
+    compare.add_argument("--projection-version", required=True)
+    compare.add_argument("--output-dir", type=Path, required=True)
+    compare.add_argument("--max-mentions", type=int, default=10000)
     project = commands.add_parser("outbox").add_subparsers(dest="operation", required=True)
     project.add_parser(
         "project", help="Project reported participation in one bounded batch"
@@ -156,13 +170,46 @@ def _import_gemi(run_id: UUID, archive_root: Path) -> int:
     return code
 
 
+def _compare(args: argparse.Namespace) -> int:
+    code = 0
+    try:
+        result = compare_run(
+            _database_url(),
+            args.run_id,
+            args.gemi_import,
+            args.projection_version,
+            args.output_dir,
+            max_mentions=args.max_mentions,
+        )
+    except (AssessmentError, ComparisonError) as exc:
+        result, code = {"status": "failed", "failure": exc.reason}, 1
+    except MigrationError:
+        result, code = {"status": "failed", "failure": "database_schema"}, 1
+    except psycopg.Error:
+        result, code = {"status": "failed", "failure": "database"}, 1
+    except OSError:
+        result, code = {"status": "failed", "failure": "output_io"}, 1
+    except ValueError:
+        result, code = {"status": "failed", "failure": "configuration"}, 2
+    except KeyboardInterrupt:
+        result, code = {"status": "failed", "failure": "interrupted"}, 130
+    print(json.dumps(result, allow_nan=False))
+    return code
+
+
 def main(argv: list[str] | None = None) -> int:
     arguments = sys.argv[1:] if argv is None else argv
     if arguments and arguments[0] == "evidence":
         from nima.evidence.cli import run as evidence_run
 
         return evidence_run(arguments[1:])
-    args = _parser().parse_args(argv)
+    try:
+        args = _parser(comparison=arguments[:2] == ["identities", "compare"]).parse_args(arguments)
+    except ValueError:
+        print(json.dumps({"status": "failed", "failure": "configuration"}))
+        return 2
+    if args.command == "identities" and args.operation == "compare":
+        return _compare(args)
     if args.command == "refresh":
         from nima.orchestration.refresh_cli import run as refresh_run
 
