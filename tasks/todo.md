@@ -1,18 +1,121 @@
 # Tasks
 
-## Current: approved graph contract / database candidate assessment
+## Current: bounded investigation graph — implementation plan review
 
-- [x] Draft the [bounded graph specification](../docs/graph/investigation-pilot.md)
-  from implemented source/review contracts, with exact evidence, identity, date,
-  value, resource and verification limits. No graph code or implementation plan.
-- [x] Owner approved the contract following merged #87 at `eb3d2e0`.
-- [x] Revise the [candidate assessment](../docs/graph/database-candidates.md) for
-  Memgraph/FalkorDB/Neo4j plus AGE/HydraDB: latency/concurrency, resource/recovery,
-  dialect/tooling, maintenance/support evidence and actual-use licensing. Declare
-  vendor benchmark limits and a reproducible Nima protocol; no measured winner,
-  installed engine or database-adoption decision.
-- [ ] Draft the graph implementation plan from the approved contract; preserve older
-  incomplete work. Database adapters remain a separately scoped follow-on.
+Scope #87 is owner-approved. Requested candidate research is in #88 with the
+technical revision in #89. This plan is proposed, not executed. Preserve the
+approved [graph contract](../docs/graph/investigation-pilot.md), prior incomplete
+work, existing constraints and the historical records below. Execute sequentially.
+
+- [x] Record contract approval and revise candidate research across technical,
+  operating/support and licensing factors; no graph/database installed or benchmark run.
+- [x] Draft the bounded graph implementation plan and verifiable slices below.
+- [ ] Owner review/approval of this implementation plan before G1.
+
+Every code slice runs its focused tests, just check, just audit and all three
+exact-head hosted jobs. No test is skipped or gate weakened for local prerequisites.
+All commands for new graph files below are proposed verification after those files
+are implemented, not claims of passing tests today.
+
+### G1: Reuse a connection-owned reviewed snapshot read
+
+- [ ] Extract the guarded reader without adding graph behavior.
+- Acceptance: existing wrapper preserves validation/error/byte behavior; a caller-
+  owned read requires active RR/read-only/UTC and does not commit/close the caller;
+  shared identity evidence/history/fold logic remains authoritative.
+- Verify: uv run --frozen pytest tests/test_identity_review_snapshot.py tests/test_identity_review_export.py tests/test_identity_review_cli.py.
+- Files: src/nima/identity/review_snapshot.py, tests/test_identity_review_snapshot.py;
+  tests/test_identity_review_export.py only if a wrapper regression needs it.
+- Scope: 2–3 files. Dependency: approved plan.
+
+### G2: Validate complete graph facts in one SQL snapshot
+
+- [ ] Add the complete bounded graph source-read library.
+- Acceptance: one owned snapshot revalidates selected review state and exact full
+  contract projection/digest; additional normalized/projection bytes reserve the
+  same 8 MiB before labels; typed results omit unselected source labels, writes,
+  external requests and implicit schema changes, preserving all existing limits.
+- Verify: uv run --frozen pytest tests/test_graph_snapshot.py tests/test_identity_review_snapshot.py tests/test_identity_review_evidence.py.
+- Files: src/nima/graph/__init__.py, src/nima/graph/snapshot.py,
+  src/nima/identity/review_snapshot.py, tests/test_graph_snapshot.py,
+  tests/test_identity_review_snapshot.py.
+- Scope: 5 files. Dependency: G1.
+
+### Checkpoint A: Complete consistent inputs
+
+- [ ] Shared-read regressions, real count/byte/corruption checks and normal hosted
+  gates pass; owner review/merge before graph construction.
+
+### G3: Build deterministic graph and focused party views
+
+- [ ] Deliver pure construction from the complete typed snapshot.
+- Acceptance: exact approved kinds/keys/metadata and sorted collision-free graph;
+  active-only reviewed links, all unresolved/history members and focus outcomes;
+  exact money/date/evidence semantics, 600/500 limits and no out-of-scope labels.
+- Verify: uv run --frozen pytest tests/test_graph_build.py tests/test_graph_focus.py tests/test_registry_report.py.
+- Files: src/nima/graph/build.py, tests/test_graph_build.py, tests/test_graph_focus.py.
+- Scope: 3 files. Dependency: checkpoint A.
+
+### G4: Publish a complete private graph artifact
+
+- [ ] Connect SQL read, pure build and existing canonical publisher.
+- Acceptance: SQL closes before encoding/publication; exact 32 MiB output, canonical
+  hashes/reuse and old artifact immutability; independent concurrent-revoke tests
+  prove one coherent snapshot and full source/review row snapshots prove no writes.
+- Verify: uv run --frozen pytest tests/test_graph_export.py tests/test_graph_snapshot_races.py tests/test_graph_snapshot.py.
+- Files: src/nima/graph/export.py, tests/test_graph_export.py,
+  tests/test_graph_snapshot_races.py, tests/test_graph_support.py.
+- Scope: 4 files. Dependency: G2–G3.
+- The test support module reuses the existing 23-relation source snapshot and adds
+  explicit snapshots of the three review tables; it does not weaken the old helper.
+
+### Checkpoint B: Complete graph export library
+
+- [ ] Deterministic exact graph/focus results, actual SQL consistency/read-only
+  evidence and normal hosted gates pass; owner review/merge before CLI exposure.
+
+### G5: Expose the CLI and verify physical retry
+
+- [ ] Add graph snapshot and exercise actual publication interruption/retry.
+- Acceptance: strict private input/configuration and fixed 0/1/2/130 behavior,
+  source-value-free errors and unchanged old routes; real before/after-publication
+  SIGKILL then normal-CLI retry preserves one artifact/closed SQL/unchanged rows;
+  a material active-link or dedup mutation fails before exact restoration.
+- Verify: uv run --frozen pytest tests/test_graph_cli.py tests/test_graph_export_crash.py tests/test_identity_review_cli.py tests/test_cli.py.
+- Files: src/nima/__main__.py, src/nima/graph/commands.py, tests/test_graph_cli.py,
+  tests/test_graph_export_crash.py. Reuse existing graph/support/publisher behavior.
+- Scope: 4 files. Dependency: checkpoint B.
+
+### Checkpoint C: Private operator graph workflow
+
+- [ ] Actual command/parser/physical recovery/mutation and all hosted gates pass;
+  owner review/merge before recording the measured runbook.
+
+### G6: Document measured graph operation
+
+- [ ] Record implemented commands, setup, exact results and empirical limits.
+- Acceptance: actual help/examples/private artifacts, resource/error/recovery and
+  identity/time/value/coverage limits match code; measured CI/source-state evidence
+  is distinct from unrun real-user, database-adapter and production evaluations.
+- Verify: actual CLI help, local links, five-axis/prose review and normal gates.
+- Files: docs/verification/investigation-graph.md, README.md, CAPABILITIES.md,
+  docs/architecture.md, docs/graph/investigation-pilot.md (delivery status only).
+- Scope: 5 files. Dependency: checkpoint C.
+
+### G7: Reconcile delivery and the next product gate
+
+- [ ] Record actual merges/checkpoints, capability evidence and remaining evaluation.
+- Acceptance: all earlier incomplete tasks and fixed weights remain; any delivery
+  credit cites working/evaluated capability, not documentation/PR/test counts;
+  real-cohort recovery, investigator tasks and separately scoped database tests remain explicit.
+- Verify: cross-check exact heads, CI, attribution and owner merges only.
+- Files: tasks/plan.md, tasks/todo.md, docs/progress.md.
+- Scope: 3 files. Dependency: G6.
+
+### Checkpoint D: Reviewed graph technical release
+
+- [ ] Measured delivery and exact-head checks reviewed/merged by the owner; no
+  automatic database adoption, source request, public service or deployment.
 
 ## Completed: reviewed identity delivery
 

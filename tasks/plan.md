@@ -1,17 +1,145 @@
 # Delivery plan
 
-## Current: approved graph contract / database candidate assessment
+## Current: bounded investigation graph — proposed implementation plan
 
-The reviewed-identity release completed owner checkpoint E when #85/#86 merged
-through `ef58c38`. The next [bounded graph specification](../docs/graph/investigation-pilot.md)
-was approved by the owner and merged in #87 at `eb3d2e0`. It defines a private
-read-only SQL-to-graph snapshot and optional focused CLI view. The requested
-[database comparison](../docs/graph/database-candidates.md) considers technical
-performance, recovery, resources, query/tooling fit, support and licensing. Memgraph
-and FalkorDB are prototype candidates, with Neo4j as a baseline and AGE/HydraDB as
-alternatives. No database is adopted or installed. Graph code and its implementation
-plan are not started. Preserve the approved historical plan and incomplete work below.
-The overall capability estimate remains approximately 30%; a spec earns no credit.
+Status: **contract approved; implementation plan proposed for owner review**,
+2026-11-15. The owner approved [scope #87](../docs/graph/investigation-pilot.md),
+merged at eb3d2e0. Candidate research #88 and its requested technical revision #89
+compare performance, recovery, resources, query/tooling, support and licensing;
+no database is adopted. This plan delivers the approved private JSON graph and
+optional focused CLI view using existing dependencies. No graph implementation,
+adapter, extension, migration, service, model, live Greek-source request or deployment
+is included in this planning increment. Execute sequentially without delegation.
+
+The requested [database assessment](../docs/graph/database-candidates.md) identifies
+Memgraph/FalkorDB as prototype candidates, Neo4j as a tooling baseline and AGE/HydraDB
+as alternatives. Their benchmark/adoption needs a separate adapter scope after a
+reference graph exists; it does not block this offline implementation. Older
+incomplete work and the full historical plan below remain preserved.
+
+### Intended outcome and dependency order
+
+A local investigator can produce one reproducible, private artifact connecting
+selected reviewed handles and reported occurrences to exact contract versions,
+selected buyers and evidence locators. Unknown identity/validity remains unknown;
+old snapshots and review history remain immutable. The graph is an evidence view,
+not a company classification, spending total, fraud score or national coverage claim.
+
+G1 connection-owned review read → G2 consistent graph source snapshot → checkpoint A
+→ G3 pure graph/focus view → G4 complete private export library → checkpoint B
+→ G5 CLI and physical publication recovery → checkpoint C → G6 measured runbook
+→ G7 delivery/progress reconciliation → checkpoint D. Human review/merge applies at
+each checkpoint; no automatic merge/deploy. G5 gets its own checkpoint because it
+exposes the operator interface. The exact 2–5-file slices and focused commands are
+in tasks/todo.md; a slice cannot expand scope silently when a new risk is found.
+
+### Architecture and ownership
+
+**One authoritative read.** The current review_snapshot.read_snapshot owns its
+connection, so chaining it with another fact read would mix snapshots. G1 extracts
+a guarded connection-owned reader while preserving the wrapper's input-before-SQL,
+fixed-error and byte-for-byte export behavior. It requires an active repeatable-read,
+read-only UTC transaction and never commits/closes its caller's connection. Keep
+review validation, event folding and ledger reconciliation in the identity layer;
+no caller-supplied validated token or duplicated review policy.
+
+G2's graph reader owns schema checks and one transaction. Count/deduplicate selected
+contract-version keys, preflight the additional stored projection and normalized
+record bytes before labels, then reserve those bytes in the existing review reader.
+The combined 8 MiB budget includes contract context plus all prior source/catalog/
+anchor/ledger/terminal context, rather than two independent allowances. The old
+review wrapper uses a zero extra reservation. Reject bool/negative/oversized budgets
+and validate all selected evidence as before. Never substitute current whole-run
+membership for the historical report selection.
+
+Recompute each full contract projection with the existing codec and compare both
+its digest and actual stored projected values. Return only immutable minimal
+contract facts needed by the graph, not unselected supplier labels or normalized
+source bodies. Use batch reads keyed by complete source/version tuples; no N+1
+query per node. Existing SQL timeouts apply. Close every connection on success,
+fixed failures and interruption. No source, outbox, review or workflow writes occur.
+
+**Pure graph construction.** The graph package owns typed graph inputs, node/edge
+keys, focus construction and graph-specific failures. Reuse build_resolution and
+canonical encoding for the embedded review object/hash; do not reimplement identity
+semantics. Namespaced node/edge IDs retain complete keys. Sorted arrays and collision/
+dangling checks preserve deterministic output. Repeated observations retain their
+own occurrence nodes while sharing a contract-version node; legal entity class,
+validity intervals and new supersedes links are never inferred.
+
+Keep all five approved edge families, selected-history handles and ambiguities,
+including unresolved/rejected/revoked members. Only active acceptance creates a
+reviewed_as edge; its exact candidate/revision/event remains inspectable. A focused
+UUID selects inside this same cohort, with omitted/active_links/no_active_links/
+not_in_selected_history outcomes and explicit absent selected buyers. It cannot
+search for additional company occurrences or auto-consolidate buyer keys.
+
+**Publication and CLI.** The export library reads, closes SQL, builds/encodes and
+publishes through the existing private no-clobber publisher. Original comparison
+and resolution hashes, exact source dates, observation times and ledger metadata
+remain distinct. No generation clock, path or process metadata changes artifact
+identity. Retain decimal-text contract amounts, nulls, record-level procurement
+pointers and field-level registry pointers. Never allocate joint-supplier totals
+or sum record versions. Archive integrity stays not_checked and attribution stays
+database_principal_only; automatic links stay zero.
+
+G5 adds graph snapshot through a graph-owned handler and minimal root CLI wiring.
+Reuse the existing strict private report reader. Root graph parsing emits fixed
+redacted errors for unknown/misplaced options and invalid values; other commands
+retain existing help/exit behavior. Keep DB credentials out of arguments/output;
+only NIMA_DATABASE_URL is read for access, with no HTTP/GEMI/provider client or key.
+Fixed graph_ failure suffixes and 0/1/2/130 exits follow the approved contract.
+
+### Resource and verification gates
+
+Preserve 100 selected occurrences, 100 combined registry/anchor observations,
+1–10,000 events, 8 MiB combined SQL input and exact 32 MiB private input/output
+bounds. Enforce at most 600 graph nodes/500 edges and fail before publication
+rather than truncate. Counts/bytes include every additional field read for graph
+validation. The graph builder does not weaken existing identity/report limits.
+
+Every implementation slice runs focused tests plus just check and just audit,
+then all three exact-head hosted jobs: quality with real PostgreSQL, Compose and
+the complete controlled-worker verifier. Coverage remains ≥90% combined. Missing
+local PostgreSQL/Docker prerequisites are reported; hosted physical evidence is
+required, without new skips, suppressions, dependency or CI changes. Existing
+StamKavid author/committer verification applies to every pushed candidate.
+
+Verify exact expected graph sets independently of the builder, real SQL budget/
+corruption guards, unselected-data exclusion, repeated observations, joint suppliers,
+old/new versions, outside anchors, ambiguous handles, missing fields and full review
+reversals. Independent transactions exercise a revocation during a pinned read;
+results must be a coherent before or after state. Snapshot all 23 existing evidence/
+workflow relations plus the three review relations; ordinary export/CLI/retry leaves
+all rows unchanged. The concurrent test separately accounts for its intentional writer.
+
+Physical child-kill tests interrupt real publication before/after its final link,
+prove SQL is closed and retry the uninstrumented CLI. No production pause hook.
+A material active-review or version-deduplication mutation must fail a meaningful
+regression, followed by exact restoration and the normal gates. Security review
+checks parameter binding, private artifacts and source-value-free errors; performance
+review checks batch access, bounded input/output and linear graph/focus construction.
+
+### Risks, mitigation and remaining gates
+
+| Risk | Mitigation / evidence required |
+|---|---|
+| Refactoring shared identity reads changes old behavior | Separate G1; existing wrapper/export/CLI regression suite and unchanged canonical bytes before graph code |
+| Extra contract data bypasses review preflight | Count full normalized/projection payload and reserve it in the same 8 MiB budget before labels; real over-budget tests |
+| Matching hashes hide altered projected columns | Compare re-derived full payload and digest with exact stored facts; mutation/corruption cases |
+| Review/fact read races or resurrected acceptance | One guarded snapshot, exact active-event keys, independent concurrent revoke and history cases |
+| Duplicate observations/versions inflate spend | Stable per-version keys, distinct observations, no aggregate spend or edge value allocation |
+| Partial files or source-bearing errors leak | Shared private publisher, actual SIGKILL/retry, fixed parser/driver codes and redaction tests |
+| A small graph is mistaken for an evaluated product | Separate real-cohort source recovery and observed investigator tasks; no benchmark or product-value credit from fixtures |
+| Database choice becomes a hidden prerequisite | Portable contract first; separately scoped adapters compare technical/runtime results and actual-use license fit |
+
+No blocking external-access or graph-database selection question remains for this
+offline plan. Plan approval is still required before G1. It does not approve a
+store adapter, package, service, source request, purchase, deployment or admin change.
+Real-cohort availability, empirical identity precision and investigator task-time
+study remain separate gates after technical delivery. Overall capability progress
+stays approximately 30% during planning; eventual credit requires measured delivery
+and preserved baseline weights, not PR/test counts or newly written documents.
 
 ## Completed: reviewed identity decisions — implementation plan
 
