@@ -1,106 +1,149 @@
 # Capability progress: 2026-11-15
 
-Planning estimate through main `d6c1552`: RC1–RC7 offline registry comparison is
-merged, alongside the existing ingestion/refresh/manual-evidence and complete
-E1–E12 controlled-worker capabilities. Final implementation candidate `8c46f14`
-passes all three jobs in [run 43679268034](https://github.com/StamKavid/nima-ai/actions/runs/43679268034):
-1,106 tests, 91.82% combined coverage, Compose and 12 real Docker tests/648.64 s,
-with one validated full 28-case receipt. See the
-[comparison operator/delivery record](verification/registry-comparison.md) and
-[worker delivery record](verification/source-worker-egress.md).
+Main `50b43be` includes the owner-merged reviewed-decision workflow through #84,
+following approved scope #74/plan #75 and checkpoints A–D. Local operators can
+review exact company candidates, preserve reversible audit history and export
+private evidence-backed resolution snapshots. The measured runbook is prepared
+in #85; this delivery/progress candidate finishes RI11 for checkpoint E review.
+Documentation candidates still require their own checks and owner delivery merge.
 
-RC6–RC7 documentation was merged through #73; its candidate `9e5e4ac` passed
-all three checks (1,106 tests/91.82%, 12 Docker tests/660.33 s and a validated
-28-case receipt). The next [reviewed-decision specification](identity/reviewed-decisions.md)
-was approved through #74 at `2428b9d`; its implementation plan is under review
-and earns no implementation credit. The delivered comparison has
-zero accepted identity links. Test coverage is not product completion, matching
-accuracy or production readiness.
+The product is at the trusted-data/private-review milestone. The next major
+user-facing target is a company → procurement → buyer investigation with dated,
+inspectable source links. There is no implemented graph store, evaluated model,
+AI research service or browser investigator workspace yet.
 
 ## Estimate and method
 
-The original plan defined capabilities and release gates, not numerical weights
-or effort estimates. The table introduces an approximate planning rubric for the
-original product scope. It is not a measured percentage of elapsed effort, source
-records covered, production readiness or time remaining. Values are judgment
-estimates; a sensible headline is **25–30% overall**, approximately **27%** below.
+The original scope defined capabilities/release gates, not numerical weights or
+effort estimates. This is an approximate capability-tracking rubric, not elapsed
+effort, time remaining, Greek-record coverage or production readiness. The
+headline is **approximately 30% overall**, with a planning range of **28–33%**.
+Keep the same scope weights; explain any future scope/weight change.
 
 | Original capability | Scope weight | Estimated delivered | Weighted credit |
 |---|---:|---:|---:|
 | Engineering foundation | 10% | 90% | 9% |
 | Source ingestion and data pipeline | 25% | 55% | 13.75% |
-| Entity resolution | 15% | 30% | 4.5% |
+| Entity resolution | 15% | 50% | 7.5% |
 | Temporal graph | 15% | 0% | 0% |
 | Risk analytics and ML | 15% | 0% | 0% |
 | Evidence-cited AI research | 10% | 0% | 0% |
 | Investigator workspace | 10% | 0% | 0% |
-| **Total** | **100%** | — | **27.25%, rounded to 27%** |
+| **Total** | **100%** | — | **30.25%, rounded to 30%** |
 
-Weights express product scope for tracking; they were not present in the initial
-plan and are not promises about which capability will cost most. Keep this
-baseline when reporting future progress, and explain scope/weight changes.
+The prior baseline through comparison delivery #73 was 27.25%, rounded to 27%
+(25–30% range). All weights and other capability estimates stay unchanged.
+Entity-resolution credit rises from 30% to 50% for the merged, complete local
+review workflow: SQL-revalidated accept/reject/revoke, stable unclassified handles,
+atomic/principal-bound retry, auditable history and private revision-bound exports.
+That adds three weighted percentage points. Live matching accuracy, consolidation,
+public authentication and a graph remain incomplete; this is partial credit.
 
-The 2026-11-14 baseline was 25.75%, rounded to 26%. Scope weights and all
-other capability estimates are unchanged. Entity-resolution credit rises from
-20% to 30% for the merged cross-source comparison: one consistent bounded
-snapshot, explicit agreements/conflicts/unknowns, provenance-linked private reports
-and verified CLI replay/redaction. That adds 1.5 weighted percentage points.
-It does not credit verified identities, live matching quality or a resolved graph.
-No credit is added for the number of PRs, test counts or this documentation work.
+PR counts, test counts and documentation earn no additional credit. The 1,375
+passing tests/92.13% coverage prove tested implementation behavior, not identity
+accuracy, investigator usefulness or product completion. Earlier milestones were
+25.75% (rounded to 26%) on 2026-11-14 and approximately 22% on 2026-11-11. The
+unchanged 55% ingestion estimate already includes refresh, Prefect, manual intake
+and controlled-worker routing; those capabilities are not counted again.
 
-The earlier 2026-11-11 estimate was 22%; the unchanged 55% ingestion estimate
-already includes bounded refresh, Prefect schedules, manual intake and verified
-closed-worker routing. Those capabilities are not counted again here.
+## Working capabilities and their limits
 
-## Evidence for partial credit
+**Data/evidence pipeline:** bounded KIMDIS contract collection, original archives,
+exact normalization, PostgreSQL versions/observations/outbox, retries, leases,
+resume and reported-participation projections. Self-hosted Apache 2.0 Prefect can
+execute explicit workflows and bounded local daily refresh schedules. No live
+refresh policy is activated and no production operation is claimed.
 
-Engineering: owner-approved public repository, verified attribution, pinned skills/dependencies,
-automated quality/security/audit checks and real crash tests. Branch-protection
-enforcement remains unverified: main/dev effective rules were empty at review.
-Production deployment/operations are incomplete; evidence and credentials stay outside Git.
+**Registry comparison and review:** GEMI has a bounded archive connector and offline
+SQL import. Selected stored AFM-text agreements expose unknowns and contradictions.
+Trusted local operators explicitly accept/reject/revoke one occurrence/candidate
+pair, with no automatic propagation or legal identity/ownership inference. Stable
+handles remain unclassified and duplicate selected handles are visible.
 
-Ingestion: working KIMDIS contract collection, archives, exact normalization,
-SQL history, retries, leases, recovery and local projections. GEMI's connector and
-offline import are implemented against synthetic profiles; public test-key access
-returned 401, and personal-key/profile compatibility is unverified. Diavgeia,
-TED, additional procurement stages, document extraction and production operations
-remain. Bounded refresh and local scheduling are implemented; no live policy is
-activated. Manual Publicity intake verifies opaque evidence files without providing
-a live scraper. This estimate is not a percentage of Greek data or a source's records.
+**Private investigation artifacts:** operator commands produce reproducible source
+comparison and reviewed-resolution files. They retain provenance, notes, history,
+current selected revisions and original report context. Old receipts do not
+reactivate old acceptance; old exports do not silently adopt later decisions.
+`automatic_identity_links=0`, with reviewed accepted occurrences counted separately.
+Attribution is `database_principal_only`, not verified human authentication.
 
-Identity: conservative source-scoped identifier assessment and reproducible
-candidate reports exist. The merged registry comparison adds selected stored
-AFM-text agreements, contradictions, dated provenance and safe replay. It does
-not verify issuer/authority or accept identities. Reviewer decisions, reversible
-accepted identities and empirical matching evaluation remain.
+**Engineering:** pinned skills/dependencies, verified StamKavid attribution,
+quality/security/audit gates and actual database/publication process-kill tests.
+Main/dev effective protection rules were empty at the last recorded inspection;
+the proposed policy is not an enforcement claim. Public code hosting was approved
+by the owner; source evidence, private reports and credentials remain outside Git.
 
-Graph, analytics, AI and workspace: architecture and candidate-model research
-exist, but no production implementation or validated model earns completion
-credit. There is no resolved company graph, fraud detector, RAG service or browser
-investigator workspace yet. Election-accountability work is outside this baseline.
+The complete controlled-worker fixture boundary is delivered through E12: 12
+Docker tests include the full 28-case HTTPX/Chromium matrix, independent controls,
+runtime/topology evidence, actual packet-rule mutation/restoration and real failure/
+cleanup checks. `just source-worker-check` validates one fresh full receipt before
+CI upload. Deployment, internet egress and investigator IP protection remain
+unverified; this is not a live Publicity scraper or automatically activated fallback.
 
-## Immediate direction
+**Remaining source work:** personal-key/live GEMI profile compatibility is unverified;
+public test-key access returned 401. Manually captured Publicity files remain opaque
+verified archive objects, not normalized company profiles. Diavgeia, TED, document
+extraction and other procurement stages remain. Private invoices, tax filings,
+unrestricted beneficial ownership and bank flows are not assumed available.
+Near-real-time means processing updates when sources publish them; KIMDIS describes
+daily refresh. No completion percentage represents coverage of all Greek companies.
 
-1. Review the [implementation plan](../tasks/plan.md) for the
-   [approved reviewed-decision scope](identity/reviewed-decisions.md), merged as #74.
-2. After plan approval, implement/test reviewed reversible decisions and private
-   snapshots with audit history and evaluation; the ledger is not implemented yet.
-3. Build reproducible temporal graph projection with dated, inspectable evidence.
-4. Add eligible company/sector statistics and explainable rules, then evaluated ML.
-5. Add evidence retrieval/cited AI and the investigator workspace.
+## Delivery evidence
 
-The GEMI personal-key pilot remains separate: validate live profiles when access
-arrives. Offline comparison is built and tested against synthetic imports without
-credentials; live compatibility and empirical evaluation still need real evidence.
+The owner merged #76–#84 through `50b43be`; exact candidates, runs, boundaries and
+recovery results are in the [reviewed-decision runbook](verification/reviewed-decisions.md).
+Final implementation `fdf8289` passes all three jobs in
+[run 43707453503](https://github.com/StamKavid/nima-ai/actions/runs/43707453503):
+1,375 tests/92.13%, clean build/security/audit, Compose and 12 Docker tests/855.34 s,
+with a full validated 28-case receipt and production/privacy flags false.
 
-E9/checkpoint C passed the full 28-case HTTPX/Chromium matrix with independent
-controls and actual runtime evidence. E10 additionally proves forbidden delivery
-after a narrow packet-rule mutation, rejection, exact restoration and a fresh
-full-matrix replay, plus real worker deadline, missing-capability and controller
-signal failures with redaction/owned reclamation. E11/E12's complete recipe,
-success-only validated receipt upload and measured runbook are merged. Deployed
-IP protection and production readiness remain unverified.
+Independent connections exercise replay after a waiting head lock, competing
+acceptances, global request collisions and entity/anchor creation conflicts.
+Limited disposable logins exercise principal attribution and denied writes/replay.
+Six SIGKILL cases cover accept/reject/revoke around real COMMIT before acknowledgment;
+two more interrupt actual export publication and retry through normal CLI. Full
+JSON snapshots preserve all 23 pre-existing source/projection/outbox/workflow/
+migration relations. Mutation regressions fail before exact restoration and
+normal gates. No production crash hook, skip or weakened gate is introduced.
 
-The first product milestone is a company → procurement → buyer investigation
-with dated corporate links, coverage limits and evidence export. Graph, ML and AI
-receive completion credit only after implementation and their evaluation gates.
+The executor has no configured local PostgreSQL/supported Docker capacity; its
+SQL fixture setup failures are recorded, with hosted PostgreSQL/Docker providing
+the physical evidence. These results do not establish server/power-loss recovery,
+production scale, empirical false-merge accuracy or reviewer ground truth.
+
+Earlier comparison RC1–RC7 delivery remains recorded in
+[registry comparison](verification/registry-comparison.md), including #73 candidate
+`9e5e4ac` (1,106 tests/91.82%, 12 Docker tests/660.33 s). Earlier worker E1–E12
+delivery and undeployed privacy limits remain in the
+[worker record](verification/source-worker-egress.md). Election-accountability
+work is outside this baseline.
+
+## Product roadmap
+
+| Milestone | Investigator outcome | Remaining gate |
+|---|---|---|
+| Close the private review release | Reproducible operator setup, review and evidence export | RI10/RI11 documentation and owner checkpoint E |
+| Company-investigation graph pilot | Inspect a selected company, its contracts/public buyers and dated source links | Separate graph spec, reproducible rebuild, sampled edge/time correctness and identity review audit |
+| Broader source coverage | Follow decisions/documents and procurement lifecycle changes | Live GEMI profile pilot; Diavgeia/TED; native text/OCR with location accuracy; distinct stage/value semantics |
+| Company/sector signals | Review concentration, repeated relationships, eligible amendments and other explainable patterns | Coverage/denominators, comparable CPV cohorts and legal/context controls; no silent scoring of missing data |
+| Evaluated ML and graph features | Prioritize useful leads at a realistic analyst review budget | Credible reviewed tasks, temporal/group-aware evaluation and improvement over simple baselines |
+| Evidence-cited AI research | Ask questions and inspect supporting/contradicting Greek records | Retrieval recall, claim/citation/arithmetic correctness, abstention, cost/privacy/license gates |
+| Full investigator workspace | Save companies/cases, explore timelines/networks and monitor changes | User-task validation, multi-user auth/permissions, deployment/operations and verified egress |
+
+Recommendation for the next product specification: a bounded company → contracts
+→ public buyers → evidence pilot, using a real reviewed cohort. A thin read-only
+company dossier/explorer can test whether investigators finish verification faster;
+it is a candidate for that spec, not an implemented workspace or a promise of broad
+coverage. Expand the network and signals after sampled identity/edge checks and
+observed investigator tasks support the value hypothesis.
+
+Graph communities, shared addresses and repeated awards are investigative leads,
+not findings of collusion or tax evasion. Co-bidding analysis needs identified
+bidders/outcomes; awarded suppliers or bidder counts alone are insufficient.
+Sector/price comparisons need comparable units, scope and amount basis. CPV and
+company KAD are separate classifications. The
+[architecture/model strategy](architecture.md) retains these eligibility gates.
+
+The GEMI key pilot can run when authorized access arrives. Work on stored reviewed
+evidence and a bounded graph specification can continue meanwhile. No production
+model/provider, graph store or public service is selected by this documentation.
