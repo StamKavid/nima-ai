@@ -6,8 +6,9 @@ in [CAPABILITIES.md](../../CAPABILITIES.md). Supplements the approved
 [identity specification](../../SPEC-entity-resolution.md),
 [GEMI persistence contract](../sources/gemi-persistence.md) and
 [GEMI profile contract](../sources/gemi.md). Base: main `127b3b8`, after the
-fixture-worker delivery in PR #64. This replaces the unpublished 2026-11-12 draft;
-no comparison command is implemented by this document.
+fixture-worker delivery in PR #64. This replaces the unpublished 2026-11-12 draft.
+Implementation RC1–RC5 is merged through #72 at main `c764dcb`, 2026-11-15.
+See the [operator runbook and measured delivery](../verification/registry-comparison.md).
 
 ## Objective and assumptions
 
@@ -145,7 +146,7 @@ publication and byte-verified reuse. Use
 `policy_version=registry-comparison-v1`, separately versioned from assessment
 artifacts. Preserve raw source evidence, database rows and prior reports.
 
-Proposed interface, **not implemented**; repeat `--gemi-import` for up to ten imports:
+Implemented interface; repeat `--gemi-import` for up to ten distinct imports:
 
 ```bash
 uv run --frozen python -m nima identities compare KIMDIS_RUN_UUID \
@@ -177,23 +178,10 @@ module, with no graph/model module bundled into it.
 
 Use typed immutable values, explicit unknowns, parameterized SQL, Ruff and strict
 mypy. Index eligible reported keys rather than comparing every full party/profile
-pair. Proposed style only; the final report schema belongs to the implementation:
-
-```python
-from dataclasses import dataclass
-from typing import Literal
-
-
-@dataclass(frozen=True)
-class Comparison:
-    outcome: Literal[
-        "reported_identifier_agreement",
-        "no_candidate_in_selected_imports",
-        "unassessed_identifier",
-    ]
-    registry_observation_refs: tuple[int, ...]
-    identity_status: Literal["unresolved"] = "unresolved"
-```
+pair. The implemented `registry_policy.Comparison` holds the procurement
+assessment, three-way outcome, registry catalog references and issues. The report
+keeps `identity_status=unresolved` in assessments and automatic links at zero;
+its actual schema is documented in the operator runbook.
 
 ## Acceptance and verification
 
@@ -231,9 +219,10 @@ checked 2026-11-14. Existing source/field assertions follow the linked approved
 GEMI/identity contracts and stored versioned schema, not a new live API probe.
 
 No external credential blocks this offline scope. Operator run selectors are
-explicit future inputs; live compatibility and empirical matching quality remain
+explicit operator inputs; live compatibility and empirical matching quality remain
 unverified. The user approved this specification through #65 at main `48a0778`.
-The implementation plan and RC1–RC7 tasks are now drafted for review in
-`tasks/plan.md` / `tasks/todo.md`. Approval covers this bounded read-only report
-increment; a reviewed reversible identity ledger and temporal graph follow as
-separate specifications. No comparison command is implemented by this planning PR.
+The user approved the implementation plan through #66; RC1–RC5 and review
+checkpoints A–C are complete through human merges #67–#72. RC6–RC7 document the
+measured release in `tasks/plan.md` / `tasks/todo.md`. Approval covers this bounded
+read-only report increment; a reviewed reversible identity ledger and temporal
+graph follow as separate specifications.

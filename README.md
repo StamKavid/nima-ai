@@ -9,7 +9,8 @@ The product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
 Current code implements bounded KIMDIS contract collection, a private raw-evidence
 archive, typed normalization, optional PostgreSQL collection, and durable run inspection.
-It also projects reported participation and creates offline identifier-review reports.
+It also projects reported participation and compares selected stored KIMDIS/GEMI
+identifier assertions in private, reproducible review reports.
 Self-hosted Prefect can execute explicitly requested KIMDIS workflows while SQL
 preserves their identity, budgets and progress across retries.
 Reviewed identity resolution, a graph store, trained
@@ -338,7 +339,8 @@ keys and KIMDIS buyer keys remain distinct; unknown/foreign cases stay explicit.
 Nine ASCII digits mean a format match, with checksum and authority checks marked
 `not_checked`. Name/tax variations merit review; no company identity is accepted.
 Candidate groups can overlap and must not be counted as companies or joined
-transitively. Registry corroboration and reviewed identity decisions are later work.
+transitively. The separate comparison command below adds reported registry
+agreement; reviewed identity decisions remain later work.
 
 The summary prints only counts, policy and report hash. Exit 0 means assessment
 succeeded; it certifies neither collection completeness nor archive integrity.
@@ -353,6 +355,30 @@ atomic on the supported Linux/POSIX filesystem. Killed workers can leave private
 temporary files; these are not completed reports. Hashes do not anonymize tax IDs.
 See [policy](SPEC-entity-resolution.md) and
 [verification](docs/verification/identity-assessment.md).
+
+## Compare stored procurement and registry evidence
+
+With `NIMA_DATABASE_URL` configured, select a projected KIMDIS run and 1–10
+completed GEMI import UUIDs. No GEMI key or source request is needed:
+
+```bash
+uv run --frozen python -m nima identities compare KIMDIS_RUN_UUID \
+  --gemi-import GEMI_IMPORT_UUID --projection-version kimdis-participation-v1 \
+  --output-dir data/registry-review --max-mentions 10000
+```
+
+Repeat `--gemi-import` for additional explicit imports. The command preserves
+all occurrences, repeated/404 registry observations, conflicts, unknowns and dated
+provenance in one private canonical report. Agreements reference a shared catalog;
+automatic identity links remain zero. SQL input is bounded at a combined 8 MiB,
+100 registry observations and the requested 1–10,000 occurrences; the exact output
+ceiling is 32 MiB. Bounds fail without truncation.
+
+Replay verifies and reuses identical bytes at `<report_sha256>.json`. Stdout is
+IDs/counts/statuses/hash, with fixed redacted failures and exits 0/1/2/130. Completion
+means selected assertions were compared; it does not verify companies or certify
+source coverage. Follow the [operator runbook and measured verification](docs/verification/registry-comparison.md)
+for setup, interpretation, private publication, interrupted replay and recovery.
 
 ## GEMI registry snapshots
 
