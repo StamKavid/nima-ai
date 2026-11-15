@@ -1,6 +1,7 @@
 """Immutable review inputs; parsing does not establish SQL evidence or authority."""
 
 import hashlib
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING, Literal
 from uuid import UUID
@@ -8,7 +9,7 @@ from uuid import UUID
 from nima.identity.artifacts import encode
 
 if TYPE_CHECKING:
-    from nima.identity.registry_cohort import ComparisonCohort
+    from nima.identity.registry_cohort import ComparisonCohort, RegistryEvidence
     from nima.identity.registry_policy import RegistryObservation
 
 REQUEST_FORMAT = "nima-identity-review-request-v1"
@@ -160,3 +161,12 @@ class ReviewHead:
     @property
     def automatic_identity_links(self) -> Literal[0]:
         return 0
+
+
+@dataclass(frozen=True)
+class ReviewEvidence:
+    """Selected SQL views; writers must revalidate inside their own transaction."""
+
+    cohort: "ComparisonCohort"
+    anchors: Mapping[UUID, "RegistryEvidence"]
+    input_bytes: int
