@@ -13,8 +13,11 @@ approval supplies none of those inputs and authorizes no live acquisition.
 ### Owner steering: keep development independent of the API key
 
 Use the [Publicity-first acquisition design](../docs/sources/gemi-publicity-fallback.md).
-No remote worker/gateway exists yet. Finish the approved PE1 read-only recovery
-slice now; develop the protected Publicity capture/source contract next, while the
+PE1 #103 is owner-merged at `b3ee7eb`, with all three exact-head hosted checks
+passing. No remote worker/gateway exists yet. The next proposed scope is the
+[operator-run remote egress pilot](../docs/sources/remote-worker-egress-pilot.md);
+its scope requires review before a new implementation plan. Then develop the
+protected Publicity capture/source contract, while the
 remaining offline PE2–PE3 work remains available without API access. The owner also
 requested self-hosted storage/retrieval research: PostgreSQL plus private original
 files remains the baseline; pgvector/Qdrant/OpenSearch/Milvus/MongoDB are compared
