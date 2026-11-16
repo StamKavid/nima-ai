@@ -1,6 +1,156 @@
 # Delivery plan
 
-## Current: evidence recovery and Publicity-first source priority
+## Current: accepted acquisition stack and remote egress implementation plan
+
+The owner accepted [ADR-0004](../docs/decisions/0004-bounded-http-and-browser-acquisition.md)
+and reported merging #104 on 2026-11-16. GitHub confirms scope merge `f894800`
+and all three exact-head checks on `b29eefe` passed in run 43810311235. The
+[remote scope](../docs/sources/remote-worker-egress-pilot.md) is approved. This
+implementation plan is proposed for owner review before RP1; no new runtime
+interface exists yet. The [benchmark](../docs/research/acquisition-library-comparison.md)
+selects HTTPX/Playwright with Prefect above bounded adapters; it proves no remote
+or Publicity behavior. PostgreSQL/private originals remain the storage baseline.
+
+### Deliverable and dependency order
+
+Prepare a private configuration bundle without network access, then provide an
+operator-run controlled-endpoint verifier on the declared remote host. Implement
+small sequential PRs: RP1 configuration → RP2 bundle → checkpoint R-A → RP3
+observer protocol → RP4 remote policy → checkpoint R-B → RP5 owned runtime → RP6
+independent cleanup → checkpoint R-C → RP7 case/receipt reconciliation → RP8
+commands/rehearsal → checkpoint R-D → RP9 actual remote experiment. Each checkpoint
+requires human review before the next pair. Plan approval permits the listed
+implementation work; purchasing/provisioning, source activation and CI/dependency
+changes are not implicit. Keep already-authorized PE2–PE3 below available, without
+deleting or marking them complete. Execute sequentially, without delegation.
+
+### Closed configuration and artifact contracts
+
+RP1 freezes exact nested fields/types and tests in `remote_config.py`, using a
+closed `version=remote-worker-config-v1` JSON object with these required groups:
+
+| Group | Required fields and validation |
+|---|---|
+| `host` | `label` (1–64 ASCII letters/digits/hyphens) and `expected_gateway_ipv4` (one public IPv4); declared context, never host attestation |
+| `probes` | Exactly three unique `role`/`hostname` objects: `allowed`, `invalid_tls`, `denied`; canonical ASCII DNS hostnames, HTTPS port 443, no URL/path/credentials/IP literals/wildcards; explicit operator-controlled approval required |
+| `observer` | `authority` (one separate controlled HTTPS authority on 443) and `credential_file` (owner-only absolute path); fixed nonce-bound read/control paths; unavailable to the worker |
+| `paths` | Absolute private `state_dir`, `gateway_credentials_file` (bounded path strings); outside Git, no symlinks/unsafe ancestors; actual credentials never enter receipts or terminal output |
+| `network` | `front_subnet`, `back_subnet` (nonoverlapping private IPv4 subnet strings); exact addresses/ownership validated against this host before mutation; overlap with existing routes/networks fails |
+| `runtime` | `pins_sha256`, `gateway_image_id`, `helper_image_id`, `worker_image_id` (exact reviewed hashes); existing package/browser/seccomp pins retained; no mutable tag or implicit pull/build |
+| `limits` | Exact integer fields `max_cases`, `run_seconds`, `cleanup_seconds`, `attempt_seconds`, `response_bytes`, `receipt_bytes`; positive bounded values, cleanup reserve at least 60 seconds, tighter values may fail but never weaken a required case set |
+
+No optional arbitrary executable/argv, compose file, shell, proxy-rotation list,
+source URL or source credential is accepted. Reject duplicate JSON keys at every
+level, unknown/missing keys, booleans as integers, nonfinite numbers, oversized
+strings and placeholders. Limit configuration to 16 KiB; path strings to 4,096 characters. Require cleanup reserve
+less than run duration; configured limits never raise the scope ceilings. Probe addresses are
+resolved only during verification, at most eight public IPv4 answers per host;
+reject empty/mixed-private answers and pin the exact approved set for that run.
+A changed set requires a new validated policy, never a wider allowlist. The
+observer control authority is separate from the worker's probe destination set.
+DNS validation cannot establish operator ownership; that remains a recorded
+human prerequisite. Known GEMI/Publicity destinations cannot be substituted.
+
+RP2 publishes a canonical `remote-worker-bundle-v1` manifest plus bounded reviewed
+configuration/policy-template material, total at most 1 MiB, to 0700/0600 paths.
+It contains references to private credential files, not credential bytes. Reuse
+`evidence.artifacts` no-follow reads and canonical no-clobber publication; never
+initialize company archives. Pin each object's bytes/hash and reject changed,
+conflicting, extra or missing objects on read. An unchanged bundle can be reused;
+a new observation requires a fresh run ID. A bundle carries no verified flag.
+
+RP7 defines a separate `remote-worker-verification-v1` receipt with
+`scope=controlled-remote-endpoints`. Required fields bind configuration/bundle,
+policy, actual image IDs, host/namespace/process observations, fresh run nonce,
+UTC times, all named case/control results and verified owned cleanup. Declared
+and observed context remain separate. `boundary_verified` can be true only for
+one complete actual controlled remote run. `publicity_egress_verified`,
+`company_origin_verified` and `production_ready` are always false; no identity or
+anonymity assertion exists. Local rehearsal uses a distinct test-only scope and
+cannot decode as remote success. Missing evidence, zero/partial case sets,
+interruption, exceeded bounds or incomplete cleanup cannot produce success.
+
+### Reuse and isolation
+
+Reuse private filesystem/canonical publication, bounded structured subprocess
+capture, sandbox/process checks and existing packet/case concepts where their
+contracts fit. Existing `FixturePolicy`, `FixtureStack`, fixture target/observer
+formats and receipt decoders are intentionally fixture-only. Do not subclass them
+into a live mode, change globals or relax `external_networks=False` to make a
+remote profile pass. New modules own remote policy, lifecycle and receipts.
+Any small shared primitive extraction must preserve all fixture behavior and
+be reviewed explicitly rather than bundled into a large refactor.
+
+The controller alone reads observer/gateway credentials and owns Docker control.
+The worker receives neither observer access nor Docker/SQL/host namespace access.
+Only the gateway has the permitted external path. Namespace setup helpers have
+scoped temporary privilege; workload capabilities stay dropped, root read-only,
+TLS normal, browser sandbox enabled and IPv6 observed disabled. No host-wide rule
+flush, privileged workload, production network change or arbitrary metadata probe.
+Use identified run-owned local canaries for host/metadata/packet negative tests.
+Observer evidence is authenticated, bounded and nonce-bound; a timeout or client
+send is never proof of zero delivery. Keep upstream environment proxy/CA policy.
+
+RP4 must review runtime pins/remote asset differences before RP5 uses them. Existing
+fixture pins are research inputs for controlled endpoints, not approval for
+untrusted Publicity pages. No new scraping library, vector store or model is
+needed. RP8 documents image acquisition as an explicit separate operator action;
+`verify` never performs it. An unavailable host/image/control ends with a fixed
+failure before browser/source work, not an alternative route.
+
+### Case coverage, cleanup and verification
+
+Maintain a closed named matrix derived from the scope, at most 30 cases, one
+attempt each: allowed HTTP and browser HTML/script/image/XHR/fetch with observed
+expected public IPv4/clean headers; direct IPv4, removed proxy, bypass, controlled
+host/metadata/DNS/UDP/QUIC/STUN attempts; observed disabled IPv6; absent/invalid
+proxy auth; actual gateway outage/restart; invalid TLS; redirects outside policy;
+missing capability, deadline/interruption and supervisor cleanup. Every negative
+case requires working independent positive controls, zero forbidden deliveries
+and the appropriate packet/gateway evidence. Bind every observation to this run,
+namespace, image set and policy. Never stitch observations across profiles.
+
+Preserve the 600-second total ceiling, including at least 60 seconds reserved for
+cleanup, 15-second attempt limit, 1 MiB response cap and 64 KiB receipt cap. RP6's
+independent supervisor pins the controller/process identity and resource labels,
+handles controller SIGKILL, cleans only exact run-owned objects and verifies
+unrelated networks/data survive. Missing supervisor or unverified cleanup blocks
+verification. Power loss/kernel compromise/malicious administrator remain outside
+this guarantee; an interrupted receipt is never upgraded on retry.
+
+RP1–RP2 use real private filesystem tests and forbidden-network/Docker sentinels;
+RP3 tests authenticated nonce-bound responses, malformed/oversized/replayed bodies
+and redaction; RP4 tests address/policy compilation and fixed destination bindings;
+RP5–RP6 use controlled Docker/process cases with actual namespace ownership and
+termination; RP7 requires independent expected cases, corruption/partial/fixture
+receipt rejection; RP8 exercises the module CLI and full local rehearsal plus
+one material policy-bypass mutation that fails before exact restoration.
+
+Each slice runs its focused tests, `just check`, `just audit`, prose/link review,
+and correctness/readability/architecture/security/performance review. Preserve
+≥90% combined coverage and all existing tests. Every PR needs the three exact-head
+hosted jobs; existing fixture success is only a regression check. Any new remote
+integration invocation/CI privilege needs a separate explicit reviewed change;
+local integration evidence must say whether it ran, rather than inheriting a
+fixture job's result. No CI/constraint/dependency change is proposed here.
+
+### Handoff and blocked inputs
+
+RP8 implements only the scope's module-level `prepare`/`verify` commands, with
+fixed redacted `remote_` failures and exits 0/1/2/130, no root CLI change or
+schedule. Its runbook includes explicit prerequisites, the separate fixture versus
+remote proof, privacy/secret handling, exact owned cleanup and a private
+backup/restore check. The local kit can be reviewed without an actual host.
+
+RP9 needs operator-owned host/access, stable public egress, approved independent
+probe/observer endpoints and credentials, reviewed available images and backup
+destination. These are missing. Actual remote acceptance stays blocked even when
+the offline kit passes; the owner runs the prepared commands on that host.
+Government-source traffic, billing/provisioning, company extraction/import and
+production scheduling remain outside this plan. Publicity source-contract work
+follows this boundary; API access is not needed for RP1–RP8 development.
+
+## Preserved: evidence recovery and Publicity-first source priority
 
 The owner approved [scope #98](../docs/graph/company-evidence-pilot.md) in a later
 turn and merged it at `aef9f53`. The owner approved plan #99 and merged it at
@@ -14,9 +164,9 @@ approval supplies none of those inputs and authorizes no live acquisition.
 
 Use the [Publicity-first acquisition design](../docs/sources/gemi-publicity-fallback.md).
 PE1 #103 is owner-merged at `b3ee7eb`, with all three exact-head hosted checks
-passing. No remote worker/gateway exists yet. The next proposed scope is the
-[operator-run remote egress pilot](../docs/sources/remote-worker-egress-pilot.md);
-its scope requires review before a new implementation plan. Then develop the
+passing. No remote worker/gateway exists yet. The owner merged the
+[operator-run remote egress scope](../docs/sources/remote-worker-egress-pilot.md)
+in #104; its proposed implementation plan is above. Then develop the
 protected Publicity capture/source contract, while the
 remaining offline PE2–PE3 work remains available without API access. The owner also
 requested self-hosted storage/retrieval research: PostgreSQL plus private original

@@ -1,13 +1,158 @@
 # Tasks
 
-## Current: approved evidence recovery and Publicity-first priority
+## Current: lock acquisition stack and plan the approved remote boundary
+
+- [x] Verify owner-merged scope #104 at `f894800` and its three successful
+  exact-head jobs on `b29eefe` (run 43810311235).
+- [x] Record owner-accepted HTTPX/Playwright direction in
+  [ADR-0004](../docs/decisions/0004-bounded-http-and-browser-acquisition.md), with
+  the reviewed [comparison](../docs/research/acquisition-library-comparison.md).
+- [ ] Owner review/approval of this implementation plan before RP1.
+
+The [scope](../docs/sources/remote-worker-egress-pilot.md) is approved; this plan
+is proposed. Commands below are future interfaces, not implemented tools.
+Preserve all PE work below. Execute sequentially without delegation.
+
+### RP1: Freeze closed remote configuration
+
+- [ ] Implement typed closed configuration and bounded private-file decoding.
+- Acceptance: exact fields/types/version from the plan, all limits, duplicate keys,
+  placeholder/source destinations, invalid authority/IP/subnet/pins/path/mode cases
+  fail with fixed redacted errors; no DNS/network/Docker/SSH side effects.
+- Verify: `uv run --frozen pytest tests/test_remote_config.py`; exact-boundary,
+  adversarial private filesystem and forbidden-side-effect cases; normal gates.
+- Files: `src/nima/egress/remote_config.py`, `tests/test_remote_config.py`.
+- Scope: 2 files. Dependency: owner-approved plan.
+
+### RP2: Publish and reread an immutable private bundle
+
+- [ ] Prepare canonical no-clobber manifests and hash-bound bundle members.
+- Acceptance: safe 0700/0600 objects, ≤1 MiB total, exact hash/byte reuse; changed,
+  corrupt, extra/missing/conflicting/unsafe files fail; references only for
+  credentials, no network/Docker calls or verification flag.
+- Verify: `uv run --frozen pytest tests/test_remote_bundle.py tests/test_remote_config.py`;
+  actual files, changed-file/symlink/mode/conflict/overflow tests; normal gates.
+- Files: `src/nima/egress/remote_bundle.py`, `tests/test_remote_bundle.py`;
+  `remote_config.py` only for an explicitly reviewed shared type.
+- Scope: 2–3 files. Dependency: RP1.
+
+### Checkpoint R-A: Offline preparation reviewed
+
+- [ ] RP1–RP2 gates and exact-head hosted jobs pass; owner reviews/merges before
+  observer/policy work. Preparation still establishes no remote egress.
+
+### RP3: Define independent observer evidence
+
+- [ ] Implement a controller-only authenticated, bounded, nonce-bound protocol.
+- Acceptance: private control credentials, fixed endpoint paths/closed response
+  schema and expected public IPv4/header/route/counter bindings; replay, malformed,
+  oversized/missing observations fail; worker cannot access control credentials.
+- Verify: `uv run --frozen pytest tests/test_remote_observer.py`; real controlled
+  HTTP/TLS protocol cases, positive controls/redaction; normal gates.
+- Files: `src/nima/egress/remote_observer.py`, `tests/test_remote_observer.py`.
+- Scope: 2 files. Dependency: R-A; no public endpoint provisioning.
+
+### RP4: Compile the separate remote network/gateway policy
+
+- [ ] Bind approved authorities, public IPv4 answers, namespace ranges and pins.
+- Acceptance: ≤8 public IPv4 answers/host, fixed 443 destination set, no mixed
+  private answers/bypass route; changed resolution requires new policy; preserve
+  fixture contracts; review immutable pins and remote asset differences explicitly.
+- Verify: `uv run --frozen pytest tests/test_remote_policy.py tests/test_remote_gateway.py`;
+  exact policy outputs and negative cases, normal gates.
+- Files: `src/nima/egress/remote_policy.py`, `remote_gateway.py`;
+  `tests/test_remote_policy.py`, `tests/test_remote_gateway.py`,
+  `infra/source-worker-remote/pins.json`.
+- Scope: 5 files. Dependency: RP3; pin/asset changes require explicit review.
+
+### Checkpoint R-B: Remote evidence and policy reviewed
+
+- [ ] Contracts, resource bounds and actual runtime pins reviewed/merged before
+  any owned topology runs; no actual remote result is claimed.
+
+### RP5: Create only the run-owned controlled runtime
+
+- [ ] Add a separate remote stack with prerequisite checks and exact identities.
+- Acceptance: existing images only; one bounded unprivileged/sandboxed worker,
+  gateway-only external path, verified scoped helpers and identified local canaries;
+  unsupported host, overlaps or missing images fail before workload; no broad teardown.
+- Verify: `uv run --frozen pytest tests/test_remote_stack.py`; actual controlled
+  Docker/namespace observations via explicit integration invocation; normal gates.
+- Files: `src/nima/egress/remote_stack.py`, `tests/test_remote_stack.py`,
+  `infra/compose.source-worker-remote.yml`.
+- Scope: 3 files. Dependency: R-B; integration/asset invocation is reviewed explicitly.
+
+### RP6: Prove independent cleanup after controller death
+
+- [ ] Supervise controller lifetime and exact owned resource removal.
+- Acceptance: pinned process/resource identities, independent SIGKILL recovery,
+  reserved cleanup budget and unrelated resources unchanged; incomplete cleanup
+  blocks success, with no prune or host-wide firewall mutation.
+- Verify: `uv run --frozen pytest tests/test_remote_supervisor.py tests/test_remote_stack.py`;
+  real process death and controlled Docker cleanup cases; normal gates.
+- Files: `src/nima/egress/remote_supervisor.py`, `tests/test_remote_supervisor.py`;
+  `remote_stack.py` only for the lifecycle boundary.
+- Scope: 2–3 files. Dependency: RP5.
+
+### Checkpoint R-C: Runtime and independent cleanup reviewed
+
+- [ ] Actual controlled runtime/failure observations and cleanup reviewed/merged
+  before case reconciliation; missing machine capability is a visible blocker.
+
+### RP7: Reconcile the complete case set into a separate receipt
+
+- [ ] Execute bounded cases and independently validate same-run evidence.
+- Acceptance: closed required matrix ≤30 cases, one attempt each, ≤600 seconds
+  including cleanup; nonempty controls, exact identity/policy/images and cleanup
+  bind every result; separate local/remote receipt scope and hard-false source/
+  identity/production flags; partial/forged/fixture receipts cannot pass.
+- Verify: `uv run --frozen pytest tests/test_remote_run.py tests/test_remote_receipt.py`;
+  independent expected rows, missing/duplicate/forbidden deliveries, time/byte
+  bounds, tampering and fixture/local scope rejection; normal gates.
+- Files: `src/nima/egress/remote_run.py`, `remote_receipt.py`;
+  `tests/test_remote_run.py`, `tests/test_remote_receipt.py`.
+- Scope: 4 files. Dependency: R-C.
+
+### RP8: Expose commands and rehearse the complete kit
+
+- [ ] Add module-level `prepare`/`verify` and the operator runbook.
+- Acceptance: fixed redacted failures and 0/1/2/130 exits; canonical retry/reuse,
+  no implicit image acquisition, same-run controls/cleanup and honest local scope;
+  one material policy-bypass mutation fails before restoration; backup/restore recipe.
+- Verify: `uv run --frozen pytest tests/test_remote_cli.py` plus full explicit
+  controlled integration rehearsal; `just check`, `just audit`, all three hosted
+  jobs and prose/link review. New integration/CI wiring needs its own reviewed
+  invocation/change; fixture CI is not evidence the remote rehearsal ran.
+- Files: `src/nima/egress/remote.py`, `tests/test_remote_cli.py`,
+  `tests/remote_worker_integration.py`, `docs/verification/remote-worker-egress.md`.
+- Scope: 4 files. Dependency: RP7; no root CLI, source collection or scheduler.
+
+### Checkpoint R-D: Local technical kit reviewed
+
+- [ ] Full rehearsal, mutation, quality/audit and exact-head hosted checks pass;
+  owner reviews/merges. Actual remote acceptance remains input-gated.
+
+### RP9: Run the actual controlled remote experiment
+
+- [ ] Obtain declared host, independent controlled endpoints/observer credentials,
+  stable egress, available reviewed images and private backup destination.
+- [ ] Operator runs prepared commands; review every required case/control and
+  exact owned cleanup on that host, plus private backup/restore evidence.
+- Acceptance: only a complete same-run controlled remote receipt can assert
+  `boundary_verified`; Publicity/company/production flags remain false.
+- Verify: private receipts against independent endpoint and actual host evidence;
+  missing inputs give an explicit blocked outcome, never inherited fixture success.
+- Files: private config/bundle/receipts outside Git; no code/data commit required.
+- Scope: controlled experiment. Dependency: R-D. **Blocked on operator inputs.**
+
+## Preserved: approved evidence recovery and Publicity-first priority
 
 The owner approved [scope #98](../docs/graph/company-evidence-pilot.md) and merged
 it at `aef9f53`, then approved/merged plan #99 at `36bcb80`. Publicity is now the
 primary acquisition development path and the API secondary. PE1 #103 is owner-merged
-at `b3ee7eb`; all three exact-head hosted checks pass. The next proposed scope is
-the [remote egress pilot](../docs/sources/remote-worker-egress-pilot.md), awaiting
-scope approval before a new plan; PE2–PE3 remain authorized and key-independent.
+at `b3ee7eb`; all three exact-head hosted checks pass. The owner merged the
+[remote egress scope](../docs/sources/remote-worker-egress-pilot.md) in #104;
+its proposed plan is above. PE2–PE3 remain authorized and key-independent.
 The [source design](../docs/sources/gemi-publicity-fallback.md) records the proposed
 remote topology/storage and unfinished extraction/import bridge. No live worker
 is configured. All earlier incomplete tasks and history remain; execute sequentially.
