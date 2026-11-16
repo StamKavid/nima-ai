@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "tax_id": "012345678",
+  "cutoff": "2026-01-03T00:00:00+00:00",
+  "observations": [
+    {"id": 1, "record": "A", "version": "A", "day": 1, "buyer": "B1", "suppliers": [["012345678", "GR"]], "cancelled": false},
+    {"id": 2, "record": "B", "version": "B1", "day": 1, "buyer": "B1", "suppliers": [["012345678", "GR"]], "cancelled": false},
+    {"id": 3, "record": "A", "version": "A", "day": 2, "buyer": "B1", "suppliers": [["012345678", "GR"]], "cancelled": false},
+    {"id": 4, "record": "C", "version": "C", "day": 2, "buyer": "B1", "suppliers": [["012345678", "GR"], ["987654321", "GR"], ["012345678", "GR"]], "cancelled": false},
+    {"id": 5, "record": "D", "version": "D", "day": 2, "buyer": "B2", "suppliers": [["012345678", "GR"]], "cancelled": true},
+    {"id": 6, "record": "E", "version": "E", "day": 2, "buyer": null, "suppliers": [["012345678", "GR"]], "cancelled": null},
+    {"id": 7, "record": "F", "version": "F", "day": 2, "buyer": "B1", "suppliers": [["012345678", null]], "cancelled": false},
+    {"id": 8, "record": "G", "version": "G1", "day": 2, "buyer": "B2", "suppliers": [["012345678", "GR"]], "cancelled": false},
+    {"id": 9, "record": "G", "version": "G2", "day": 2, "buyer": "B1", "suppliers": [["987654321", "GR"]], "cancelled": false},
+    {"id": 10, "record": "H", "version": "H", "day": 2, "buyer": "B1", "suppliers": [["012345678", "EL"]], "cancelled": false},
+    {"id": 11, "record": "B", "version": "B2", "day": 3, "buyer": "B1", "suppliers": [["987654321", "GR"]], "cancelled": false}
+  ],
+  "expected": {
+    "buyers": {"kimdis.buyer-key:B1": ["kimdis:A", "kimdis:C", "kimdis:H"], "kimdis.buyer-key:B2": ["kimdis:D"]},
+    "unassigned": ["kimdis:E"],
+    "unassessed": ["kimdis:F"],
+    "ambiguous": ["kimdis:G"]
+  }
+}
