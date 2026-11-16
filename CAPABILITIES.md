@@ -77,16 +77,24 @@ Start with this one metric and an evidence-linked readout. Current module scopes
 
 | Module | First bounded specification | Scope status |
 |---|---|---|
-| semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | Scope approved in #109; not implemented |
-| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | Scope approved in #109; not implemented |
+| semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | PV1 provider on review branch; draft definition |
+| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | PV2–PV3 SQL snapshot/request on review branches; final readout pending |
 
 The semantic layer is versioned code/SQL definitions plus a small glossary, not
 an ontology generator, LLM dependency or separate metrics server. The two specifications share one
 data-to-readout proof. After the conceptual quality/pipeline review, the owner
-requested continuation into the proposed [implementation plan](tasks/plan.md) and
+approved the [implementation plan](tasks/plan.md) through merged #110 and the
 [validation contract](docs/pipeline-quality-validation.md). Real-data
 reconciliation and an observed analyst task remain explicit product gates. No
 product success is inferred from synthetic tests or PR counts.
+
+PV1 supplies a pure policy and packaged PostgreSQL count over a known-answer
+synthetic fixture. PV2 freezes bounded complete SQL cohorts under a SELECT-only
+principal and re-derives facts; PV3 decodes explicit private selections without
+source/SQL/archive access. These are offline review increments, not a complete
+serving surface. Original-byte reconciliation, final private artifacts, the CLI
+and real-data/task proof remain PV4 onward. See the current tasks for per-head
+verification; definition review/certification and checkpoint V-A remain pending.
 
 ## Preserved implementation evidence
 

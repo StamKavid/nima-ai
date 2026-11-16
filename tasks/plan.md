@@ -1,14 +1,16 @@
 # Delivery plan
 
-## Current: first readout and pipeline validation — proposed implementation plan
+## Current: first readout and pipeline validation — approved implementation plan
 
 The owner approved the capability map through #108 at `9ff2eff`, reviewed the
 subsequent conceptual quality/deduplication architecture and requested continuation
 on 2026-11-16. The [semantic provider](../SPEC-semantic-layer.md) and
 [analytics consumer](../SPEC-market-analytics.md) scopes are approved through
 owner-merged #109 at `70e06d6`; all three exact-head jobs on `eb34535` passed in
-run 43838968903. This plan is proposed for review before application code is
-written; no new capability is implemented by it.
+run 43838968903. The owner approved this plan and merged #110 at `c964f4f` on
+2026-11-16; its exact-head CI passed in run 43857399789. PV1–PV3 now have
+implementations on review branches; checkpoint V-A still requires the complete
+hosted proof and owner review before PV4. The final readout is not delivered yet.
 
 Deliver one private evidence-linked supplier–buyer count, then compare the same
 known-answer data through a bounded isolated dbt project. The accepted direction
