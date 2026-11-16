@@ -7,15 +7,15 @@
 - [x] Record owner-accepted HTTPX/Playwright direction in
   [ADR-0004](../docs/decisions/0004-bounded-http-and-browser-acquisition.md), with
   the reviewed [comparison](../docs/research/acquisition-library-comparison.md).
-- [ ] Owner review/approval of this implementation plan before RP1.
+- [x] Owner approved the plan in a later turn after #105 merged at `0536808`.
 
-The [scope](../docs/sources/remote-worker-egress-pilot.md) is approved; this plan
-is proposed. Commands below are future interfaces, not implemented tools.
+The [scope](../docs/sources/remote-worker-egress-pilot.md) and plan are approved.
+RP1–RP2 are the current build batch; prepare/verify commands remain future interfaces.
 Preserve all PE work below. Execute sequentially without delegation.
 
 ### RP1: Freeze closed remote configuration
 
-- [ ] Implement typed closed configuration and bounded private-file decoding.
+- [x] Implement typed closed configuration and bounded private-file decoding.
 - Acceptance: exact fields/types/version from the plan, all limits, duplicate keys,
   placeholder/source destinations, invalid authority/IP/subnet/pins/path/mode cases
   fail with fixed redacted errors; no DNS/network/Docker/SSH side effects.
@@ -23,6 +23,11 @@ Preserve all PE work below. Execute sequentially without delegation.
   adversarial private filesystem and forbidden-side-effect cases; normal gates.
 - Files: `src/nima/egress/remote_config.py`, `tests/test_remote_config.py`.
 - Scope: 2 files. Dependency: owner-approved plan.
+- Local evidence: 110 focused cases; full `just check` passes 1,683 tests/92.62%,
+  with clean lint/types/build/security and `just audit`. Removing the public-IP
+  guard in memory fails three negative cases; disk source is unchanged. A real
+  changed-file test and a descriptor-failure regression pass. Hosted checks and
+  owner merge remain pending; checkpoint R-A is not complete.
 
 ### RP2: Publish and reread an immutable private bundle
 
@@ -152,7 +157,7 @@ it at `aef9f53`, then approved/merged plan #99 at `36bcb80`. Publicity is now th
 primary acquisition development path and the API secondary. PE1 #103 is owner-merged
 at `b3ee7eb`; all three exact-head hosted checks pass. The owner merged the
 [remote egress scope](../docs/sources/remote-worker-egress-pilot.md) in #104;
-its proposed plan is above. PE2–PE3 remain authorized and key-independent.
+its approved plan is above. PE2–PE3 remain authorized and key-independent.
 The [source design](../docs/sources/gemi-publicity-fallback.md) records the proposed
 remote topology/storage and unfinished extraction/import bridge. No live worker
 is configured. All earlier incomplete tasks and history remain; execute sequentially.
