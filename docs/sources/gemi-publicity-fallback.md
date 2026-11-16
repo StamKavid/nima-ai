@@ -250,6 +250,12 @@ Network privacy does not change the access-policy prerequisite above. Keep stabl
 egress, source-family limits and cooldowns; do not rotate IPs to continue after a
 block or multiply quotas across deployment egresses.
 
+The next proposed increment is the [operator-run remote egress pilot](remote-worker-egress-pilot.md).
+It prepares and verifies a controlled-endpoint boundary before any Publicity
+navigation; the operator has approved the architectural direction, while the new
+scope and later implementation plan still require their own review. PE1 offline
+recovery is owner-merged and verified in #103.
+
 ## Recommended self-hosted topology and storage
 
 Design recommendation, 2026-11-15; no host, service or store is deployed by this

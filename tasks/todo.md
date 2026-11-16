@@ -4,8 +4,10 @@
 
 The owner approved [scope #98](../docs/graph/company-evidence-pilot.md) and merged
 it at `aef9f53`, then approved/merged plan #99 at `36bcb80`. Publicity is now the
-primary acquisition development path and the API secondary. Finish PE1, then
-prioritize protected capture/source-contract work; PE2–PE3 remain key-independent.
+primary acquisition development path and the API secondary. PE1 #103 is owner-merged
+at `b3ee7eb`; all three exact-head hosted checks pass. The next proposed scope is
+the [remote egress pilot](../docs/sources/remote-worker-egress-pilot.md), awaiting
+scope approval before a new plan; PE2–PE3 remain authorized and key-independent.
 The [source design](../docs/sources/gemi-publicity-fallback.md) records the proposed
 remote topology/storage and unfinished extraction/import bridge. No live worker
 is configured. All earlier incomplete tasks and history remain; execute sequentially.
@@ -16,7 +18,7 @@ is configured. All earlier incomplete tasks and history remain; execute sequenti
 
 ### PE1: Recover explicitly referenced original archive objects
 
-- [x] Implement typed bounded read-only recovery (this candidate; hosted checks/merge pending).
+- [x] Implement typed bounded read-only recovery (#103, owner-merged and verified).
 - Acceptance: explicit root/reference binding and stable hash-verified bytes;
   missing/corrupt/unsafe files fail visibly without creation, repair, source-value
   errors or network access; exact 32-object/8 MiB-object/64 MiB-total bounds and
@@ -27,7 +29,9 @@ is configured. All earlier incomplete tasks and history remain; execute sequenti
 - Local evidence: 65 new recovery cases; real private files/descriptor cleanup, alias
   and count/byte/source limits, replacement/hash failures and unchanged archives.
   Removing hash verification makes the corruption regression fail; exact source
-  restored. Full local/hosted verification remains recorded in the delivery PR.
+  restored. Exact-head run 43760943303 passes 1,573 tests/92.47%, Compose and
+  12 worker tests/654.53 s with one fresh full 28-case receipt. Live/privacy/
+  production flags remain false; this completes PE1, not checkpoint A.
 
 ### PE2: Reconcile active-link evidence with the pinned snapshot
 
