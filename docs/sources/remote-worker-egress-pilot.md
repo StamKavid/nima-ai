@@ -1,6 +1,8 @@
-# Proposed scope: operator-run remote worker egress pilot
+# Approved scope: operator-run remote worker egress pilot
 
-Status: **proposed, awaiting owner scope approval**, 2026-11-16. Provider capability:
+Status: **owner-approved**, 2026-11-16, through owner-merged #104 at `f894800`
+and the instruction to continue. The [implementation plan](../../tasks/plan.md)
+is proposed for review; commands below remain unimplemented. Provider capability:
 `source-ingestion`. This specifies one capability: prepare and verify an isolated
 worker boundary on an operator-owned remote host. It extends the approved
 [fixture contract](source-worker-egress.md) and

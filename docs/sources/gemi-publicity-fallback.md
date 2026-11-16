@@ -9,6 +9,13 @@ The owner reprioritized delivery on 2026-11-15: Publicity is the primary acquisi
 path to develop; the official API is secondary when its key becomes available.
 This changes channel priority, not the implemented API schema or current graph
 input contract. No source-facing worker or live gateway has been provisioned.
+The owner accepted [ADR-0004](../decisions/0004-bounded-http-and-browser-acquisition.md)
+on 2026-11-16: HTTPX for structured HTTP, Playwright for JavaScript UI, lxml as
+the preferred future HTML parser and Prefect above bounded acquisition jobs.
+No additional parsing/crawling dependency is adopted by that decision. Crawlee
+is a future option when URL-frontier/browser-pool needs justify it. The owner
+merged the [remote egress scope](remote-worker-egress-pilot.md) in #104; its
+implementation plan is proposed, and actual host inputs remain missing.
 This document supplements the approved GEMI API contract.
 The first delivery plan and review gates are recorded in `tasks/plan.md` and
 `tasks/todo.md`. Design approval is not a claim of provider permission to automate.
