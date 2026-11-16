@@ -23,7 +23,10 @@
 - [ ] Preserve reliability follow-ups as separate scoped work: effective branch
   rules (admin), refresh recovery/version handling, SQL/archive restore and roles.
 
-PV1–PV3 are implemented on review branches; checkpoint V-A remains pending.
+The owner reviewed/merged PV1–PV3, completing V-A. Their stacked merges left PV2/PV3
+on feature bases; #114 promotes the identical combined tree to main and passed all
+three hosted jobs in run 43904754199. PV4–PV5 are the next review batch; V-B remains
+pending. New PRs explicitly target main and declare their merge order.
 The initial proof is a cited captured-contract record count, not a persona UI,
 financial concentration measure, live scrape or AI service. Old tasks below remain
 incomplete where previously incomplete; they are not silently closed or discarded.
@@ -93,34 +96,53 @@ are executable on these review branches; later interfaces remain future work.
 
 ### Checkpoint V-A: Definition and input boundary reviewed
 
-- [ ] PV1–PV3 pass required local/hosted gates; owner reviews the exact metric
+- [x] PV1–PV3 pass required local/hosted gates; owner reviews the exact metric
   answer, independent oracle, public DB seam and input/privilege bounds.
 
 ### PV4: Reconcile selected originals
 
-- [ ] Recover all selected pages and re-derive normalized records/projections
+- [x] Recover all selected pages and re-derive normalized records/projections
   against the frozen SQL tuples before any result can be published.
 - Acceptance: include empty pages, superseded and nonmatching records; enforce
   32-page/object, 8 MiB/object and 64 MiB total ceilings; missing, changed or
   inconsistent originals/facts fail without repair/network/SQL writes.
 - Verify: `uv run --frozen pytest tests/test_analytics_reconcile.py tests/test_graph_pilot_archive.py`;
   corrupt blob, mismatch, ordinal, empty-page and SQL-closed cases; normal gates.
-- Files: `src/nima/analytics/reconcile.py`, `tests/test_analytics_reconcile.py`;
-  `src/nima/graph/pilot_archive.py` and its existing test only if a narrow public
-  helper adjustment is necessary and preserves all prior assertions.
-- Scope: 2–4 files. Dependency: V-A. Reuse public normalizer/projector/recovery APIs.
+- Files: `src/nima/analytics/reconcile.py`, `snapshot.py`;
+  `tests/test_analytics_reconcile.py`, `test_analytics_snapshot.py`; `tasks/plan.md`.
+- Scope: 5 files including delivery metadata. Dependency: V-A. Public offline
+  snapshot revalidation reuses the existing fact/ordinal policy; no graph helper
+  change, private cross-import or second schema validator was needed.
+- Evidence: #115 passes local `just check` (1,875 cases/92.84%) and `just audit`.
+  Verified all four known-answer pages, eleven observations and ten versions;
+  original bytes defeat internally consistent forged SQL. Empty/nonmatching and
+  after-cutoff pages, numeric-index typing, relocation and budgets are tested.
+  Removing the record-hash check fails its mutation test. Exact-head hosted proof
+  accompanies #115; it does not establish live source truth or full replay.
 
 ### PV5: Deterministic cited result
 
-- [ ] Compose the reconciled metric/check manifest and privately publish it using
+- [x] Compose the reconciled metric/check manifest and privately publish it using
   existing canonical no-clobber primitives.
 - Acceptance: exact counts/record sets/cancellation/unknown diagnostics, all five
   outcomes, all selected evidence and definition/snapshot hashes; identical inputs
   and relocated identical archives yield identical ≤1 MiB bytes; failures publish none.
 - Verify: `uv run --frozen pytest tests/test_market_analytics.py`; actual private
   outputs, unchanged-input retries and conflict/limit cases; normal gates.
-- Files: `src/nima/analytics/result.py`, `export.py`; `tests/test_market_analytics.py`.
-- Scope: 3 files. Dependency: PV4. No durable release registry or certification.
+- Files: `src/nima/analytics/result.py`, `export.py`; `tests/test_market_analytics.py`;
+  `tasks/todo.md`, `CAPABILITIES.md` (delivery metadata).
+- Scope: 5 files including metadata. Dependency: PV4. No durable release registry
+  or certification. Programmatic path only; no CLI is claimed.
+- Evidence: the known-answer report preserves all eleven observations, Greek
+  labels, exact source money and raw/projection citations. Tests exercise all five
+  outcomes, unchanged SQL/originals, closed SQL before verification/publication,
+  relocated and physically deduplicated originals, retries, output conflicts,
+  missing/corrupt/unprojected evidence and the actual 1 MiB result ceiling.
+  All 16 focused cases pass. Full local `just check` passes 1,891 cases/92.93%,
+  including build/security/secret/skill/lock checks; dependency audit is clean.
+  A serializer mutation changing the count fails the independent known-answer
+  assertion. Exact-head hosted verification accompanies the delivery PR;
+  checkpoint V-B stays open for owner review before PV6.
 
 ### Checkpoint V-B: Complete programmatic readout reviewed
 
