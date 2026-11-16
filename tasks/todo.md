@@ -13,15 +13,176 @@
 - [x] Draft the first [semantic-layer](../SPEC-semantic-layer.md) and
   [market-analytics](../SPEC-market-analytics.md) scopes: one metric definition and
   one private cited supplier–buyer readout, with hand-calculated acceptance data.
-- [ ] Owner review of the provider/consumer scopes; then prepare an implementation
-  plan and independently reviewable tasks. Neither scope is implemented here.
+- [x] Owner merged provider/consumer scope #109 at `70e06d6` and requested
+  continuation after the conceptual quality/pipeline review. All three exact-head
+  jobs passed in run 43838968903; advance into implementation planning.
+- [x] Draft the [pipeline validation contract](../docs/pipeline-quality-validation.md),
+  proposed implementation plan and bounded tasks below.
+- [ ] Owner review of the implementation plan before application code is written.
 - [ ] Preserve reliability follow-ups as separate scoped work: effective branch
   rules (admin), refresh recovery/version handling, SQL/archive restore and roles.
 
-No new implementation task is authorized by the pending spec review.
+Implementation tasks below remain proposed pending plan review.
 The initial proof is a cited captured-contract record count, not a persona UI,
 financial concentration measure, live scrape or AI service. Old tasks below remain
 incomplete where previously incomplete; they are not silently closed or discarded.
+
+## Proposed: readout and pipeline validation
+
+Execute sequentially. Each task requires red→green focused tests, `just check`,
+`just audit` and its exact-head hosted checks before proposing merge. Preserve the
+existing 26-table schema, old behavior and all CI jobs. Proposed commands below
+become executable as the named files are implemented; they are not delivered now.
+
+### PV1: Shared definition and known-answer SQL
+
+- [ ] Implement the frozen metric definition, pure eligibility/revision policy and
+  one packaged reference SQL calculation, with the synthetic acceptance fixture.
+- Acceptance: B1=3/B2=1/unassigned=1 and exact contributing IDs; independent
+  hand-labelled checks cover cancellation, ties, duplicate ordinals, GR/EL,
+  missing/invalid keys, earlier cutoff and A→B→A; provider imports no adapters.
+- Verify: `uv run --frozen pytest tests/test_semantics.py`; permutation tests,
+  disposable PostgreSQL calculation and wheel resource access; normal gates.
+- Files: `src/nima/semantics/__init__.py`, `participation.py`, `participation.sql`;
+  `tests/test_semantics.py`, `tests/fixtures/participation.json` (synthetic only).
+- Scope: 5 files. Dependency: approved plan. No new metric certification claim.
+
+### PV2: Bounded SELECT-only snapshot
+
+- [ ] Add the public DB entry point and one adapter freezing the validated SQL
+  cohort/result in a read-only repeatable-read UTC transaction.
+- Acceptance: legacy connection behavior preserved; schema/role/column grants,
+  all page/projection grains and byte/count bounds checked; all 26 tables unchanged;
+  immutable tuples remain stable across a concurrent new capture.
+- Verify: `uv run --frozen pytest tests/test_analytics_snapshot.py tests/test_postgres.py`;
+  actual limited/owner/inherited privilege cases and missing receipt/fact cases;
+  no SQL connection remains open on return; normal gates.
+- Files: `src/nima/storage/connection.py`, `postgres.py`;
+  `src/nima/analytics/__init__.py`, `snapshot.py`; `tests/test_analytics_snapshot.py`.
+- Scope: 5 files. Dependency: PV1. No migrations or broad private-import cleanup.
+
+### PV3: Closed private request
+
+- [ ] Decode the exact request fields, cutoff/key and explicit archive bindings.
+- Acceptance: ≤16 KiB, 1–10 runs, duplicate/unknown keys and unsafe private-file
+  cases rejected; canonical semantic request excludes archive locations; no side
+  effects, source values or secrets in fixed error reasons.
+- Verify: `uv run --frozen pytest tests/test_analytics_request.py`; actual files,
+  size/type/UTC/key/binding boundaries and forbidden-side-effect checks; normal gates.
+- Files: `src/nima/analytics/request.py`, `tests/test_analytics_request.py`.
+- Scope: 2 files. Dependency: PV1; execute after PV2 in this batch.
+
+### Checkpoint V-A: Definition and input boundary reviewed
+
+- [ ] PV1–PV3 pass required local/hosted gates; owner reviews the exact metric
+  answer, independent oracle, public DB seam and input/privilege bounds.
+
+### PV4: Reconcile selected originals
+
+- [ ] Recover all selected pages and re-derive normalized records/projections
+  against the frozen SQL tuples before any result can be published.
+- Acceptance: include empty pages, superseded and nonmatching records; enforce
+  32-page/object, 8 MiB/object and 64 MiB total ceilings; missing, changed or
+  inconsistent originals/facts fail without repair/network/SQL writes.
+- Verify: `uv run --frozen pytest tests/test_analytics_reconcile.py tests/test_graph_pilot_archive.py`;
+  corrupt blob, mismatch, ordinal, empty-page and SQL-closed cases; normal gates.
+- Files: `src/nima/analytics/reconcile.py`, `tests/test_analytics_reconcile.py`;
+  `src/nima/graph/pilot_archive.py` and its existing test only if a narrow public
+  helper adjustment is necessary and preserves all prior assertions.
+- Scope: 2–4 files. Dependency: V-A. Reuse public normalizer/projector/recovery APIs.
+
+### PV5: Deterministic cited result
+
+- [ ] Compose the reconciled metric/check manifest and privately publish it using
+  existing canonical no-clobber primitives.
+- Acceptance: exact counts/record sets/cancellation/unknown diagnostics, all five
+  outcomes, all selected evidence and definition/snapshot hashes; identical inputs
+  and relocated identical archives yield identical ≤1 MiB bytes; failures publish none.
+- Verify: `uv run --frozen pytest tests/test_market_analytics.py`; actual private
+  outputs, unchanged-input retries and conflict/limit cases; normal gates.
+- Files: `src/nima/analytics/result.py`, `export.py`; `tests/test_market_analytics.py`.
+- Scope: 3 files. Dependency: PV4. No durable release registry or certification.
+
+### Checkpoint V-B: Complete programmatic readout reviewed
+
+- [ ] PV4–PV5 pass local/hosted gates; review raw-to-count attribution and unchanged
+  SQL/originals, with previous artifacts retained on all observed failure paths.
+
+### PV6: CLI readout
+
+- [ ] Delegate `analytics supplier-buyers --request ... --output-dir ...` to the
+  verified programmatic path with the environment-only database configuration.
+- Acceptance: root dispatcher holds no calculation logic; fixed summaries/errors,
+  correct input/failure/interruption exit codes and no source/driver/path leakage.
+- Verify: `uv run --frozen pytest tests/test_analytics_cli.py`; installed module
+  invocation against disposable DB/private files; normal gates.
+- Files: `src/nima/analytics/commands.py`, `src/nima/__main__.py`,
+  `tests/test_analytics_cli.py` (existing dispatcher test only if needed).
+- Scope: 3–4 files. Dependency: V-B.
+
+### PV7: End-to-end failure proof and operator instructions
+
+- [ ] Exercise the complete installed workflow under failures/interruption and
+  document input, read-role grants, lineage, coverage and quality interpretation.
+- Acceptance: introduced duplicate/missing receipt/corrupt source cases block
+  publication; replay/actual process termination preserve prior results; tests
+  assert no network route or application-table mutation. Parser rerun is not
+  labelled full normalizer-version replay or provider completeness.
+- Verify: `uv run --frozen pytest tests/test_market_analytics_failures.py tests/test_market_analytics_crash.py`;
+  normal gates and unchanged old source-worker/orchestration hosted checks.
+- Files: both named tests; `docs/analytics/supplier-buyers.md`,
+  `docs/semantics/participation.md`.
+- Scope: 4 files. Dependency: PV6. Reuse publication controls; no new egress harness.
+
+### Checkpoint V-C: Offline data-to-semantics proof reviewed
+
+- [ ] Owner reviews known-answer results, evidence trace, quality failures and
+  installed CLI. This delivers one offline readout, not real-market/task validation.
+
+### PV8: Isolated dbt candidate prerequisites
+
+- [ ] Prepare a separate Python 3.12 lock/environment for candidate Core 1.11.17 /
+  Postgres adapter 1.11.0, with synthetic frozen seed inputs and private profile.
+- Acceptance: resolve/pin exact packages; review resolved licenses/advisories and
+  telemetry before running; test only a separately named disposable PG17 database.
+  A failed prerequisite records a stop; application lock/CI/runtime remain unchanged.
+- Verify: isolated `uv sync --frozen --project experiments/pipeline_dbt`, actual
+  local connection after review, exact package inventory/lock hash and no source data.
+- Files: `experiments/pipeline_dbt/pyproject.toml`, `uv.lock`,
+  `seeds/input_observations.csv`, `seeds/input_mentions.csv`, `profiles.example.yml`.
+- Scope: 5 files. Dependency: V-C. Synthetic seeds derive from the approved fixture.
+
+### PV9: SQL/dbt parity and decision
+
+- [ ] Build the small observation/revision/count model graph and its quality tests,
+  then compare exact record/evidence sets and diagnostics with the known-answer SQL.
+- Acceptance: clean fixture matches; introduced bad grains/relationships fail;
+  text identifiers/leading zeroes survive seed/model types and repeat build is
+  stable; record versions/artifacts, setup effort, build/query time
+  and diagnostic value. No production-performance or adopted-dependency claim.
+- Verify: isolated `dbt seed`, `dbt build`, defect-case runs and private comparison
+  report from the sealed input; exact invocation/profile/vars retained with results.
+- Files: `experiments/pipeline_dbt/dbt_project.yml`,
+  `models/observations.sql`, `selected_revisions.sql`, `counts.sql`, `properties.yml`.
+- Scope: 5 files. Dependency: PV8. A new dependency/operating decision follows review.
+
+### Checkpoint V-D: Tool choice reviewed
+
+- [ ] Owner reviews measured benefit and license/security/compatibility evidence;
+  retain plain SQL if the candidate stops or fails to justify adoption. No automatic
+  conversion of the application pipeline or its semantic definitions.
+
+### PV10: Protected real-data and analyst task pilot
+
+- [ ] Use an authorized bounded captured cohort; sample grouping/revision/count
+  and citation correctness; observe the owner or a consenting analyst's task.
+- Acceptance: record checked cases, timing, errors, missing information and task
+  usefulness, or explicit blocked status when protected originals/person are absent.
+  No direct provider call or external contact is implied.
+- Verify: installed readout, manual originals audit and observed task record;
+  retain originals/results privately and publish only reviewed aggregate findings.
+- Files: `docs/verification/market-readout.md` (reviewed result only).
+- Scope: 1 file plus private evidence. Dependency: V-C; independent of dbt adoption.
 
 ## Paused: approved remote boundary backlog
 

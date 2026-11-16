@@ -1,10 +1,13 @@
 # Spec: cited supplier–buyer readout
 
-Module ID: `market-analytics`. Status: **proposed scope, not implemented**.
+Module ID: `market-analytics`. Status: **approved scope, not implemented**.
 Follows the owner-approved [capability map](CAPABILITIES.md), merged in
 [#108](https://github.com/StamKavid/nima-ai/pull/108). Depends on the provider
 contract in [SPEC-semantic-layer.md](SPEC-semantic-layer.md); that module owns
 metric meaning. These two narrow specifications form one data-to-readout slice.
+The owner merged [#109](https://github.com/StamKavid/nima-ai/pull/109) at `70e06d6`
+on 2026-11-16 and requested continuation. The subsequent
+[implementation plan](tasks/plan.md) is proposed; no implementation is claimed.
 
 ## Objective and scope
 
@@ -158,7 +161,8 @@ Test that all existing 26 tables are unchanged by success and failure paths.
 Use existing Python 3.12+, PostgreSQL 17, Psycopg and private artifact primitives.
 Place query/reconciliation/command code in `src/nima/analytics/`, delegating from
 the root CLI; put operator instructions in `docs/analytics/` and focused tests in
-`tests/test_market_analytics.py`. Keep domain semantics in the provider module.
+`tests/test_market_analytics.py` and focused `tests/test_analytics_*.py` modules.
+Keep domain semantics in the provider module.
 Do not put calculation logic in the CLI dispatcher. A narrowly public connection
 interface can be planned without a broad storage/kernel/package rewrite.
 
@@ -214,7 +218,6 @@ is claimed before measurement. No automatic contact with another person is impli
   legal-identity/fraud claims, mutate historical requests or silently broaden a
   selected cohort. GEMI, egress and reliability backlogs retain their own scopes.
 
-Open decision: owner approval of this bounded consumer and its provider rules.
-Protected pilot archives are not assumed available; if absent, record that pilot
-as blocked rather than substituting synthetic data for product validation. Scope
-approval permits subsequent implementation planning, not an immediate live run.
+Next gate: owner review of the proposed implementation plan. Protected pilot
+archives are not assumed available; if absent, record that pilot as blocked rather
+than substituting synthetic data for product validation. No live run is implied.
