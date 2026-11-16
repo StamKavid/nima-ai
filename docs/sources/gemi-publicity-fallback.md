@@ -1,11 +1,15 @@
-# Proposal: GEMI Publicity evidence fallback
+# GEMI Publicity-first acquisition and secondary API
 
 Status: **design approved**, 2026-11-12, by the user's “I agree continue”, including
 the personal-IP requirement added in `53f9285`. The offline manual intake and
 verification slice is implemented. No browser collector, new dependency, database
 migration, remote infrastructure or live schedule has been introduced.
 Provider module: existing `source-ingestion`; identity review remains separate.
-This proposal supplements, rather than replaces, the approved GEMI API contract.
+The owner reprioritized delivery on 2026-11-15: Publicity is the primary acquisition
+path to develop; the official API is secondary when its key becomes available.
+This changes channel priority, not the implemented API schema or current graph
+input contract. No source-facing worker or live gateway has been provisioned.
+This document supplements the approved GEMI API contract.
 The first delivery plan and review gates are recorded in `tasks/plan.md` and
 `tasks/todo.md`. Design approval is not a claim of provider permission to automate.
 
@@ -17,7 +21,7 @@ Success means reproducible evidence with honest coverage, not an entire-registry
 crawl or a claim that a company committed tax evasion.
 
 Assumptions: private research use; at most ten explicitly selected GEMI numbers in
-the first pilot; API preferred after approval; one stable network connection;
+the first pilot; Publicity first and API secondary; one stable network connection;
 no proxy purchase, provider contact, identity decision or production activation.
 User clarification: source websites must not receive the investigator's home or
 office IP. This applies to manual capture, automated collection and API requests.
@@ -88,9 +92,9 @@ or credentials are committed. A homepage fetch is not a successful collection pi
 ```mermaid
 flowchart TD
     C[Explicit selected GEMI numbers] --> Q[Acquisition request and source policy]
-    Q --> A[Official API when key is available]
-    Q --> M[Investigator saves public evidence manually]
-    Q -. only when automated access is permitted .-> B[Bounded Playwright UI worker]
+    Q --> M[Primary available path: protected manual Publicity capture]
+    Q -. primary automation once permitted and verified .-> B[Bounded Playwright UI worker]
+    Q -. secondary channel when key and access are available .-> A[Official API]
     A --> E[Private immutable evidence archive]
     M --> E
     B --> E
@@ -98,7 +102,7 @@ flowchart TD
     V --> R[Dated registry assertions for later identity review]
 ```
 
-**Manual capture is the immediate fallback.** An investigator uses the ordinary
+**Protected manual Publicity capture is the immediate primary channel.** An investigator uses the ordinary
 public UI to save a selected public page or offered document. The intake records
 the original file, source URL, claimed capture time, supplied GEMI number and
 content hash. Nima independently records import time. A user-supplied file is
@@ -112,13 +116,16 @@ pilot, record applicable access/reuse conditions, resolve browser CA trust norma
 and validate one ordinary public search/profile interaction. If automation remains
 disallowed or blocked, manual intake and other ingestion work continue independently.
 
-The official API remains preferred. Missing credentials are a waiting/configuration
-state, not an exception that silently launches a browser. Authentication failures
-require configuration review. A GEMI throttle causes a shared pause, not a switch
-from API to UI. API-specific failure may justify an explicitly requested UI job
-only if that channel is permitted and healthy. Both may fail in an upstream GEMI
-outage. Preserve API/UI disagreements and their observation dates; never silently
-overwrite one channel with the other.
+The official API is secondary while its key is pending, and remains an optional
+secondary channel after access arrives unless the owner changes priority. Missing
+API credentials must not block Publicity development or eligible Publicity jobs.
+This is the requested delivery policy, not an implemented automatic router. Select
+a channel explicitly from those with verified prerequisites; source-family throttles
+and blocks pause collection across channels. Authentication failures need review;
+no gateway/direct-IP fallback, quota multiplication or automatic channel hopping
+after a block is permitted. Both channels may fail in an upstream GEMI outage.
+Preserve API/UI disagreements and their observation dates; never silently overwrite
+one channel with the other.
 
 ## Conditional browser collection contract
 
@@ -242,6 +249,103 @@ Review provider logging/retention and avoid claims of guaranteed anonymity.
 Network privacy does not change the access-policy prerequisite above. Keep stable
 egress, source-family limits and cooldowns; do not rotate IPs to continue after a
 block or multiply quotas across deployment egresses.
+
+## Recommended self-hosted topology and storage
+
+Design recommendation, 2026-11-15; no host, service or store is deployed by this
+record. Start with one remote Linux/amd64 VPS, Docker Compose, self-hosted Prefect,
+PostgreSQL and private evidence volumes. A 4-vCPU/8-GiB machine is an initial sizing
+candidate, not measured capacity; retain adequate disk for images, archives and
+backups and test the actual load. Private SSH tunnels can provide management access.
+A second host or external fixed proxy is optional when separation or hiding the
+worker IP is required, rather than a prerequisite to hiding the home IP.
+
+```mermaid
+flowchart LR
+    U[Investigator via private access] --> C[Trusted controller / Prefect]
+    C --> W[Isolated unprivileged browser worker]
+    W --> G[Fixed allowlisting gateway]
+    G --> S[Publicity first / API secondary]
+    W --> T[Private bounded staging]
+    T --> V[Controller verifies original bytes]
+    V --> A[Private content-addressed archive]
+    V --> P[PostgreSQL evidence and job ledger]
+    P -. future versioned projection .-> R[Optional search / vector index]
+```
+
+The browser has no database/admin credentials or general internet route. Only the
+gateway has source-facing egress; policy must cover DNS/IPv6/UDP, subresources and
+failure paths. The app/data network and collection network are separate even on
+one host. A VM's stable public IP can be the gateway egress; a source-side VPN is
+not required to hide the investigator's home IP. A management VPN is a separate
+concern and does not prove browser egress isolation. The host/provider can still
+observe administrator connections. Controlled fixtures are the starting evidence;
+actual host policy, public egress and outage behavior must be verified before live
+capture. Do not expose raw VNC/CDP, PostgreSQL, Prefect admin or search ports publicly.
+The investigator-facing app must not load live source assets into the local browser.
+
+| Information | Authoritative location / role |
+|---|---|
+| Original HTML, returned JSON, offered PDF and capture files | Private content-addressed archive; retain exact bytes/hash/channel and capture context; current collector and manual-bundle layouts stay separate |
+| Reported company assertions, source versions/observations, review and work state | PostgreSQL; retain raw-object hashes and evidence locations, exact money, original identifiers and explicit unknowns; Publicity extraction/import is still a future source-specific contract |
+| Extracted text and chunk metadata | Versioned derived records pointing to original hash plus page/field/span and parser version; extraction precedes embeddings |
+| Search / vectors | Rebuildable projection of approved records/chunks; preserve document version, model/chunker revision and filter metadata; never the only original evidence or review ledger |
+| Worker configuration | Non-secret templates in Git; environment-specific paths and host configuration privately on the server |
+| API/proxy/VPN credentials, browser sessions | Owner-only secret files or environment injection outside Git and evidence/search databases; browser sessions are disposable, not exported as case evidence |
+| Egress and verification receipts | Private infrastructure artifacts with hashes/references; keep infrastructure evidence distinct from company observations |
+
+Start with the existing filesystem archive and PostgreSQL. Make off-host private
+backups and test restoration before trusting the single-host deployment; snapshots
+on the same machine alone do not protect against its loss. A later object-store
+adapter can replace the filesystem when scale/operations justify it. Do not add
+multiple storage services just to preserve a few company captures.
+
+### Search and vector candidates
+
+These are researched candidates, not installed dependencies or measured winners.
+PostgreSQL stays authoritative, consistent with [ADR-0001](../decisions/0001-evidence-first-storage.md).
+Start with exact SQL lookups and evaluate PostgreSQL full-text search as a lexical
+baseline ([GIN documentation](https://www.postgresql.org/docs/17/textsearch-indexes.html)).
+Choose one additional retrieval service only after a versioned Greek-data benchmark.
+
+| Candidate | Best reason to evaluate for Nima | Technical / operating tradeoff |
+|---|---|---|
+| pgvector | First semantic baseline alongside existing PostgreSQL data, joins and backups | No second server, but vector workloads share database resources; test selective-filter recall, index tuning and query latency |
+| Qdrant | Preferred dedicated-vector shortlist for a small self-hosted deployment; filtering and dense/sparse hybrid retrieval | Single-node deployment is straightforward; separate persistence, backup, indexing and monitoring are still needed; Greek retrieval quality depends on the embedding/sparse model and tested tokenization |
+| OpenSearch | Document-search-led workspace combining keyword relevance, Greek analysis, faceting/aggregations and vector retrieval | Can cover several search needs in one service; JVM/index/shard tuning and resource overhead require measurement |
+| Milvus | A scale-oriented candidate if vector ingestion/query load justifies its deployment model | Lite/standalone/distributed options exist; the standard standalone Compose stack has additional services, so it is not automatically the simplest option for a personal project |
+| MongoDB | Worth consideration if the primary application were already MongoDB-based | Current Community supports self-managed search/vector search through mongot; Nima already uses PostgreSQL, so this would add a second operational database plus a search process; server/search SSPL terms differ from Apache-licensed options |
+
+OpenSearch, Qdrant and Milvus core use Apache 2.0; pgvector uses the PostgreSQL
+License. Review bundled components separately. MongoDB's current self-managed
+support must not be described as Atlas-only. These are operating-fit judgments,
+not claims that one engine has lower latency on Nima's unmeasured workload.
+
+Official references checked 2026-11-15:
+
+- [OpenSearch licensing](https://opensearch.org/faq/), [Docker installation](https://docs.opensearch.org/latest/install-and-configure/install-opensearch/docker/) and [Greek analyzer](https://docs.opensearch.org/latest/analyzers/language-analyzers/greek/).
+- [Qdrant licence](https://github.com/qdrant/qdrant/blob/master/LICENSE), [self-hosted installation](https://qdrant.tech/documentation/operations/installation/) and [hybrid queries](https://qdrant.tech/documentation/search/hybrid-queries/).
+- [pgvector indexes, filtering and licence](https://github.com/pgvector/pgvector).
+- [Milvus overview/licence](https://milvus.io/docs/overview.md) and [standalone Compose dependencies](https://milvus.io/docs/install_standalone-docker-compose.md).
+- [MongoDB self-managed search/vector deployment](https://www.mongodb.com/docs/search/self-managed/current/) and [SSPL](https://www.mongodb.com/legal/licensing/server-side-public-license).
+
+Benchmark source-backed Greek/English queries and exact GEMI/AFM/ADAM retrieval,
+company/source/date filters, lexical versus semantic versus hybrid recall and
+ranking, p50/p95 latency under declared concurrency, index/update/delete lag, RAM,
+disk, rebuild and backup/restore. Use the same corpus, embeddings, hardware and
+recall target; report quality/latency tradeoffs rather than vendor leaderboard
+numbers. No vector index establishes a company link or replaces the separate
+graph-store evaluation. Published findings must resolve back to pinned source and
+current review state even when a search projection lags.
+
+The next source-specific work is protected remote-worker configuration, an observed
+ordinary Publicity capture contract, then deterministic extraction with evidence
+locations and a reviewed import bridge. Keep manual/UI/API channels distinguishable;
+current manual files are opaque and cannot satisfy the existing API-profile graph
+input contract. That bridge needs its own source contract before implementation.
+API-key approval is not a prerequisite to developing the offline recovery helpers,
+private capture workflow or labeled fixtures. Source access and real data remain
+explicit execution prerequisites; this recommendation provisions nothing.
 
 ## Evidence, persistence and orchestration boundaries
 
