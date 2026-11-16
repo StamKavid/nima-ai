@@ -5,8 +5,12 @@
 Product direction accepted on 2026-11-16 through the owner's instruction to follow
 the product-first audit response and clarification: “Company and market
 intelligence: sectors, competitors, public procurement and corporate changes”.
-The revised [capability map](../../CAPABILITIES.md) is proposed for review; individual
-module scopes/plans and implementation are not approved by this record alone.
+The revised [capability map](../../CAPABILITIES.md) was owner-approved through
+merged [#108](https://github.com/StamKavid/nima-ai/pull/108) and the subsequent
+instruction to continue on 2026-11-16. Individual module scopes/plans and
+implementation are not approved by that map review alone. The first
+[semantic provider](../../SPEC-semantic-layer.md) and
+[analytics consumer](../../SPEC-market-analytics.md) scopes are proposed for review.
 
 ## Date
 
