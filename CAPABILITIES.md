@@ -73,16 +73,18 @@ without a supported ordering rule. No single opaque trust score substitutes for
 freshness, coverage, conflict and verification status. Metric certification is an
 internal reviewed-definition status, not publisher or legal certification.
 
-Start with this one metric and an evidence-linked readout. Proposed module scopes:
+Start with this one metric and an evidence-linked readout. Current module scopes:
 
 | Module | First bounded specification | Scope status |
 |---|---|---|
-| semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | Proposed; owner review pending |
-| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | Proposed; depends on provider scope |
+| semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | Scope approved in #109; not implemented |
+| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | Scope approved in #109; not implemented |
 
 The semantic layer is versioned code/SQL definitions plus a small glossary, not
 an ontology generator, LLM dependency or separate metrics server. The two specifications share one
-data-to-readout proof; implementation planning follows scope approval. Real-data
+data-to-readout proof. After the conceptual quality/pipeline review, the owner
+requested continuation into the proposed [implementation plan](tasks/plan.md) and
+[validation contract](docs/pipeline-quality-validation.md). Real-data
 reconciliation and an observed analyst task remain explicit product gates. No
 product success is inferred from synthetic tests or PR counts.
 

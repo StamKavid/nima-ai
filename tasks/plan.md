@@ -1,38 +1,132 @@
 # Delivery plan
 
-## Current: company/market intelligence and the first semantic readout
+## Current: first readout and pipeline validation — proposed implementation plan
 
-The owner approved the product-first audit response and clarified the broader
-company/market-intelligence direction on 2026-11-16. Record it in
-[ADR-0005](../docs/decisions/0005-market-intelligence-foundation.md). The revised
-[capability map](../CAPABILITIES.md) is owner-approved through merged #108 at
-`9ff2eff` and the subsequent instruction to continue. The first
-[semantic-layer](../SPEC-semantic-layer.md) and
-[market-analytics](../SPEC-market-analytics.md) scopes are proposed together for
-one bounded data-to-readout proof. They freeze the provider's metric meaning and
-the consumer's private read-only interface. Scope approval precedes a new
-implementation plan; this status update does not add that plan or authorize code.
+The owner approved the capability map through #108 at `9ff2eff`, reviewed the
+subsequent conceptual quality/deduplication architecture and requested continuation
+on 2026-11-16. The [semantic provider](../SPEC-semantic-layer.md) and
+[analytics consumer](../SPEC-market-analytics.md) scopes are approved through
+owner-merged #109 at `70e06d6`; all three exact-head jobs on `eb34535` passed in
+run 43838968903. This plan is proposed for review before application code is
+written; no new capability is implemented by it.
 
-The shared delivery path is trustworthy source/history data → a small versioned
-semantic/metric definition → one evidence-linked analytic readout → observed task
-value. Journalists are one later persona; analytics and deterministic alerts do
-not depend on a graph store or AI. The first candidate counts distinct captured
-KIMDIS contract-publication records for a reported supplier/buyer cohort, preserving
-revision, identity, cancellation and coverage limitations.
+Deliver one private evidence-linked supplier–buyer count, then compare the same
+known-answer data through a bounded isolated dbt project. The accepted direction
+and experiment contract are in [pipeline quality validation](../docs/pipeline-quality-validation.md).
+The source stages, reported-only identity, revision/cancellation rules and resource
+bounds remain those of the module scopes. No GEMI key or source request is needed.
 
-Pause new RP3–RP9 work. RP1 #106 and RP2 #107 are owner-merged at `2e189f3` and
-`538de66`; all three exact-head jobs pass in runs 43820296909 and 43822156321.
-The offline checkpoint R-A is complete; no remote or Publicity egress is verified.
-The existing egress plan, code and checks remain below. Existing PE2–PE3 also remain
-available and incomplete; use their reconciliation direction where it supports the
-readout without making registry access a prerequisite for reported-party counts.
+### Boundaries and dependency order
 
-Reliability work stays explicit: administrator-applied effective main/dev rules;
-audited refresh-child replacement and historical-version compatibility; a private
-SQL/archive backup/restore drill; restricted application roles before live/shared
-operation. These are separately scoped changes, not a blanket rewrite or an
-implemented fix. Preserve current dependencies, constraints and every required CI
-job. The first readout must work from protected archives without a source request.
+```mermaid
+flowchart TD
+    PV1[PV1 shared definition and SQL oracle] --> PV2[PV2 read-only SQL snapshot]
+    PV1 --> PV3[PV3 closed private request]
+    PV2 --> A[Checkpoint V-A]
+    PV3 --> A
+    A --> PV4[PV4 original-evidence reconciliation]
+    PV4 --> PV5[PV5 deterministic cited artifact]
+    PV5 --> B[Checkpoint V-B]
+    B --> PV6[PV6 CLI readout]
+    PV6 --> PV7[PV7 failure/replay validation and runbook]
+    PV7 --> C[Checkpoint V-C: offline result]
+    C --> PV8[PV8 isolated dbt environment and models]
+    PV8 --> PV9[PV9 comparison and adoption decision]
+    PV9 --> D[Checkpoint V-D]
+    C --> PV10[PV10 protected real-data and analyst pilot]
+```
+
+Execute sequentially without delegation. Review each checkpoint before the next
+batch. Each task changes at most five files and includes red→green tests plus the
+required `just check`/`just audit` gates. Preserve all current CI jobs and ≥90%
+combined coverage. Readout delivery does not depend on adopting dbt; the isolated
+comparison follows the verified reference. PV10 can proceed after V-C when inputs
+exist; it must not wait on a tool-adoption decision.
+
+### Component contracts
+
+**Provider and reference SQL.** Keep frozen policy/definition types in
+`nima.semantics`; no database, graph, Prefect or consumer imports. One versioned
+SQL calculation selects revisions before supplier filtering, handles tied
+versions explicitly and counts distinct source IDs. Its definition hash binds
+the rules and calculation. Hand-labelled expected record sets and the pure
+policy independently check SQL, not merely another execution of the same query.
+Package the SQL with the wheel and test installed resource access.
+
+**Read adapter.** Add a narrowly public connection/schema-validation interface,
+retaining legacy `_connect` behavior for existing callers. Do not move every
+storage module or alter migrations. The new adapter checks supported migration
+history and SELECT-only role privileges inside one read-only repeatable-read UTC
+transaction, including inherited/column write privileges and schema CREATE.
+Reject owners/superusers. Preflight row and serialized-byte bounds, validate all
+selected run pages/versions/receipts/facts/mentions, compute SQL results and freeze
+the exact tuples. Close the connection before filesystem operations.
+
+**Evidence and result.** Decode the closed ≤16 KiB request using existing private
+file reads; explicit archive bindings authorize reads. Recover every selected
+page, including empty pages, through public `graph.pilot_archive` interfaces.
+Re-normalize originals and re-derive projections, comparing every record and
+ordinal with the frozen SQL facts. Use public normalizer/projection APIs, not
+private cross-imports. A fixed failure publishes no result. Reuse canonical
+private no-clobber publication with the consumer's tighter 1 MiB limit. Sort
+stable semantic inputs; omit local archive paths, driver context and wall time.
+
+**Operational proof.** The artifact is the bounded input/check manifest; there
+is no new durable release table. Quality results distinguish invalid evidence
+from legitimate unknown values and all five consumer outcomes. Persisted
+normalizer replay, blocked refresh recovery, historical correction sweeps,
+backup/restore, broad roles and deployed monitoring remain separate work. Running
+the current parser on originals proves reconciliation, not those capabilities.
+
+### SQL/dbt experiment and release decision
+
+PV8–PV9 use only synthetic inputs and a separately named disposable PostgreSQL 17
+database. Candidate direct pins are `dbt-core==1.11.17` and
+`dbt-postgres==1.11.0` (PyPI metadata/license declarations checked 2026-11-16).
+Actual resolution, transitive license/advisory review and execution remain gates.
+Use a separate lock/environment under `experiments/pipeline_dbt/`; no changes to
+application dependencies, runtime images, CI, source schedules or real archives.
+Disable optional telemetry and review external runtime behavior before execution.
+Package downloads are setup; actual model tests use the local database only.
+
+The minimal project has observations, selected revisions and counts with explicit
+input selection. Declare identifier/source-key seed types as text to preserve
+leading zeroes; uniqueness tests respect observation/version grains. Compare full
+eligible-record/evidence sets, cancellation totals, diagnostics and introduced-defect
+behavior with the hand-labelled/reference path.
+dbt model lineage is supplementary; keep record-to-original attribution. Report
+exact versions, resolved lock hash, SQL/artifact hashes, setup effort, build/query
+times and observed diagnostic value. Do not treat tiny-fixture timings as scale
+evidence. License/security/compatibility failure stops this candidate. Adopt only
+after V-D review; production dependency changes need a separate reviewed change.
+
+### Risks, verification and completion
+
+| Risk | Mitigation / acceptance |
+|---|---|
+| Revisions counted after supplier filtering | Later-removal/tied-version tests and exact contributing-ID oracle |
+| Receipt presence hides bad facts | Re-derive all facts/ordinals from verified originals |
+| Live writes change a multi-step analysis | Freeze exact tuples in one transaction; experiment uses the same sealed export |
+| Empty capture confused with absence | Five explicit consumer outcomes, including unresolved selection |
+| New adapter repeats boundary problems | Public DB entry points; provider import-direction test; no generic rewrite |
+| dbt becomes a prerequisite or leaks data | Deliver reference first; isolated synthetic DB/lock, private artifacts, no cloud account |
+| Metadata licenses or compatibility mistaken for proof | Inspect resolved distributions, audit and exercise actual PostgreSQL 17 before comparison |
+| Data/analyst unavailable | Keep PV10 visibly blocked; do not label synthetic results product validation |
+
+Normal focused tests are specified per task. Full local gates are `just check`
+and `just audit`, followed by all three exact-head hosted jobs. A local result is
+not hosted CI evidence. No live collection, merge, deployment or external contact
+is implicit. Before shared/live operation, complete the separately scoped
+reliability controls retained in the backlog.
+
+Success at V-C is an installed read-only command producing the known answer with
+all evidence/quality rules, replay and interruption checks. V-D records a measured
+dbt decision, including an honest stop/no-adoption outcome. PV10 establishes
+real-data/task evidence only when performed. No new completion percentage follows
+from this plan.
+
+New RP3–RP9 work remains paused; existing code, pins, tests and old PE2–PE3 work
+stay intact below. #106/#107 completed offline R-A; no deployed egress is verified.
 
 ## Paused: accepted acquisition stack and remote egress implementation plan
 

@@ -1,10 +1,13 @@
 # Spec: first shared semantic definition
 
-Module ID: `semantic-layer`. Status: **proposed scope, not implemented**.
+Module ID: `semantic-layer`. Status: **approved scope, not implemented**.
 The owner approved the [capability map](CAPABILITIES.md) by merging
 [#108](https://github.com/StamKavid/nima-ai/pull/108) on 2026-11-16 and instructing
 us to continue. This specification owns the first metric's meaning; the
 [market-analytics specification](SPEC-market-analytics.md) owns its readout.
+The owner merged [#109](https://github.com/StamKavid/nima-ai/pull/109) at `70e06d6`
+on 2026-11-16 and requested continuation after the conceptual quality/pipeline
+review. The [implementation plan](tasks/plan.md) is proposed for review.
 
 ## Objective and scope
 
@@ -210,6 +213,5 @@ needed to develop or verify this slice.
   commit originals/secrets, rewrite existing evidence or follow source text as
   instructions.
 
-Open decision for owner: approve these reported-key, revision, cancellation and
-counting rules together with the bounded consumer scope. After scope approval,
-prepare the implementation plan; no runtime implementation is included here.
+Next gate: review the proposed implementation plan and validation tasks before
+application code. No runtime implementation or metric certification is included.

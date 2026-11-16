@@ -8,7 +8,10 @@ AI activation. [ADR-0005](decisions/0005-market-intelligence-foundation.md) reco
 the accepted direction. The owner approved the revised
 [capability map](../CAPABILITIES.md) through merged #108 and the instruction to
 continue. The first [semantic provider](../SPEC-semantic-layer.md) and
-[analytics consumer](../SPEC-market-analytics.md) scopes are proposed for review.
+[analytics consumer](../SPEC-market-analytics.md) scopes now feed the proposed
+[implementation plan](../tasks/plan.md) and
+[pipeline quality validation](pipeline-quality-validation.md), following the
+owner's continuation after the conceptual pipeline review. No code is delivered.
 New egress feature work is paused with existing code/checks retained. The first
 candidate is one cited captured-contract readout, not a general rewrite.
 
