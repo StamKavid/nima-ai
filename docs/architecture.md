@@ -5,9 +5,12 @@
 On 2026-11-16 the owner selected company/market intelligence, with a trusted data
 foundation, shared semantic definitions and analytics before persona workflows and
 AI activation. [ADR-0005](decisions/0005-market-intelligence-foundation.md) records
-the accepted direction; the revised [capability map](../CAPABILITIES.md) is proposed
-for review. New egress feature work is paused with existing code/checks retained.
-The first candidate is one cited captured-contract readout, not a general rewrite.
+the accepted direction. The owner approved the revised
+[capability map](../CAPABILITIES.md) through merged #108 and the instruction to
+continue. The first [semantic provider](../SPEC-semantic-layer.md) and
+[analytics consumer](../SPEC-market-analytics.md) scopes are proposed for review.
+New egress feature work is paused with existing code/checks retained. The first
+candidate is one cited captured-contract readout, not a general rewrite.
 
 The original investigation mission and delivered-state notes below remain
 historical context. Journalist workflows become one use of the shared foundation.

@@ -5,8 +5,13 @@
 The owner approved the product-first audit response and clarified the broader
 company/market-intelligence direction on 2026-11-16. Record it in
 [ADR-0005](../docs/decisions/0005-market-intelligence-foundation.md). The revised
-[capability map](../CAPABILITIES.md) is proposed for review before module scopes
-and a new implementation plan. No new feature implementation is selected here.
+[capability map](../CAPABILITIES.md) is owner-approved through merged #108 at
+`9ff2eff` and the subsequent instruction to continue. The first
+[semantic-layer](../SPEC-semantic-layer.md) and
+[market-analytics](../SPEC-market-analytics.md) scopes are proposed together for
+one bounded data-to-readout proof. They freeze the provider's metric meaning and
+the consumer's private read-only interface. Scope approval precedes a new
+implementation plan; this status update does not add that plan or authorize code.
 
 The shared delivery path is trustworthy source/history data → a small versioned
 semantic/metric definition → one evidence-linked analytic readout → observed task

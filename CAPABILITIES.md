@@ -7,7 +7,8 @@ competitors, public procurement and corporate changes. This supersedes the
 investigation-led product framing, while preserving the evidence-first architecture.
 The [direction ADR](docs/decisions/0005-market-intelligence-foundation.md) records
 owner steering and the next product proof. The revised dependency map below is
-**proposed for owner review before individual module specifications**.
+**owner-approved through merged [#108](https://github.com/StamKavid/nima-ai/pull/108)**
+and the subsequent instruction to continue with it on 2026-11-16.
 
 Nima's mission is to help people understand Greek companies and markets through
 traceable public data: reported commercial relationships, observed changes and
@@ -43,9 +44,10 @@ still requires its own evidence and evaluation.
 | investigator-workspace | Journalist/investigator case review and evidence export as one specialized persona workflow | shared data/semantics/analytics; reviewed identity/graph where needed |
 
 Existing module IDs remain unchanged. `semantic-layer`, `market-analytics` and
-`intelligence-activation` are new proposed capabilities. The investigator module
-remains on the roadmap but does not define the whole product or block other
-personas. Corporate/sector researchers, procurement analysts and business-development
+`intelligence-activation` are approved roadmap capabilities, not implemented
+features. The investigator module remains on the roadmap but does not define the
+whole product or block other personas. Corporate/sector researchers, procurement
+analysts and business-development
 users may consume the same reviewed metric definitions through later scoped views.
 No multi-user service or persona UI is authorized by this map.
 
@@ -71,11 +73,18 @@ without a supported ordering rule. No single opaque trust score substitutes for
 freshness, coverage, conflict and verification status. Metric certification is an
 internal reviewed-definition status, not publisher or legal certification.
 
-Start with this one metric and an evidence-linked readout. The semantic layer is
-versioned code/SQL definitions plus a small glossary, not an ontology generator,
-LLM dependency or separate metrics server. The technical slice and real-data/task
-validation receive bounded specifications after this map is reviewed. No product
-success is inferred from synthetic tests or PR counts.
+Start with this one metric and an evidence-linked readout. Proposed module scopes:
+
+| Module | First bounded specification | Scope status |
+|---|---|---|
+| semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | Proposed; owner review pending |
+| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | Proposed; depends on provider scope |
+
+The semantic layer is versioned code/SQL definitions plus a small glossary, not
+an ontology generator, LLM dependency or separate metrics server. The two specifications share one
+data-to-readout proof; implementation planning follows scope approval. Real-data
+reconciliation and an observed analyst task remain explicit product gates. No
+product success is inferred from synthetic tests or PR counts.
 
 ## Preserved implementation evidence
 

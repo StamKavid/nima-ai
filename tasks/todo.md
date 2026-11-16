@@ -8,13 +8,17 @@
 - [x] Pause new RP3–RP9 feature work; retain code, tests, pins and required checks.
 - [x] Verify #106/#107 are owner-merged and their three exact-head jobs pass
   (runs 43820296909 and 43822156321). This completes offline R-A only.
-- [ ] Review the revised [capability map](../CAPABILITIES.md).
-- [ ] Specify the single first semantic/analytics readout after map review, using
-  the accepted audit-response outcome/limits; then prepare its implementation plan.
+- [x] Owner approved the revised [capability map](../CAPABILITIES.md) through
+  merged #108 at `9ff2eff` and the subsequent instruction to continue.
+- [x] Draft the first [semantic-layer](../SPEC-semantic-layer.md) and
+  [market-analytics](../SPEC-market-analytics.md) scopes: one metric definition and
+  one private cited supplier–buyer readout, with hand-calculated acceptance data.
+- [ ] Owner review of the provider/consumer scopes; then prepare an implementation
+  plan and independently reviewable tasks. Neither scope is implemented here.
 - [ ] Preserve reliability follow-ups as separate scoped work: effective branch
   rules (admin), refresh recovery/version handling, SQL/archive restore and roles.
 
-No new implementation task is authorized by these unchecked map/spec items.
+No new implementation task is authorized by the pending spec review.
 The initial proof is a cited captured-contract record count, not a persona UI,
 financial concentration measure, live scrape or AI service. Old tasks below remain
 incomplete where previously incomplete; they are not silently closed or discarded.
