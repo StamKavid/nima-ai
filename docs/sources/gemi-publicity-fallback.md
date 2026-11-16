@@ -15,7 +15,9 @@ the preferred future HTML parser and Prefect above bounded acquisition jobs.
 No additional parsing/crawling dependency is adopted by that decision. Crawlee
 is a future option when URL-frontier/browser-pool needs justify it. The owner
 merged the [remote egress scope](remote-worker-egress-pilot.md) in #104; its
-implementation plan is proposed, and actual host inputs remain missing.
+implementation plan is owner-approved after #105. RP1 configuration loading
+is owner-merged in #106 and RP2 adds private bundle helpers; actual host inputs
+remain missing. The operator commands and live collector remain unimplemented.
 This document supplements the approved GEMI API contract.
 The first delivery plan and review gates are recorded in `tasks/plan.md` and
 `tasks/todo.md`. Design approval is not a claim of provider permission to automate.

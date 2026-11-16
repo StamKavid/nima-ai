@@ -9,9 +9,15 @@ and all three exact-head checks on `b29eefe` passed in run 43810311235. The
 implementation plan was owner-approved in a later turn after #105 merged at
 `0536808`. RP1–RP2 are authorized; later checkpoints remain. The first slice
 implements offline configuration loading, not the proposed prepare/verify CLI.
-RP1 has 110 focused cases and passing local gates (1,683 tests/92.62%); its hosted
-checks/merge remain pending before checkpoint R-A. RP2 follows on the same approved
-batch. Credential references are metadata-checked regular single-link files of
+RP1 is owner-merged in #106 at `2e189f3`, with 110 focused cases and passing local
+gates (1,683 tests/92.62%). Full hosted verification remains pending before
+checkpoint R-A. RP2 follows on the same approved batch. RP2 implements immutable private bundles through Python helpers, still
+without prepare/verify commands or runtime execution. Bundle reads require the
+manifest hash independently retained from preparation; consistent member/manifest
+rewrites cannot silently acquire the original identity. RP2 has 38 new cases,
+148 combined cases and passing local gates (1,721 tests/92.69%, clean audit).
+Hosted checks/owner review remain pending; checkpoint R-A is open. Credential
+references are metadata-checked regular single-link files of
 1–16 KiB; their contents are never read by configuration loading. The [benchmark](../docs/research/acquisition-library-comparison.md)
 selects HTTPX/Playwright with Prefect above bounded adapters; it proves no remote
 or Publicity behavior. PostgreSQL/private originals remain the storage baseline.
