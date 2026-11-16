@@ -1,21 +1,86 @@
 # Nima capability map
 
-The user reaffirmed the original investigation mission and ingestion-first
-architecture on 2026-11-08. This is a delivery sequence, not a claim that future
-modules or model benchmarks are implemented.
+## Company and market intelligence direction
 
-| Module ID | Responsibility | Depends on |
+The owner selected company/market intelligence on 2026-11-16: sectors,
+competitors, public procurement and corporate changes. This supersedes the
+investigation-led product framing, while preserving the evidence-first architecture.
+The [direction ADR](docs/decisions/0005-market-intelligence-foundation.md) records
+owner steering and the next product proof. The revised dependency map below is
+**proposed for owner review before individual module specifications**.
+
+Nima's mission is to help people understand Greek companies and markets through
+traceable public data: reported commercial relationships, observed changes and
+covered market activity. Journalist investigations are one future application.
+Advertising performance, campaign attribution, private tax returns and bank-flow
+access are outside this direction.
+
+## Shared foundation and first analytics
+
+| Stable module ID | Responsibility | Depends on |
 |---|---|---|
-| engineering-foundation | Skills, Git, constraints, CI, reproducible development | — |
-| source-ingestion | Collect and preserve public-record revisions and documents | engineering-foundation |
-| entity-resolution | Resolve companies and other parties with reviewed evidence | source-ingestion |
-| temporal-graph | Project dated, evidence-backed relationships | entity-resolution |
-| risk-analytics | Peer comparisons, graph motifs, rules, and evaluated ML rankings | temporal-graph |
-| research-assistant | Hybrid retrieval and evidence-cited AI explanations | risk-analytics |
-| investigator-workspace | Explore networks, review leads, and export case evidence | research-assistant |
+| engineering-foundation | Reproducible development, checks, deployment boundaries and access controls | — |
+| source-ingestion | Source contracts, raw revisions, observations, normalization, recoverable storage and lineage inputs | engineering-foundation |
+| entity-resolution | Separate source occurrences, reported-identifier groupings and reviewed identity assertions; retain conflicts/history | source-ingestion |
+| semantic-layer | Shared glossary, grains, keys, time/coverage rules, joins and versioned metric definitions with evidence mappings | source-ingestion, entity-resolution interfaces |
+| market-analytics | Tested descriptive SQL readouts over eligible captured data; cited results, reproducibility and measured usefulness | semantic-layer |
 
-Build order: engineering-foundation → source-ingestion → entity-resolution →
-temporal-graph → risk-analytics → research-assistant → investigator-workspace.
+These are capabilities within the existing modular monolith, not new services or
+packages to create together. Dependencies identify required interfaces, not a demand
+that every upstream capability be finished before a small downstream slice works.
+Existing reported-party data can support explicitly labelled analytics without a
+GEMI key, a verified-company claim or a graph database. Broader identity matching
+still requires its own evidence and evaluation.
+
+## Later consumers and extensions
+
+| Stable module ID | Responsibility | Depends on |
+|---|---|---|
+| temporal-graph | Rebuildable dated relationships with source and identity/review status | entity-resolution; shared semantic definitions as adopted |
+| risk-analytics | Eligible rules, peer comparisons and evaluated rankings; network methods only when graph inputs justify them | market-analytics; temporal-graph for graph-dependent methods |
+| research-assistant | Evaluated evidence-cited explanations and bounded read-only questions over defined metrics/documents | semantic-layer, market-analytics; document corpus before retrieval |
+| intelligence-activation | Saved analyses, exports, scheduled reports and deterministic change alerts; optional evaluated AI briefings | market-analytics; research-assistant only for AI features |
+| investigator-workspace | Journalist/investigator case review and evidence export as one specialized persona workflow | shared data/semantics/analytics; reviewed identity/graph where needed |
+
+Existing module IDs remain unchanged. `semantic-layer`, `market-analytics` and
+`intelligence-activation` are new proposed capabilities. The investigator module
+remains on the roadmap but does not define the whole product or block other
+personas. Corporate/sector researchers, procurement analysts and business-development
+users may consume the same reviewed metric definitions through later scoped views.
+No multi-user service or persona UI is authorized by this map.
+
+The revised order is a thin vertical slice through data → semantics → analytics,
+followed by observed user value, then broader sources and chosen consumer workflows.
+Graphs are an optional branch; AI is not a prerequisite for analytics, alerts or
+an eventual read-only interface. The previous linear graph → risk → AI → workspace
+sequence remains history, not the dependency order for the first market readout.
+
+## First proof and trust contract
+
+First candidate: **Which public buyers repeatedly appear in captured KIMDIS
+contract records reporting this selected supplier identifier?** Define
+`captured_contract_record_count.v1`, its cohort/cutoff, eligible reported-identifier
+keys, distinct-record/revision policy and cancellation/unknown-status disclosure.
+This counts covered contract-publication records, not awards, paid spending,
+market share or verified legal-company relationships.
+
+Every result must identify source/stage, recorded observation cutoff, source
+record/version, raw hash/pointer, transformation/metric version and eligibility/
+coverage limitations. Latest-observed records cannot be labelled source-current
+without a supported ordering rule. No single opaque trust score substitutes for
+freshness, coverage, conflict and verification status. Metric certification is an
+internal reviewed-definition status, not publisher or legal certification.
+
+Start with this one metric and an evidence-linked readout. The semantic layer is
+versioned code/SQL definitions plus a small glossary, not an ontology generator,
+LLM dependency or separate metrics server. The technical slice and real-data/task
+validation receive bounded specifications after this map is reviewed. No product
+success is inferred from synthetic tests or PR counts.
+
+## Preserved implementation evidence
+
+The notes below describe previously delivered source, identity and graph work.
+They do not claim the new semantic/analytics/activation capabilities exist.
 
 `SPEC-source-ingestion.md` is the first application specification. Later modules
 receive their own specs when their evidence and interface requirements are clear.

@@ -1,6 +1,35 @@
 # Delivery plan
 
-## Current: accepted acquisition stack and remote egress implementation plan
+## Current: company/market intelligence and the first semantic readout
+
+The owner approved the product-first audit response and clarified the broader
+company/market-intelligence direction on 2026-11-16. Record it in
+[ADR-0005](../docs/decisions/0005-market-intelligence-foundation.md). The revised
+[capability map](../CAPABILITIES.md) is proposed for review before module scopes
+and a new implementation plan. No new feature implementation is selected here.
+
+The shared delivery path is trustworthy source/history data → a small versioned
+semantic/metric definition → one evidence-linked analytic readout → observed task
+value. Journalists are one later persona; analytics and deterministic alerts do
+not depend on a graph store or AI. The first candidate counts distinct captured
+KIMDIS contract-publication records for a reported supplier/buyer cohort, preserving
+revision, identity, cancellation and coverage limitations.
+
+Pause new RP3–RP9 work. RP1 #106 and RP2 #107 are owner-merged at `2e189f3` and
+`538de66`; all three exact-head jobs pass in runs 43820296909 and 43822156321.
+The offline checkpoint R-A is complete; no remote or Publicity egress is verified.
+The existing egress plan, code and checks remain below. Existing PE2–PE3 also remain
+available and incomplete; use their reconciliation direction where it supports the
+readout without making registry access a prerequisite for reported-party counts.
+
+Reliability work stays explicit: administrator-applied effective main/dev rules;
+audited refresh-child replacement and historical-version compatibility; a private
+SQL/archive backup/restore drill; restricted application roles before live/shared
+operation. These are separately scoped changes, not a blanket rewrite or an
+implemented fix. Preserve current dependencies, constraints and every required CI
+job. The first readout must work from protected archives without a source request.
+
+## Paused: accepted acquisition stack and remote egress implementation plan
 
 The owner accepted [ADR-0004](../docs/decisions/0004-bounded-http-and-browser-acquisition.md)
 and reported merging #104 on 2026-11-16. GitHub confirms scope merge `f894800`
@@ -10,13 +39,14 @@ implementation plan was owner-approved in a later turn after #105 merged at
 `0536808`. RP1–RP2 are authorized; later checkpoints remain. The first slice
 implements offline configuration loading, not the proposed prepare/verify CLI.
 RP1 is owner-merged in #106 at `2e189f3`, with 110 focused cases and passing local
-gates (1,683 tests/92.62%). Full hosted verification remains pending before
-checkpoint R-A. RP2 follows on the same approved batch. RP2 implements immutable private bundles through Python helpers, still
+gates (1,683 tests/92.62%) and all three hosted jobs passing. RP2 is also
+owner-merged with all three hosted jobs passing; the later instruction pauses
+new work after the completed offline R-A checkpoint. RP2 implements immutable private bundles through Python helpers, still
 without prepare/verify commands or runtime execution. Bundle reads require the
 manifest hash independently retained from preparation; consistent member/manifest
 rewrites cannot silently acquire the original identity. RP2 has 38 new cases,
 148 combined cases and passing local gates (1,721 tests/92.69%, clean audit).
-Hosted checks/owner review remain pending; checkpoint R-A is open. Credential
+The local and hosted gates plus owner merges complete offline R-A. Credential
 references are metadata-checked regular single-link files of
 1–16 KiB; their contents are never read by configuration loading. The [benchmark](../docs/research/acquisition-library-comparison.md)
 selects HTTPX/Playwright with Prefect above bounded adapters; it proves no remote

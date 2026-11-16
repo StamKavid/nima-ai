@@ -1,6 +1,25 @@
 # Tasks
 
-## Current: lock acquisition stack and plan the approved remote boundary
+## Current: product-first company and market intelligence
+
+- [x] Record owner-approved direction in
+  [ADR-0005](../docs/decisions/0005-market-intelligence-foundation.md): trusted data,
+  shared semantics and analytics before persona workflows/AI.
+- [x] Pause new RP3–RP9 feature work; retain code, tests, pins and required checks.
+- [x] Verify #106/#107 are owner-merged and their three exact-head jobs pass
+  (runs 43820296909 and 43822156321). This completes offline R-A only.
+- [ ] Review the revised [capability map](../CAPABILITIES.md).
+- [ ] Specify the single first semantic/analytics readout after map review, using
+  the accepted audit-response outcome/limits; then prepare its implementation plan.
+- [ ] Preserve reliability follow-ups as separate scoped work: effective branch
+  rules (admin), refresh recovery/version handling, SQL/archive restore and roles.
+
+No new implementation task is authorized by these unchecked map/spec items.
+The initial proof is a cited captured-contract record count, not a persona UI,
+financial concentration measure, live scrape or AI service. Old tasks below remain
+incomplete where previously incomplete; they are not silently closed or discarded.
+
+## Paused: approved remote boundary backlog
 
 - [x] Verify owner-merged scope #104 at `f894800` and its three successful
   exact-head jobs on `b29eefe` (run 43810311235).
@@ -27,7 +46,7 @@ Preserve all PE work below. Execute sequentially without delegation.
   with clean lint/types/build/security and `just audit`. Removing the public-IP
   guard in memory fails three negative cases; disk source is unchanged. A real
   changed-file test and a descriptor-failure regression pass. Owner merged #106
-  at `2e189f3`; full hosted verification remains pending. R-A is not complete.
+  at `2e189f3`; all three hosted jobs pass in run 43820296909.
 
 ### RP2: Publish and reread an immutable private bundle
 
@@ -45,13 +64,14 @@ Preserve all PE work below. Execute sequentially without delegation.
   Actual SIGKILL leaves incomplete output unusable and unrepaired. Changed
   members/directories, conflicting bytes and coordinated manifest rewrites fail;
   readers require the caller-retained manifest pin. Removing that check in memory
-  fails two regressions; source is unchanged. Hosted checks/owner merge remain
-  pending, so checkpoint R-A stays open.
+  fails two regressions; source is unchanged. Owner merged #107 at `538de66`;
+  all three hosted jobs pass in run 43822156321. Offline R-A is complete.
 
 ### Checkpoint R-A: Offline preparation reviewed
 
-- [ ] RP1–RP2 gates and exact-head hosted jobs pass; owner reviews/merges before
-  observer/policy work. Preparation still establishes no remote egress.
+- [x] RP1–RP2 gates and exact-head hosted jobs pass; owner reviewed/merged both.
+  New observer/policy work is paused by the later product-direction instruction.
+  Preparation still establishes no remote egress.
 
 ### RP3: Define independent observer evidence
 
