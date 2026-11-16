@@ -318,6 +318,18 @@ def _load(
     ).fetchone()
     if calculated is None or calculated[0] != metric.payload():
         raise SnapshotError("analytics_metric")
+    return _freeze(document, observations, metric, run_ids, tax_id, cutoff, calculation)
+
+
+def _freeze(
+    document: dict[str, object],
+    observations: tuple[Observation, ...],
+    metric: MetricResult,
+    run_ids: tuple[UUID, ...],
+    tax_id: str,
+    cutoff: datetime,
+    calculation: _Calculation,
+) -> ReadoutSnapshot:
     encoded = _encode(document)
     if len(encoded.encode()) > MAX_INPUT_BYTES:
         raise SnapshotError("analytics_limit")
@@ -334,6 +346,53 @@ def _load(
     return ReadoutSnapshot(
         encoded, observations, metric, hashlib.sha256(identity.encode()).hexdigest()
     )
+
+
+def validate_snapshot(
+    snapshot: ReadoutSnapshot,
+    run_ids: tuple[UUID, ...],
+    *,
+    tax_id: str,
+    cutoff: datetime,
+    expected_definition_sha256: str | None = None,
+) -> dict[str, object]:
+    """Rebind frozen SQL facts to a selection without reopening SQL or any archive."""
+    try:
+        if not isinstance(snapshot, ReadoutSnapshot) or not isinstance(snapshot.document_json, str):
+            raise SnapshotError("analytics_evidence")
+        if len(snapshot.document_json.encode()) > MAX_INPUT_BYTES:
+            raise SnapshotError("analytics_limit")
+        selected = _selection(run_ids, tax_id, cutoff)
+        value: object = json.loads(snapshot.document_json)
+        if not isinstance(value, dict) or set(value) != {"runs", "pages", "records"}:
+            raise SnapshotError("analytics_evidence")
+        document = cast(dict[str, object], value)
+        for name, limit in (("runs", 10), ("pages", 32), ("records", 500)):
+            rows = document[name]
+            if (
+                not isinstance(rows, list)
+                or len(rows) > limit
+                or any(not isinstance(row, dict) for row in rows)
+            ):
+                raise SnapshotError("analytics_evidence")
+        calculation = _calculation()
+        if (
+            expected_definition_sha256 is not None
+            and expected_definition_sha256 != calculation.definition_hash
+        ):
+            raise SnapshotError("analytics_metric")
+        observations = _validate_document(document, selected, calculation)
+        metric = evaluate(observations, tax_id=tax_id, cutoff=cutoff)
+        if (
+            _freeze(document, observations, metric, selected, tax_id, cutoff, calculation)
+            != snapshot
+        ):
+            raise SnapshotError("analytics_evidence")
+        return document
+    except (ValueError, TypeError, KeyError, RecursionError) as error:
+        if isinstance(error, SnapshotError):
+            raise
+        raise SnapshotError("analytics_evidence") from None
 
 
 def _role(connection: Connection) -> None:
@@ -360,6 +419,18 @@ def _role(connection: Connection) -> None:
         raise SnapshotError("analytics_role")
 
 
+def _selection(run_ids: tuple[UUID, ...], tax_id: str, cutoff: datetime) -> tuple[UUID, ...]:
+    if (
+        not isinstance(run_ids, tuple)
+        or not 1 <= len(run_ids) <= 10
+        or any(not isinstance(run, UUID) for run in run_ids)
+        or len(set(run_ids)) != len(run_ids)
+    ):
+        raise SnapshotError("analytics_input")
+    evaluate((), tax_id=tax_id, cutoff=cutoff)
+    return tuple(sorted(run_ids))
+
+
 def read_snapshot(
     dsn: str,
     run_ids: tuple[UUID, ...],
@@ -369,21 +440,14 @@ def read_snapshot(
 ) -> ReadoutSnapshot:
     """Return frozen SQL evidence; caller must reconcile archives before publication."""
     try:
-        if (
-            not isinstance(run_ids, tuple)
-            or not 1 <= len(run_ids) <= 10
-            or any(not isinstance(run, UUID) for run in run_ids)
-            or len(set(run_ids)) != len(run_ids)
-        ):
-            raise SnapshotError("analytics_input")
-        evaluate((), tax_id=tax_id, cutoff=cutoff)
+        selected = _selection(run_ids, tax_id, cutoff)
         calculation = _calculation()
         with connect(dsn) as connection, connection.transaction():
             connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
             connection.execute("SET LOCAL TIME ZONE 'UTC'")
             validate_schema(connection)
             _role(connection)
-            return _load(connection, tuple(sorted(run_ids)), tax_id, cutoff, calculation)
+            return _load(connection, selected, tax_id, cutoff, calculation)
     except MigrationError:
         raise SnapshotError("analytics_schema") from None
     except SemanticError:

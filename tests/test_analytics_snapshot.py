@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 from uuid import UUID, uuid4
 
 import psycopg
@@ -406,3 +407,71 @@ def test_disagreement_with_pure_policy_is_also_blocked(
     monkeypatch.setattr(snapshot, "evaluate", biased)
     with reader(pg_dsn) as (dsn, _), pytest.raises(SnapshotError, match="^analytics_metric$"):
         read_snapshot(dsn, (run,), tax_id=TAX, cutoff=CUTOFF)
+
+
+@pytest.mark.parametrize("field", ["input_sha256", "metric", "observations", "document_json"])
+def test_frozen_snapshot_revalidation_rejects_changed_values(
+    pg_dsn: str,
+    tmp_path: Path,
+    field: str,
+) -> None:
+    from nima.analytics.snapshot import validate_snapshot
+
+    run = seed(pg_dsn, tmp_path / "archive")
+    with reader(pg_dsn) as (dsn, _):
+        original = read_snapshot(dsn, (run,), tax_id=TAX, cutoff=CUTOFF)
+    assert validate_snapshot(original, (run,), tax_id=TAX, cutoff=CUTOFF) == json.loads(
+        original.document_json
+    )
+    changes: dict[str, Any] = {
+        "input_sha256": "0" * 64,
+        "metric": replace(original.metric, total=0),
+        "observations": (),
+        "document_json": original.document_json + " ",
+    }
+    with pytest.raises(SnapshotError, match="^analytics_evidence$"):
+        validate_snapshot(
+            replace(original, **{field: changes[field]}), (run,), tax_id=TAX, cutoff=CUTOFF
+        )
+
+
+def test_snapshot_revalidation_checks_the_expected_definition(pg_dsn: str, tmp_path: Path) -> None:
+    from nima.analytics.snapshot import validate_snapshot
+
+    run = seed(pg_dsn, tmp_path / "archive")
+    with reader(pg_dsn) as (dsn, _):
+        snapshot = read_snapshot(dsn, (run,), tax_id=TAX, cutoff=CUTOFF)
+    with pytest.raises(SnapshotError, match="^analytics_metric$"):
+        validate_snapshot(
+            snapshot, (run,), tax_id=TAX, cutoff=CUTOFF, expected_definition_sha256="f" * 64
+        )
+
+
+@pytest.mark.parametrize(
+    "document",
+    [
+        "not json",
+        "[]",
+        "{}",
+        '{"runs":null,"pages":[],"records":[]}',
+        '{"runs":[],"pages":[],"records":[1]}',
+        json.dumps({"runs": [], "pages": [], "records": [{}] * 501}),
+    ],
+)
+def test_offline_validator_rejects_invalid_snapshot_documents(document: str) -> None:
+    from nima.analytics.snapshot import ReadoutSnapshot, validate_snapshot
+
+    empty = evaluate((), tax_id=TAX, cutoff=CUTOFF)
+    snapshot = ReadoutSnapshot(document, (), empty, "0" * 64)
+    with pytest.raises(SnapshotError, match="^analytics_evidence$"):
+        validate_snapshot(snapshot, (uuid4(),), tax_id=TAX, cutoff=CUTOFF)
+
+
+def test_offline_validator_enforces_its_byte_budget() -> None:
+    from nima.analytics.snapshot import MAX_INPUT_BYTES, ReadoutSnapshot, validate_snapshot
+
+    snapshot = ReadoutSnapshot(
+        " " * (MAX_INPUT_BYTES + 1), (), evaluate((), tax_id=TAX, cutoff=CUTOFF), "0" * 64
+    )
+    with pytest.raises(SnapshotError, match="^analytics_limit$"):
+        validate_snapshot(snapshot, (uuid4(),), tax_id=TAX, cutoff=CUTOFF)
