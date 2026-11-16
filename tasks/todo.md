@@ -26,12 +26,12 @@ Preserve all PE work below. Execute sequentially without delegation.
 - Local evidence: 110 focused cases; full `just check` passes 1,683 tests/92.62%,
   with clean lint/types/build/security and `just audit`. Removing the public-IP
   guard in memory fails three negative cases; disk source is unchanged. A real
-  changed-file test and a descriptor-failure regression pass. Hosted checks and
-  owner merge remain pending; checkpoint R-A is not complete.
+  changed-file test and a descriptor-failure regression pass. Owner merged #106
+  at `2e189f3`; full hosted verification remains pending. R-A is not complete.
 
 ### RP2: Publish and reread an immutable private bundle
 
-- [ ] Prepare canonical no-clobber manifests and hash-bound bundle members.
+- [x] Prepare canonical no-clobber manifests and hash-bound bundle members.
 - Acceptance: safe 0700/0600 objects, ≤1 MiB total, exact hash/byte reuse; changed,
   corrupt, extra/missing/conflicting/unsafe files fail; references only for
   credentials, no network/Docker calls or verification flag.
@@ -40,6 +40,13 @@ Preserve all PE work below. Execute sequentially without delegation.
 - Files: `src/nima/egress/remote_bundle.py`, `tests/test_remote_bundle.py`;
   `remote_config.py` only for an explicitly reviewed shared type.
 - Scope: 2–3 files. Dependency: RP1.
+- Local evidence: 38 bundle cases/148 combined configuration-bundle cases;
+  full `just check` passes 1,721 tests/92.69% and `just audit` is clean.
+  Actual SIGKILL leaves incomplete output unusable and unrepaired. Changed
+  members/directories, conflicting bytes and coordinated manifest rewrites fail;
+  readers require the caller-retained manifest pin. Removing that check in memory
+  fails two regressions; source is unchanged. Hosted checks/owner merge remain
+  pending, so checkpoint R-A stays open.
 
 ### Checkpoint R-A: Offline preparation reviewed
 
