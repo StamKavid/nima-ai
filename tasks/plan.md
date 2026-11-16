@@ -6,8 +6,13 @@ The owner accepted [ADR-0004](../docs/decisions/0004-bounded-http-and-browser-ac
 and reported merging #104 on 2026-11-16. GitHub confirms scope merge `f894800`
 and all three exact-head checks on `b29eefe` passed in run 43810311235. The
 [remote scope](../docs/sources/remote-worker-egress-pilot.md) is approved. This
-implementation plan is proposed for owner review before RP1; no new runtime
-interface exists yet. The [benchmark](../docs/research/acquisition-library-comparison.md)
+implementation plan was owner-approved in a later turn after #105 merged at
+`0536808`. RP1–RP2 are authorized; later checkpoints remain. The first slice
+implements offline configuration loading, not the proposed prepare/verify CLI.
+RP1 has 110 focused cases and passing local gates (1,683 tests/92.62%); its hosted
+checks/merge remain pending before checkpoint R-A. RP2 follows on the same approved
+batch. Credential references are metadata-checked regular single-link files of
+1–16 KiB; their contents are never read by configuration loading. The [benchmark](../docs/research/acquisition-library-comparison.md)
 selects HTTPX/Playwright with Prefect above bounded adapters; it proves no remote
 or Publicity behavior. PostgreSQL/private originals remain the storage baseline.
 
@@ -166,7 +171,7 @@ Use the [Publicity-first acquisition design](../docs/sources/gemi-publicity-fall
 PE1 #103 is owner-merged at `b3ee7eb`, with all three exact-head hosted checks
 passing. No remote worker/gateway exists yet. The owner merged the
 [operator-run remote egress scope](../docs/sources/remote-worker-egress-pilot.md)
-in #104; its proposed implementation plan is above. Then develop the
+in #104; its approved implementation plan is above. Then develop the
 protected Publicity capture/source contract, while the
 remaining offline PE2–PE3 work remains available without API access. The owner also
 requested self-hosted storage/retrieval research: PostgreSQL plus private original
