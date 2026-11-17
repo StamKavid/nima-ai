@@ -119,6 +119,22 @@ silently certify a metric. See [tasks](tasks/todo.md) and the PRs for local vers
 exact-head hosted evidence. No full semantic platform, live source-current view,
 field-level lineage, financial concentration or product validation is claimed.
 
+## DataOps recovery evidence
+
+Owner-merged #123 adds bounded `archive verify` for committed KIMDIS page bodies.
+The subsequent [native SQL-plus-archive drill](docs/verification/restore-drill.md)
+recreates the private pilot in a fresh local PostgreSQL cluster, checks contents,
+logical schema/counters and effective role policies, and reproduces the original
+readout through relocated evidence bindings. Missing/corrupt evidence and a bad
+dump fail; the source is unchanged. The
+[operator procedure](docs/operations/backup-restore.md) records native tools,
+credential handling, the observed source-ownership follow-up and cleanup.
+
+This is local recovery evidence, not an off-host retention service, production
+RPO/RTO, external-orchestration recovery or normalizer replay. Structured sector
+metadata and model enrichment remain scoped future work; human PV10 and metric
+certification remain open.
+
 ## Preserved implementation evidence
 
 The notes below describe previously delivered source, identity and graph work.

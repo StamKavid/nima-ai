@@ -1,5 +1,43 @@
 # Tasks
 
+## Current extension: isolated restore drill
+
+Owner requested continuation after merging #123 at `3e35bc4`; all three exact-head
+jobs pass in run 44098176598. Preserve PV10 human checks and the metadata roadmap.
+See the [runbook](../docs/operations/backup-restore.md) and [plan](plan.md).
+
+- [x] RD1: freeze the bounded operator procedure, acceptance, private credential/
+  evidence handling and exact owned-destination boundaries.
+- [x] RD2: perform a native PostgreSQL 17 custom dump with a shared source snapshot;
+  pair it with originals and an anchored manifest; restore to a fresh SCRAM local
+  cluster with recreated scoped roles and an empty destination database.
+- Acceptance: all application tables, sequence state and schema definitions agree;
+  reader/schema checks, archive checks and identical relocated readout pass;
+  missing/corrupt evidence and a bad dump fail; source data is unchanged and only
+  the owned destination is stopped. No source request or schedule activation.
+- Verify: native tool exits/private logs, catalog/full-row comparisons, real
+  limited-reader CLI replay and deliberate failures. Record limitations rather
+  than labelling the same-workspace checkpoint an off-host backup.
+- Evidence: the [native drill](../docs/verification/restore-drill.md) passes on a
+  fresh PostgreSQL 17.11 cluster. All 26 table contents, counters and schema checks
+  agree; a native CHECK reparse and ten boundary cases prove one formatting-only
+  difference. Effective daily role policies agree, actual role ownership is checked,
+  wrong-password/write/immutable-row controls work and relocated readout bytes match.
+  Missing/corrupt bodies and an incomplete native dump fail without publication or
+  a partial failure-test schema. The source remains unchanged; only the owned
+  destination is stopped. Private data/configuration/proof remain outside Git.
+- [ ] Retain the observed source ownership follow-up: the private bootstrap's
+  requested migration role was overridden by connector timeout options. Source
+  schema ownership was not changed; the restored destination uses explicit native
+  NOLOGIN ownership. Refine migration/bootstrap role handling before shared use.
+- [x] RD3: record the redacted observed result and full `just check`/`just audit`
+  evidence. Full local gates pass 1,984 tests/93.03% and a clean advisory audit.
+- [ ] Exact-head hosted checks and owner review precede the next increment.
+- Files: `docs/operations/backup-restore.md`, `docs/verification/restore-drill.md`,
+  `tasks/plan.md`, this file, `CAPABILITIES.md` (five documentation files).
+- [ ] Next: archived normalizer replay/version handling, then structured metadata
+  semantics and an isolated Greek model evaluation; no runtime model adoption.
+
 ## Current extension: bounded archive-integrity check
 
 Owner-authorized on 2026-11-17 after #122 merged and delegated technical validation.
@@ -39,7 +77,8 @@ and [plan](plan.md). No new source requests or sector inference.
   Existing private pilot and relocated-copy checks both pass with all 26 tables
   and original files unchanged and no source requests. Values/hashes stay private.
   Hosted exact-head checks accompany the PR and do not rerun that private pilot.
-- [ ] Owner reviews the complete verified slice before the next increment.
+- [x] Owner reviewed/merged #123 at `3e35bc4`; all three exact-head jobs pass
+  in run 44098176598. Continue with the isolated restore drill above.
 - [ ] Refine/test SQL-plus-archive restore, then normalizer-version replay in
   separate increments; this command alone does not establish either capability.
 

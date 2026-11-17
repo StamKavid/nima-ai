@@ -1,5 +1,52 @@
 # Delivery plan
 
+## Current extension: isolated SQL-and-archive restore drill
+
+The owner merged #123 at `3e35bc4`; all three exact-head jobs pass in run
+44098176598, and the owner requested continuation. AV1–AV2 are reviewed. Continue
+with the [operator restore contract](../docs/operations/backup-restore.md), using
+native PostgreSQL 17 tooling and existing application checks rather than a new
+backup framework. Keep unfinished PV10, replay and metadata work intact below.
+
+Sequence: RD1 freeze the procedure and owned-resource bounds → RD2 perform the
+private native dump/fresh-cluster restore, equivalence and negative checks → RD3
+record redacted evidence and required local/hosted gates. At most five public
+files: the operator runbook, `docs/verification/restore-drill.md`, these two task
+documents and `CAPABILITIES.md`. No source records/hashes/counts, credentials or
+private helper scripts enter Git. No application/dependency/migration/CI change.
+
+Use a quiescent bounded pilot; export one read-only repeatable-read snapshot for
+comparison and native dump. Pair it with original archives/request/readout and a
+separately anchored manifest. Restore into a fresh owned cluster on a different
+loopback port/data directory with SCRAM and recreated scoped roles. Compare all
+application rows, sequences and schema definitions, validate migrations, run the
+archive check and reproduce the report through relocated private bindings. Test
+missing/corrupt destination evidence, dump failure and privileges without editing
+the source. Stop only the owned destination and verify source health afterward.
+
+Record exact versions and checks, including failures; no result is presumed. The
+initial same-workspace checkpoint is not a native restore and does not substitute
+for this drill. Fresh local cluster is not a new host, off-host retention or an
+RPO/RTO measurement. Absolute-path workflow resume and external Prefect state are
+outside scope. Actual production backup/role policy remains separate.
+
+After RD review: refine archived normalizer replay/version handling, then the
+structured metadata projection (buyer activity, CPV, reported KAD) before an
+isolated Greek-data GLiNER extraction/classification evaluation. Model scores stay
+separate from reported facts; no model is selected or installed by this drill.
+The private metadata-enrichment proposal retains the owner's latest steering.
+
+The native drill now passes on PostgreSQL 17.11: all 26
+application tables/counters and schema checks agree, including a PostgreSQL CHECK
+reparse proof, effective role policies and identical relocated readout bytes.
+Actual missing/corrupt/incomplete-dump failures and owned cleanup pass. The source
+remains unchanged. Source bootstrap ownership differs from its configured role;
+record/refine that migration-role follow-up rather than assuming options took
+effect. The [verification record](../docs/verification/restore-drill.md) distinguishes
+this fresh local cluster from off-host or production recovery. Full local gates
+pass 1,984 tests/93.03% and a clean advisory audit. Exact-head hosted checks and
+owner review accompany the documentation PR.
+
 ## Current extension: DataOps archive integrity — owner-authorized
 
 The owner merged #122 at `7cabec0`; its three exact-head jobs passed in run
