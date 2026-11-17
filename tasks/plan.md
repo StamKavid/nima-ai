@@ -1,5 +1,53 @@
 # Delivery plan
 
+## Current extension: explicit SQL replay promotion
+
+Owner merged #126 at `ecb5a85`; all three exact-head jobs passed in run
+44154596290. Continue the authorized SQL promotion follow-up under the
+[source contract](../SPEC-source-ingestion.md#dataops-increment-explicit-sql-replay-promotion).
+No source access/dependency/CI change. Keep human PV10, request/refresh version
+policies and metadata/model work open. This is an extension of the same plan.
+
+P1 records the contract/plan/tasks (three files). P2 adds migration 0008, its
+registration and minimal latest-version regression expectations (five files,
+including `tests/test_replay_promotion.py`). P3 exposes shared public preparation
+and the existing run lease key, then implements bounded atomic SQL promotion
+(replay, run storage, promotion module and its two test files; five files).
+P4 adds the archive promote CLI and real CLI regressions (two files). P5 verifies a private migrated pilot clone, mutation/crash/concurrency,
+full local gates and then delivery PR/hosted checks/owner review. Work sequentially.
+
+Use `nima_processing` for immutable derived batches/results; retain the 26 existing
+`nima` tables. The migration journal gains version 8; no original migration body
+changes. Promotion uses the selected canonical hash, verified originals, a shared
+source lease/recheck, and one explicitly READ COMMITTED write transaction. Only complete/quarantined captures;
+explicit scope/hash/version, no implicit activation/freshness or default metric.
+Processing and observation times remain separate. No source-table write grant is
+needed by the promoter. New SQL ownership/grants are explicit operator concerns.
+
+Verify migration upgrade, current NOLOGIN ownership, limited principal behaviour,
+bulk insertion, retry/conflict, stale scope, quarantines/exact money, and real
+process death at SQL commit boundaries. The private pilot proof runs in a clone;
+keep the live pilot, original readout/evidence and all three HTTP guards unchanged.
+The app has no database migration or source-fetch fallback during promotion.
+
+Observed: 42 focused promotion cases pass, including upgrade/ownership, exact
+money, immutable rows, limited roles, stale scope, conflict, concurrent retries
+and actual SIGKILL before/after commit. Final review reproduced a repeatable-read
+role-default failure; explicit READ COMMITTED fixes it and both default-isolation
+cases pass. Removing the selected-hash guard fails its regression; it is restored.
+The migrated private clone passes with unchanged source data/counters/readout,
+explicit NOLOGIN ownership and limited promoter/reader controls. The original
+pilot database, originals and HTTP guards remain unchanged. Native constraint
+formatting was checked by the retained PostgreSQL reparse/boundary proof. No new
+source requests. Final local `just check`: 2,093 cases/93.10%; `just audit`: clean.
+The built wheel contains the final code/migration. Hosted checks and owner review
+remain part of delivery; private proof stays outside Git.
+
+After review, apply the pilot migration in a recorded maintenance step. Then
+continue durable request/refresh version-policy handling, queryable buyer/CPV/KAD
+metadata and isolated Greek model evaluation. SQL promotion does
+not itself certify a metric, choose a new model or constitute human validation.
+
 ## Current extension: offline normalization replay
 
 Owner merged #125 at `d98a971`; all three exact-head jobs passed in run

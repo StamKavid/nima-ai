@@ -559,3 +559,77 @@ later commit, relocation/idempotence, limits, invalid source/target, unsafe outp
 and failure sanitization. Mutate the raw-evidence hash guard and show rejection
 fails. Verify the existing private pilot offline with unchanged 26-table state,
 originals and original reader report; retain all source values/proof outside Git.
+
+
+## DataOps increment: explicit SQL replay promotion
+
+Continue the owner-approved SQL promotion follow-up after #126. Store a selected
+replay as derived SQL data in `nima_processing`, not as a new source observation.
+An additive eighth migration creates immutable replay batches/results and a
+`replayed_contracts` view. Existing `nima` evidence, outbox, reviews, projections,
+workflow freshness and metric queries are unchanged. No source requests or new
+dependencies. Only the installed v1 normalizer is currently supported.
+
+```sh
+uv run --frozen python -m nima db migrate
+uv run --frozen python -m nima archive promote \
+  --run-id RUN_UUID --archive-dir /absolute/private/originals \
+  --normalizer-version kimdis-normalized-v1 --replay-sha256 SELECTED_REPLAY_SHA256
+uv run --frozen pytest tests/test_replay_promotion.py \
+  tests/test_replay_promotion_cli.py tests/test_replay_promotion_crash.py
+just check
+just audit
+```
+
+Use a private `NIMA_DATABASE_URL`; no DSN flag. Migration is an explicit operator
+step, never implicit in promotion. The owner authorizes this schema addition by
+continuing the planned SQL promotion increment. Migrating creates objects under
+the configured NOLOGIN owner. Grant the promoter SELECT on the existing migration,
+run, page and blob metadata plus USAGE/SELECT/INSERT on only the two new processing
+tables; reader SELECT alone cannot promote. No source-table write grant is needed.
+The new schema grants no PUBLIC access. New tables reject update/delete/truncate.
+
+Refactor the existing replay path to expose public `prepare_replay`, returning
+canonical bytes and its bounded summary without publishing a file. Both replay
+and promotion reuse the same snapshot, original verification and normalizer. An
+explicit lowercase SHA-256 is required before I/O. Rebuild from originals and
+require the generated hash to match the selected replay; no imported caller JSON
+or arbitrary normalizer plugin is trusted. Only complete/quarantined captures may
+be promoted in this increment. Running/failed/interrupted/unmanaged captures keep
+the existing read-only replay path. No promotion turns partial collection complete.
+
+On a fresh, explicitly READ COMMITTED write transaction, validate migration
+history, take the shared transaction form of the collector's existing advisory
+lease and compare its frozen query/status/checkpoint/version/shape
+with the prepared manifest. A later concurrent collection or status change makes
+promotion fail before insertion. Then atomically insert the content-keyed batch
+and all results. A batch stores the bounded manifest, target version, counts,
+database principal and `processed_at`; each result binds the same batch/run and
+an original page/index, with its content hash and either normalized JSONB or a
+quarantine reason. Exact money remains strings. Bulk-insert results, not one SQL
+roundtrip per record. No insert into `observations` or `record_versions` occurs.
+
+The view exposes the selected batch, normalized fields and original raw hash,
+JSON pointer and `observed_at`, separately from `processed_at`. Consumers must
+explicitly select batch/version; the view does not choose a new default or feed
+existing metrics. Identical concurrent retries converge to one complete batch;
+a committed retry must match stored manifest and every result. Conflicts fail
+without overwrite. Process death before commit leaves no partial batch/results;
+after commit, a retry returns the existing batch. Retries reverify originals and
+current source scope; changed source scope requires a newly selected replay hash.
+
+Tests use real PostgreSQL/files/CLI: v7 upgrade preserves all seven old checksums,
+old evidence and projections, required new ownership/constraints/roles, exact
+amounts, quarantine recovery, wrong hash, unavailable version, stale scope,
+read-only denial, conflict, concurrent retry and actual SIGKILL transaction
+boundaries. Remove hash selection guard and confirm its regression fails. Run
+full gates. Verify a private migrated clone of the existing pilot with an actual
+limited promoter/reader, identical original readout and no original database/file
+or source-budget changes. Never migrate the live pilot with an unmerged branch.
+Record actual results privately/redacted; no source records/credentials in Git.
+
+Implementation: `storage/migrations/0008.sql`, migration registration, minimal
+latest-version expectations in existing tests; `dataops/replay.prepare_replay`,
+`dataops/promotion.py`, the shared public run lease key, archive CLI and three
+promotion test modules. Retain
+all pending request/refresh version-policy, metadata, model and human-review work.

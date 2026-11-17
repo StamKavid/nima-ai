@@ -11,6 +11,7 @@ from uuid import UUID
 
 import psycopg
 
+from nima.dataops import promotion
 from nima.dataops import replay as normalization
 from nima.graph.pilot_archive import (
     MAX_OBJECT_BYTES,
@@ -151,6 +152,13 @@ def _parser() -> argparse.ArgumentParser:
     replay.add_argument("--archive-dir", type=Path, required=True)
     replay.add_argument("--normalizer-version", required=True)
     replay.add_argument("--output-dir", type=Path, required=True)
+    promote = commands.add_parser(
+        "promote", help="Store a selected replay as derived SQL data", allow_abbrev=False
+    )
+    promote.add_argument("--run-id", type=UUID, required=True)
+    promote.add_argument("--archive-dir", type=Path, required=True)
+    promote.add_argument("--normalizer-version", required=True)
+    promote.add_argument("--replay-sha256", required=True)
     return parser
 
 
@@ -160,6 +168,14 @@ def run(argv: list[str]) -> int:
         dsn = os.environ.get("NIMA_DATABASE_URL", "")
         if not dsn.strip():
             raise ValueError("archive_configuration")
+        if args.operation == "promote":
+            promoted = promotion.promote_run(
+                dsn, args.run_id, args.archive_dir, args.normalizer_version, args.replay_sha256
+            )
+            print(
+                json.dumps({"status": "complete", "outcome": "promoted_replay", **asdict(promoted)})
+            )
+            return 0
         if args.operation == "replay":
             replay = normalization.replay_run(
                 dsn, args.run_id, args.archive_dir, args.output_dir, args.normalizer_version
@@ -171,7 +187,7 @@ def run(argv: list[str]) -> int:
             )
             return 0
         result = verify_run(dsn, args.run_id, args.archive_dir)
-    except (VerificationError, normalization.ReplayError) as error:
+    except (VerificationError, normalization.ReplayError, promotion.PromotionError) as error:
         reason = error.reason
     except OSError:
         reason = "archive_evidence"
@@ -185,6 +201,12 @@ def run(argv: list[str]) -> int:
     print(json.dumps({"status": "failed", "failure": reason}, allow_nan=False))
     if reason == "replay_empty":
         return 3
-    if reason in {"archive_configuration", "archive_input", "replay_input", "replay_version"}:
+    if reason in {
+        "archive_configuration",
+        "archive_input",
+        "replay_input",
+        "replay_version",
+        "promotion_input",
+    }:
         return 2
     return 130 if reason == "archive_interrupted" else 1
