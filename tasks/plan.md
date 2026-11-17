@@ -1,5 +1,49 @@
 # Delivery plan
 
+## Current extension: offline normalization replay
+
+Owner merged #125 at `d98a971`; all three exact-head jobs passed in run
+44146760312. Continue the approved replay/version work with the
+[source-ingestion replay contract](../SPEC-source-ingestion.md#dataops-increment-offline-kimdis-normalization-replay).
+Assume one local operator, PostgreSQL 17, existing private originals and no source
+requests. Retain PV10 and all pending metadata/model/SQL-promotion work.
+
+AR1 freezes the bounded replay contract (source spec and these task documents,
+three files). AR2 implements the complete read-only SQL → verified originals →
+explicit installed normalizer → private dataset path, plus CLI/tests (four files).
+AR3 runs required gates, mutation and existing private pilot checks, then publishes
+one reviewable PR. Execute sequentially; no delegation or new dependency/migration.
+This is the same owner-authorized DataOps plan; continuation already authorizes
+routine implementation within this scope.
+
+Version boundary: source-run normalization identity is historical lineage, target
+normalization is an explicit installed version. Do not compare historical identity
+to current constants or pretend an unavailable normalizer exists. Replay creates
+an independently versioned dataset with original observation times. It cannot
+write evidence/projections or change metric results; SQL promotion and durable
+request/refresh compatibility are later scoped work, not silently claimed fixed.
+
+Use a closed read-only repeatable-read SQL snapshot, shared descriptor-safe blob
+recovery and canonical private publication. Reject bad envelopes/metadata/bounds;
+quarantine invalid records. Preserve prefix status, original source hash/pointer,
+Greek text, Decimal money and duplicate occurrences. No pages is no dataset;
+committed empty is a valid empty dataset. Test before implementation, then review
+correctness, privacy, resource bounds and deterministic replay. Verify the private
+pilot offline with unchanged data/originals/readout. No human task is fabricated.
+
+Observed: 56 new replay cases plus 43 archive-verifier regressions pass, including
+actual reader CLI execution, historical quarantine reprocessing, snapshot closure,
+relocation and valid-JSON tamper rejection. Removing the shared raw hash guard
+makes the tamper regression fail; the original guard is restored. The existing
+private pilot replays identically to persisted normalized versions with unchanged
+26-table contents/counters/schema, originals, source guards and reader report.
+No source request was added. Full local `just check` passes 2,051 tests/93.06%;
+`just audit` is clean. Hosted checks and owner review accompany the delivery PR;
+local results do not establish either. Private evidence stays outside Git.
+
+Next after review: SQL replay promotion/version-policy handling, then queryable
+buyer/CPV/KAD metadata, followed by an isolated Greek model evaluation.
+
 ## Current extension: preserve PostgreSQL startup roles
 
 The owner merged #124 at `cae6fe2` and requested continuation; all three exact-head

@@ -1,5 +1,33 @@
 # Tasks
 
+## Current extension: offline normalization replay
+
+Owner merged #125 at `d98a971`; run 44146760312 passes all three jobs. Same approved
+DataOps plan; preserve pending human review, metadata and model work below.
+
+- [x] AR1: freeze the bounded replay contract in the source-ingestion spec and
+  [plan](plan.md). Explicit installed target, retained historic lineage, no SQL
+  promotion/source calls, deterministic private dataset and fixed limits.
+- [x] AR2: deliver `archive replay` end to end using public SQL/schema, recovery,
+  normalizer and publisher APIs. Preserve capture times, pointers, quarantine and
+  partial/empty scope; fail before publication on invalid metadata/evidence/target.
+- Acceptance: historical normalization identity does not block a valid installed
+  target; limited reader succeeds, originals/all SQL state stay unchanged, repeat
+  and relocated replay match, no unavailable version is advertised as supported.
+- Verify: focused real PostgreSQL/files/CLI tests, mutation, private offline pilot,
+  full `just check`, `just audit`, then exact-head hosted jobs and owner review.
+- Files AR2: `src/nima/dataops/replay.py`, `src/nima/dataops/archive.py`,
+  `tests/test_archive_replay.py`, `tests/test_archive_replay_cli.py` (four files).
+- [x] AR3: record observed local/private results: 56 new replay cases and 43
+  verifier regressions pass; valid-JSON hash-guard mutation is rejected/restored.
+  Existing private replay matches SQL normalized versions with unchanged 26-table
+  data/counters/schema, originals, source guards and reader-report bytes; no HTTP
+  request. Full `just check` passes 2,051 cases/93.06%, and `just audit` is clean.
+  Private evidence and replay datasets remain outside Git.
+- [ ] Exact-head hosted checks and owner review/merge accompany the delivery PR.
+- [ ] Follow-up: SQL promotion with distinct processing lineage and durable
+  request/refresh version-policy handling; metadata remains after that boundary.
+
 ## Current extension: PostgreSQL role preservation
 
 Owner continued after merged #124 (`cae6fe2`); all three exact-head jobs pass in
@@ -30,7 +58,8 @@ run 44127404558. Retain the prior drill and unfinished PV10/model work.
   archive checks and identical reader output pass. Private evidence stays outside
   Git; no source HTTP call. Full local gates pass 1,995 tests/93.04% and a clean
   advisory audit. Hosted checks accompany the PR.
-- [ ] Owner reviews the complete tested increment before replay/version work.
+- [x] Owner merged #125 at `d98a971`; all three exact-head jobs passed in run
+  44146760312. Continue the replay increment above.
 
 ## Current extension: isolated restore drill
 

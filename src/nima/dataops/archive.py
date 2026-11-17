@@ -11,6 +11,7 @@ from uuid import UUID
 
 import psycopg
 
+from nima.dataops import replay as normalization
 from nima.graph.pilot_archive import (
     MAX_OBJECT_BYTES,
     MAX_OBJECTS,
@@ -143,6 +144,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     verify.add_argument("--run-id", type=UUID, required=True)
     verify.add_argument("--archive-dir", type=Path, required=True)
+    replay = commands.add_parser(
+        "replay", help="Re-normalize committed originals into a private dataset", allow_abbrev=False
+    )
+    replay.add_argument("--run-id", type=UUID, required=True)
+    replay.add_argument("--archive-dir", type=Path, required=True)
+    replay.add_argument("--normalizer-version", required=True)
+    replay.add_argument("--output-dir", type=Path, required=True)
     return parser
 
 
@@ -152,8 +160,18 @@ def run(argv: list[str]) -> int:
         dsn = os.environ.get("NIMA_DATABASE_URL", "")
         if not dsn.strip():
             raise ValueError("archive_configuration")
+        if args.operation == "replay":
+            replay = normalization.replay_run(
+                dsn, args.run_id, args.archive_dir, args.output_dir, args.normalizer_version
+            )
+            summary = asdict(replay)
+            del summary["artifact_sha256"]
+            print(
+                json.dumps({"status": "complete", "outcome": "replayed_committed_pages", **summary})
+            )
+            return 0
         result = verify_run(dsn, args.run_id, args.archive_dir)
-    except VerificationError as error:
+    except (VerificationError, normalization.ReplayError) as error:
         reason = error.reason
     except OSError:
         reason = "archive_evidence"
@@ -165,6 +183,8 @@ def run(argv: list[str]) -> int:
         print(json.dumps({"status": "complete", **asdict(result)}, allow_nan=False))
         return 3 if result.outcome == "no_committed_pages" else 0
     print(json.dumps({"status": "failed", "failure": reason}, allow_nan=False))
-    if reason in {"archive_configuration", "archive_input"}:
+    if reason == "replay_empty":
+        return 3
+    if reason in {"archive_configuration", "archive_input", "replay_input", "replay_version"}:
         return 2
     return 130 if reason == "archive_interrupted" else 1

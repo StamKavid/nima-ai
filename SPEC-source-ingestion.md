@@ -490,3 +490,72 @@ distinct. A defence buyer purchasing food does not classify its supplier as a
 weapons company. Future sector mappings need source paths, taxonomy/version,
 validity, unknown/conflict states and explicit reported versus reviewed/inferred
 status; this archive-verification increment adds no inferred sector labels.
+
+
+## DataOps increment: offline KIMDIS normalization replay
+
+This continues the owner-approved archive replay/version work after #125. Rebuild
+one bounded committed-page capture as an immutable private dataset, using an
+explicit installed normalizer. This is an executable reprocessing path; it does
+not insert source observations, alter prior versions, advance refresh state or
+promote results into analytical projections. Those SQL promotion/version-policy
+contracts remain separate work. No new source access, dependency or migration.
+
+Command (the reader DSN stays in private `NIMA_DATABASE_URL` configuration):
+
+```sh
+uv run --frozen python -m nima archive replay \
+  --run-id RUN_UUID --archive-dir /absolute/private/originals \
+  --normalizer-version kimdis-normalized-v1 \
+  --output-dir /absolute/private/replays
+uv run --frozen pytest tests/test_archive_replay.py tests/test_archive_replay_cli.py
+just check
+just audit
+```
+
+The target is explicit and finite: only the installed `kimdis-normalized-v1`
+implementation is supported in this increment. Unknown targets fail before I/O;
+never label current code as a requested unavailable version. Stored source-run
+normalizer identity is retained as lineage, not compared to the target. A past
+normalizer version therefore does not prevent replaying its original bytes with
+the installed target. Only the known KIMDIS contract connector envelope is accepted.
+No runtime plugin, arbitrary Python import or model execution.
+
+Read run/page/blob metadata in one REPEATABLE READ, READ ONLY transaction; close
+SQL before recovering files. Require a contiguous committed prefix matching the
+checkpoint. Bounds: 32 pages, 8 MiB/object, 64 MiB/distinct bodies, 5,000 source
+records and the existing private artifact encoder's 32 MiB output ceiling. Check
+metadata bounds before body access. Explicit relocated archive roots work through
+the existing descriptor-safe recovery API; orphan bodies are excluded. Missing,
+unsafe, corrupt or wrong-length originals fail without repair/publication.
+
+Normalize each committed envelope and check its page number, record count and
+pagination shape against frozen SQL metadata. Retain original Greek text and exact
+Decimal money as strings. Emit both normalized records and quarantined records,
+with raw body hash, original capture time, page/index, JSON pointer and original
+record content hash. Bad envelopes fail the whole replay; individual invalid rows
+remain quarantine results. Preserve duplicate occurrences rather than claiming
+entity resolution/deduplication. A failed/partial source run is explicitly labelled
+as its committed subset; replay success does not certify source completeness.
+
+Dataset shape: `artifact_version`, `source`, `scope`, `source_run` (original run,
+connector/normalizer identity, status, original query and checkpoint/shape), target
+`normalizer_version`, ordered pages and per-record results. No wall-clock replay
+time, absolute archive path, DSN or credentials enter the dataset. Canonical bytes
+and the existing private no-clobber publisher yield a deterministic hash-named
+0600 file in an owner-only 0700 output directory. Equivalent relocation/replay
+produces identical bytes. Failed or interrupted work publishes no partial result;
+existing output is never overwritten. Zero committed pages is a distinct no-result
+outcome (exit 3); one committed empty response produces an empty replay dataset.
+CLI summaries contain only fixed labels/counts, not source values or private paths.
+Output must be outside the input archive; replay cannot add files to originals.
+
+Implementation: `src/nima/dataops/replay.py`, its two test modules and minimal
+`dataops/archive.py` CLI routing. Reuse public connection/schema, archive recovery,
+normalizer and private artifact APIs. Do not duplicate strict JSON or safe-file
+primitives. Tests use real PostgreSQL, files and an actual CLI subprocess: limited
+reader, historical-version replay, exact money/quarantine, frozen snapshot versus
+later commit, relocation/idempotence, limits, invalid source/target, unsafe output
+and failure sanitization. Mutate the raw-evidence hash guard and show rejection
+fails. Verify the existing private pilot offline with unchanged 26-table state,
+originals and original reader report; retain all source values/proof outside Git.
