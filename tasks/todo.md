@@ -25,8 +25,11 @@
 
 The owner reviewed/merged PV1–PV3, completing V-A. Their stacked merges left PV2/PV3
 on feature bases; #114 promotes the identical combined tree to main and passed all
-three hosted jobs in run 43904754199. PV4–PV5 are the next review batch; V-B remains
-pending. New PRs explicitly target main and declare their merge order.
+three hosted jobs in run 43904754199. The owner merged #114–#116 into main at
+`7b6397e` and requested continuation on 2026-11-17. PV4 and PV5 passed all three
+exact-head jobs in runs 43912312467 and 43922239422, completing V-B. PV6–PV7 are
+the next review batch; V-C remains pending. New PRs explicitly target main and
+declare their merge order.
 The initial proof is a cited captured-contract record count, not a persona UI,
 financial concentration measure, live scrape or AI service. Old tasks below remain
 incomplete where previously incomplete; they are not silently closed or discarded.
@@ -36,7 +39,7 @@ incomplete where previously incomplete; they are not silently closed or discarde
 Execute sequentially. Each task requires red→green focused tests, `just check`,
 `just audit` and its exact-head hosted checks before proposing merge. Preserve the
 existing 26-table schema, old behavior and all CI jobs. Focused PV1–PV3 commands
-are executable on these review branches; later interfaces remain future work.
+are executable on these review branches; the CLI/recovery batch is described below.
 
 ### PV1: Shared definition and known-answer SQL
 
@@ -146,24 +149,29 @@ are executable on these review branches; later interfaces remain future work.
 
 ### Checkpoint V-B: Complete programmatic readout reviewed
 
-- [ ] PV4–PV5 pass local/hosted gates; review raw-to-count attribution and unchanged
+- [x] PV4–PV5 pass local/hosted gates; review raw-to-count attribution and unchanged
   SQL/originals, with previous artifacts retained on all observed failure paths.
 
 ### PV6: CLI readout
 
-- [ ] Delegate `analytics supplier-buyers --request ... --output-dir ...` to the
+- [x] Delegate `analytics supplier-buyers --request ... --output-dir ...` to the
   verified programmatic path with the environment-only database configuration.
 - Acceptance: root dispatcher holds no calculation logic; fixed summaries/errors,
   correct input/failure/interruption exit codes and no source/driver/path leakage.
 - Verify: `uv run --frozen pytest tests/test_analytics_cli.py`; installed module
   invocation against disposable DB/private files; normal gates.
 - Files: `src/nima/analytics/commands.py`, `src/nima/__main__.py`,
-  `tests/test_analytics_cli.py` (existing dispatcher test only if needed).
-- Scope: 3–4 files. Dependency: V-B.
+  `tests/test_analytics_cli.py`, `tasks/plan.md`, `CAPABILITIES.md`.
+- Scope: 5 files including delivery metadata. Dependency: V-B.
+- Evidence: #117 passes 37 focused CLI cases and 87 with root/graph regressions;
+  all 37 also pass from the built wheel, including module subprocess execution.
+  Local `just check` passes 1,928 cases/92.97% and dependency audit is clean.
+  Removing the fixed parser error handler fails the private-value redaction tests.
+  Exact-head hosted results accompany #117; this does not activate any source.
 
 ### PV7: End-to-end failure proof and operator instructions
 
-- [ ] Exercise the complete installed workflow under failures/interruption and
+- [x] Exercise the complete installed workflow under failures/interruption and
   document input, read-role grants, lineage, coverage and quality interpretation.
 - Acceptance: introduced duplicate/missing receipt/corrupt source cases block
   publication; replay/actual process termination preserve prior results; tests
@@ -172,8 +180,21 @@ are executable on these review branches; later interfaces remain future work.
 - Verify: `uv run --frozen pytest tests/test_market_analytics_failures.py tests/test_market_analytics_crash.py`;
   normal gates and unchanged old source-worker/orchestration hosted checks.
 - Files: both named tests; `docs/analytics/supplier-buyers.md`,
-  `docs/semantics/participation.md`.
-- Scope: 4 files. Dependency: PV6. Reuse publication controls; no new egress harness.
+  `docs/semantics/participation.md`, `tasks/todo.md` (delivery metadata).
+- Scope: 5 files including metadata. Dependency: PV6. Reuse publication controls;
+  no new egress harness or application/schema/dependency/CI change.
+- Evidence: thirteen new real-PostgreSQL/private-file cases pass. Six introduced
+  faults block publication and preserve old artifacts; a genuine duplicate
+  observation is rejected by its SQL uniqueness constraint. Actual SIGKILL and
+  Ctrl+C run before original verification and before/after the final atomic link,
+  verify closed SQL and unchanged rows/originals, then replay the normal command
+  to identical bytes without replacing old reports. Full local `just check`
+  passes 1,941 cases/92.91%; dependency audit is clean. All 50 CLI/fault/crash
+  cases also pass from the built wheel, including child processes. Removing the
+  full stored-fact comparison fails the wrong-amount command regression even
+  with valid hashes/receipt. Exact-head hosted proof accompanies the delivery
+  PR. The runbook explicitly retains private
+  SIGKILL temporary files; it does not claim automatic cleanup or full restore.
 
 ### Checkpoint V-C: Offline data-to-semantics proof reviewed
 
