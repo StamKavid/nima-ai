@@ -4,7 +4,10 @@
 the bounded experiment and provides useful model/test artifacts. One metric does
 not yet justify a second production model system, SQL definition and publication
 protocol. No application dependency, runtime requirement, CI job, source schedule,
-migration or authoritative serving path changed. Checkpoint V-D remains owner review.
+migration or authoritative serving path changed. The owner merged #119/#120 into
+main at `3cd4f77` and requested continuation on 2026-11-17, completing V-D review.
+Retain SQL/Prefect and the isolated experiment; the
+[real-data pilot](market-readout.md) remains a separate input/task gate.
 
 Tested: Core **1.11.17**, Postgres adapter **1.11.0**, Python **3.12.14**,
 PostgreSQL **17.11**, Linux x86-64. This implements PV8–PV9 of the approved

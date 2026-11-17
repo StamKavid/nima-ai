@@ -21,9 +21,14 @@ continuation on 2026-11-17. All three exact-head jobs passed for PV4 in run
 deliver the CLI and operational proof. The owner merged #117/#118 into main at
 `3dca868` and requested continuation on 2026-11-17, completing V-C. All three
 exact-head jobs passed in runs 44038279239 and 44040022546. PV8–PV9 execute the
-isolated candidate and comparison; V-D remains owner review. The
-[experiment report](../docs/verification/pipeline-dbt.md) recommends deferring
-production adoption. New PRs continue to target main explicitly.
+isolated candidate and comparison. The owner merged #119/#120 at `3cd4f77` and
+requested continuation on 2026-11-17; all three exact-head jobs for PV9 passed in
+run 44053781048, completing V-D review. Retain packaged SQL and Prefect; dbt stays
+isolated as recorded in the [report](../docs/verification/pipeline-dbt.md).
+PV10's [readiness/protocol record](../docs/verification/market-readout.md) is
+`blocked_inputs`: the checked locations lack a real admitted cohort and no analyst
+task was observed. This does not activate sources or restart paused egress work.
+New PRs continue to target main explicitly.
 
 Deliver one private evidence-linked supplier–buyer count, then compare the same
 known-answer data through a bounded isolated dbt project. The accepted direction

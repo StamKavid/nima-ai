@@ -105,9 +105,11 @@ database configuration and fixed private-safe summaries, with actual interruptio
 replay tests and [operator instructions](docs/analytics/supplier-buyers.md).
 The isolated [dbt comparison](docs/verification/pipeline-dbt.md) now passes fifteen
 semantic/evidence scenarios and rejects five injected data defects. The report
-recommends retaining packaged SQL/Prefect for the present metric; dbt remains an
-experimental candidate, with V-D owner review pending. The protected real-data/
-task pilot remains separate; no live source activation or product success follows.
+recommends retaining packaged SQL/Prefect for the present metric. The owner merged
+#119/#120, completing V-D review; dbt remains isolated. The protected
+[real-data/task pilot](docs/verification/market-readout.md) has a concrete audit/
+observation protocol but remains `blocked_inputs`. No live source activation,
+verified company result or product-usefulness measurement follows from preparation.
 The definition remains draft; owner approval of code does not
 silently certify a metric. See [tasks](tasks/todo.md) and the PRs for local versus
 exact-head hosted evidence. No full semantic platform, live source-current view,
