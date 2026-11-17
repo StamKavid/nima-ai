@@ -30,8 +30,10 @@ three hosted jobs in run 43904754199. The owner merged #114–#116 into main at
 exact-head jobs in runs 43912312467 and 43922239422, completing V-B. The owner
 merged #117/#118 at `3dca868` and requested continuation on 2026-11-17. All three
 exact-head jobs passed in runs 44038279239 and 44040022546, completing V-C.
-PV8–PV9 are evaluated in the current review batch; V-D remains pending. New PRs
-explicitly target main and declare their merge order.
+The owner merged #119/#120 at `3cd4f77` and requested continuation on 2026-11-17.
+All three exact-head PV9 jobs pass in run 44053781048, completing V-D review;
+retain packaged SQL/Prefect and the isolated experiment. PV10 remains blocked on
+real inputs and observed task evidence. New PRs target main explicitly.
 The initial proof is a cited captured-contract record count, not a persona UI,
 financial concentration measure, live scrape or AI service. Old tasks below remain
 incomplete where previously incomplete; they are not silently closed or discarded.
@@ -255,7 +257,7 @@ are executable on these review branches; the CLI/recovery batch is described bel
 
 ### Checkpoint V-D: Tool choice reviewed
 
-- [ ] Owner reviews measured benefit and license/security/compatibility evidence;
+- [x] Owner reviews measured benefit and license/security/compatibility evidence;
   retain plain SQL if the candidate stops or fails to justify adoption. No automatic
   conversion of the application pipeline or its semantic definitions.
 
@@ -270,6 +272,14 @@ are executable on these review branches; the CLI/recovery batch is described bel
   retain originals/results privately and publish only reviewed aggregate findings.
 - Files: `docs/verification/market-readout.md` (reviewed result only).
 - Scope: 1 file plus private evidence. Dependency: V-C; independent of dbt adoption.
+- [x] Prepare the [readiness/result record](../docs/verification/market-readout.md)
+  and audit/task protocol under the approved scope. Update this file, the plan,
+  capability map and dbt report as delivery metadata (five files total).
+- Evidence: repeated read-only inventory finds no raw-body objects or managed-run
+  manifests in the main and ingestion/archive companion checkouts' `data`/`work`
+  locations; no application database environment is configured. The record sets
+  a private input handoff, frozen evidence audit, paired analyst task and honest
+  blocked-result criteria. No real cohort or task observation is claimed.
 - Blocked as of 2026-11-17: no managed raw-body cohort was found in the project's
   configured `data`/`work` locations, and no analyst task was observed. The dbt
   comparison uses synthetic inputs only. No new source request, inferred company
