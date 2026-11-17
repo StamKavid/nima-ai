@@ -1,0 +1,16 @@
+# Copy to a private directory outside Git; set only disposable experiment credentials.
+nima_pipeline_experiment:
+  target: local
+  outputs:
+    local:
+      type: postgres
+      host: 127.0.0.1
+      port: "{{ env_var('NIMA_DBT_PORT') | int }}"
+      user: "{{ env_var('NIMA_DBT_USER') }}"
+      password: "{{ env_var('NIMA_DBT_PASSWORD', '') }}"
+      dbname: "{{ env_var('NIMA_DBT_DATABASE') }}"
+      schema: nima_dbt_experiment
+      threads: 1
+      connect_timeout: 5
+      retries: 0
+      sslmode: disable

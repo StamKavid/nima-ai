@@ -1,0 +1,12 @@
+[project]
+name = "nima-pipeline-dbt-experiment"
+version = "0.0.0"
+description = "Isolated synthetic SQL/dbt comparison; not an application dependency"
+requires-python = "==3.12.*"
+dependencies = [
+    "dbt-core==1.11.17",
+    "dbt-postgres==1.11.0",
+]
+
+[tool.uv]
+package = false
