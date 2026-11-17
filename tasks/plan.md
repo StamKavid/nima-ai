@@ -15,7 +15,11 @@ The stacked merges put PV1 on main (`98b73fc`), PV2 on its feature base (`f5887e
 and PV3 on the next feature base (`7438923`). Integration PR #114 promotes their
 already-reviewed combined tree to main; no new implementation is hidden in it.
 PV4–PV5 proceed from that combined state, and new PRs target main explicitly.
-Checkpoint V-B still requires complete hosted proof and owner review before PV6.
+The owner merged #114/#115/#116 into main, ending at `7b6397e`, and requested
+continuation on 2026-11-17. All three exact-head jobs passed for PV4 in run
+43912312467 and PV5 in run 43922239422, completing checkpoint V-B. PV6–PV7 now
+deliver the CLI and operational proof; checkpoint V-C requires owner review before
+the isolated dbt experiment. New feature PRs continue to target main explicitly.
 
 Deliver one private evidence-linked supplier–buyer count, then compare the same
 known-answer data through a bounded isolated dbt project. The accepted direction

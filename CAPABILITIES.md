@@ -78,7 +78,7 @@ Start with this one metric and an evidence-linked readout. Current module scopes
 | Module | First bounded specification | Scope status |
 |---|---|---|
 | semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | PV1 owner-reviewed provider; draft definition |
-| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | PV2–PV3 owner-reviewed inputs; PV4–PV5 programmatic report in review; CLI/pilot pending |
+| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | PV1–PV5 owner-reviewed; PV6 offline CLI in review; protected pilot pending |
 
 The semantic layer is versioned code/SQL definitions plus a small glossary, not
 an ontology generator, LLM dependency or separate metrics server. The two specifications share one
@@ -99,9 +99,13 @@ revision decisions, covered query windows, five explicit outcomes and separate
 byte/projection/identity/coverage limits. Identical relocated originals preserve
 its bytes; invalid evidence fails without a result.
 
-PV4–PV5 are review increments at checkpoint V-B. The CLI, process-interruption
-proof/runbook, isolated dbt comparison and protected real-data/task pilot remain
-later work. The definition remains draft; owner approval of code does not
+The owner merged #114–#116, completing V-B with all hosted checks passing.
+PV6 adds `analytics supplier-buyers --request ... --output-dir ...` in the current
+review batch, using environment-only database configuration and fixed private-safe
+terminal summaries. Operational interruption/replay proof and instructions are
+tracked with PV7 in [tasks](tasks/todo.md); V-C still requires owner review before
+the isolated dbt comparison. The protected real-data/task pilot remains separate.
+The definition remains draft; owner approval of code does not
 silently certify a metric. See [tasks](tasks/todo.md) and the PRs for local versus
 exact-head hosted evidence. No full semantic platform, live source-current view,
 field-level lineage, financial concentration or product validation is claimed.
