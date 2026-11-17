@@ -1,5 +1,48 @@
 # Tasks
 
+## Current extension: bounded archive-integrity check
+
+Owner-authorized on 2026-11-17 after #122 merged and delegated technical validation.
+This continues source-ingestion/DataOps; PV10 human evidence/task checks remain open.
+See the [contract](../SPEC-source-ingestion.md#dataops-increment-committed-page-archive-verification)
+and [plan](plan.md). No new source requests or sector inference.
+
+### AV1: Freeze the verifier contract
+
+- [x] Record bounded committed-page scope, metadata/byte integrity, empty/partial
+  outcomes, private read-only behavior, sector distinctions and existing limits.
+- Acceptance: one explicit run/root, no source/repair/write path, separate
+  restore/replay follow-ups; pending pilot tasks retained.
+- Verify: review against existing SQL/page/archive and CLI contracts.
+- Files: `SPEC-source-ingestion.md`, `tasks/plan.md`, this file (three files).
+
+### AV2: Deliver the offline command
+
+- [x] Implement `archive verify --run-id UUID --archive-dir /absolute/private/root`
+  through public snapshot/recovery interfaces and minimal root routing.
+- Acceptance: reader freezes bounded metadata in one closed SQL snapshot; all
+  selected originals match hashes/lengths; empty/partial/relocated/error cases are
+  explicit; no SQL/archive changes or source calls; fixed private-safe CLI results.
+- Verify: `uv run --frozen pytest tests/test_archive_verify.py`; real PostgreSQL,
+  private-file/limit/concurrency cases and hash mutation; `just check`, `just audit`
+  and all three hosted jobs. Exercise existing pilot privately with no source I/O.
+- Files: `src/nima/dataops/__init__.py`, `archive.py`, `src/nima/__main__.py`,
+  `tests/test_archive_verify.py` (four files). Dependency: AV1.
+- Evidence: 43 focused cases pass, including read-only transaction/closed connection,
+  unchanged 26-table/file state, relocation, empty/partial/shared-body cases,
+  metadata/page/byte limits, concurrent page commit and actual module execution.
+  An initial hard-link rejection assumption was corrected to preserve existing
+  supported shared-body archives; valid bytes are still hash/length checked.
+  Removing the shared recovery hash guard makes the same-length corrupt-body
+  regression fail; the original helper is restored with no committed change.
+  Full local `just check` passes 1,984 cases/93.03%; `just audit` is clean.
+  Existing private pilot and relocated-copy checks both pass with all 26 tables
+  and original files unchanged and no source requests. Values/hashes stay private.
+  Hosted exact-head checks accompany the PR and do not rerun that private pilot.
+- [ ] Owner reviews the complete verified slice before the next increment.
+- [ ] Refine/test SQL-plus-archive restore, then normalizer-version replay in
+  separate increments; this command alone does not establish either capability.
+
 ## Current: product-first company and market intelligence
 
 - [x] Record owner-approved direction in
