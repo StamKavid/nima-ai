@@ -1,0 +1,79 @@
+version: 2
+seeds:
+  - name: input_observations
+    description: Synthetic verified capture; uniqueness belongs to observations, not source IDs.
+    columns:
+      - name: observation_id
+        data_tests: [not_null, unique]
+      - name: source_id
+        data_tests: [not_null]
+      - name: normalizer_version
+        data_tests: [not_null]
+      - name: content_sha256
+        data_tests: [not_null]
+      - name: observed_at
+        data_tests: [not_null]
+      - name: supplier_state
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [known, empty, unknown]
+      - name: run_id
+        data_tests: [not_null]
+      - name: raw_sha256
+        data_tests: [not_null]
+      - name: projection_sha256
+        data_tests: [not_null]
+  - name: input_mentions
+    description: Supplier ordinals; repeated eligible tax IDs at distinct ordinals are legitimate.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "(observation_id::text || ':' || ordinal::text)"
+    columns:
+      - name: observation_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('input_observations')
+                field: observation_id
+      - name: ordinal
+        data_tests: [not_null]
+models:
+  - name: observations
+    description: Reconstructed reported facts and citations from sealed synthetic seeds.
+    columns:
+      - name: observation_id
+        data_tests: [not_null, unique]
+      - name: quality_ok
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true]
+                quote: false
+  - name: selected_revisions
+    description: Latest captured revisions before filtering; ties remain unresolved.
+    columns:
+      - name: source_id
+        data_tests: [not_null, unique]
+      - name: value
+        data_tests: [not_null]
+  - name: counts
+    description: One experimental metric payload; application definition remains authoritative.
+    columns:
+      - name: metric_id
+        data_tests: [not_null, unique]
+      - name: result
+        data_tests: [not_null]
+      - name: evidence
+        data_tests: [not_null]
+      - name: quality_ok
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true]
+                quote: false
