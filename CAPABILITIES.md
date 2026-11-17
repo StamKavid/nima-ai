@@ -78,7 +78,7 @@ Start with this one metric and an evidence-linked readout. Current module scopes
 | Module | First bounded specification | Scope status |
 |---|---|---|
 | semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | PV1 owner-reviewed provider; draft definition |
-| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | PV1–PV5 owner-reviewed; PV6 offline CLI in review; protected pilot pending |
+| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | PV1–PV7 owner-reviewed offline CLI; protected pilot pending |
 
 The semantic layer is versioned code/SQL definitions plus a small glossary, not
 an ontology generator, LLM dependency or separate metrics server. The two specifications share one
@@ -99,12 +99,15 @@ revision decisions, covered query windows, five explicit outcomes and separate
 byte/projection/identity/coverage limits. Identical relocated originals preserve
 its bytes; invalid evidence fails without a result.
 
-The owner merged #114–#116, completing V-B with all hosted checks passing.
-PV6 adds `analytics supplier-buyers --request ... --output-dir ...` in the current
-review batch, using environment-only database configuration and fixed private-safe
-terminal summaries. Operational interruption/replay proof and instructions are
-tracked with PV7 in [tasks](tasks/todo.md); V-C still requires owner review before
-the isolated dbt comparison. The protected real-data/task pilot remains separate.
+The owner merged #117/#118, completing V-C with all hosted checks passing.
+`analytics supplier-buyers --request ... --output-dir ...` uses environment-only
+database configuration and fixed private-safe summaries, with actual interruption/
+replay tests and [operator instructions](docs/analytics/supplier-buyers.md).
+The isolated [dbt comparison](docs/verification/pipeline-dbt.md) now passes fifteen
+semantic/evidence scenarios and rejects five injected data defects. The report
+recommends retaining packaged SQL/Prefect for the present metric; dbt remains an
+experimental candidate, with V-D owner review pending. The protected real-data/
+task pilot remains separate; no live source activation or product success follows.
 The definition remains draft; owner approval of code does not
 silently certify a metric. See [tasks](tasks/todo.md) and the PRs for local versus
 exact-head hosted evidence. No full semantic platform, live source-current view,
