@@ -18,25 +18,29 @@
   jobs passed in run 43838968903; advance into implementation planning.
 - [x] Draft the [pipeline validation contract](../docs/pipeline-quality-validation.md),
   proposed implementation plan and bounded tasks below.
-- [ ] Owner review of the implementation plan before application code is written.
+- [x] Owner approved the implementation plan and merged #110 at `c964f4f`;
+  exact-head CI passed in run 43857399789. Build PV1–PV3 to checkpoint V-A.
 - [ ] Preserve reliability follow-ups as separate scoped work: effective branch
   rules (admin), refresh recovery/version handling, SQL/archive restore and roles.
 
-Implementation tasks below remain proposed pending plan review.
+The owner reviewed/merged PV1–PV3, completing V-A. Their stacked merges left PV2/PV3
+on feature bases; #114 promotes the identical combined tree to main and passed all
+three hosted jobs in run 43904754199. PV4–PV5 are the next review batch; V-B remains
+pending. New PRs explicitly target main and declare their merge order.
 The initial proof is a cited captured-contract record count, not a persona UI,
 financial concentration measure, live scrape or AI service. Old tasks below remain
 incomplete where previously incomplete; they are not silently closed or discarded.
 
-## Proposed: readout and pipeline validation
+## Approved: readout and pipeline validation
 
 Execute sequentially. Each task requires red→green focused tests, `just check`,
 `just audit` and its exact-head hosted checks before proposing merge. Preserve the
-existing 26-table schema, old behavior and all CI jobs. Proposed commands below
-become executable as the named files are implemented; they are not delivered now.
+existing 26-table schema, old behavior and all CI jobs. Focused PV1–PV3 commands
+are executable on these review branches; later interfaces remain future work.
 
 ### PV1: Shared definition and known-answer SQL
 
-- [ ] Implement the frozen metric definition, pure eligibility/revision policy and
+- [x] Implement the frozen metric definition, pure eligibility/revision policy and
   one packaged reference SQL calculation, with the synthetic acceptance fixture.
 - Acceptance: B1=3/B2=1/unassigned=1 and exact contributing IDs; independent
   hand-labelled checks cover cancellation, ties, duplicate ordinals, GR/EL,
@@ -46,10 +50,14 @@ become executable as the named files are implemented; they are not delivered now
 - Files: `src/nima/semantics/__init__.py`, `participation.py`, `participation.sql`;
   `tests/test_semantics.py`, `tests/fixtures/participation.json` (synthetic only).
 - Scope: 5 files. Dependency: approved plan. No new metric certification claim.
+- Evidence: #111 has 42 focused cases, 1,763 passing full-suite cases/92.81%,
+  clean audit and an isolated wheel SQL-resource check. The supplier-before-revision
+  mutation fails its known-answer test. All three hosted jobs passed in run
+  43860790888 on `12c20f9`. Definition status remains draft until review.
 
 ### PV2: Bounded SELECT-only snapshot
 
-- [ ] Add the public DB entry point and one adapter freezing the validated SQL
+- [x] Add the public DB entry point and one adapter freezing the validated SQL
   cohort/result in a read-only repeatable-read UTC transaction.
 - Acceptance: legacy connection behavior preserved; schema/role/column grants,
   all page/projection grains and byte/count bounds checked; all 26 tables unchanged;
@@ -60,10 +68,16 @@ become executable as the named files are implemented; they are not delivered now
 - Files: `src/nima/storage/connection.py`, `postgres.py`;
   `src/nima/analytics/__init__.py`, `snapshot.py`; `tests/test_analytics_snapshot.py`.
 - Scope: 5 files. Dependency: PV1. No migrations or broad private-import cleanup.
+- Evidence: #112 has 31 new cases (36 with PostgreSQL regressions), including
+  unchanged contents of all 26 tables, limited/inherited/public/column privilege
+  cases, concurrent commits and exact-money checks. Local full gates pass
+  1,794 cases/92.85%, with clean audit. Removing the column-write guard fails its
+  regression. All three exact-head hosted jobs passed in push run 43864276361
+  on `81938db` in #112.
 
 ### PV3: Closed private request
 
-- [ ] Decode the exact request fields, cutoff/key and explicit archive bindings.
+- [x] Decode the exact request fields, cutoff/key and explicit archive bindings.
 - Acceptance: ≤16 KiB, 1–10 runs, duplicate/unknown keys and unsafe private-file
   cases rejected; canonical semantic request excludes archive locations; no side
   effects, source values or secrets in fixed error reasons.
@@ -71,37 +85,64 @@ become executable as the named files are implemented; they are not delivered now
   size/type/UTC/key/binding boundaries and forbidden-side-effect checks; normal gates.
 - Files: `src/nima/analytics/request.py`, `tests/test_analytics_request.py`.
 - Scope: 2 files. Dependency: PV1; execute after PV2 in this batch.
+- Evidence: 51 focused cases pass (94.30% request-module coverage), including
+  otherwise-valid duplicate keys, canonical UTC/UUID/path rules, exact byte bounds,
+  surrogate paths, symlinks/hardlinks/FIFO/changed files and forbidden-side-effect
+  guards. Removing duplicate-key detection fails both valid-shape regressions.
+  A real PostgreSQL integration drives synthetic originals through managed
+  ingestion, projection, private request intake and the limited-role snapshot:
+  four pages, eleven observations, ten versions and the expected total of five.
+  Full local/hosted evidence accompanies this review branch; no source is contacted.
 
 ### Checkpoint V-A: Definition and input boundary reviewed
 
-- [ ] PV1–PV3 pass required local/hosted gates; owner reviews the exact metric
+- [x] PV1–PV3 pass required local/hosted gates; owner reviews the exact metric
   answer, independent oracle, public DB seam and input/privilege bounds.
 
 ### PV4: Reconcile selected originals
 
-- [ ] Recover all selected pages and re-derive normalized records/projections
+- [x] Recover all selected pages and re-derive normalized records/projections
   against the frozen SQL tuples before any result can be published.
 - Acceptance: include empty pages, superseded and nonmatching records; enforce
   32-page/object, 8 MiB/object and 64 MiB total ceilings; missing, changed or
   inconsistent originals/facts fail without repair/network/SQL writes.
 - Verify: `uv run --frozen pytest tests/test_analytics_reconcile.py tests/test_graph_pilot_archive.py`;
   corrupt blob, mismatch, ordinal, empty-page and SQL-closed cases; normal gates.
-- Files: `src/nima/analytics/reconcile.py`, `tests/test_analytics_reconcile.py`;
-  `src/nima/graph/pilot_archive.py` and its existing test only if a narrow public
-  helper adjustment is necessary and preserves all prior assertions.
-- Scope: 2–4 files. Dependency: V-A. Reuse public normalizer/projector/recovery APIs.
+- Files: `src/nima/analytics/reconcile.py`, `snapshot.py`;
+  `tests/test_analytics_reconcile.py`, `test_analytics_snapshot.py`; `tasks/plan.md`.
+- Scope: 5 files including delivery metadata. Dependency: V-A. Public offline
+  snapshot revalidation reuses the existing fact/ordinal policy; no graph helper
+  change, private cross-import or second schema validator was needed.
+- Evidence: #115 passes local `just check` (1,875 cases/92.84%) and `just audit`.
+  Verified all four known-answer pages, eleven observations and ten versions;
+  original bytes defeat internally consistent forged SQL. Empty/nonmatching and
+  after-cutoff pages, numeric-index typing, relocation and budgets are tested.
+  Removing the record-hash check fails its mutation test. Exact-head hosted proof
+  accompanies #115; it does not establish live source truth or full replay.
 
 ### PV5: Deterministic cited result
 
-- [ ] Compose the reconciled metric/check manifest and privately publish it using
+- [x] Compose the reconciled metric/check manifest and privately publish it using
   existing canonical no-clobber primitives.
 - Acceptance: exact counts/record sets/cancellation/unknown diagnostics, all five
   outcomes, all selected evidence and definition/snapshot hashes; identical inputs
   and relocated identical archives yield identical ≤1 MiB bytes; failures publish none.
 - Verify: `uv run --frozen pytest tests/test_market_analytics.py`; actual private
   outputs, unchanged-input retries and conflict/limit cases; normal gates.
-- Files: `src/nima/analytics/result.py`, `export.py`; `tests/test_market_analytics.py`.
-- Scope: 3 files. Dependency: PV4. No durable release registry or certification.
+- Files: `src/nima/analytics/result.py`, `export.py`; `tests/test_market_analytics.py`;
+  `tasks/todo.md`, `CAPABILITIES.md` (delivery metadata).
+- Scope: 5 files including metadata. Dependency: PV4. No durable release registry
+  or certification. Programmatic path only; no CLI is claimed.
+- Evidence: the known-answer report preserves all eleven observations, Greek
+  labels, exact source money and raw/projection citations. Tests exercise all five
+  outcomes, unchanged SQL/originals, closed SQL before verification/publication,
+  relocated and physically deduplicated originals, retries, output conflicts,
+  missing/corrupt/unprojected evidence and the actual 1 MiB result ceiling.
+  All 16 focused cases pass. Full local `just check` passes 1,891 cases/92.93%,
+  including build/security/secret/skill/lock checks; dependency audit is clean.
+  A serializer mutation changing the count fails the independent known-answer
+  assertion. Exact-head hosted verification accompanies the delivery PR;
+  checkpoint V-B stays open for owner review before PV6.
 
 ### Checkpoint V-B: Complete programmatic readout reviewed
 

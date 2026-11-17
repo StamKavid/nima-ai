@@ -16,8 +16,9 @@ from psycopg.types.json import Jsonb
 from nima.ingestion.archive import Archive
 from nima.ingestion.config import CONNECTOR_VERSION, Query
 from nima.sources.kimdis import normalize_page
+from nima.storage.connection import Connection as Connection
+from nima.storage.connection import connect
 
-type Connection = psycopg.Connection[tuple[object, ...]]
 NORMALIZER_VERSION = "kimdis-normalized-v1"
 
 
@@ -30,12 +31,7 @@ class CheckpointError(ValueError):
 
 
 def _connect(dsn: str) -> Connection:
-    return psycopg.connect(
-        dsn,
-        autocommit=True,
-        connect_timeout=5,
-        options="-c statement_timeout=30000 -c lock_timeout=5000",
-    )
+    return connect(dsn)
 
 
 def _migrations() -> list[tuple[int, str, str]]:
@@ -60,11 +56,16 @@ def _applied(connection: Connection, migrations: list[tuple[int, str, str]]) -> 
 
 def check_schema(dsn: str) -> None:
     """Validate current migration history without applying DDL."""
+    with _connect(dsn) as connection:
+        validate_schema(connection)
+
+
+def validate_schema(connection: Connection) -> None:
+    """Check history on the caller's connection, including inside a read snapshot."""
     migrations = _migrations()
     try:
-        with _connect(dsn) as connection:
-            if _applied(connection, migrations) != len(migrations):
-                raise MigrationError("Run the explicit database migration first")
+        if _applied(connection, migrations) != len(migrations):
+            raise MigrationError("Run the explicit database migration first")
     except psycopg.errors.UndefinedTable:
         raise MigrationError("Run the explicit database migration first") from None
 

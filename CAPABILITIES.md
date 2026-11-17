@@ -43,10 +43,10 @@ still requires its own evidence and evaluation.
 | intelligence-activation | Saved analyses, exports, scheduled reports and deterministic change alerts; optional evaluated AI briefings | market-analytics; research-assistant only for AI features |
 | investigator-workspace | Journalist/investigator case review and evidence export as one specialized persona workflow | shared data/semantics/analytics; reviewed identity/graph where needed |
 
-Existing module IDs remain unchanged. `semantic-layer`, `market-analytics` and
-`intelligence-activation` are approved roadmap capabilities, not implemented
-features. The investigator module remains on the roadmap but does not define the
-whole product or block other personas. Corporate/sector researchers, procurement
+Existing module IDs remain unchanged. The first bounded `semantic-layer` and
+`market-analytics` slices are described below; `intelligence-activation` remains
+an approved roadmap capability. The investigator module remains on the roadmap
+but does not define the whole product or block other personas. Corporate/sector researchers, procurement
 analysts and business-development
 users may consume the same reviewed metric definitions through later scoped views.
 No multi-user service or persona UI is authorized by this map.
@@ -77,16 +77,34 @@ Start with this one metric and an evidence-linked readout. Current module scopes
 
 | Module | First bounded specification | Scope status |
 |---|---|---|
-| semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | Scope approved in #109; not implemented |
-| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | Scope approved in #109; not implemented |
+| semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | PV1 owner-reviewed provider; draft definition |
+| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | PV2–PV3 owner-reviewed inputs; PV4–PV5 programmatic report in review; CLI/pilot pending |
 
 The semantic layer is versioned code/SQL definitions plus a small glossary, not
 an ontology generator, LLM dependency or separate metrics server. The two specifications share one
 data-to-readout proof. After the conceptual quality/pipeline review, the owner
-requested continuation into the proposed [implementation plan](tasks/plan.md) and
+approved the [implementation plan](tasks/plan.md) through merged #110 and the
 [validation contract](docs/pipeline-quality-validation.md). Real-data
 reconciliation and an observed analyst task remain explicit product gates. No
 product success is inferred from synthetic tests or PR counts.
+
+PV1 supplies a pure policy and packaged PostgreSQL count over a known-answer
+synthetic fixture. PV2 freezes bounded complete SQL cohorts under a SELECT-only
+principal and re-derives facts; PV3 decodes explicit private selections without
+source/SQL/archive access. The owner reviewed/merged these inputs, completing V-A;
+#114 promotes their identical stacked tree into main. PV4 verifies every selected
+original against frozen SQL; PV5 composes a deterministic private cited result
+through a programmatic function. The report includes all selected observations,
+revision decisions, covered query windows, five explicit outcomes and separate
+byte/projection/identity/coverage limits. Identical relocated originals preserve
+its bytes; invalid evidence fails without a result.
+
+PV4–PV5 are review increments at checkpoint V-B. The CLI, process-interruption
+proof/runbook, isolated dbt comparison and protected real-data/task pilot remain
+later work. The definition remains draft; owner approval of code does not
+silently certify a metric. See [tasks](tasks/todo.md) and the PRs for local versus
+exact-head hosted evidence. No full semantic platform, live source-current view,
+field-level lineage, financial concentration or product validation is claimed.
 
 ## Preserved implementation evidence
 
