@@ -31,7 +31,8 @@ tables are unchanged. Model execution disabled usage reporting and refused Pytho
 HTTP, nonlocal DNS and nonlocal socket calls; no refused runtime call occurred.
 The native Postgres driver used configured loopback. This is not a deployed
 network-isolation attestation. Package/advisory/document downloads were setup;
-source acquisition remains paused.
+no source acquisition occurred during this experiment. The later separately
+authorized real pilot is recorded in [market-readout.md](market-readout.md).
 
 The [isolated lock](../../experiments/pipeline_dbt/uv.lock) resolves 55 external
 distributions, 54 applicable on tested Linux. All 55 compatible wheels were
@@ -159,9 +160,13 @@ hashes 153 target artifacts. SHA-256 identities:
 The application gate passes 1,941 tests/92.97% and clean lint/types/build/security/
 secret/skill checks and advisory audit. Existing hosted jobs check the application;
 they do not install/rerun this isolated experiment. Per-head status is in PRs.
-No protected real-company task ran: project `data`/`work` locations contained no
-managed raw-body cohort for the pilot, and no analyst task was observed. PV10
-remains open; no source activation or external contact is implied.
+At experiment completion no protected real-company task had run: project
+`data`/`work` locations contained no managed raw-body cohort for the pilot and no
+analyst task was observed. The later owner-requested setup/capture and automated
+real-data checks are recorded in [market-readout.md](market-readout.md); they do
+not turn this synthetic dbt comparison into a real-data experiment. PV10 remains
+open for human review/task observation; no further source activation or external
+contact is implied.
 
 ## Official references
 

@@ -25,16 +25,21 @@ isolated candidate and comparison. The owner merged #119/#120 at `3cd4f77` and
 requested continuation on 2026-11-17; all three exact-head jobs for PV9 passed in
 run 44053781048, completing V-D review. Retain packaged SQL and Prefect; dbt stays
 isolated as recorded in the [report](../docs/verification/pipeline-dbt.md).
-PV10's [readiness/protocol record](../docs/verification/market-readout.md) is
-`blocked_inputs`: the checked locations lack a real admitted cohort and no analyst
-task was observed. This does not activate sources or restart paused egress work.
+The owner merged readiness #121 at `7c46d31` and explicitly requested configuration
+and next steps; its three exact-head jobs passed in run 44081199621. Under that
+authorization the bounded KIMDIS proposal was executed: private database/roles,
+originals, request, nonempty readout, identical offline replay and automated
+direct-source checks are complete. The attempt allowance is exhausted; no schedule
+or paused egress work was activated. PV10's [record](../docs/verification/market-readout.md)
+keeps source-derived results private and human review/task observation pending.
 New PRs continue to target main explicitly.
 
 Deliver one private evidence-linked supplier–buyer count, then compare the same
 known-answer data through a bounded isolated dbt project. The accepted direction
 and experiment contract are in [pipeline quality validation](../docs/pipeline-quality-validation.md).
 The source stages, reported-only identity, revision/cancellation rules and resource
-bounds remain those of the module scopes. No GEMI key or source request is needed.
+bounds remain those of the module scopes. Offline implementation/replay needs no
+GEMI key or source request. The separately authorized real capture is recorded above.
 
 ### Boundaries and dependency order
 
@@ -141,8 +146,8 @@ after V-D review; production dependency changes need a separate reviewed change.
 
 Normal focused tests are specified per task. Full local gates are `just check`
 and `just audit`, followed by all three exact-head hosted jobs. A local result is
-not hosted CI evidence. No live collection, merge, deployment or external contact
-is implicit. Before shared/live operation, complete the separately scoped
+not hosted CI evidence. No further live collection, merge, deployment or external
+contact is implicit. Before shared/live operation, complete the separately scoped
 reliability controls retained in the backlog.
 
 Success at V-C is an installed read-only command producing the known answer with

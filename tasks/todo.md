@@ -32,8 +32,11 @@ merged #117/#118 at `3dca868` and requested continuation on 2026-11-17. All thre
 exact-head jobs passed in runs 44038279239 and 44040022546, completing V-C.
 The owner merged #119/#120 at `3cd4f77` and requested continuation on 2026-11-17.
 All three exact-head PV9 jobs pass in run 44053781048, completing V-D review;
-retain packaged SQL/Prefect and the isolated experiment. PV10 remains blocked on
-real inputs and observed task evidence. New PRs target main explicitly.
+retain packaged SQL/Prefect and the isolated experiment. The owner merged #121
+at `7c46d31` (three exact-head jobs passed in run 44081199621) and explicitly
+requested pilot configuration/next steps. PV10 now has privately configured roles,
+an authorized bounded real capture, readout/replay and automated source checks.
+Human review and task observation remain pending. New PRs target main explicitly.
 The initial proof is a cited captured-contract record count, not a persona UI,
 financial concentration measure, live scrape or AI service. Old tasks below remain
 incomplete where previously incomplete; they are not silently closed or discarded.
@@ -275,15 +278,30 @@ are executable on these review branches; the CLI/recovery batch is described bel
 - [x] Prepare the [readiness/result record](../docs/verification/market-readout.md)
   and audit/task protocol under the approved scope. Update this file, the plan,
   capability map and dbt report as delivery metadata (five files total).
-- Evidence: repeated read-only inventory finds no raw-body objects or managed-run
-  manifests in the main and ingestion/archive companion checkouts' `data`/`work`
-  locations; no application database environment is configured. The record sets
-  a private input handoff, frozen evidence audit, paired analyst task and honest
-  blocked-result criteria. No real cohort or task observation is claimed.
-- Blocked as of 2026-11-17: no managed raw-body cohort was found in the project's
-  configured `data`/`work` locations, and no analyst task was observed. The dbt
-  comparison uses synthetic inputs only. No new source request, inferred company
-  result or external contact substitutes for the protected pilot.
+- Initial evidence: repeated read-only inventory found no raw-body objects or
+  managed-run manifests in the main and ingestion/archive companion checkouts' `data`/`work`
+  locations; no application database environment was configured. That assessment
+  prepared a private input handoff, frozen evidence audit, paired analyst task and
+  blocked-result criteria. The following setup supersedes its missing-input state.
+- [x] On the owner's explicit setup request, configure a separate private pilot
+  database with NOLOGIN owner, scoped ingest/project/reader logins and exercised
+  SCRAM/password/read-only checks. Prepare actual environment/request files and
+  an offline launcher outside Git; do not request owner-created inputs again.
+- [x] Execute the bounded KIMDIS proposal under the inherited managed-cloud proxy.
+  Exclude incomplete discovery; admit the complete buyer-filtered cohort without
+  quarantine. Preserve the declared convenience selection and all originals.
+  The three-attempt allowance is exhausted; no new schedule or egress work starts.
+- [x] Project/reconcile the entire admitted cohort, produce the private nonempty
+  readout and reproduce identical bytes through the CLI with all 26 tables
+  unchanged. Automated direct-JSON checks independently pass original fields,
+  grouping, ordinals, cancellation and contribution/count sets. Retain source
+  values, derived counts and evidence hashes privately for owner review.
+- [x] Prepare the private guide and same-workspace table/archive/result checkpoint;
+  verify its hashes. This is not a restore drill or off-host recovery proof.
+- [ ] Complete human originals review and the consenting analyst task. Neither has
+  been performed; automated checks are not human review or measured usefulness.
+  Disclose the owner's prior exposure to aggregate answers and builder familiarity.
+  PV10 stays open; the metric stays draft. The dbt comparison remains synthetic.
 
 ## Paused: approved remote boundary backlog
 
