@@ -1,5 +1,37 @@
 # Tasks
 
+## Current extension: PostgreSQL role preservation
+
+Owner continued after merged #124 (`cae6fe2`); all three exact-head jobs pass in
+run 44127404558. Retain the prior drill and unfinished PV10/model work.
+
+- [x] RPOL1: freeze the startup-role/session-timeout contract and bounded private
+  ownership repair in the [plan](plan.md). No role API or migration addition.
+- [x] RPOL2: reproduce actual NOLOGIN migration ownership, fix the connector and
+  exercise DSN/environment/service settings, mandatory timeouts, unauthorized
+  roles, legacy behaviour and real-connection cleanup on setup error/interruption.
+- Acceptance: configured role owns the new schema and project objects; no fallback
+  or returned connection without fixed limits; no connection leak on setup failure.
+- Verify: `uv run --frozen pytest tests/test_connection.py tests/test_postgres.py`;
+  old-keyword mutation fails; full `just check` and `just audit` plus hosted checks.
+- [x] RPOL3: with the existing verified native backup, repair only expected private
+  pilot project-object owners in one transaction. Preserve all table data/counters,
+  daily-role capabilities and original bytes; validate role-bound replay, archive
+  checks and identical private readout. No cluster-wide reassignment/source call.
+- Files: `src/nima/storage/connection.py`, `tests/test_connection.py`,
+  `docs/operations/backup-restore.md`, `tasks/plan.md`, this file (five files).
+- Evidence: eleven new real-connection cases plus five migration regressions pass.
+  DSN/environment/service role settings and fixed limits survive; invalid/denied
+  roles fail; actual connections close on first/second setup error/interruption.
+  Restoring the old options keyword makes the ownership regression fail. The
+  private pilot's expected `nima` object owners are now repaired in one transaction
+  under the advisory lock; all 26 table contents/counters, logical schema, original
+  files and daily-role capabilities remain unchanged. Role-bound migration replay,
+  archive checks and identical reader output pass. Private evidence stays outside
+  Git; no source HTTP call. Full local gates pass 1,995 tests/93.04% and a clean
+  advisory audit. Hosted checks accompany the PR.
+- [ ] Owner reviews the complete tested increment before replay/version work.
+
 ## Current extension: isolated restore drill
 
 Owner requested continuation after merging #123 at `3e35bc4`; all three exact-head
@@ -26,13 +58,15 @@ See the [runbook](../docs/operations/backup-restore.md) and [plan](plan.md).
   Missing/corrupt bodies and an incomplete native dump fail without publication or
   a partial failure-test schema. The source remains unchanged; only the owned
   destination is stopped. Private data/configuration/proof remain outside Git.
-- [ ] Retain the observed source ownership follow-up: the private bootstrap's
-  requested migration role was overridden by connector timeout options. Source
-  schema ownership was not changed; the restored destination uses explicit native
-  NOLOGIN ownership. Refine migration/bootstrap role handling before shared use.
+- [x] Resolve the source ownership follow-up in RPOL above: the private
+  bootstrap's requested migration role was overridden by connector timeout options. Source
+  schema was unchanged during the drill; the later RPOL connector/explicit private
+  ownership repair resolves that pilot gap. Existing deployments still require
+  their own bounded maintenance; no general shared-deployment role policy is claimed.
 - [x] RD3: record the redacted observed result and full `just check`/`just audit`
   evidence. Full local gates pass 1,984 tests/93.03% and a clean advisory audit.
-- [ ] Exact-head hosted checks and owner review precede the next increment.
+- [x] Owner merged #124 at `cae6fe2`; all three exact-head jobs pass in
+  run 44127404558. Role handling continues in the current extension above.
 - Files: `docs/operations/backup-restore.md`, `docs/verification/restore-drill.md`,
   `tasks/plan.md`, this file, `CAPABILITIES.md` (five documentation files).
 - [ ] Next: archived normalizer replay/version handling, then structured metadata
