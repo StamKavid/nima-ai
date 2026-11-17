@@ -1,0 +1,39 @@
+name: nima_pipeline_experiment
+version: "0.0.0"
+config-version: 2
+profile: nima_pipeline_experiment
+require-dbt-version: "=1.11.17"
+model-paths: [models]
+seed-paths: [seeds]
+vars:
+  observation_cutoff: "2026-01-03T00:00:00+00:00"
+  supplier_tax_id: "012345678"
+models:
+  nima_pipeline_experiment:
+    +materialized: view
+seeds:
+  nima_pipeline_experiment:
+    +quote_columns: false
+    input_observations:
+      +column_types:
+        observation_id: bigint
+        source_id: text
+        normalizer_version: text
+        content_sha256: text
+        observed_at: text
+        buyer_key: text
+        cancelled: boolean
+        supplier_state: text
+        run_id: uuid
+        page_number: integer
+        record_index: integer
+        raw_sha256: text
+        json_pointer: text
+        projection_version: text
+        projection_sha256: text
+    input_mentions:
+      +column_types:
+        observation_id: bigint
+        ordinal: integer
+        tax_id: text
+        country_code: text

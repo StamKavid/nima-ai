@@ -2,9 +2,13 @@
 
 Status: conceptual direction accepted for planning on 2026-11-16. The owner
 requested continuation after reviewing acquisition-to-semantics quality,
-deduplication and the proposed SQL/dbt comparison. This document does not report
-an executed experiment. The [implementation plan](../tasks/plan.md) and
-[tasks](../tasks/todo.md) remain proposed; no source is activated.
+deduplication and the proposed SQL/dbt comparison. The owner approved the plan,
+merged the offline readout through #118 and requested continuation on 2026-11-17.
+The isolated comparison is now executed: see the
+[measured report](verification/pipeline-dbt.md) for versions, quality failures,
+license/security evidence, timings and the recommendation to defer adoption.
+This document retains the architecture/acceptance contract; current delivery is
+tracked in the [plan](../tasks/plan.md) and [tasks](../tasks/todo.md). No source is activated.
 
 ## Architecture and ownership
 
@@ -48,14 +52,14 @@ It cannot mutate application evidence or human review history.
 
 | Boundary | Rule | Existing or next proof |
 |---|---|---|
-| Original bytes | SHA-256 addressed, archive before parse, verify on read | Existing; integrate all selected pages into readout |
+| Original bytes | SHA-256 addressed, archive before parse, verify on read | Readout verifies all selected pages |
 | Request/page replay | Same committed page is repeat-safe; gaps/drift fail | Existing real-SQL/crash tests |
 | Version history | Source ID + normalizer + source-content hash; A→B→A reuses A | Existing; preserve every later observation |
 | Invalid record | Preserve raw pointer/reason; never silently drop it | Existing quarantine; first readout refuses quarantined cohorts |
-| Derived facts | Projection version/receipt, full field and ordinal reconciliation | Existing projector; full readout reconciliation is planned |
-| Record count | Latest observed version before supplier filter, once per source ID | Provider scope; hand-calculated and SQL tests planned |
+| Derived facts | Projection version/receipt, full field and ordinal reconciliation | Full original-byte readout reconciliation delivered |
+| Record count | Latest observed version before supplier filter, once per source ID | Provider, hand-labelled SQL and readout checks delivered |
 | Company grouping | Eligible reported country/tax key; no name-based legal merge | Provider scope; conflicts/unknowns remain visible |
-| Coverage/freshness | Query windows and observed times, not a claim of the whole market | Expose in first artifact; broader monitoring is later |
+| Coverage/freshness | Query windows and observed times, not a claim of the whole market | First artifact exposes windows/clocks; broader monitoring is later |
 
 Cross-source references and different procurement stages are linked assertions,
 not duplicates to delete or values to add. Unknown optional fields remain unknown;
@@ -111,11 +115,11 @@ request-version compatibility. Those require their own tested storage scope.
 Candidate pins, checked against PyPI metadata on 2026-11-16:
 `dbt-core==1.11.17` and `dbt-postgres==1.11.0`, Python 3.12, disposable
 PostgreSQL 17. Core declares Apache-2.0; the adapter declares the Apache classifier.
-Dependency resolution, every resolved package's license/advisory review, install
-compatibility and an actual PostgreSQL run are still unverified gates. In
-particular, metadata compatibility is not execution evidence.
+The candidate now passes resolution, resolved-package license/advisory review,
+isolated install, actual PG17 execution and synthetic comparison; the report
+records limitations. Metadata compatibility alone was not treated as proof.
 
-The future experiment has its own lock/environment under
+The isolated experiment has its own lock/environment under
 `experiments/pipeline_dbt/`; never edit the application lock, runtime image, CI or
 default gate to install it. Pin transitive dependencies before execution, review
 telemetry/network behavior, disable optional telemetry and do not use cloud

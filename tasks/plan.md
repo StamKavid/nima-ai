@@ -18,8 +18,12 @@ PV4–PV5 proceed from that combined state, and new PRs target main explicitly.
 The owner merged #114/#115/#116 into main, ending at `7b6397e`, and requested
 continuation on 2026-11-17. All three exact-head jobs passed for PV4 in run
 43912312467 and PV5 in run 43922239422, completing checkpoint V-B. PV6–PV7 now
-deliver the CLI and operational proof; checkpoint V-C requires owner review before
-the isolated dbt experiment. New feature PRs continue to target main explicitly.
+deliver the CLI and operational proof. The owner merged #117/#118 into main at
+`3dca868` and requested continuation on 2026-11-17, completing V-C. All three
+exact-head jobs passed in runs 44038279239 and 44040022546. PV8–PV9 execute the
+isolated candidate and comparison; V-D remains owner review. The
+[experiment report](../docs/verification/pipeline-dbt.md) recommends deferring
+production adoption. New PRs continue to target main explicitly.
 
 Deliver one private evidence-linked supplier–buyer count, then compare the same
 known-answer data through a bounded isolated dbt project. The accepted direction
@@ -91,10 +95,16 @@ the current parser on originals proves reconciliation, not those capabilities.
 
 ### SQL/dbt experiment and release decision
 
+Execution preserves five-file increments: PV8 prerequisites, PV9 core models, then
+a separate five-file evidence/status record (this plan, tasks, capability map,
+validation contract and experiment report). This records the already-required
+comparison without expanding application scope or skipping V-D review.
+
 PV8–PV9 use only synthetic inputs and a separately named disposable PostgreSQL 17
 database. Candidate direct pins are `dbt-core==1.11.17` and
 `dbt-postgres==1.11.0` (PyPI metadata/license declarations checked 2026-11-16).
-Actual resolution, transitive license/advisory review and execution remain gates.
+Resolution, license/advisory review, local connection and the synthetic comparison
+now pass for the isolated environment; the experiment report records their limits.
 Use a separate lock/environment under `experiments/pipeline_dbt/`; no changes to
 application dependencies, runtime images, CI, source schedules or real archives.
 Disable optional telemetry and review external runtime behavior before execution.

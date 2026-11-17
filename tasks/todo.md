@@ -27,9 +27,11 @@ The owner reviewed/merged PV1–PV3, completing V-A. Their stacked merges left P
 on feature bases; #114 promotes the identical combined tree to main and passed all
 three hosted jobs in run 43904754199. The owner merged #114–#116 into main at
 `7b6397e` and requested continuation on 2026-11-17. PV4 and PV5 passed all three
-exact-head jobs in runs 43912312467 and 43922239422, completing V-B. PV6–PV7 are
-the next review batch; V-C remains pending. New PRs explicitly target main and
-declare their merge order.
+exact-head jobs in runs 43912312467 and 43922239422, completing V-B. The owner
+merged #117/#118 at `3dca868` and requested continuation on 2026-11-17. All three
+exact-head jobs passed in runs 44038279239 and 44040022546, completing V-C.
+PV8–PV9 are evaluated in the current review batch; V-D remains pending. New PRs
+explicitly target main and declare their merge order.
 The initial proof is a cited captured-contract record count, not a persona UI,
 financial concentration measure, live scrape or AI service. Old tasks below remain
 incomplete where previously incomplete; they are not silently closed or discarded.
@@ -198,12 +200,12 @@ are executable on these review branches; the CLI/recovery batch is described bel
 
 ### Checkpoint V-C: Offline data-to-semantics proof reviewed
 
-- [ ] Owner reviews known-answer results, evidence trace, quality failures and
+- [x] Owner reviews known-answer results, evidence trace, quality failures and
   installed CLI. This delivers one offline readout, not real-market/task validation.
 
 ### PV8: Isolated dbt candidate prerequisites
 
-- [ ] Prepare a separate Python 3.12 lock/environment for candidate Core 1.11.17 /
+- [x] Prepare a separate Python 3.12 lock/environment for candidate Core 1.11.17 /
   Postgres adapter 1.11.0, with synthetic frozen seed inputs and private profile.
 - Acceptance: resolve/pin exact packages; review resolved licenses/advisories and
   telemetry before running; test only a separately named disposable PG17 database.
@@ -213,10 +215,17 @@ are executable on these review branches; the CLI/recovery batch is described bel
 - Files: `experiments/pipeline_dbt/pyproject.toml`, `uv.lock`,
   `seeds/input_observations.csv`, `seeds/input_mentions.csv`, `profiles.example.yml`.
 - Scope: 5 files. Dependency: V-C. Synthetic seeds derive from the approved fixture.
+- Evidence: #119 locks 55 external distributions, reviews all license metadata/
+  texts and hash-checks compatible wheels. The applicable 54-package advisory
+  audit is clean. Isolated install/import, actual PG17 connection and builder
+  denial of application-schema access pass. Seeds derive from a verified managed
+  synthetic capture; no original bytes or credentials enter Git. Local full
+  gates pass 1,941 cases/92.97%, with clean application audit; all three exact-head
+  hosted jobs pass in run 44048603575 on `51db5ec`.
 
 ### PV9: SQL/dbt parity and decision
 
-- [ ] Build the small observation/revision/count model graph and its quality tests,
+- [x] Build the small observation/revision/count model graph and its quality tests,
   then compare exact record/evidence sets and diagnostics with the known-answer SQL.
 - Acceptance: clean fixture matches; introduced bad grains/relationships fail;
   text identifiers/leading zeroes survive seed/model types and repeat build is
@@ -227,6 +236,22 @@ are executable on these review branches; the CLI/recovery batch is described bel
 - Files: `experiments/pipeline_dbt/dbt_project.yml`,
   `models/observations.sql`, `selected_revisions.sql`, `counts.sql`, `properties.yml`.
 - Scope: 5 files. Dependency: PV8. A new dependency/operating decision follows review.
+- Evidence: two seeds, three models, 28 data tests; fifteen semantic/evidence
+  scenarios match the full pure/reference-SQL payload and citation sets. Five
+  injected data defects fail real dbt tests. Restored baseline hashes match.
+  Fractional-time comparison caught a citation formatter defect, now fixed.
+  A supplier-before-revision mutation returns seven instead of five while all
+  28 generic tests pass; the independent oracle rejects it. Full application
+  gates pass 1,941 cases/92.97%; no runtime dependency or schedule changes.
+- [x] Record comparison and delivery status in a separate five-file documentation
+  increment: this file, `tasks/plan.md`, `CAPABILITIES.md`,
+  `docs/pipeline-quality-validation.md`, `docs/verification/pipeline-dbt.md`.
+  Private proof retains exact commands/vars, compiled SQL and 153 target-artifact
+  hashes, license evidence and synthetic originals. The
+  [report](../docs/verification/pipeline-dbt.md) recommends keeping SQL/Prefect;
+  it distinguishes model tests from original-byte and whole-graph publication
+  guarantees. Exact-head hosted checks accompany the delivery PR; hosted CI
+  does not install or rerun dbt.
 
 ### Checkpoint V-D: Tool choice reviewed
 
@@ -245,6 +270,10 @@ are executable on these review branches; the CLI/recovery batch is described bel
   retain originals/results privately and publish only reviewed aggregate findings.
 - Files: `docs/verification/market-readout.md` (reviewed result only).
 - Scope: 1 file plus private evidence. Dependency: V-C; independent of dbt adoption.
+- Blocked as of 2026-11-17: no managed raw-body cohort was found in the project's
+  configured `data`/`work` locations, and no analyst task was observed. The dbt
+  comparison uses synthetic inputs only. No new source request, inferred company
+  result or external contact substitutes for the protected pilot.
 
 ## Paused: approved remote boundary backlog
 
