@@ -78,7 +78,7 @@ Start with this one metric and an evidence-linked readout. Current module scopes
 | Module | First bounded specification | Scope status |
 |---|---|---|
 | semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | PV1 owner-reviewed provider; draft definition |
-| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | PV1–PV7 owner-reviewed offline CLI; protected pilot pending |
+| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | Owner-reviewed CLI; real readout/automated checks complete; human pilot pending |
 
 The semantic layer is versioned code/SQL definitions plus a small glossary, not
 an ontology generator, LLM dependency or separate metrics server. The two specifications share one
@@ -107,9 +107,13 @@ The isolated [dbt comparison](docs/verification/pipeline-dbt.md) now passes fift
 semantic/evidence scenarios and rejects five injected data defects. The report
 recommends retaining packaged SQL/Prefect for the present metric. The owner merged
 #119/#120, completing V-D review; dbt remains isolated. The protected
-[real-data/task pilot](docs/verification/market-readout.md) has a concrete audit/
-observation protocol but remains `blocked_inputs`. No live source activation,
-verified company result or product-usefulness measurement follows from preparation.
+[real-data/task pilot](docs/verification/market-readout.md) now has an owner-requested
+private database/configuration, bounded real KIMDIS capture and nonempty cited
+readout. Complete original/projection reconciliation, independent automated
+source-field checks and identical offline replay pass. Human source review and
+task observation remain pending; no verified legal-company result or measured
+usefulness is claimed. Source-derived results and credentials remain outside Git.
+The capture's allowance is exhausted; no source schedule or paused egress work starts.
 The definition remains draft; owner approval of code does not
 silently certify a metric. See [tasks](tasks/todo.md) and the PRs for local versus
 exact-head hosted evidence. No full semantic platform, live source-current view,

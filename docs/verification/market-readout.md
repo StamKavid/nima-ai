@@ -1,29 +1,80 @@
 # Real-data readout pilot: readiness and protocol
 
-Assessment date: 2026-11-17. Current result: **blocked_inputs**. This implements
-the readiness/result record for PV10 in the approved [plan](../../tasks/plan.md)
-and [consumer scope](../../SPEC-market-analytics.md). It is not a completed
-real-company audit or an observed analyst study. No capability-progress credit
-follows from preparing this document.
+Assessment date: 2026-11-17. Current state: **real capture and automated checks
+complete; human review and task observation pending**. This records PV10 in the
+approved [plan](../../tasks/plan.md) and [consumer scope](../../SPEC-market-analytics.md).
+The earlier `blocked_inputs` inventory below is historical. A successful command
+and automated audit do not complete the product-usefulness gate.
 
 The owner merged #119/#120 into main at `3cd4f77` and requested continuation.
 All three exact-head jobs for #120 passed in run 44053781048. That completes V-D
 review of the recommendation to retain packaged SQL and Prefect; dbt remains an
 isolated experiment. The metric definition remains draft.
 
-## Observed input status
+## Configured pilot and observed result
+
+After merging #121 at `7c46d31`, the owner explicitly requested configuration and
+the next steps. This authorized the bounded capture proposal below. All three
+exact-head jobs for #121 passed in run 44081199621. The following work used the
+existing application; no application code, schema migration or dependency changed.
+
+- A separate PostgreSQL 17 pilot database has a NOLOGIN owner and distinct ingest,
+  projection and SELECT-only reader logins. Scoped grants and database-specific
+  SCRAM authentication were exercised: a wrong password and reader writes fail;
+  the readout's role/schema preflight passes.
+- Private environment files, the actual closed request, original archives,
+  deterministic result, automated audit matrix and offline launcher exist outside
+  Git. Directories are 0700; files are 0600, except the 0700 launcher. The owner
+  received the actual locations privately rather than being asked to create them.
+- The discovery and buyer-filtered cohort used the exact proposal bounds and
+  exhausted its three-attempt allowance. The incomplete discovery run is retained
+  but excluded from analytics. The admitted cohort has complete pagination and no
+  quarantine. No replacement buyer, retry expansion or larger window was used.
+- The selected reported supplier key follows the declared convenience rule. The
+  private readout has a nonempty supplier-to-buyer count, reconciles every selected
+  original and projection, leaves all 26 tables unchanged and reproduces identical
+  bytes through the CLI. It is not a METLEN or verified legal-entity lookup.
+- An additional automated comparison checks the original JSON directly, without
+  the normalizer/semantic policy for the compared fields: record IDs/pointers,
+  Greek text, buyer keys, supplier ordinals/country/tax text, dates, exact money,
+  currency, cancellation and contribution/count sets. All checks pass for this
+  cohort. This is agent verification, not human source review or publisher truth.
+
+Execution used the selected managed-cloud workspace and inherited HTTP(S) proxy;
+the actual HTTP client selected its proxy transport. It did not use the owner's
+device for source requests. No dedicated VPN, verified source-worker boundary or
+anonymity guarantee is claimed. New RP3–RP9 work remains paused. No source schedule
+or Publicity capture was activated, and this allowance permits no further source
+requests. Offline readout replay needs no source access.
+
+The private launcher loads the reader environment and can start the existing local
+cluster before running the existing command. It never initializes, migrates or
+fetches source data. The running-cluster path was exercised; a stopped-cluster
+recovery drill was not. A same-workspace checkpoint copies table exports,
+originals, requests and readouts under a verified hash manifest. It is not a tested
+restore or off-host backup. This remains a single-operator pilot; local owner or
+superuser access is outside the password-role checks.
+
+Actual keys, source-derived counts, record values and real-evidence hashes remain
+private pending owner-reviewed redacted publication. Human records reviewed and
+analyst tasks observed remain zero. The owner has seen aggregate answers in chat;
+any later task observation must disclose that exposure and builder familiarity.
+PV10 remains open for the manual audit and observed task below. Metric status stays
+draft; no accuracy rate, market coverage or measured speedup is inferred.
+
+## Initial input assessment (superseded)
 
 Read-only inventory found zero `.body` objects and zero managed-run manifests in
 the main project's `data`/`work` locations and the existing ingestion/archive
-companion checkouts' `data`/`work` locations. `NIMA_DATABASE_URL` is not configured
-in this workspace. This describes the
+companion checkouts' `data`/`work` locations. `NIMA_DATABASE_URL` was not configured
+in the checked environment. This described the
 checked locations/environment, not every possible owner-managed host or archive.
 
 The retained dbt capture is explicitly synthetic and cannot fill this gate. The
 historical source feasibility sample described in `SPEC-source-ingestion.md`
 does not supply the complete managed SQL/original cohort required here.
 
-| Requirement | Observed status |
+| Requirement | Initial status before owner-requested setup |
 |---|---|
 | Explicit real KIMDIS run selection and private request | Not available |
 | Matching original bytes and complete projections | Not available for an admitted real cohort |
@@ -33,10 +84,14 @@ does not supply the complete managed SQL/original cohort required here.
 | Real records manually audited / tasks observed | 0 / 0; no accuracy or speedup estimate |
 
 No source request, archive repair, role/schema change, deployment or contact with
-another person was performed for this assessment. No absence of contracts or
+another person was performed for that initial assessment. No absence of contracts or
 company activity is inferred from these missing inputs.
 
-## Minimum input handoff
+## Input contract and handoff for another host
+
+The current private handoff is already configured. The instructions below describe
+reusing existing captures elsewhere; they are not missing inputs the owner must
+create for this completed setup.
 
 For existing captures, provide the local path to a private readout request and
 the name of its privately configured database environment variable. Do not paste
@@ -68,8 +123,9 @@ Fixture-only egress checks do not establish deployed investigator IP protection.
 
 ### Bounded capture proposal if no existing inputs are available
 
-This is preparation for a separate source-access decision, not an executable
-authorization or a deployed worker. Use only the existing fixed KIMDIS contract
+The owner subsequently authorized and the agent executed this exact proposal;
+its allowance is exhausted. It does not authorize another capture or deploy a
+worker. Use only the existing fixed KIMDIS contract
 endpoint and a closed date window `2026-11-06` to `2026-11-06`, which was used in
 the documented feasibility probe. Do not search GEMI or Publicity for this step.
 
@@ -177,9 +233,9 @@ notes private. Publish only an owner-reviewed redacted aggregate result. Hashes
 are not anonymization. Report source/window coverage, checked denominators,
 unknowns, discrepancies and whether the task saved work or failed to do so.
 
-The current `blocked_inputs` label belongs to this assessment, not the CLI's
-outcome vocabulary. Once inputs exist, readiness, evidence-audit completion and
-task observation remain separate milestones. Do not mark PV10 complete merely
+The historical `blocked_inputs` label was a readiness assessment, not a CLI
+outcome. Input readiness, automated checks, human evidence review and task
+observation remain separate milestones. Do not mark PV10 complete merely
 because the command exits 0 or a company has no matching records. A real audited
 cohort plus an actually observed task is required for the product-usefulness claim.
 
