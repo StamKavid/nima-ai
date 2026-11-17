@@ -87,10 +87,10 @@ separate from the backup. Precreate an empty database from `template0` and a
 NOLOGIN nonsuperuser application owner. A database dump does not recreate cluster
 roles. Recreate reader/ingest/project roles with new credentials and approved
 scoped grants; do not copy source passwords or assume ACLs were restored. Confirm
-actual schema/table/sequence/function owners in the catalog. The existing
-connection helper replaces DSN `options`, so a requested role in that string does
-not establish migration ownership. Use explicit native restore role selection;
-source migration/bootstrap ownership needs its separately recorded follow-up.
+actual schema/table/sequence/function owners in the catalog. The earlier drill
+found that connector timeout options replaced the requested migration role. The
+role-preservation increment below fixes connection setup; existing object owners
+still require explicit maintenance. Native restore uses explicit role selection.
 
 ```sh
 "$NIMA_PG_BIN/pg_restore" --dbname=service=nima_restore \
@@ -157,3 +157,55 @@ owned off-host retention and periodic drills before relying on it for recovery.
 Primary references: [pg_dump](https://www.postgresql.org/docs/17/app-pgdump.html),
 [pg_restore](https://www.postgresql.org/docs/17/app-pgrestore.html) and
 [SQL dump recovery](https://www.postgresql.org/docs/17/backup-dump.html).
+
+
+## Connection roles and existing-owner repair
+
+The connector honours ordinary PostgreSQL startup settings from the DSN,
+`PGOPTIONS` or a private service. PostgreSQL authenticates and checks the requested
+role; an invalid or unauthorized role is an error, never a fallback. Connection
+setup then applies `SET statement_timeout = 30000` and `SET lock_timeout = 5000`
+in autocommit mode before returning it. The existing 5 s connect timeout remains.
+Setup failures/interruption close the connection and propagate. These are session
+settings; they do not update role/database defaults or application rows. Caller
+startup limits can cause setup to fail; no unbounded connection is returned.
+
+A fresh migration with an authorized NOLOGIN owner in startup `options` creates
+schema/tables/sequences/functions under that role. Role membership and CREATE
+privileges must already permit the operation; the connector grants nothing.
+Do not assume migration replay changes old object owners automatically.
+
+For an existing bounded pilot, first retain and verify the native backup, quiesce
+writers, record current owners and require the expected bootstrap owner plus the
+already-configured NOLOGIN database owner. Use a migration advisory lock and one
+transaction with the standard timeouts. Change only `nima` schema/project tables,
+views, sequences and functions through qualified identifiers; table-owned indexes
+and sequences move with their table. Stop on unexpected owners/dependencies.
+Do not use cluster-wide `REASSIGN OWNED`, alter unrelated roles or rewrite rows.
+Record inverse ownership statements privately for a rollback plan. Verify actual
+catalog owners, all table/counter contents, effective daily grants, archived bytes
+and byte-identical readout afterward. The prior drill remains evidence for its
+original snapshot; an ownership repair is a separate recorded maintenance action.
+
+Regression commands: `uv run --frozen pytest tests/test_connection.py tests/test_postgres.py`,
+`just check`, `just audit`. The database tests use disposable local PostgreSQL 17;
+they do not touch the private pilot. New deployments must check actual ownership,
+not merely configuration. No source requests or model dependencies are needed.
+
+References: [Psycopg connections](https://www.psycopg.org/psycopg3/docs/api/connections.html)
+and [PostgreSQL session SET](https://www.postgresql.org/docs/17/sql-set.html).
+
+
+The bounded private pilot repair was performed after #124: the verified native
+backup was retained, expected project owners were changed in one advisory-locked
+transaction, and all 26 table data/counters, logical schema, archived originals,
+daily-role capabilities and reader-result bytes stayed unchanged. Role-bound
+migration replay and archive checks pass. Private prior-owner/inverse records and
+full proof remain outside Git. This resolves that pilot's ownership gap; it does
+not silently reassign existing deployments or certify a general production role
+policy. The dated restore record remains its historical pre-repair assessment.
+
+The role-preservation increment passes eleven new connection cases and the five
+migration regressions; full local gates pass 1,995 tests/93.04% with a clean audit.
+Restoring the old options override fails the ownership regression. Hosted status
+is recorded with its delivery PR. No CI job accesses the private repair proof.

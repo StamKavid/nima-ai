@@ -1,5 +1,55 @@
 # Delivery plan
 
+## Current extension: preserve PostgreSQL startup roles
+
+The owner merged #124 at `cae6fe2` and requested continuation; all three exact-head
+jobs passed in run 44127404558. Address its observed ownership defect before
+archive replay and metadata projection. This is the same approved DataOps work;
+retain earlier recovery evidence and pending human/model tasks below.
+
+Contract: public `storage.connection.connect` must preserve libpq startup settings
+from explicit DSNs, environment and service configuration, including an authorized
+NOLOGIN role. Keyword overrides must not replace `options`. Authenticate using the
+normal driver, then apply the fixed session statement/lock timeouts (30 s / 5 s)
+in autocommit mode before returning the connection. Preserve the existing 5 s
+connect timeout. Invalid/unauthorized startup roles fail; never fall back to the
+login user. If timeout setup fails or is interrupted, close the actual connection
+and propagate the original error. No new API argument or SQL migration is needed.
+
+Sequence: reproduce wrong schema ownership with a real role-bound migration →
+minimal connector fix → environment/service, limits, denied-role and cleanup
+regressions → local gates/private pilot verification → PR/hosted checks/review.
+Five files: connector, `tests/test_connection.py`, operator runbook, these two task
+documents. Execute sequentially; no new source requests, dependency or CI changes.
+The operator runbook records the living contract; the prior drill remains a
+historical observation rather than being rewritten as though the bug never existed.
+
+After synthetic real-PostgreSQL tests pass, repair only the private pilot's `nima`
+schema and its project objects to the already-configured NOLOGIN owner. Require
+the retained verified native backup, expected old owners, no running collection,
+a migration advisory lock, one bounded DDL transaction and exact scoped identifiers.
+Do not use cluster-wide REASSIGN OWNED. Record prior owners for rollback. Check all
+26 table contents/counters and effective daily-role policies remain unchanged;
+verify actual new owners, role-bound migration replay, archive integrity and
+identical reader output. Never move original evidence or activate a source to
+verify the repair. Existing deployments receive no automatic ownership rewrite.
+
+Acceptance: real migration creates schema/relations/sequences/functions under the
+requested role; native DSN/environment/service behavior and fixed timeout values
+pass; invalid role and setup failure/interruption return no usable connection;
+legacy no-option operations still pass. A mutation restoring the old options
+keyword must fail the ownership regression. Run `just check`, `just audit`, then
+all three exact-head hosted jobs. Private pilot data/proof stay outside Git.
+Next: archive replay/version handling → structured metadata → Greek model evaluation.
+
+Eleven new connection cases and five migration regressions now
+pass; the old options override mutation is rejected. Full local gates pass
+1,995 tests/93.04% with a clean advisory audit. The private pilot's explicit
+ownership repair passes with unchanged 26-table data/counters, logical schema,
+original files, daily capabilities and reader bytes. Local/hosted gates and owner
+review accompany the increment; no source request or automatic reassignment of
+other databases occurred.
+
 ## Current extension: isolated SQL-and-archive restore drill
 
 The owner merged #123 at `3e35bc4`; all three exact-head jobs pass in run
