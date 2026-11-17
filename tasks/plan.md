@@ -1,5 +1,53 @@
 # Delivery plan
 
+## Current extension: DataOps archive integrity — owner-authorized
+
+The owner merged #122 at `7cabec0`; its three exact-head jobs passed in run
+44086900388. The owner then requested delegated validation, received a bounded
+technical pass with commercial/user limits, and authorized the next batch on
+2026-11-17. The private agent assessment does not count as human review; PV10 and
+metric certification remain open. Continue the existing source-ingestion foundation
+with the [committed-page verifier](../SPEC-source-ingestion.md#dataops-increment-committed-page-archive-verification).
+This extends the same delivery plan without closing or replacing pending work.
+
+Assumptions: one trusted operator, PostgreSQL 17, explicit existing local archives,
+no additional source requests, and no inferred sector mapping. The source-contract
+metadata supports distinguishing buyer function, CPV category and GEMI KAD activity;
+a unified sector dimension is future scoped work.
+
+Sequence: AV1 record contract/plan/tasks → AV2 implement and verify the complete
+bounded command → owner review/merge. Execute sequentially, no delegation. AV1
+changes the existing source spec and these two task documents (three files). AV2
+adds `dataops/__init__.py`, `dataops/archive.py`, its tests and minimal root CLI
+routing (four files). Each task stays below five files; the PR includes both tasks.
+The owner's current instruction authorizes this bounded implementation; no new
+approval is needed for routine implementation choices within it.
+
+The command freezes a read-only SQL metadata snapshot, closes SQL, then reuses the
+existing public bounded archive-recovery API. Tests must distinguish zero pages
+from a committed empty page, partial collection from integrity success, and frozen
+metadata from later commits. Reuse public database/schema/filesystem APIs; no
+private cross-imports, generic framework or layer-cycle refactor.
+
+Risks: unsafe/missing originals fail without repair; changed body length/hash
+fails; a large run fails before reading any body; CLI errors hide private values;
+a partial run never becomes full coverage. The operation checks committed pages
+only, not unindexed attempts or every database object. Reader privilege auditing,
+full restore/replay and source-currentness remain separate scopes.
+
+Verification: failing focused tests before implementation; actual limited-role
+SQL/private-file tests, count/hash checks, mutation rejection, `just check`,
+`just audit`, then all three exact-head hosted jobs. Exercise the finished command
+on the existing private pilot without fetching sources; publish no source-derived
+counts, identifiers or evidence hashes in the public PR. No migrations/dependency/
+CI changes. AV2 now passes 43 focused cases and full local gates (1,984 tests,
+93.03% combined coverage, clean audit). The existing private pilot verifies at its
+original and relocated locations, with all 26 tables/files unchanged and no source
+requests. A same-length corrupt-body test rejects the removed-hash-check mutation;
+the shared helper is restored unchanged. Exact-head hosted checks and owner review
+remain PR gates. Future increments: verified SQL-plus-archive restore, then explicit
+normalizer-version replay, each with its own refined contract and tests.
+
 ## Current: first readout and pipeline validation — approved implementation plan
 
 The owner approved the capability map through #108 at `9ff2eff`, reviewed the

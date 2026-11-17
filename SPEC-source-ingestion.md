@@ -403,3 +403,90 @@ The first slice decodes and validates one KIMDIS contract response, preserves
 exact money and reported supplier participation, and attaches a raw-response
 hash and source-field references. It does not fetch records, archive responses,
 write PostgreSQL, or claim that the complete ingestion stage is implemented.
+
+
+## DataOps increment: committed-page archive verification
+
+Owner authorization: on 2026-11-17 the owner accepted the technical pilot verdict
+and requested the next DataOps batch. Extend `source-ingestion` with one offline
+integrity check first; SQL/archive restore and normalizer replay follow separately.
+Human pilot review remains pending and does not block this engineering increment.
+
+Objective: an operator can check that every original body referenced by one
+selected KIMDIS run's committed SQL pages exists and matches its recorded hash
+and byte length. This is not source freshness, parsing/projection reconciliation,
+a whole-database scan or a restore/backup claim.
+
+```sh
+uv run --frozen python -m nima archive verify --run-id RUN_UUID \
+  --archive-dir /absolute/private/collector-archive
+uv run --frozen pytest tests/test_archive_verify.py
+just check
+just audit
+```
+
+`NIMA_DATABASE_URL` is environment-only. Use a reader with schema USAGE and SELECT
+on `schema_migrations`, `ingest_runs`, `run_pages`, `raw_objects`; the pilot's
+existing reader already has these grants. The verifier creates no roles and does
+not certify the configured principal's privileges. Its own SQL runs in one
+read-only repeatable-read UTC transaction with existing connection timeouts.
+Validate the supported migration history, freeze only the selected run's committed
+page/hash/length metadata, then close SQL before reading files. Bind parameters;
+never include connection strings, source values, paths or raw hashes in errors.
+
+Accept one UUID and an explicit absolute private archive root; do not infer or
+require its stored absolute location. A relocated byte-identical archive can be
+checked without modifying immutable SQL identity. Missing runs, broken checkpoint
+contiguity (`0..next_page-1`), missing blob metadata or changed byte lengths fail.
+A partial/failed run can have verified committed pages; always disclose its stored
+run status and the `kimdis_committed_pages_only` scope. Do not imply full source
+coverage. A run with no committed pages has `no_committed_pages` outcome/exit 3;
+no archive is created, repaired or claimed verified in that case.
+
+Bounds: at most 32 committed pages/object locations, 8 MiB per object and 64 MiB
+combined distinct objects. Preflight the entire SQL selection before body reads;
+never silently truncate. Deduplicate identical locations, retaining page count.
+Reuse public `graph.pilot_archive` recovery with descriptor-relative private
+no-follow reads, marker/Git-exclusion validation, regular-file/privacy checks,
+change detection, hash verification and existing byte limits. Existing hard-linked
+body aliases remain supported when bytes/length match; this is not an isolation
+guarantee against another local writer. Place the new
+application composition in `nima.dataops.archive`; do not make ingestion/storage
+import the graph or add another filesystem-security implementation.
+
+Success returns only fixed scope/outcome, stored run status, page/object counts
+and verified-byte total. Configuration errors exit 2, interruption 130, other
+failures 1; sanitized fixed reasons only. No HTTP, missing-object fetch, archive
+initialization/repair/chmod, migration, projection, SQL write, manifest rewrite or
+source schedule. Unreferenced files, uncommitted HTTP-attempt responses, GEMI and
+manual-evidence layouts remain outside this first scope. A result describes the
+frozen SQL snapshot, not later concurrent commits or an atomic cross-store backup.
+
+Tests use synthetic originals, actual PostgreSQL 17 and private files. Verify a
+limited reader, unchanged contents of all 26 tables/files, relocation, empty and
+partial runs, concurrent commits after snapshot close, corrupt/missing/unsafe
+files, metadata/byte/page limits and fixed CLI errors. A hash-check mutation must
+fail a regression. Run full local gates and all three hosted checks before merge.
+No new dependency, migration or CI change. Example summary follows existing style:
+
+```json
+{"status":"complete","outcome":"verified_committed_pages","scope":"kimdis_committed_pages_only","run_status":"complete","page_count":2,"object_count":2,"verified_bytes":256}
+```
+
+Always preserve originals and unknowns; never repair during verification or treat
+an empty scope as a passed audit. Schema/dependency/CI changes are outside this
+approved increment. Python types/dataclasses, strict mypy and Ruff follow the
+existing adapters; tests live in `tests/test_archive_verify.py`.
+
+### Sector metadata boundary
+
+KIMDIS original bytes retain authority classification/activity and object CPV
+codes/labels. The current contract normalizer exposes buyer key/name but not a
+curated buyer-sector or CPV dimension. GEMI's profile normalizer retains reported
+KAD activity code/label/version/type/validity assertions when supplied; that is not
+live coverage or a reviewed company-sector dimension. Keep buyer function (for
+example defence), purchased category (CPV) and supplier economic activity (KAD)
+distinct. A defence buyer purchasing food does not classify its supplier as a
+weapons company. Future sector mappings need source paths, taxonomy/version,
+validity, unknown/conflict states and explicit reported versus reviewed/inferred
+status; this archive-verification increment adds no inferred sector labels.
