@@ -1,5 +1,21 @@
 # Tasks
 
+## CI correction: PR #127
+
+- [x] Identify run 44163644708 failure: Compose smoke expects migration count 7;
+  quality and source-worker-egress jobs pass. Migration 0008 itself succeeds.
+- [x] Reproduce the exact embedded database failure, replace the stale count with
+  public schema validation and preserve every other smoke/quality control. Three
+  files: CI workflow, plan and this task record; no application/live-pilot change.
+- Evidence: real PostgreSQL 17 migration 8 reproduces the old assertion failure;
+  corrected block passes and rejects an incorrect checksum at unchanged count.
+  Image build succeeds; local Compose startup hits Docker disk exhaustion while
+  pulling PostgreSQL. Owned stack/image and disposable SQL database are removed.
+  Full local gates and corrected hosted checks are recorded with the PR.
+- [ ] Verify corrected Docker check and invalid-history rejection, owned cleanup,
+  required local gates/audit and all three hosted jobs on the corrected head.
+- [ ] Owner review/merge remains pending; retain the promotion follow-ups below.
+
 ## Current extension: SQL replay promotion
 
 Owner merged #126 at `ecb5a85`; all three exact-head jobs pass in run 44154596290.

@@ -1,5 +1,35 @@
 # Delivery plan
 
+## CI correction for replay promotion
+
+Owner reported PR #127 CI failure. Exact-head run 44163644708 passes quality and
+source-worker egress but fails the Compose installed-module smoke check: it still
+asserts seven migrations after 0008 was added. The application migration succeeds;
+the hosted traceback points to that stale count. Continue the same authorized
+promotion plan; do not alter the live pilot or any application/data contract.
+
+Use the CI skill and reproduce the original embedded check in an owned disposable
+Compose stack. Replace the version literal with public `validate_schema` on the
+existing connection, checking current packaged history and checksums. Preserve the
+three empty-ledger checks, UID, time zone, deployments, disabled schedules and all
+quality/security gates. This strengthens the smoke contract and avoids another
+hard-coded schema version. No permission, threshold, dependency or timeout change.
+
+Files: `.github/workflows/ci.yml`, this plan, `tasks/todo.md` (three). Verify old
+embedded check fails, corrected check passes on the same installed image, corrupt
+history is rejected and only the owned Compose resources are removed. Run required
+local checks/audit, push a fast-forward correction to the existing PR branch as
+StamKavid, then inspect all three jobs at the new head. Hosted success is required
+before reporting CI fixed; do not merge automatically.
+
+Observed locally: the exact original embedded database block fails after applying
+0008; the corrected block passes and rejects a deliberately wrong checksum at the
+same migration row count. All empty-ledger assertions remain. The isolated image
+build passed, but Compose startup hit the Docker daemon's disk limit while pulling
+PostgreSQL. Only the owned stack/image were removed; the disposable native test
+database was also removed. Do not call that a local Compose pass. Full local
+quality/audit and the corrected exact-head hosted run are recorded with the PR.
+
 ## Current extension: explicit SQL replay promotion
 
 Owner merged #126 at `ecb5a85`; all three exact-head jobs passed in run
