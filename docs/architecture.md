@@ -11,13 +11,18 @@ continue. The first [semantic provider](../SPEC-semantic-layer.md) and
 [analytics consumer](../SPEC-market-analytics.md) scopes now feed the proposed
 [implementation plan](../tasks/plan.md) and
 [pipeline quality validation](pipeline-quality-validation.md), following the
-owner's continuation after the conceptual pipeline review. No code is delivered.
+owner's continuation after the conceptual pipeline review. The bounded semantic
+provider, cited CLI readout, replay/metadata and contract boundaries are now
+implemented; [progress](progress.md) records their limits and main delivery.
 New egress feature work is paused with existing code/checks retained. The first
 candidate is one cited captured-contract readout, not a general rewrite.
 
 The original investigation mission and delivered-state notes below remain
 historical context. Journalist workflows become one use of the shared foundation.
-No new semantic layer, analytic service or market coverage is claimed implemented.
+The [v1.0 roadmap](roadmap/v1.0.md) and
+[release contract](../SPEC-release-v1.0.md) propose broader shared semantics,
+two-source analytics, deterministic insights and a read-only product. General
+serving, national market coverage and AI are not claimed implemented.
 
 ## Original investigation mission (historical context)
 

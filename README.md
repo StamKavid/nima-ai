@@ -1,9 +1,15 @@
 # Nima AI
 
-Nima helps journalists, investigators, and researchers trace Greek company
-relationships and public spending, then develop evidence-backed investigative
-leads. Its mission is to make relationships, spending patterns, and changes over
-time inspectable and reproducible.
+Nima is building Greece-focused company and market intelligence from traceable
+public records. Its mission is to make covered commercial relationships,
+procurement patterns and observed changes inspectable and reproducible. Company
+and sector researchers, procurement analysts and journalists share the same
+trusted data and metric definitions.
+
+Start with the [versioned product roadmap](docs/roadmap/v1.0.md),
+[v1.0 acceptance contract](SPEC-release-v1.0.md) and
+[agent handoff](docs/roadmap/agent-handoff.md). They distinguish implemented
+capabilities from proposed release work; the package is currently `0.0.1`.
 
 The planned product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
