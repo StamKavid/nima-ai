@@ -71,8 +71,9 @@ The existing replay bounds apply: 32 pages, 5,000 committed KIMDIS records and
 64 MiB distinct bodies; GEMI retains its ten-profile completed-archive limits.
 Output is capped at 10,000 assertions and the existing 32 MiB report ceiling.
 No truncated success, archive repair, SQL promotion, source request or implicit
-activation is performed. SQL metadata projections/indexes, taxonomy dictionaries,
-reviewed crosswalks and Greek-model evaluation are later reviewed work.
+activation is performed by these extraction commands. Separate [SQL serving](sql-metadata.md)
+and [explicit CPV reference annotations](cpv-reference.md) preserve this extraction
+contract. Reviewed KAD crosswalks and Greek-model evaluation remain later work.
 
 Source contracts: https://cerpp.eprocurement.gov.gr/khmdhs-opendata/help and
 https://opendata-api.businessportal.gr/api-docs (retained schemas; no fresh request).

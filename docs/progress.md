@@ -1,6 +1,24 @@
 # Capability progress: 2026-11-18
 
-## Current checkpoint C3 candidate
+## Current checkpoint C4 candidate
+
+Owner merged #130/#131; all three jobs passed on serving head `ec6402e` in
+run 44290911542. C4 adds [explicit CPV references](semantics/cpv-reference.md)
+and separate base-code annotations over selected SQL metadata snapshots.
+The complete source metadata and its evidence remain unchanged; unknown reported
+versions and unchecked check digits remain explicit. No supplier sector inference,
+KAD crosswalk, model, source coverage or human-validation credit is claimed.
+
+The bounded offline reader supports Greek/English from one explicitly selected
+OP-TED SDK release with raw-hash selection and CC BY 4.0 attribution. Real-release
+checks cover all 9,454 entries in each language. Actual command/SQL checks pass on
+retained data. Private operational proof remains outside Git; no company-source
+request or live schedule was added. Seventy-two new cases pass; the combined
+`just check` passes 2,285 tests/93.27% and `just audit` is clean. Duplicate-code
+and version-conflict guard mutations fail their regressions and are restored.
+Exact-head hosted jobs are the handoff gate; owner review remains pending.
+
+## Delivered checkpoint C3 (#130/#131)
 
 Owner merged C2 through [#129](https://github.com/StamKavid/nima-ai/pull/129)
 (`6051d41`); all three jobs passed on `0709027` in runs 44267217179 and
