@@ -1,5 +1,19 @@
 # Tasks
 
+## Checkpoint C2 — structured metadata
+
+Continue after owner-merged #128 (`bd7fec4`); prior exact-head CI passes in runs
+44258789845 and 44258739500. Retain human/metadata/model tasks below.
+
+- [x] C2a: freeze bounded extraction/filtering contract and sequential slices.
+- [ ] C2b: pure reported dimensions/statuses/source pointers and shape tests.
+- [ ] C2c: public verified capture boundary; original replay bytes unchanged.
+- [ ] C2d: private KIMDIS/GEMI metadata exports, CLI filters and real boundary tests.
+- [ ] C2e: mutation, private offline check, full gates/audit and hosted CI.
+- [ ] Owner review at C2. SQL metadata indexes, taxonomy certification, identity
+  joins, model adoption and human task validation remain separate.
+
+
 ## Checkpoint C1 — auto-build authorized
 
 Owner continued after merged #127 (`ef2b438`); corrected head `f2eb17b` passes all
@@ -19,7 +33,7 @@ contract and [plan](plan.md); retain all pending human/model/metadata work below
   `just audit`: clean. Private maintenance/offline recheck passes. Only the reviewed
   journal/derived/grant additions occur; no source request or schedule activation.
 - Hosted exact-head results are recorded with the delivery PR before C1 handoff.
-- [ ] Owner review at C1. No new source capture/schedule/model or human-certification
+- [x] Owner review at C1 through merged #128 (`bd7fec4`). No new source capture/schedule/model or human-certification
   claim; metadata and explicit replacement remain later bounded work.
 
 ## CI correction: PR #127

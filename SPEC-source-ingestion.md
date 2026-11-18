@@ -713,3 +713,62 @@ After local checks, publish a focused PR and verify all three exact-head hosted
 jobs, repairing failures within the same batch. The owner reviews at C1 before
 metadata/model work; this checkpoint is not human metric certification or a live
 capture deployment.
+
+
+## Checkpoint C2: structured market metadata
+
+Continues owner-merged #128 (`bd7fec4`) under the existing metadata roadmap and
+authorization to build through a review checkpoint. Deliver a read-only, bounded,
+queryable private snapshot before SQL indexing or model enrichment. No source
+requests, dependency/CI changes, migrations, scheduled activation or metric change.
+
+KIMDIS contract responses expose `contractingAuthorityActivity`,
+`classificationOfPublicLawOrganization`, `typeOfContractingAuthority` and object
+`objectDetailsList[].cpvs[]` as reported key/value pairs. Source: the retained
+official contract at https://cerpp.eprocurement.gov.gr/khmdhs-opendata/help.
+GEMI's retained Company schema/normalizer exposes activity code, label, KAD version,
+type and validity dates: https://opendata-api.businessportal.gr/api-docs.
+Do not fetch either source or assume a code dictionary/version not supplied.
+
+Commands: `uv run python -m nima metadata kimdis --run-id UUID --archive-dir
+/ABS/ARCHIVE --output-dir /ABS/OUTPUT`; SQL uses `NIMA_DATABASE_URL` with SELECT
+access to the same four metadata tables as archive replay. `metadata gemi` takes
+the same explicit paths/run ID and verifies the completed archive without SQL or
+an API key. Both accept `--dimension NAME` and optional `--code EXACT`; code needs
+a dimension. All source values and result hashes stay in private artifacts;
+terminal JSON contains only fixed outcomes and counts. Output must be outside the
+input archive. No init, repair, SQL write, credential lookup or network fallback.
+
+Dimensions are buyer function, buyer legal classification, buyer type, procurement
+CPV and reported supplier KAD. Buyer function never becomes supplier activity;
+CPV never becomes KAD. No entity join or implied defence-industry classification.
+Statuses distinguish reported, missing, null, empty and invalid source shapes.
+Reported means structurally usable, not taxonomy membership/checksum verified,
+reviewed identity or effective current activity. CPV checks ASCII format only;
+KAD retains the reported version and dates, including unknowns. Invalid optional
+metadata stays visible and does not alter the existing contract normalizer.
+
+Each assertion retains exact usable code/Greek label, expected source path,
+actual pointer when present, raw response hash and parent record pointer. Context
+retains source/run, original observation time, source-content hash where available,
+record normalization status and original capture status. Repeated observations and
+CPV positions remain occurrences; this is not a deduplicated company, current-state
+or spend metric. Missing/empty/no-match coverage is explicit and cannot establish
+absence in the real market. Filtered artifacts retain full-scope quality counts.
+
+Reuse replay's frozen closed SQL snapshot and safe hash-verified archive recovery;
+expose one public capture API instead of a parallel evidence loader. Existing replay
+bytes remain identical. Reuse strict source decoding, GEMI archive verification and
+canonical private no-clobber publication. Preserve the existing page/body/record
+limits, cap metadata assertions at 10,000 and encoded output at the existing report
+limit. Verify pagination against frozen metadata before extracting. Unknown capture
+formats and damaged evidence fail before output publication. No processing timestamp
+may replace observation time; deterministic retries and relocated archives agree.
+
+Acceptance: pure shape/unknown/path/Greek/code tests; real PostgreSQL SELECT-only
+KIMDIS and completed synthetic GEMI archive through CLI; optional metadata quality,
+filtering, duplicate positions, boundedness, corruption/refusal and original-state
+preservation. Mutation must break a meaningful regression. Full `just check`,
+`just audit` and all exact-head hosted jobs precede handoff. Then owner review;
+no automatic merge or human taxonomy certification. SQL metadata projections and
+Greek-model evaluation remain following work, not delivered by this checkpoint.
