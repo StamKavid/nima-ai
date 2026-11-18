@@ -167,3 +167,11 @@ mutation must fail its regression. Verify the real main-to-feature catalogue,
 full local gates/audit and final-head hosted jobs before owner review. This checks
 interface metadata evolution; it does not certify live data or persist check
 history. Effective branch protection remains separately documented, not implied.
+
+Security review note for C10: the Git reader resolves the installed Git executable
+to an absolute path and uses fixed subcommands, separately passed argv, validated
+object IDs, no shell, no replacement objects and no lazy fetch. Scoped Bandit
+B404/B603 annotations cover that necessary local subprocess boundary, following
+the existing fixture-controller pattern. No global exclusion or severity change;
+all other findings fail the unchanged security gate. Review these annotations
+with the PR. The operator's tooling installation/PATH remains trusted.

@@ -4,7 +4,10 @@ import argparse
 import json
 import os
 import re
-import subprocess
+import shutil
+
+# Local Git object inspection requires a child process; no shell or historical code.
+import subprocess  # nosec B404
 from pathlib import Path
 from typing import Any, Never
 
@@ -27,9 +30,14 @@ def _git(
 ) -> bytes:
     environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
     environment.update(GIT_TERMINAL_PROMPT="0", GIT_NO_LAZY_FETCH="1")
+    executable = shutil.which("git")
+    if executable is None or not Path(executable).is_absolute():
+        raise BaselineError("contracts_history")
     try:
-        result = subprocess.run(
-            ["git", "--no-replace-objects", "-C", str(root), *args],
+        # Fixed Git subcommands, validated OIDs and separate argv; never shell expansion.
+        result = subprocess.run(  # nosec B603
+            [executable, "--no-replace-objects", "-C", str(root), *args],
+            shell=False,
             env=environment,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,

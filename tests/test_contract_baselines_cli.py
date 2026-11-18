@@ -137,3 +137,18 @@ def test_promisor_configuration_is_refused_before_any_history_read(
     terminal = capsys.readouterr()
     assert json.loads(terminal.out)["failure"] == "contracts_history"
     assert not terminal.err and not (root / "private-sentinel").exists()
+
+
+@pytest.mark.parametrize("executable", [None, "relative-git"])
+def test_unavailable_or_relative_git_is_a_fixed_failure(
+    history: tuple[Path, str],
+    executable: str | None,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    root, base = history
+    monkeypatch.setattr(check_contracts.shutil, "which", lambda name: executable)
+    assert main(["--repo", str(root), "--base", base, "--head", base]) == 1
+    terminal = capsys.readouterr()
+    assert json.loads(terminal.out) == {"status": "failed", "failure": "contracts_history"}
+    assert not terminal.err
