@@ -1,6 +1,7 @@
 """Actual command/event entry points choose immutable provider baselines."""
 
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -147,7 +148,7 @@ def test_unavailable_or_relative_git_is_a_fixed_failure(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     root, base = history
-    monkeypatch.setattr(check_contracts.shutil, "which", lambda name: executable)
+    monkeypatch.setattr(shutil, "which", lambda name: executable)
     assert main(["--repo", str(root), "--base", base, "--head", base]) == 1
     terminal = capsys.readouterr()
     assert json.loads(terminal.out) == {"status": "failed", "failure": "contracts_history"}
