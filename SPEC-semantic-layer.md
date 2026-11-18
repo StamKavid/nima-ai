@@ -1,13 +1,17 @@
 # Spec: first shared semantic definition
 
-Module ID: `semantic-layer`. Status: **approved scope, not implemented**.
+Module ID: `semantic-layer`. Status: **first bounded provider implemented;
+metric definition remains draft**. See [current delivery](docs/progress.md).
+This original slice contract remains authoritative; broader reusable semantics
+are proposed in the [v1.0 release contract](SPEC-release-v1.0.md).
 The owner approved the [capability map](CAPABILITIES.md) by merging
 [#108](https://github.com/StamKavid/nima-ai/pull/108) on 2026-11-16 and instructing
 us to continue. This specification owns the first metric's meaning; the
 [market-analytics specification](SPEC-market-analytics.md) owns its readout.
 The owner merged [#109](https://github.com/StamKavid/nima-ai/pull/109) at `70e06d6`
 on 2026-11-16 and requested continuation after the conceptual quality/pipeline
-review. The [implementation plan](tasks/plan.md) is proposed for review.
+review. Its [implementation plan](tasks/plan.md) subsequently delivered the first
+provider/readout; the original proposal wording below describes that slice's scope.
 
 ## Objective and scope
 

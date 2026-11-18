@@ -1,5 +1,10 @@
 # Nima capability map
 
+The [versioned product roadmap](docs/roadmap/v1.0.md),
+[v1.0 release contract](SPEC-release-v1.0.md) and
+[agent work packages](docs/roadmap/agent-backlog.md) turn this dependency map into
+proposed release gates. They do not change delivery state or authorize activation.
+
 The [2026-11-18 foundation readiness assessment](docs/roadmap/analytics-readiness.md)
 records actual source connections, DataOps gaps and an explicit planning rubric.
 Its scope differs from the historical investigator-product percentage.
