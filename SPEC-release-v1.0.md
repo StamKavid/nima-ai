@@ -47,7 +47,7 @@ not duplicate calculations. Missing data is unknown, never automatically zero.
 | Gate | v1.0 requirement | Proof required before release |
 |---|---|---|
 | R1 Acquisition | Two validated source adapters, explicit reuse/access rules, bounded budgets, reviewed source contracts | Recorded-sample conformance; approved real cohorts; no source rejection bypass; independent feed counts |
-| R2 Evidence and lineage | Archive before parse; stable source namespace, revisions and observations; every result traces to original bytes | Hash/pointer checks; deterministic replay; old versions/observations/review decisions preserved |
+| R2 Evidence and lineage | Archive before parse; stable source namespace, revisions and observations; released metric-input mappings through normalization/projections to original bytes | Hash/pointer and transformation mapping checks; deterministic replay; old versions/observations/review decisions preserved |
 | R3 Quality and deduplication | Shape, keys, completeness, referential integrity, exact amounts, duplicate/revision policy, quarantine and conflicts | Known-answer fixtures, injected defects and real-cohort reconciliation; no double counting across observations/stages/suppliers |
 | R4 DataOps | Durable validation outcomes, stage logs, freshness/coverage diagnostics, bounded recovery and observed schedules | Forced failure/restart, blocked-child recovery, version-policy compatibility, scheduled-run history and stale-result handling |
 | R5 Semantic layer | Shared grains/keys/joins/time/CPV definitions and at least four internally certified descriptive metrics supporting U1–U4 | Named versions, SQL/provider bindings, eligibility/denominator rules, independent hand calculations and recorded review |
@@ -83,6 +83,13 @@ comparison cohort, included/excluded counts, source/observation time and support
 evidence. Explanations are deterministic templates first. Low coverage or
 incomparable cohorts produce "insufficient evidence" with a reason. No detector
 or prose may claim wrongdoing or invent a numeric claim.
+
+Expose trust dimensions separately: coverage, source freshness, identifier
+conflicts, validation outcome, metric review state and evidence-verification
+scope/time. A validated stored snapshot does not claim current archive verification
+or complete publisher accuracy. For released metric inputs, document the source
+field/JSON pointer, normalized field, projection/SQL expression and versioned
+metric rule; a whole-record hash alone is not field-level transformation lineage.
 
 ## Proposed measurable release tests
 
