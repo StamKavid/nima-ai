@@ -22,7 +22,16 @@ properties/items and enums are supported. Other element constructs are refused,
 not silently treated as enforced. Required properties must exist and be non-null;
 optional properties may be absent/null, subject to any declared enum. Quality
 implementation names document existing checks; no metadata is executed as Python
-or SQL. URLs are never followed. This is not a universal ODCS execution engine.
+or SQL. Field-level quality declarations outside that profile are refused.
+URLs are never followed. This is not a universal ODCS execution engine.
+
+The actual readout reconciles originals first, then validates the generated output
+before publication. The contract gate checks shape and provider binding, exact
+typed metric-payload equality with the frozen calculation, evidence count and
+observation uniqueness. Failure returns the fixed `analytics_contract` reason;
+no new artifact is published and prior artifacts are preserved. Successful report
+bytes remain unchanged, so historical report hashes can be reproduced. This is
+not yet a persisted per-report contract-validation record.
 
 The official schema is pinned and packaged with its
 [provenance/license](../../src/nima/contracts/UPSTREAM.md). Runtime validation
@@ -46,6 +55,7 @@ Run the current metadata/compatibility checks with:
 
 ```sh
 uv run --frozen pytest tests/test_data_contracts.py
+uv run --frozen pytest tests/test_data_contracts_publication.py
 ```
 
 These tests run in the existing `just check` gate. Historical PR-base comparison

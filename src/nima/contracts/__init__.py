@@ -40,10 +40,15 @@ class ContractError(ValueError):
     """Fixed failure only; no source data or schema validation details escape."""
 
 
-def _shape(element: dict[str, Any]) -> dict[str, Any]:
+def _shape(element: dict[str, Any], *, root: bool = False) -> dict[str, Any]:
     kind = element.get("logicalType")
     options = element.get("logicalTypeOptions", {})
-    if element.keys() - _ELEMENT_KEYS or kind not in _OPTIONS or options.keys() - _OPTIONS[kind]:
+    if (
+        element.keys() - _ELEMENT_KEYS
+        or ("quality" in element and not root)
+        or kind not in _OPTIONS
+        or options.keys() - _OPTIONS[kind]
+    ):
         raise ContractError("analytics_contract")
     result: dict[str, Any] = {"type": kind, **options}
     if element.get("required") is False:
@@ -72,23 +77,23 @@ def _version(value: str) -> tuple[int, int, int]:
 
 def validate_contract(value: object) -> dict[str, Any]:
     """Validate metadata only; quality implementation names are never executed."""
-    raw = files(__package__).joinpath("odcs-3.2.0.json").read_bytes()
-    if hashlib.sha256(raw).hexdigest() != SCHEMA_SHA256:
-        raise ContractError("analytics_contract")
     # The pinned official schema has only local fragment references, never URLs.
     try:
+        raw = files(__package__).joinpath("odcs-3.2.0.json").read_bytes()
+        if hashlib.sha256(raw).hexdigest() != SCHEMA_SHA256:
+            raise ContractError("analytics_contract")
         Draft201909Validator(json.loads(raw)).validate(value)
         document = cast(dict[str, Any], value)
         _version(document["version"])
         if document["apiVersion"] != "v3.2.0" or len(document.get("schema", [])) != 1:
             raise ContractError("analytics_contract")
-        _shape(document["schema"][0])
+        _shape(document["schema"][0], root=True)
         properties = document.get("customProperties", [])
         names = [entry["property"] for entry in properties]
         if len(set(names)) != len(names) or "nima.semanticDefinition" not in names:
             raise ContractError("analytics_contract")
         return document
-    except (ValidationError, KeyError, TypeError, ValueError, RecursionError):
+    except (OSError, ValidationError, KeyError, TypeError, ValueError, RecursionError):
         raise ContractError("analytics_contract") from None
 
 
@@ -102,7 +107,7 @@ def contract() -> dict[str, Any]:
         raise ContractError("analytics_contract") from None
 
 
-def validate_output(body: bytes) -> None:
+def validate_output(body: bytes, *, metric: dict[str, object], observation_count: int) -> None:
     """Gate shape and semantic binding; callers must reconcile originals first."""
     try:
         value = contract()
@@ -111,13 +116,18 @@ def validate_output(body: bytes) -> None:
         if value["id"] != CONTRACT_ID or metadata["nima.semanticDefinition"] != policy:
             raise ContractError("analytics_contract")
         result = json.loads(body)
-        Draft202012Validator(_shape(value["schema"][0])).validate(result)
+        Draft202012Validator(_shape(value["schema"][0], root=True)).validate(result)
         expected_hash = hashlib.sha256(
             json.dumps(policy, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
         if (
             result["metric"]["definition"] != policy
             or result["metric"]["definition_sha256"] != expected_hash
+            or json.dumps(result["metric"]["result"], sort_keys=True, allow_nan=False)
+            != json.dumps(metric, sort_keys=True, allow_nan=False)
+            or result["coverage"]["observation_count"] != observation_count
+            or len(result["evidence"]) != observation_count
+            or len({row["observation_id"] for row in result["evidence"]}) != observation_count
         ):
             raise ContractError("analytics_contract")
     except (OSError, ValidationError, KeyError, TypeError, ValueError, RecursionError):
@@ -163,7 +173,7 @@ def check_compatibility(previous: object, current: object) -> str:
     changed_model = {k: v for k, v in old_model.items() if k not in model_keys} != {
         k: v for k, v in new_model.items() if k not in model_keys
     }
-    change = _shape_change(_shape(old_model), _shape(new_model))
+    change = _shape_change(_shape(old_model, root=True), _shape(new_model, root=True))
     required = (
         "major"
         if changed_guarantees or changed_model or change == 2

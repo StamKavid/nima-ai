@@ -4,6 +4,7 @@ import copy
 import json
 import socket
 from importlib.resources import files
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -126,4 +127,40 @@ def test_semantic_drift_is_rejected_before_any_output_inspection(
     value["customProperties"][0]["value"]["revision"] = "supplier_filter_before_revision"
     monkeypatch.setattr("nima.contracts.contract", lambda: value)
     with pytest.raises(ContractError, match="^analytics_contract$"):
-        validate_output(b"{}")
+        validate_output(b"{}", metric={}, observation_count=0)
+
+
+@pytest.mark.parametrize("fault", ["unique", "option", "items", "nested_quality", "custom"])
+def test_valid_odcs_constructs_outside_the_nima_profile_are_refused(fault: str) -> None:
+    value = contract()
+    field = value["schema"][0]["properties"][0]
+    if fault == "unique":
+        field["unique"] = True
+    elif fault == "option":
+        field["logicalTypeOptions"] = {"format": "uuid"}
+    elif fault == "nested_quality":
+        field["quality"] = value["schema"][0]["quality"]
+    elif fault == "custom":
+        value["customProperties"].append(value["customProperties"][0])
+    else:
+        field["logicalType"] = "array"
+        del field["enum"]
+    with pytest.raises(ContractError, match="^analytics_contract$"):
+        validate_contract(value)
+
+
+@pytest.mark.parametrize("fault", ["missing", "schema_hash", "invalid_json"])
+def test_missing_or_corrupt_packaged_resources_fail_with_fixed_reason(
+    fault: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name in ("odcs-3.2.0.json", "supplier-buyers-v1.odcs.json"):
+        (tmp_path / name).write_bytes(files("nima.contracts").joinpath(name).read_bytes())
+    if fault == "missing":
+        (tmp_path / "odcs-3.2.0.json").unlink()
+    elif fault == "schema_hash":
+        (tmp_path / "odcs-3.2.0.json").write_bytes(b"private-sentinel")
+    else:
+        (tmp_path / "supplier-buyers-v1.odcs.json").write_bytes(b"private-sentinel")
+    monkeypatch.setattr("nima.contracts.files", lambda _: tmp_path)
+    with pytest.raises(ContractError, match="^analytics_contract$"):
+        contract()
