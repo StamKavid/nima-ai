@@ -40,6 +40,11 @@ class ContractError(ValueError):
     """Fixed failure only; no source data or schema validation details escape."""
 
 
+def _canonical(value: object) -> str:
+    """Keep JSON boolean/number distinctions that Python equality collapses."""
+    return json.dumps(value, sort_keys=True, allow_nan=False, separators=(",", ":"))
+
+
 def _shape(element: dict[str, Any], *, root: bool = False) -> dict[str, Any]:
     kind = element.get("logicalType")
     options = element.get("logicalTypeOptions", {})
@@ -84,6 +89,7 @@ def validate_contract(value: object) -> dict[str, Any]:
             raise ContractError("analytics_contract")
         Draft201909Validator(json.loads(raw)).validate(value)
         document = cast(dict[str, Any], value)
+        _canonical(document)
         _version(document["version"])
         if document["apiVersion"] != "v3.2.0" or len(document.get("schema", [])) != 1:
             raise ContractError("analytics_contract")
@@ -113,18 +119,17 @@ def validate_output(body: bytes, *, metric: dict[str, object], observation_count
         value = contract()
         metadata = {entry["property"]: entry["value"] for entry in value["customProperties"]}
         policy = definition()
-        if value["id"] != CONTRACT_ID or metadata["nima.semanticDefinition"] != policy:
+        if value["id"] != CONTRACT_ID or _canonical(
+            metadata["nima.semanticDefinition"]
+        ) != _canonical(policy):
             raise ContractError("analytics_contract")
         result = json.loads(body)
         Draft202012Validator(_shape(value["schema"][0], root=True)).validate(result)
-        expected_hash = hashlib.sha256(
-            json.dumps(policy, sort_keys=True, separators=(",", ":")).encode()
-        ).hexdigest()
+        expected_hash = hashlib.sha256(_canonical(policy).encode()).hexdigest()
         if (
-            result["metric"]["definition"] != policy
+            _canonical(result["metric"]["definition"]) != _canonical(policy)
             or result["metric"]["definition_sha256"] != expected_hash
-            or json.dumps(result["metric"]["result"], sort_keys=True, allow_nan=False)
-            != json.dumps(metric, sort_keys=True, allow_nan=False)
+            or _canonical(result["metric"]["result"]) != _canonical(metric)
             or result["coverage"]["observation_count"] != observation_count
             or len(result["evidence"]) != observation_count
             or len({row["observation_id"] for row in result["evidence"]}) != observation_count
@@ -137,9 +142,9 @@ def validate_output(body: bytes, *, metric: dict[str, object], observation_count
 def _shape_change(previous: dict[str, Any], current: dict[str, Any]) -> int:
     """0 unchanged, 1 additive optional shape, 2 changed consumer guarantee."""
     keys = {"properties", "required", "items"}
-    if {k: v for k, v in previous.items() if k not in keys} != {
-        k: v for k, v in current.items() if k not in keys
-    } or set(previous.get("required", [])) - set(current.get("required", [])):
+    if _canonical({k: v for k, v in previous.items() if k not in keys}) != _canonical(
+        {k: v for k, v in current.items() if k not in keys}
+    ) or set(previous.get("required", [])) - set(current.get("required", [])):
         return 2
     old_fields, new_fields = previous.get("properties", {}), current.get("properties", {})
     if old_fields.keys() - new_fields.keys():
@@ -159,20 +164,20 @@ def check_compatibility(previous: object, current: object) -> str:
     old, new = validate_contract(previous), validate_contract(current)
     if old["id"] != new["id"]:
         raise ContractError("contract_identity")
-    if old == new:
+    if _canonical(old) == _canonical(new):
         return "unchanged"
     old_version, new_version = _version(old["version"]), _version(new["version"])
     if new_version <= old_version:
         raise ContractError("contract_version")
     descriptive = {"version", "name", "team", "support", "authoritativeDefinitions", "schema"}
-    changed_guarantees = {k: v for k, v in old.items() if k not in descriptive} != {
-        k: v for k, v in new.items() if k not in descriptive
-    }
+    changed_guarantees = _canonical(
+        {k: v for k, v in old.items() if k not in descriptive}
+    ) != _canonical({k: v for k, v in new.items() if k not in descriptive})
     old_model, new_model = old["schema"][0], new["schema"][0]
     model_keys = {"properties", "description", "businessName", "authoritativeDefinitions"}
-    changed_model = {k: v for k, v in old_model.items() if k not in model_keys} != {
-        k: v for k, v in new_model.items() if k not in model_keys
-    }
+    changed_model = _canonical(
+        {k: v for k, v in old_model.items() if k not in model_keys}
+    ) != _canonical({k: v for k, v in new_model.items() if k not in model_keys})
     change = _shape_change(_shape(old_model, root=True), _shape(new_model, root=True))
     required = (
         "major"

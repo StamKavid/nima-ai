@@ -120,6 +120,25 @@ def test_contract_identity_cannot_change_during_evolution() -> None:
         check_compatibility(old, new)
 
 
+def test_numeric_and_boolean_enums_are_different_consumer_guarantees() -> None:
+    old = contract()
+    old["schema"][0]["properties"].append(
+        {
+            "name": "optional_number",
+            "logicalType": "integer",
+            "required": False,
+            "enum": [{"value": 1}],
+        }
+    )
+    new = copy.deepcopy(old)
+    new["schema"][0]["properties"][-1]["enum"] = [{"value": True}]
+    new["version"] = "1.0.1"
+    with pytest.raises(ContractError, match="^contract_breaking_change$"):
+        check_compatibility(old, new)
+    new["version"] = "2.0.0"
+    assert check_compatibility(old, new) == "major"
+
+
 def test_semantic_drift_is_rejected_before_any_output_inspection(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
