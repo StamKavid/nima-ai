@@ -50,8 +50,8 @@ pilot and exact-head hosted evidence is recorded in the delivery PR before hando
 passed source/permission/report preservation checks and reported stale capture
 and low capacity. No source refresh or schedule was activated. The new contract
 has no freshness SLA and does not certify that capture. Input/normalized dataset
-contracts, automatic historical PR-base checks and durable validation history
-were subsequent increments (C9/C10 above); durable validation history remains
+contracts and automatic historical PR-base checks were subsequent increments
+(C9/C10 above); durable validation history remains
 later. One output contract does not complete the platform's contracts.
 
 ## Current checkpoint C4 candidate
