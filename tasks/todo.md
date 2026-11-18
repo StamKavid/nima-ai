@@ -6,10 +6,12 @@ Continue after owner-merged #128 (`bd7fec4`); prior exact-head CI passes in runs
 44258789845 and 44258739500. Retain human/metadata/model tasks below.
 
 - [x] C2a: freeze bounded extraction/filtering contract and sequential slices.
-- [ ] C2b: pure reported dimensions/statuses/source pointers and shape tests.
-- [ ] C2c: public verified capture boundary; original replay bytes unchanged.
-- [ ] C2d: private KIMDIS/GEMI metadata exports, CLI filters and real boundary tests.
-- [ ] C2e: mutation, private offline check, full gates/audit and hosted CI.
+- [x] C2b: pure reported dimensions/statuses/source pointers and shape tests.
+- [x] C2c: public verified capture boundary; original replay bytes unchanged.
+- [x] C2d: private KIMDIS/GEMI metadata exports, CLI filters and real boundary tests.
+- [x] C2e local: 46 new cases; invalid-code eligibility mutation fails and is
+  restored. Full `just check`: 2,182 passed/93.13%; `just audit`: clean.
+  Hosted exact-head results are recorded with the delivery PR before handoff.
 - [ ] Owner review at C2. SQL metadata indexes, taxonomy certification, identity
   joins, model adoption and human task validation remain separate.
 

@@ -1,6 +1,35 @@
 # Capability progress: 2026-11-18
 
-## Current checkpoint C1 candidate
+## Current checkpoint C2 candidate
+
+Owner merged C1 through [#128](https://github.com/StamKavid/nima-ai/pull/128)
+(`bd7fec4`); all three exact-head jobs pass in PR run 44258789845 and branch run
+44258739500. Continue the same structured metadata roadmap under the
+[C2 contract](../SPEC-source-ingestion.md#checkpoint-c2-structured-market-metadata).
+
+The candidate adds [reported market metadata](semantics/market-metadata.md):
+buyer function/legal classification/type and procurement CPV from verified KIMDIS
+captures, and reported supplier KAD/version/type/dates from completed GEMI archives.
+These describe different subjects and remain separate. Source paths, raw hashes,
+original observation time, quality states and record status stay visible. Query
+filters retain full-scope quality counts; unsupported source/dimension combinations
+fail before I/O. Duplicate positions/observations remain occurrences.
+
+This is a bounded read-only CLI/library snapshot, not SQL metadata indexing,
+current-state metrics, taxonomy certification or inferred company sectors. It
+reuses a public verified capture boundary and the existing strict source/GEMI
+verifiers and canonical private publisher. Prior replay bytes remain compatible.
+No new source request, schema/dependency/CI change or model is introduced.
+
+Forty-six new cases and retained replay/promotion regressions pass. Dropping the
+invalid-code eligibility guard fails its regression; it is restored. Full local
+`just check` passes 2,182 tests/93.13%; `just audit` is clean. Hosted gate results
+are recorded with the delivery PR before C2 handoff.
+Private operational proof stays outside Git. Human pilot review and task
+observation remain pending. Next: reviewed SQL metadata serving/dictionary scope,
+then isolated Greek-model evaluation; no capability percentage is reweighted.
+
+## Delivered checkpoint C1 (#128)
 
 The owner-approved direction is company and market intelligence, following
 [ADR-0005](decisions/0005-market-intelligence-foundation.md). The trusted data and
@@ -19,7 +48,7 @@ the reader can read the derived view and cannot promote. No source request was
 added and no live refresh schedule was activated. Private proof stays outside Git;
 this is a single-operator local pilot, not off-host recovery or a shared service.
 
-This C1 code candidate decodes known v1 saved intents against their own hashes and
+The merged C1 code decodes known v1 saved intents against their own hashes and
 recorded values. New constructor defaults do not change an existing request or
 refresh child. Historical processing pins remain visible; incompatible collection,
 dispatch and policy activation fail before source/budget/RPC effects. Historical
@@ -30,8 +59,8 @@ replacement is claimed. Existing archive binding/resume restrictions remain.
 
 Local verification: 43 new compatibility cases, 61 focused request/refresh cases,
 and full `just check` at 2,136 passed/93.07%, with a clean audit. A removed pin guard
-fails its regression before restoration. Exact-head hosted checks and owner review
-are recorded with the delivery PR. C1 does not close human evidence review or task
+fails its regression before restoration. Exact-head hosted checks and owner merge
+are recorded with #128. C1 does not close human evidence review or task
 observation, select a runtime model, certify a metric or add source coverage.
 
 Next: queryable buyer-function, procurement CPV and reported supplier KAD metadata,

@@ -24,10 +24,16 @@ source decoders and GEMI verifier. Bound 32 pages/5,000 KIMDIS records, 10 GEMI
 profiles/1,000 activities each and 10,000 assertions/report limit. Snapshot remains
 committed-page occurrences, not a taxonomy catalogue or deduplicated company/spend
 metric. CPV format is only syntax; KAD taxonomy/version validity remains unverified.
+Observed: 46 new cases pass; existing replay/promotion regressions stay green.
+The invalid-code filter mutation fails its regression and is restored. Full local
+`just check` passes 2,182 tests/93.13%; strict types/lint/build/security/secrets pass;
+`just audit` is clean. Hosted exact-head jobs and owner review remain the delivery
+gate. Keep private operational proof outside public delivery text.
+
 Next after C2: reviewed SQL metadata serving contract, then isolated Greek models.
 
 
-## Active checkpoint C1: pilot operations and saved intents
+## Completed checkpoint C1: pilot operations and saved intents
 
 Owner requests auto-build through a checkpoint after merging #127 at `ef2b438`.
 The corrected head `f2eb17b` passed all three jobs in PR run 44168550280 and push
