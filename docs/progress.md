@@ -1,6 +1,24 @@
 # Capability progress: 2026-11-18
 
-## Current checkpoint C9 candidate: ingestion contracts
+## Current checkpoint C10 candidate: contract evolution in CI
+
+Owner merged #138 into main at `9d29845`; reviewed head `4716e4b` and its exact
+files are verified reachable. The [historical contract gate](semantics/contract-evolution.md)
+compares committed ODCS catalogues by stable ID using immutable PR/push baselines.
+It refuses unversioned/incompatible changes, removals, invalid metadata and
+unavailable history. Renames retain identity; valid additions are counted.
+
+Real disposable Git histories and actual CLI executions cover supported CI
+events, dirty-tree bypass attempts and fixed diagnostics. The removal-policy
+mutation loses the expected removal diagnostic and is detected by its regression;
+the original source is restored. Only the quality checkout adds full history;
+all existing jobs, pins, permissions and checks remain. Two scoped, explained
+subprocess annotations require review; the security gate retains its policy.
+Final local gates/audit and exact-head hosted results are recorded with delivery
+before handoff. No runtime source policy, schema, dependency or activation changes.
+Durable per-dataset validation history and scheduled monitoring remain later.
+
+## Delivered checkpoint C9 (#138): ingestion contracts
 
 The owner merged #137 at `9cd4c8a`; its exact contract files are verified on main.
 The [KIMDIS ingestion extension](semantics/ingestion-contracts.md) adds draft
@@ -32,8 +50,9 @@ pilot and exact-head hosted evidence is recorded in the delivery PR before hando
 passed source/permission/report preservation checks and reported stale capture
 and low capacity. No source refresh or schedule was activated. The new contract
 has no freshness SLA and does not certify that capture. Input/normalized dataset
-contracts, automatic historical PR-base checks and durable validation history
-remain later; one output contract does not complete the platform's contracts.
+contracts and automatic historical PR-base checks were subsequent increments
+(C9/C10 above); durable validation history remains
+later. One output contract does not complete the platform's contracts.
 
 ## Current checkpoint C4 candidate
 

@@ -122,3 +122,56 @@ owner review under CONSTRAINTS.md. Preserve every command, assertion, coverage
 threshold, pinned action/image, permission, fixture job and audit. The bound stays
 finite. New-head hosted verification is required; application-source byte equality
 allows reuse of the complete local application verification and packaged proof.
+
+## Checkpoint C10: committed historical compatibility gate
+
+The owner merged #138 at `9d29845` and requested automatic historical comparison.
+Compare the flat `src/nima/contracts/*.odcs.json` catalogue in two immutable Git
+commits using the existing ODCS/profile and conservative SemVer checker. Read Git
+tree/blob objects, never the working tree, old Python code or contract links.
+
+- Require full lowercase 40-character SHA-1 commit IDs and an ancestor baseline.
+  Missing Git history, empty candidate catalogue, duplicate IDs, non-regular
+  descriptor files, invalid JSON/ODCS or removed identities fail closed.
+- One current descriptor per contract ID. A file rename retaining its ID is
+  harmless; a removed/replaced ID cannot masquerade as a new contract. Validate
+  additions and compare every retained identity. An empty baseline permits first
+  registration. Parallel major-version catalogue lifecycle remains later work.
+- Reject descriptors over 256 KiB, more than 64 contracts and tree listings over
+  64 KiB; Git calls have a ten-second timeout. Strict JSON rejects duplicate keys
+  and non-finite values. Output contains commit IDs, fixed reasons and counts;
+  descriptor/source values, Git stderr, paths and private evidence are not printed.
+- CLI: `uv run --frozen python scripts/check_contracts.py --base SHA --head SHA`
+  (optional `--repo PATH`), also `just contracts-check BASE HEAD`.
+- CI mode `--ci`: PRs use the provider's base SHA from a step environment value;
+  existing-branch pushes use the provider's `before`; new-branch pushes and manual
+  dispatch use the local merge-base with fixed `origin/main`. HEAD is resolved
+  once to a commit. Missing event/ref context is an error, not a skipped check.
+- Only quality checkout fetches full history (`fetch-depth: 0`), retaining the
+  pinned action and `persist-credentials: false`. An additional comparison step
+  precedes the complete existing gate. Event values enter through environment
+  arguments, never interpolation in shell code. Keep all jobs, permissions,
+  assertions, audit, pins and the approved fifteen-minute quality bound.
+
+Implement in `scripts/check_contracts.py`, real disposable Git tests in
+`tests/test_contract_baselines.py`, and the narrow workflow/justfile additions.
+Source-neutral schema code remains authoritative. No source/normalizer/semantic
+definition, source request, dependency, database migration or deployment changes.
+
+Acceptance: actual Git histories prove unchanged/patch/minor/major/new-ID cases;
+unversioned edits, insufficient bumps, removals, duplicate IDs, symlinks, corrupt
+JSON, oversized data, unavailable/divergent history and dirty-tree bypasses fail.
+Actual CLI/CI-mode executions prove PR/push/new-branch/manual baseline selection
+and fixed failures, and have no network/database access. A removed-identity guard
+mutation must fail its regression. Verify the real main-to-feature catalogue,
+full local gates/audit and final-head hosted jobs before owner review. This checks
+interface metadata evolution; it does not certify live data or persist check
+history. Effective branch protection remains separately documented, not implied.
+
+Security review note for C10: the Git reader resolves the installed Git executable
+to an absolute path and uses fixed subcommands, separately passed argv, validated
+object IDs, no shell, no replacement objects and no lazy fetch. Scoped Bandit
+B404/B603 annotations cover that necessary local subprocess boundary, following
+the existing fixture-controller pattern. No global exclusion or severity change;
+all other findings fail the unchanged security gate. Review these annotations
+with the PR. The operator's tooling installation/PATH remains trusted.
