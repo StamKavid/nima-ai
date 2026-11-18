@@ -10,6 +10,10 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import Literal, Never, cast
 
+from nima.contracts.schema import ContractError
+from nima.sources.kimdis_contracts import NORMALIZER_VERSION as NORMALIZER_VERSION
+from nima.sources.kimdis_contracts import validate_record, validate_source
+
 type Relation = Literal["award", "previous_record", "commitment_decision", "payment_order"]
 
 
@@ -212,9 +216,16 @@ def normalize_contract(
     content = _array(_decode(raw_response, max_bytes).get("content"), "content")
     if type(index) is not int or not 0 <= index < len(content):
         raise InvalidRecord("Record index is outside the response")
-    return _contract(
-        content[index], Evidence(hashlib.sha256(raw_response).hexdigest(), f"/content/{index}")
-    )
+    evidence = Evidence(hashlib.sha256(raw_response).hexdigest(), f"/content/{index}")
+    return _validated(_contract(content[index], evidence), evidence, index)
+
+
+def _validated(record: Contract, evidence: Evidence, index: int) -> Contract:
+    try:
+        validate_record(record, expected_digest=evidence.response_sha256, index=index)
+    except ContractError:
+        raise InvalidRecord("normalized_contract") from None
+    return record
 
 
 def _contract(value: object, evidence: Evidence) -> Contract:
@@ -317,6 +328,10 @@ def normalize_page(raw_response: bytes, *, max_bytes: int = 8 * 1024 * 1024) -> 
         response["numberOfElements"], "numberOfElements"
     ) != len(content):
         raise InvalidRecord("Inconsistent page record count")
+    try:
+        validate_source(response)
+    except ContractError:
+        raise InvalidRecord("source_contract") from None
     digest = hashlib.sha256(raw_response).hexdigest()
     contracts: list[Contract] = []
     issues: list[RecordIssue] = []
@@ -328,9 +343,12 @@ def normalize_page(raw_response: bytes, *, max_bytes: int = 8 * 1024 * 1024) -> 
             if isinstance(reference, str) and reference.strip():
                 source_ids.append(f"kimdis:{reference}")
         try:
-            contracts.append(_contract(value, evidence))
+            contract = _contract(value, evidence)
         except InvalidRecord as exc:
             issues.append(RecordIssue(str(exc), evidence))
+        else:
+            # Producer defects stop the page; only source defects enter quarantine.
+            contracts.append(_validated(contract, evidence, index))
     return Page(
         number,
         size,

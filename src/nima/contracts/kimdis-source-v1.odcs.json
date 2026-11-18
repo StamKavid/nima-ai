@@ -1,0 +1,106 @@
+{
+  "apiVersion": "v3.2.0",
+  "kind": "DataContract",
+  "id": "nima.kimdis-source",
+  "version": "1.0.0",
+  "name": "KIMDIS contract source boundary",
+  "status": "draft",
+  "domain": "company-market-intelligence",
+  "description": {
+    "purpose": "Make the existing Nima ingestion boundary explicit and testable.",
+    "usage": "Bounded capture, strict normalization and reproducible offline replay.",
+    "limitations": "Nima-owned checks do not establish government source accuracy, legal identity, national completeness or freshness. Monetary values are contract-level; do not allocate full value to every supplier. Keep evidence private."
+  },
+  "team": {
+    "name": "Nima maintainers",
+    "members": [
+      {
+        "username": "StamKavid",
+        "role": "owner"
+      }
+    ]
+  },
+  "schema": [
+    {
+      "name": "kimdis_source",
+      "logicalType": "object",
+      "dataGranularityDescription": "one_decoded_response_page",
+      "properties": [
+        {
+          "name": "content",
+          "logicalType": "array",
+          "required": true,
+          "customProperties": [
+            {
+              "property": "nima.opaqueItems",
+              "value": true
+            }
+          ],
+          "description": "Items are deliberately untyped here; the normalizer preserves malformed items as quarantine issues."
+        },
+        {
+          "name": "number",
+          "logicalType": "integer",
+          "required": true,
+          "logicalTypeOptions": {
+            "minimum": 0
+          }
+        },
+        {
+          "name": "size",
+          "logicalType": "integer",
+          "required": true,
+          "logicalTypeOptions": {
+            "minimum": 1
+          }
+        },
+        {
+          "name": "totalElements",
+          "logicalType": "integer",
+          "required": true,
+          "logicalTypeOptions": {
+            "minimum": 0
+          }
+        },
+        {
+          "name": "totalPages",
+          "logicalType": "integer",
+          "required": true,
+          "logicalTypeOptions": {
+            "minimum": 0
+          }
+        },
+        {
+          "name": "last",
+          "logicalType": "boolean",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "authoritativeDefinitions": [
+    {
+      "type": "transformationImplementation",
+      "url": "https://github.com/StamKavid/nima-ai/blob/main/src/nima/sources/kimdis.py"
+    },
+    {
+      "type": "businessDefinition",
+      "url": "https://github.com/StamKavid/nima-ai/blob/main/SPEC-source-ingestion.md"
+    }
+  ],
+  "customProperties": [
+    {
+      "property": "nima.semanticDefinition",
+      "value": {
+        "source": "kimdis.contract",
+        "normalizer_version": "kimdis-normalized-v1",
+        "grain": "one_decoded_response_page",
+        "decoding": "strict_json_decimal_no_duplicate_or_nonfinite",
+        "pagination": "existing_arithmetic_and_cardinality_checks",
+        "record_items": "opaque_until_normalized_or_quarantined",
+        "unknown_fields": "retained_in_original_bytes_and_source_fingerprint",
+        "guarantee": "nima_acceptance_not_government_sla"
+      }
+    }
+  ]
+}

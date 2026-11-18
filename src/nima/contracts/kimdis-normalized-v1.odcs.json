@@ -1,0 +1,338 @@
+{
+  "apiVersion": "v3.2.0",
+  "kind": "DataContract",
+  "id": "nima.kimdis-normalized",
+  "version": "1.0.0",
+  "name": "KIMDIS contract normalized boundary",
+  "status": "draft",
+  "domain": "company-market-intelligence",
+  "description": {
+    "purpose": "Make the existing Nima ingestion boundary explicit and testable.",
+    "usage": "Bounded capture, strict normalization and reproducible offline replay.",
+    "limitations": "Nima-owned checks do not establish government source accuracy, legal identity, national completeness or freshness. Monetary values are contract-level; do not allocate full value to every supplier. Keep evidence private."
+  },
+  "team": {
+    "name": "Nima maintainers",
+    "members": [
+      {
+        "username": "StamKavid",
+        "role": "owner"
+      }
+    ]
+  },
+  "schema": [
+    {
+      "name": "kimdis_normalized",
+      "logicalType": "object",
+      "dataGranularityDescription": "one_reported_contract_with_original_evidence",
+      "properties": [
+        {
+          "name": "source_id",
+          "logicalType": "string",
+          "required": true,
+          "logicalTypeOptions": {
+            "pattern": "^kimdis:",
+            "minLength": 8
+          }
+        },
+        {
+          "name": "title",
+          "logicalType": "string",
+          "required": true,
+          "logicalTypeOptions": {
+            "pattern": "\\S"
+          }
+        },
+        {
+          "name": "buyer",
+          "logicalType": "object",
+          "required": true,
+          "properties": [
+            {
+              "name": "name",
+              "logicalType": "string",
+              "required": false,
+              "customProperties": [
+                {
+                  "property": "nima.present",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "name": "tax_id",
+              "logicalType": "string",
+              "required": false,
+              "customProperties": [
+                {
+                  "property": "nima.present",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "name": "source_key",
+              "logicalType": "string",
+              "required": false,
+              "customProperties": [
+                {
+                  "property": "nima.present",
+                  "value": true
+                }
+              ]
+            },
+            {
+              "name": "country_code",
+              "logicalType": "string",
+              "required": false,
+              "customProperties": [
+                {
+                  "property": "nima.present",
+                  "value": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "suppliers",
+          "logicalType": "array",
+          "required": false,
+          "items": {
+            "logicalType": "object",
+            "properties": [
+              {
+                "name": "name",
+                "logicalType": "string",
+                "required": false,
+                "customProperties": [
+                  {
+                    "property": "nima.present",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "name": "tax_id",
+                "logicalType": "string",
+                "required": false,
+                "customProperties": [
+                  {
+                    "property": "nima.present",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "name": "source_key",
+                "logicalType": "string",
+                "required": false,
+                "customProperties": [
+                  {
+                    "property": "nima.present",
+                    "value": true
+                  }
+                ]
+              },
+              {
+                "name": "country_code",
+                "logicalType": "string",
+                "required": false,
+                "customProperties": [
+                  {
+                    "property": "nima.present",
+                    "value": true
+                  }
+                ]
+              }
+            ]
+          },
+          "customProperties": [
+            {
+              "property": "nima.present",
+              "value": true
+            }
+          ]
+        },
+        {
+          "name": "net_amount",
+          "logicalType": "string",
+          "required": false,
+          "logicalTypeOptions": {
+            "pattern": "^-?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[Ee][+-]?[0-9]+)?$"
+          },
+          "customProperties": [
+            {
+              "property": "nima.present",
+              "value": true
+            }
+          ]
+        },
+        {
+          "name": "gross_amount",
+          "logicalType": "string",
+          "required": false,
+          "logicalTypeOptions": {
+            "pattern": "^-?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[Ee][+-]?[0-9]+)?$"
+          },
+          "customProperties": [
+            {
+              "property": "nima.present",
+              "value": true
+            }
+          ]
+        },
+        {
+          "name": "currency",
+          "logicalType": "string",
+          "required": false,
+          "customProperties": [
+            {
+              "property": "nima.present",
+              "value": true
+            }
+          ]
+        },
+        {
+          "name": "bidder_count",
+          "logicalType": "integer",
+          "required": false,
+          "logicalTypeOptions": {
+            "minimum": 0
+          },
+          "customProperties": [
+            {
+              "property": "nima.present",
+              "value": true
+            }
+          ]
+        },
+        {
+          "name": "cancelled",
+          "logicalType": "boolean",
+          "required": false,
+          "customProperties": [
+            {
+              "property": "nima.present",
+              "value": true
+            }
+          ]
+        },
+        {
+          "name": "source_submitted_at",
+          "logicalType": "string",
+          "required": false,
+          "customProperties": [
+            {
+              "property": "nima.present",
+              "value": true
+            }
+          ]
+        },
+        {
+          "name": "source_updated_at",
+          "logicalType": "string",
+          "required": false,
+          "customProperties": [
+            {
+              "property": "nima.present",
+              "value": true
+            }
+          ]
+        },
+        {
+          "name": "references",
+          "logicalType": "array",
+          "required": true,
+          "items": {
+            "logicalType": "object",
+            "properties": [
+              {
+                "name": "relation",
+                "logicalType": "string",
+                "required": true,
+                "enum": [
+                  {
+                    "value": "award"
+                  },
+                  {
+                    "value": "previous_record"
+                  },
+                  {
+                    "value": "commitment_decision"
+                  },
+                  {
+                    "value": "payment_order"
+                  }
+                ]
+              },
+              {
+                "name": "target_id",
+                "logicalType": "string",
+                "required": true,
+                "logicalTypeOptions": {
+                  "pattern": "^(kimdis:|diavgeia:)",
+                  "minLength": 8
+                }
+              },
+              {
+                "name": "source_field",
+                "logicalType": "string",
+                "required": true
+              }
+            ]
+          }
+        },
+        {
+          "name": "evidence",
+          "logicalType": "object",
+          "required": true,
+          "properties": [
+            {
+              "name": "response_sha256",
+              "logicalType": "string",
+              "required": true,
+              "logicalTypeOptions": {
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            {
+              "name": "json_pointer",
+              "logicalType": "string",
+              "required": true,
+              "logicalTypeOptions": {
+                "pattern": "^/content/[0-9]+$"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "authoritativeDefinitions": [
+    {
+      "type": "transformationImplementation",
+      "url": "https://github.com/StamKavid/nima-ai/blob/main/src/nima/sources/kimdis.py"
+    },
+    {
+      "type": "businessDefinition",
+      "url": "https://github.com/StamKavid/nima-ai/blob/main/SPEC-source-ingestion.md"
+    }
+  ],
+  "customProperties": [
+    {
+      "property": "nima.semanticDefinition",
+      "value": {
+        "source": "kimdis.contract",
+        "normalizer_version": "kimdis-normalized-v1",
+        "grain": "one_reported_contract_with_original_evidence",
+        "version_key": "source_id_normalizer_source_content_hash",
+        "money": "finite_Decimal_in_model_exact_text_in_json",
+        "supplier_list": "missing_distinct_from_empty",
+        "source_dates": "source_text_not_observation_time",
+        "procurement_stage": "contract_not_award_or_payment",
+        "bad_output": "stop_page_not_source_quarantine"
+      }
+    }
+  ]
+}

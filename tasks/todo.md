@@ -1,5 +1,24 @@
 # Tasks
 
+## Checkpoint C9 — KIMDIS input and normalized contracts
+
+- [x] Verify #137 and exact contract changes reach main at `9cd4c8a`; freeze scope.
+- [x] C9b: neutral schema module; C8 behavior/public APIs and assertions preserved.
+- [x] C9c: explicit opaque-array and present-nullable flags, unsupported/repeated
+  custom flags refused, with conservative compatibility checks.
+- [x] C9d: two draft ODCS documents, source-owned policy/version and cached
+  validators; exact money/unknowns/evidence/metadata binding tests.
+- [x] C9e: actual normalizer gates and unchanged storage version alias; source
+  quarantine versus fatal producer defect; real SQL page atomicity/raw retention.
+- [x] C9f mutation: disabling source/producer hooks fails actual regressions;
+  source bytes are restored. Invalid compiled constraints fail before data checks.
+- Installed-wheel/pilot byte preservation, full local gates/audit and final-head
+  hosted evidence are required and recorded with delivery PR before handoff.
+- [x] Record the measured CI-budget exception after two PR cancellations at ten
+  minutes; extend only the quality-job bound to fifteen, with all gates retained.
+- [ ] Owner review before deployment. Source activation, historical PR comparison
+  and durable check history remain separate work.
+
 ## Checkpoint C8 — first ODCS analytics contract
 
 - [x] Owner continues the bounded contract proposal; inspect official ODCS 3.2.0.
@@ -12,7 +31,8 @@
   actual regressions and are restored. JSON boolean/numeric enum regression fixed.
 - Packaged-wheel/pilot byte-compatibility proof, final full local gates/audit and
   exact-head hosted checks are required and recorded with the PR before handoff.
-- [ ] Owner review before deployment. Normalized/input contracts, automatic PR
+- [x] Owner merged #137 into main at `9cd4c8a`; no automatic deployment.
+- Normalized/input contracts, automatic PR
   baseline checks, check-history storage and scheduled monitoring remain later.
 
 ## Checkpoint C6 — selected-run DataOps health

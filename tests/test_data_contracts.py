@@ -181,5 +181,6 @@ def test_missing_or_corrupt_packaged_resources_fail_with_fixed_reason(
     else:
         (tmp_path / "supplier-buyers-v1.odcs.json").write_bytes(b"private-sentinel")
     monkeypatch.setattr("nima.contracts.files", lambda _: tmp_path)
+    monkeypatch.setattr("nima.contracts.schema.files", lambda _: tmp_path)
     with pytest.raises(ContractError, match="^analytics_contract$"):
         contract()

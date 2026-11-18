@@ -65,5 +65,6 @@ monitoring also remain later increments. The current 24-hour health threshold is
 an operator setting, not a contract SLA or a government publication promise.
 
 Source acceptance and normalized-dataset contracts follow this first output
-boundary. No source request, source repair, schedule or private deployment follows
-from adding this metadata.
+boundary; the [KIMDIS extension](ingestion-contracts.md) defines their explicit
+profile and failure semantics. No source request, source repair, schedule or
+private deployment follows from adding this metadata.

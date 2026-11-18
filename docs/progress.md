@@ -1,5 +1,22 @@
 # Capability progress: 2026-11-18
 
+## Current checkpoint C9 candidate: ingestion contracts
+
+The owner merged #137 at `9cd4c8a`; its exact contract files are verified on main.
+The [KIMDIS ingestion extension](semantics/ingestion-contracts.md) adds draft
+source-acceptance and normalized-record contracts alongside the output contract.
+Neutral schema support does not import semantic, analytics or storage modules.
+Both public normalizers check producer output; malformed source records retain
+their original quarantine behavior. Normalizer defects stop the current page,
+with raw bytes retained and no page/observation/outbox checkpoint advancement.
+The version constant moved to the source boundary without changing its value.
+
+Source/producer-hook mutations fail their actual regressions and are restored.
+Final local, packaged pilot replay/readout and exact-head hosted results are
+recorded in the delivery PR before handoff. No new source request, schema,
+dependency, schedule, live deployment or validation-history registry is introduced.
+Contract validity is not publisher accuracy, national coverage or certification.
+
 ## Current checkpoint C8 candidate: ODCS output contract
 
 The owner continued the [data-contract extension](../SPEC-data-contracts.md).

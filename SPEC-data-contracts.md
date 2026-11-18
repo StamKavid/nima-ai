@@ -71,3 +71,54 @@ SQL or links from contract metadata. No scheduled monitoring, alerts, automatic
 certification, universal ODCS execution, source refresh or live pilot deployment.
 Historical PR-baseline automation and durable contract-check history are later
 increments; passing policy tests alone is not that automation.
+
+## Checkpoint C9: source acceptance and normalized KIMDIS records
+
+The owner merged #137 (`9cd4c8a`) and requested this next slice on 2026-11-18.
+Extend the same capability, preserving earlier contracts and pending work.
+
+1. Extract the source-neutral ODCS/profile/compatibility implementation into
+   `nima.contracts.schema`. Preserve C8 public APIs, report bytes and failure
+   behavior. Importing schema support must not load analytics/semantics/storage.
+2. Add two draft ODCS 3.2.0 documents: Nima's minimum decoded-page acceptance
+   boundary and its normalized contract-record guarantee. Government availability,
+   source truth, national completeness and freshness are never promised.
+3. Explicit profile additions: `nima.opaqueItems: true` permits an array with
+   unconstrained items, needed to preserve per-record quarantine; `nima.present:
+   true` requires a nullable property to exist. These are ODCS custom properties,
+   not silently ignored constraints. Other unsupported constructs still fail.
+4. Keep strict JSON/Decimal decoding and existing pagination checks authoritative.
+   Check the source contract after those checks. Unknown fields remain in the
+   original bytes/fingerprint, and malformed record items retain existing issues.
+5. Validate each successfully normalized record before it can enter a Page or
+   leave `normalize_contract`. Money remains finite Decimal in the model and exact
+   text in the validation view, nullable fields are present, suppliers preserve
+   missing versus empty, references retain stage/namespace, and evidence must
+   match the independently known raw digest and record index. A normalizer output
+   defect stops the page; it must not be labelled as a source quarantine issue.
+6. Cache only immutable packaged contract validators per process. No network,
+   arbitrary SQL/code execution or mutable consumer policy. Move the unchanged
+   normalizer-version constant to the source boundary, preserving storage's
+   existing public alias and every saved version/hash/request.
+
+Acceptance: focused source/profile tests prove compatibility, exact Decimal and
+Greek/identifier/unknown handling, metadata/binding refusal, quarantine retention
+and fatal bad producer output. Real SQL proves that a rejected page retains raw
+bytes while checkpoint, observations, quarantine and outbox remain unchanged.
+Existing replay/readout bytes must reproduce through the packaged wheel on the
+selected private pilot. Meaningful guard mutation, full local gates/audit and
+final-head hosted checks precede owner review. Use the existing commands and
+quality floor; no new dependency, migration, live source request or deployment.
+Historical PR comparison and durable check history remain later.
+
+### Measured CI budget exception
+
+On unchanged head `7d7da93`, push run 44364797668 passes all jobs, including
+2,397 tests in 408.01 seconds and the audit. PR run 44365266941 attempts 1 and 2
+both reach the final workflow tests and are cancelled at the ten-minute job
+limit. Increase only `quality.timeout-minutes` from 10 to 15 for setup, runner
+variation and the complete gate. This is an explicit CI configuration change for
+owner review under CONSTRAINTS.md. Preserve every command, assertion, coverage
+threshold, pinned action/image, permission, fixture job and audit. The bound stays
+finite. New-head hosted verification is required; application-source byte equality
+allows reuse of the complete local application verification and packaged proof.
