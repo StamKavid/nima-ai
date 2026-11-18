@@ -15,11 +15,10 @@ from psycopg.types.json import Jsonb
 
 from nima.ingestion.archive import Archive
 from nima.ingestion.config import CONNECTOR_VERSION, Query
+from nima.sources.kimdis import NORMALIZER_VERSION as NORMALIZER_VERSION
 from nima.sources.kimdis import normalize_page
 from nima.storage.connection import Connection as Connection
 from nima.storage.connection import connect
-
-NORMALIZER_VERSION = "kimdis-normalized-v1"
 
 
 class MigrationError(ValueError):
