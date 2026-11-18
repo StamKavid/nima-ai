@@ -1,5 +1,18 @@
 # Delivery plan
 
+## Active checkpoint C10: historical contract comparison
+
+Owner merged #138 at `9d29845`; exact `4716e4b` reachability/files are verified on
+main. Continue [C10](../SPEC-data-contracts.md#checkpoint-c10-committed-historical-compatibility-gate).
+C10a freezes the committed-catalogue/CI baseline rules. C10b builds a read-only
+Git snapshot reader and identity comparison with real-history tests. C10c adds
+CLI/CI baseline selection, including actual subprocess tests. C10d wires the
+quality-only full-history checkout, environment-only provider SHAs and existing
+just interface; preserve the other gates and jobs. C10e runs mutation, actual
+repository comparison, full local gates/audit and final-head hosted proof before
+owner review. No data/DB/model/dependency/source-activation changes. Keep all prior
+pending work; durable check history remains a separately scoped increment.
+
 ## Active checkpoint C9: KIMDIS input and normalized contracts
 
 Owner merged #137 at `9cd4c8a`; `2311539` and its exact files are verified on
