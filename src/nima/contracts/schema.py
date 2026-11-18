@@ -32,6 +32,7 @@ _ELEMENT_KEYS = {
     "businessName",
     "dataGranularityDescription",
     "quality",
+    "customProperties",
 }
 
 
@@ -47,11 +48,18 @@ def canonical(value: object) -> str:
 def _shape(element: dict[str, Any], *, root: bool = False) -> dict[str, Any]:
     kind = element.get("logicalType")
     options = element.get("logicalTypeOptions", {})
+    entries = element.get("customProperties", [])
+    flags = {entry["property"]: entry["value"] for entry in entries}
     if (
         element.keys() - _ELEMENT_KEYS
         or ("quality" in element and not root)
         or kind not in _OPTIONS
         or options.keys() - _OPTIONS[kind]
+        or len(flags) != len(entries)
+        or flags.keys() - {"nima.present", "nima.opaqueItems"}
+        or any(value is not True for value in flags.values())
+        or ("nima.present" in flags and (root or "name" not in element))
+        or ("nima.opaqueItems" in flags and (kind != "array" or "items" in element))
     ):
         raise ContractError("analytics_contract")
     result: dict[str, Any] = {"type": kind, **options}
@@ -65,11 +73,16 @@ def _shape(element: dict[str, Any], *, root: bool = False) -> dict[str, Any]:
         if len(set(names)) != len(names):
             raise ContractError("analytics_contract")
         result["properties"] = {field["name"]: _shape(field) for field in fields}
-        result["required"] = [field["name"] for field in fields if field.get("required")]
+        result["required"] = [
+            field["name"]
+            for field in fields
+            if field.get("required")
+            or any(flag["property"] == "nima.present" for flag in field.get("customProperties", []))
+        ]
     if kind == "array":
-        if "items" not in element:
+        if "items" not in element and "nima.opaqueItems" not in flags:
             raise ContractError("analytics_contract")
-        result["items"] = _shape(element["items"])
+        result["items"] = {} if "nima.opaqueItems" in flags else _shape(element["items"])
     return result
 
 
