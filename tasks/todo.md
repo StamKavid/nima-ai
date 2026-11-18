@@ -8,11 +8,13 @@ three jobs. Preserve human validation, KAD crosswalk and model tasks below.
 - [x] Freeze C4 deployment/reference boundaries and sequential work.
 - [x] C4a: native verified backup/restore before reviewed pilot migration 9; narrow
   grants, prior metadata promotion, original readout/source preservation and cleanup.
-- [ ] C4b: inspect and pin actual official CPV bytes, reuse attribution and format;
+- [x] C4b: inspect and pin actual official CPV bytes, reuse attribution and format;
   implement a bounded typed reader with malformed/security/coverage tests.
-- [ ] C4c: separately versioned reference matches/private publication/CLI; no source
+- [x] C4c: separately versioned reference matches/private publication/CLI; no source
   assertions or historical versions overwritten and no inferred company sector.
-- [ ] C4d: real-release check, meaningful mutation, full gates/audit and hosted CI.
+- [x] C4d local: real-release check, meaningful duplicate/version guard mutations,
+  2,285 tests/93.27%, clean audit and private CLI/SQL proof. Hosted exact-head
+  results are recorded with both delivery PRs before handoff.
 - [ ] Owner review; dictionary features are not live by documentation alone.
 
 
