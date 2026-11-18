@@ -35,6 +35,14 @@ validation and a dynamically newer journal version; preserve checksum and unknow
 version refusal. Exact-head hosted gates and the final combined local gate are
 required before the two-PR C3 handoff, not waived by focused results.
 
+Final combined local `just check` passes 2,213 tests/93.05%; lint/types/build,
+Bandit/secrets and `just audit` pass. The selected-hash mutation fails its
+regression, as does schema TRUNCATE removal; both are restored. Actual SIGKILL,
+concurrent same-selection retries under both isolation defaults, source leases,
+SQL/pure-policy equivalence and CLI boundaries pass. The built wheel contains and
+executes its packaged SQL resource. Keep native operational proof outside Git.
+Exact-head hosted results for the schema and serving PRs remain the handoff gate.
+
 
 ## Completed checkpoint C2: structured market metadata
 

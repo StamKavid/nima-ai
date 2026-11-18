@@ -8,11 +8,14 @@ Continue after owner-merged #129 (`6051d41`); prior exact-head CI passes in runs
 - [x] C3a: freeze SQL snapshot contract, source boundaries and review checkpoint.
 - [x] C3b: public canonical metadata preparation, prior bytes unchanged.
 - [x] C3c: additive 0009/immutable snapshot/source FKs/occurrence view and upgrade tests.
-- [ ] C3d: selected-hash promotion and SQL/Python-equivalent read queries, restricted
+- [x] C3d: selected-hash promotion and SQL/Python-equivalent read queries, restricted
   roles, concurrency and real commit-boundary crash checks.
-- [ ] C3e: actual promote/query CLI with private fixed summaries.
-- [ ] C3f: official taxonomy assessment, mutation, disposable private proof, full
-  gates/audit and exact-head hosted jobs. Original pilot remains schema 8.
+- [x] C3e: actual promote/query CLI with private fixed summaries.
+- [x] C3f local: official taxonomy assessment, TRUNCATE/selected-hash mutations,
+  disposable proof and packaged-wheel SQL smoke. Both guards are restored.
+  Final combined `just check`: 2,213 passed/93.05%; `just audit`: clean.
+- Exact-head hosted gates are recorded with both delivery PRs before C3 handoff.
+  Private proof stays outside Git; no implicit live migration or model activation.
 - [ ] Owner review at C3; C4 dictionary installation and human validation remain open.
 
 
