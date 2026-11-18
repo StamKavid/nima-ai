@@ -905,9 +905,9 @@ stay private. KAD crosswalks, ontology, models and human validation remain later
 ## Checkpoint C5: source acceptance and analytics readiness
 
 Continue after owner-merged #132/#133. Main contains #132; #133 targeted its
-feature base, so #134 promotes the reviewed command files without content changes.
-Do not declare main delivery until that promotion merges. Keep the previously
-tested tree and new integration CI evidence distinct.
+feature base. Owner subsequently merged #134 at `ad62fb3`; the exact reviewed
+command files are now verified reachable from main. Keep the previously tested
+tree and the successful integration runs distinct.
 
 This increment records a capability-weighted [foundation assessment](docs/roadmap/analytics-readiness.md)
 and [KAD source acceptance](docs/sources/kad-reference.md). The roughly 60% estimate

@@ -2,7 +2,8 @@
 
 ## Checkpoint C5 — source acceptance and readiness
 
-- [x] Verify #132/#133 reachability; #134 promotes reviewed feature files to main.
+- [x] Verify #132/#133 reachability; #134 is merged at `ad62fb3` and the exact
+  reviewed command files are now verified reachable from main.
 - [x] Record source connection states, end-to-end pipeline and proposed 61/100
   planning rubric (report approximately 60%); preserve the old scope baseline.
 - [x] Capture/hash-verify AADE references/terms privately, inspect actual columns
@@ -10,7 +11,7 @@
 - [x] Specify KAD runtime acceptance without pretending a parser is installed.
 - Required local gates/audit and exact-head hosted results are recorded with the
   delivery PR before handoff; source inspection alone does not pass those gates.
-- [ ] Owner review; #134 main promotion and C5 documents are separate PRs.
+- [ ] Owner review of C5 documents; #134 main promotion is already merged.
 - [ ] Runtime KAD use: resolve reuse scope, full extraction/reconciliation proof
   and source-format contract before implementation/adoption.
 - [ ] Next independent implementation: bounded DataOps health/freshness report

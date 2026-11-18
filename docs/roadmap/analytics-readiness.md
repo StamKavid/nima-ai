@@ -7,16 +7,18 @@ remain later consumers of the data foundation.
 
 ## Assessment baseline and delivery state
 
-Main is `6fbddc9` after #132. #133 was merged into the feature branch at `122e7e8`,
-so its commands require [#134](https://github.com/StamKavid/nima-ai/pull/134) to
-reach main. Those files are identical to tested head `4f758f8`: 2,285 tests,
-93.27% local coverage, 93.24% hosted coverage and clean security/audit checks.
-All three jobs passed in run 44310710304. The provider head `2f5fe6c` separately
-passed 2,252 hosted tests/93.18% and all three jobs in run 44309170654.
-Integration checks for #134 are separate; a feature-branch merge is not main delivery.
+Main is `ad62fb3` after #134. Reachability verification confirms that the reviewed
+CPV commands from #133 now reside on main. #133 initially targeted its feature
+branch; #134 promoted those exact files without content changes. All three jobs
+passed on promotion head `122e7e8` in runs 44313904157 and 44313323422.
+
+The application tree from tested head `4f758f8` passed 2,285 tests, 93.27% local
+coverage, 93.24% hosted coverage and clean security/audit checks in run 44310710304.
+The provider head `2f5fe6c` separately passed 2,252 hosted tests/93.18% and all three
+jobs in run 44309170654. A feature-branch merge alone is not main delivery.
 
 Capability credit below includes reviewed working code and retained private pilot
-proof, with this main-delivery qualification. The new KAD assessment adds no
+proof, with the main-delivery verification above. The new KAD assessment adds no
 runtime capability credit. Test counts and coverage establish tested-code scope,
 not publisher accuracy, country-wide coverage or demonstrated analyst usefulness.
 
@@ -27,7 +29,7 @@ not publisher accuracy, country-wide coverage or demonstrated analyst usefulness
 | KIMDIS contracts | End-to-end connector, strict normalizer, versioned SQL/projections, bounded real capture and cited supplier–buyer readout exercised | One selected pilot cohort; no national coverage or active refresh schedule. Its three-attempt allowance is exhausted |
 | GEMI OpenData API | Bounded collector, archive verifier, offline profile import and identity-comparison code implemented | Personal-key/live compatibility validation remains pending; no dependable live profile feed claimed |
 | GEMI Publicity | Manual PDF/image evidence intake and protected-worker fixture checks implemented | Automated live capture, deployed gateway and deployed privacy validation remain pending/paused; no running VPN/proxy service claimed |
-| OP-TED CPV reference | Selected SDK 1.15.1 catalogue read offline in Greek/English; 9,454 base codes per language. Separate match commands reviewed, pending #134 main promotion | Base-code membership only; check digit unchecked. A classification list is not a company dataset or TED notice connector |
+| OP-TED CPV reference | Selected SDK 1.15.1 catalogue read offline in Greek/English; 9,454 base codes per language. Separate match commands promoted to main through #134 | Base-code membership only; check digit unchecked. A classification list is not a company dataset or TED notice connector |
 | AADE KAD reference | Official catalogue/mapping captured privately and sampled; release/column/reuse assessment recorded | No installed KAD dictionary or crosswalk; complete extraction and dataset reuse acceptance remain gates |
 | Diavgeia decisions | Planned source, no integrated live connector | Source contract, ingestion/projection/reconciliation and real-data validation |
 | TED notices / data.gov.gr datasets | Discovery/backlog, no integrated acquisition feeds | Select concrete datasets and verify access, reuse, connector and quality contracts |
@@ -138,7 +140,7 @@ differ. It also is not 93% complete because test coverage is around 93%.
 
 ## Next measurable increments
 
-1. Promote reviewed CPV commands to main through #134, preserving their exact tree.
+1. Maintain the verified main-delivery boundary; #134 completed CPV command promotion.
 2. Finish [KAD source acceptance](../sources/kad-reference.md): clear reuse scope,
    freeze extraction semantics and release evidence before a runtime dictionary.
 3. In parallel with that acceptance work, prioritize a bounded DataOps health/

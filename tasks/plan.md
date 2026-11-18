@@ -3,8 +3,8 @@
 ## Active checkpoint C5: source acceptance and readiness
 
 Owner merged #132 to main at `6fbddc9`, then #133 into its feature base at
-`122e7e8`. #134 promotes the exact reviewed command tree to main; do not claim
-that integration completed before merge. Preserve existing app/tests/CI.
+`122e7e8`. Owner then merged #134 at `ad62fb3`; command reachability from main
+is now verified, with all promotion checks passing. Preserve existing app/tests/CI.
 
 C5a verifies branch reachability and opens the content-identical promotion. C5b
 assesses delivered/live/prepared source capabilities and records a stable,
