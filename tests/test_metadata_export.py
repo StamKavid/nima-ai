@@ -20,7 +20,7 @@ from tests.test_collection import QUERY, body
 from tests.test_gemi_import_archive import archive_run, snapshot
 
 
-def kimdis_run(dsn: str, root: Path) -> UUID:
+def kimdis_run(dsn: str, root: Path, *, observed_at: datetime | None = None) -> UUID:
     migrate(dsn)
     run = uuid4()
     store = RunStore(dsn, Archive(root), run, Limits())
@@ -33,7 +33,7 @@ def kimdis_run(dsn: str, root: Path) -> UUID:
                 contractingAuthorityActivity={"key": "8", "value": "Άμυνα"},
                 objectDetailsList=[{"cpvs": [{"key": "33141120-7", "value": "Συνθετικό"}]}],
             ),
-            observed_at=datetime(2026, 1, 1, tzinfo=UTC),
+            observed_at=observed_at or datetime(2026, 1, 1, tzinfo=UTC),
             owner=store.owner,
         )
         store.finish(Summary(status="complete"))

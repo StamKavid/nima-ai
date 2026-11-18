@@ -923,3 +923,68 @@ schema, schedule, company-source request or model is installed at this checkpoin
 Runtime acceptance requires resolved reuse scope and complete bounded extraction/
 reconciliation tests as specified in the source contract. Meanwhile prioritize
 DataOps health/freshness and descriptive metrics without activating new sources.
+
+## Checkpoint C6: selected-run DataOps health
+
+Continue owner-reviewed #135 at `0fb8734`. Use the existing Python/PostgreSQL
+runtime and private canonical publisher. No dependency, migration, CI setting,
+source HTTP request, retry, policy change, cleanup or schedule activation.
+
+`python -m nima dataops health --run-id UUID --capacity-dir ABSOLUTE_DIRECTORY
+--max-capture-age-hours INTEGER --min-free-bytes INTEGER --output-dir ABSOLUTE_DIRECTORY`
+reads one explicitly selected KIMDIS run. Require NIMA_DATABASE_URL from the
+existing environment and explicit operator thresholds: 1–8,760 hours and positive
+bytes up to signed bigint. Reject bool/noninteger thresholds, unsafe/relative
+paths and missing inputs before SQL/publication. The capacity target is explicitly
+operator-selected; it is not proof of a run/archive binding or archive integrity.
+
+One repeatable-read, READ ONLY SQL transaction validates the schema and samples
+run status, reported query dates, committed-page/record/quarantine counters,
+oldest/newest observation time, observation count, current packaged projection
+receipt backlog and the optional workflow request linked to that run. Use bound
+parameters, no locks with write intent, fixed aggregates and a five-second local
+per-statement timeout. An absent run fails, not a zero-count success. A missing
+linked workflow is explicitly not_linked, not evidence that no workflow exists.
+No global queue/policy scans, Prefect calls or execution-compatibility/liveness
+claims. Full refresh-child diagnostics and pipeline-wide logging remain later work.
+
+Sample PostgreSQL clock at the end of the read transaction. Sample the selected
+private existing directory via no-follow directory descriptors and fstatvfs after
+closing SQL: available bytes use f_bavail * f_frsize (not reserved free blocks),
+and available inodes are reported when the filesystem exposes a finite total.
+Record separate SQL/filesystem measurement times; do not claim an atomic cross-
+store snapshot or guaranteed space for a subsequent write. Do not walk/read raw
+bodies, initialize archives, create the capacity target or repair permissions.
+
+Pure policy flags a non-complete recorded run status, unobserved/future/old
+observations, nonzero quarantine, cardinality disagreement, missing current
+projection receipts, a linked non-complete workflow, low available bytes or no
+available inodes. Capture age uses the **oldest** committed page and exact timedelta
+comparison; a new last page cannot hide an old first page. Equality with a chosen
+threshold passes; one microsecond beyond it does not. Future observations remain
+explicit. A failed/deferred request is an attention state, not proof of a dead
+worker or an automatically repairable refresh child. Empty complete captured
+pages can pass these narrow checks without establishing company/market absence.
+
+Publish `dataops-health-v1` canonical content-named JSON only after every sample
+and validation succeeds. Preserve prior reports. It contains selection, actual
+packaged projection version, times, thresholds, sampled counters/capacity and
+ordered attention reasons. Status is checks_passed or attention for these limited
+checks; source-currentness, archive integrity, field reconciliation, worker/
+scheduler liveness and broader coverage remain not_checked. It is an operational
+measurement, so separate invocations may have different times/hashes.
+
+Stdout contains fixed status and attention count, without selected IDs, paths,
+source fields or result hashes. New-command stderr emits fixed structured
+start/completed/failed events and fixed error reasons only. Exit 0 for checks
+passed, 3 for a published attention result, 2 for invalid configuration, 1 for
+sampling/schema/database/output failure and 130 for interruption. Unavailable
+measurements never become healthy/zero values. Existing commands are unchanged.
+
+Acceptance: known-answer policy fixtures for exact age/capacity boundaries,
+future/no observations, empty captures, quarantine/count/backlog/workflow states;
+actual read-only limited-role SQL and unchanged source state; no-follow filesystem
+and missing-path rejection; CLI privacy/exit/publication and no source effects;
+meaningful freshness-guard mutation; private selected-pilot proof using a disposable
+clone with scoped access (no automatic live grants); built-wheel SQL execution;
+full local gates/audit and exact-head hosted checks before owner review.

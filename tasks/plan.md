@@ -1,6 +1,24 @@
 # Delivery plan
 
-## Active checkpoint C5: source acceptance and readiness
+## Active checkpoint C6: selected-run DataOps health
+
+Owner merged #135 into main at `0fb8734`; exact source reachability is verified.
+Use spec/TDD/incremental delivery for one bounded read-only feature. C6a freezes
+operator thresholds, selected-run scope and no-source/no-repair semantics. C6b
+implements a pure policy and SQL aggregate snapshot with read-only restricted-role
+tests. C6c adds no-follow capacity sampling, canonical private publication and CLI
+with fixed structured stderr events; preserve all existing commands. C6d verifies
+boundaries/privacy, a deliberate age-guard mutation, private clone proof, packaged
+SQL, complete local gates/audit and exact-head CI before owner review.
+
+No migration/dependency/CI edit or automatic pilot grant/deployment. Capacity is
+an operator-selected filesystem sample, not archive verification. Five-second
+per-statement SQL limits are explicit; this is not a whole-platform health SLA.
+Full policy/child recovery diagnostics and ingestion-wide logging remain later.
+Before verification, reclaim only inactive owned synthetic pytest artifacts after
+checking controller liveness; keep source evidence/backups and human decisions.
+
+## Completed checkpoint C5: source acceptance and readiness
 
 Owner merged #132 to main at `6fbddc9`, then #133 into its feature base at
 `122e7e8`. Owner then merged #134 at `ad62fb3`; command reachability from main
