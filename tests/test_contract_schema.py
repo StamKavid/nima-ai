@@ -106,3 +106,16 @@ def test_removing_presence_guarantee_requires_a_major_version() -> None:
     new["version"] = "1.1.0"
     with pytest.raises(ContractError, match="^contract_breaking_change$"):
         check_compatibility(old, new)
+
+
+def test_invalid_declared_regex_fails_as_metadata_before_any_data_check() -> None:
+    value = example(
+        {
+            "name": "value",
+            "logicalType": "string",
+            "required": True,
+            "logicalTypeOptions": {"pattern": "["},
+        }
+    )
+    with pytest.raises(ContractError, match="^analytics_contract$"):
+        validate_contract(value)

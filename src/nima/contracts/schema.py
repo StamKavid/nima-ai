@@ -6,8 +6,8 @@ import re
 from importlib.resources import files
 from typing import Any, cast
 
-from jsonschema import Draft201909Validator
-from jsonschema.exceptions import ValidationError
+from jsonschema import Draft201909Validator, Draft202012Validator
+from jsonschema.exceptions import SchemaError, ValidationError
 
 SCHEMA_SHA256 = "edb41f33ec46e84780e99872ab2bd67f074959d2bf3e9c9fc54e61f8982b0d93"
 
@@ -105,13 +105,13 @@ def validate_contract(value: object) -> dict[str, Any]:
         _version(document["version"])
         if document["apiVersion"] != "v3.2.0" or len(document.get("schema", [])) != 1:
             raise ContractError("analytics_contract")
-        _shape(document["schema"][0], root=True)
+        Draft202012Validator.check_schema(_shape(document["schema"][0], root=True))
         properties = document.get("customProperties", [])
         names = [entry["property"] for entry in properties]
         if len(set(names)) != len(names) or "nima.semanticDefinition" not in names:
             raise ContractError("analytics_contract")
         return document
-    except (OSError, ValidationError, KeyError, TypeError, ValueError, RecursionError):
+    except (OSError, SchemaError, ValidationError, KeyError, TypeError, ValueError, RecursionError):
         raise ContractError("analytics_contract") from None
 
 
