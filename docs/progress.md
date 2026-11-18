@@ -1,14 +1,5 @@
 # Capability progress: 2026-11-18
 
-## Release planning, not release delivery
-
-The owner requested a [versioned v1.0 roadmap](roadmap/v1.0.md),
-[release contract](../SPEC-release-v1.0.md) and
-[agent handoff](roadmap/agent-handoff.md). These proposed gates add no source,
-metric, insight or operating capability. Baseline main is `9d29845` (#138);
-contract-evolution PR #139 is separately in progress. Package version stays
-`0.0.1`; old readiness percentages retain their original denominator.
-
 ## Current checkpoint C9 candidate: ingestion contracts
 
 The owner merged #137 at `9cd4c8a`; its exact contract files are verified on main.
@@ -370,3 +361,12 @@ already supports the bounded graph workflow; selecting and verifying a real coho
 is the next evidence/value gate. No production model/provider, graph store or public
 service is selected by this documentation. Election-accountability work remains
 outside this baseline.
+
+## Release planning, not release delivery
+
+The owner requested a [versioned v1.0 roadmap](roadmap/v1.0.md),
+[release contract](../SPEC-release-v1.0.md) and
+[agent handoff](roadmap/agent-handoff.md). These proposed gates add no source,
+metric, insight or operating capability. Baseline main is `9d29845` (#138);
+contract-evolution PR #139 is separately in progress. Package version stays
+`0.0.1`; old readiness percentages retain their original denominator.

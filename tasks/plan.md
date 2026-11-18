@@ -1,22 +1,5 @@
 # Delivery plan
 
-## Release planning checkpoint: v1.0 and agent handoff
-
-The owner requested a complete versioned release plan on 2026-11-18 while the
-separate contract-evolution PR #139 is being verified. The proposed
-[release contract](../SPEC-release-v1.0.md),
-[version roadmap](../docs/roadmap/v1.0.md) and
-[agent backlog/handoff](../docs/roadmap/agent-handoff.md) define acceptance and
-dependencies through analytics-ready data, shared semantics, insights, serving
-and a measured release. No package version, source activation or release changes.
-
-Keep detailed slice specs and all pending tasks. Verify #139 main reachability
-before using its historical gate. Next implementation candidate is V1-01's
-bounded durable validation history; first freeze its exact result/attempt and
-SQL/file recovery contract. The broader roadmap is proposed scope, not an
-instruction to implement every card, deploy or publish. Main delivery/progress
-and actual evidence, not roadmap checkboxes, establish what exists.
-
 ## Active checkpoint C9: KIMDIS input and normalized contracts
 
 Owner merged #137 at `9cd4c8a`; `2311539` and its exact files are verified on
@@ -2427,3 +2410,20 @@ KIMDIS HTTP collection and bounded pagination → raw archive → PostgreSQL
 observations/versions/outbox → restart/reconciliation tests → document evidence →
 Diavgeia linking → GEMI enrichment. See `docs/architecture.md` for the later graph,
 model, and insights roadmap. Stage completion requires its acceptance tests.
+
+## Release planning checkpoint: v1.0 and agent handoff
+
+The owner requested a complete versioned release plan on 2026-11-18 while the
+separate contract-evolution PR #139 is being verified. The proposed
+[release contract](../SPEC-release-v1.0.md),
+[version roadmap](../docs/roadmap/v1.0.md) and
+[agent backlog/handoff](../docs/roadmap/agent-handoff.md) define acceptance and
+dependencies through analytics-ready data, shared semantics, insights, serving
+and a measured release. No package version, source activation or release changes.
+
+Keep detailed slice specs and all pending tasks. Verify #139 main reachability
+before using its historical gate. Next implementation candidate is V1-01's
+bounded durable validation history; first freeze its exact result/attempt and
+SQL/file recovery contract. The broader roadmap is proposed scope, not an
+instruction to implement every card, deploy or publish. Main delivery/progress
+and actual evidence, not roadmap checkboxes, establish what exists.
