@@ -1,5 +1,18 @@
 # Tasks
 
+## Checkpoint C8 — first ODCS analytics contract
+
+- [x] Owner continues the bounded contract proposal; inspect official ODCS 3.2.0.
+- [x] Freeze spec and sequential slices; preserve all prior pending work.
+- [ ] C8b: pin official schema/license and explicit package provenance; reviewed
+  output contract, offline shape/semantic validation and compatibility policy.
+- [ ] C8c: actual publication gate; real-SQL preservation/byte-replay and injected
+  failure tests with fixed private-safe errors and no new report on failure.
+- [ ] C8d: meaningful mutation, packaged-wheel/offline proof, full local gates and
+  audit, final-head hosted checks and reviewable PR to main.
+- [ ] Owner review before deployment. Normalized/input contracts, automatic PR
+  baseline checks, check-history storage and scheduled monitoring remain later.
+
 ## Checkpoint C6 — selected-run DataOps health
 
 - [x] Verify #135 reaches main; freeze explicit selected-run/threshold contract.
@@ -11,7 +24,8 @@
 - Age/read-only mutations and private clone proof pass; packaged SQL and full
   local gates/audit are required and recorded with the delivery PR before handoff.
 - Exact-head hosted results are recorded with the delivery PR before handoff.
-- [ ] Owner review; no source activation, repair, live-grant or global-health claim.
+- [x] Owner merged #136 at `772c321`; private health activation independently
+  authorized and verified. Selected attention is not a global-health verdict.
 
 ## Checkpoint C5 — source acceptance and readiness
 

@@ -1,5 +1,22 @@
 # Delivery plan
 
+## Active checkpoint C8: first ODCS analytics contract
+
+Owner continued the explicit data-contract proposal on 2026-11-18. Implement the
+[bounded contract](../SPEC-data-contracts.md) through existing semantic/analytics
+interfaces. #136 is merged on main at `772c321`; the subsequent authorized private
+health activation passed permission/data preservation checks, with stale-capture
+and low-capacity attention. This does not activate collection or schedules.
+
+C8a: inspect/pin ODCS schema and license; record scope and retained pending tasks.
+C8b: metadata/profile loader plus conservative compatibility tests, small direct
+dependency declaration, no unrelated upgrades. C8c: gate actual readout publication
+with the existing reconciliation unchanged; test real success/failure and byte
+compatibility. C8d: mutation, wheel/offline proof, full gates/audit, review and
+exact-head hosted checks; stop at owner review before deployment. No CI-policy,
+schema, source-budget, schedule or live reader changes. Other dataset contracts,
+automatic PR-baseline comparison and durable validation history remain later.
+
 ## Active checkpoint C6: selected-run DataOps health
 
 Owner merged #135 into main at `0fb8734`; exact source reachability is verified.
