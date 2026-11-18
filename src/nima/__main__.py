@@ -57,6 +57,7 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("evidence", help="Offline manual evidence intake and verification")
     commands.add_parser("analytics", help="Offline private supplier/buyer readouts")
+    commands.add_parser("metadata", help="Query reported market metadata offline")
     commands.add_parser("archive", help="Offline committed-page integrity checks")
     configure_graph(commands.add_parser("graph", help="Offline private investigation graph"))
     refresh = commands.add_parser("refresh").add_subparsers(dest="operation", required=True)
@@ -273,6 +274,10 @@ def _reviewed_identity(args: argparse.Namespace) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     arguments = sys.argv[1:] if argv is None else argv
+    if arguments and arguments[0] == "metadata":
+        from nima.metadata.cli import run as metadata_run
+
+        return metadata_run(arguments[1:])
     if arguments and arguments[0] == "archive":
         from nima.dataops.archive import run as archive_run
 

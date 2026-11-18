@@ -1,6 +1,39 @@
 # Delivery plan
 
-## Active checkpoint C1: pilot operations and saved intents
+## Active checkpoint C2: structured market metadata
+
+Owner merged #128 at `bd7fec4`; all three jobs pass on prior head `78c8fce` in
+PR run 44258789845 and branch run 44258739500. C1 is owner-reviewed; pending human
+pilot checks remain pending. Continue the same metadata plan, preserving old tasks.
+See the C2 source contract. No new source request, migration, dependency or CI edit.
+
+C2a (three files): contract/plan/tasks. C2b (extractor, source decoder, tests): pure
+reported metadata assertions with distinct dimensions, status/path preservation,
+Greek text and boundedness. Verify red then green; no normalizer output change.
+C2c (replay, capture tests): public frozen verified capture API, used by replay and
+metadata; retained replay bytes and read-only/relocated evidence behaviour verified.
+C2d (export, CLI, dispatcher, integration tests): canonical private metadata
+snapshots and exact dimension/code filters across KIMDIS and GEMI archives. No
+cross-source joins or current-state metric. Full quality counts survive filtering.
+C2e (docs/progress and validation): meaningful mutation, unchanged private pilot
+source/readout/guards, complete local gates/audit, PR and exact-head hosted jobs.
+Stop at owner review. Private operational details stay out of public delivery text.
+
+Use existing SELECT-only replay scope, hash-verified no-follow recovery, strict
+source decoders and GEMI verifier. Bound 32 pages/5,000 KIMDIS records, 10 GEMI
+profiles/1,000 activities each and 10,000 assertions/report limit. Snapshot remains
+committed-page occurrences, not a taxonomy catalogue or deduplicated company/spend
+metric. CPV format is only syntax; KAD taxonomy/version validity remains unverified.
+Observed: 46 new cases pass; existing replay/promotion regressions stay green.
+The invalid-code filter mutation fails its regression and is restored. Full local
+`just check` passes 2,182 tests/93.13%; strict types/lint/build/security/secrets pass;
+`just audit` is clean. Hosted exact-head jobs and owner review remain the delivery
+gate. Keep private operational proof outside public delivery text.
+
+Next after C2: reviewed SQL metadata serving contract, then isolated Greek models.
+
+
+## Completed checkpoint C1: pilot operations and saved intents
 
 Owner requests auto-build through a checkpoint after merging #127 at `ef2b438`.
 The corrected head `f2eb17b` passed all three jobs in PR run 44168550280 and push

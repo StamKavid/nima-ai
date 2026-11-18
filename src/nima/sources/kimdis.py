@@ -200,6 +200,11 @@ def _decode(raw_response: bytes, max_bytes: int) -> dict[str, object]:
     return _object(decoded, "response")
 
 
+def decode_response(raw: bytes, *, max_bytes: int = 8 * 1024 * 1024) -> dict[str, object]:
+    """Public strict source decoding for independent evidence-backed projections."""
+    return _decode(raw, max_bytes)
+
+
 def normalize_contract(
     raw_response: bytes, *, index: int = 0, max_bytes: int = 8 * 1024 * 1024
 ) -> Contract:
