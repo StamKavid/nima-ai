@@ -3,14 +3,17 @@
 ## Checkpoint C10 — historical contract comparison
 
 - [x] Verify #138 reaches main at `9d29845`; freeze committed catalogue and CI rules.
-- [ ] C10b: Git tree/blob reader, strict bounded descriptor inputs, ID catalogue
+- [x] C10b: Git tree/blob reader, strict bounded descriptor inputs, ID catalogue
   and compatibility policy; real Git history and refusal tests.
-- [ ] C10c: CLI and provider-context selection; actual subprocess/CI-mode tests
+- [x] C10c: CLI and provider-context selection; actual subprocess/CI-mode tests
   prove dirty files cannot bypass comparison and diagnostics stay fixed.
-- [ ] C10d: quality checkout history and baseline step; just recipe and runbook;
+- [x] C10d: quality checkout history and baseline step; just recipe and runbook;
   preserve all existing jobs, permissions, pins, checks and thresholds.
-- [ ] C10e: meaningful mutation, real main comparison, full local gates/audit,
-  final-head hosted evidence and reviewable PR.
+- [x] Removal-policy mutation: actual history regression detects the lost fixed
+  removal diagnostic; original source is restored. Real Git/CLI cases also prove
+  bootstrap, rename, SemVer, strict JSON, limits and missing-history refusal.
+- C10e: real main comparison, full local gates/audit, final-head hosted evidence
+  and a reviewable PR are required before handoff; record results in the PR.
 - [ ] Owner review. Durable result history, source freshness and source activation
   remain separate work; this gate does not establish dataset correctness.
 
