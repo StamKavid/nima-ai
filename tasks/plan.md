@@ -1,5 +1,56 @@
 # Delivery plan
 
+## Active checkpoint C1: pilot operations and saved intents
+
+Owner requests auto-build through a checkpoint after merging #127 at `ef2b438`.
+The corrected head `f2eb17b` passed all three jobs in PR run 44168550280 and push
+run 44168539451. Use the [C1 contract](../SPEC-source-ingestion.md#checkpoint-c1-operational-replay-and-saved-intent-compatibility)
+and continue the same DataOps plan. Existing PG17 cluster was restarted from its
+retained data directory without initialization; maintenance began at migration 7
+with no running collection or enabled refresh policy. Keep the HTTP guards intact.
+
+C1a records this contract/plan/tasks (three files). C1b performs private verified
+native backup/restore, applies reviewed migration 8, scopes promoter/reader grants,
+promotes selected prior replays and records proof outside Git. C1c adds a pure v1
+intent codec, request compatibility/inspection and tests (intent module, workflow
+store, pipeline manifest and compatibility test module; four files). C1d handles
+refresh compatibility,
+status and control boundaries (refresh store, progress, control and the same test
+module; four files). Execute sequentially, test first and keep existing interfaces
+except additive diagnostics. No dependency, schema or CI change for this feature.
+
+Checkpoint evidence: source rows/counters/old definitions/grants, originals and
+readout preserved across maintenance except the new journal/processing objects;
+recorded defaults survive changes; incompatible execution has no effects; historical
+policy pause/inspection works; tampered/unknown formats fail; source allowance and
+freshness are unchanged. Scope fixed v1 formats and ceilings, no silent upgrades.
+Existing archive relocation/resume and explicit intent replacement stay separate.
+
+C1e runs mutation, focused/complete local checks, audit and exact-head hosted jobs;
+updates truthful status and publishes the reviewed batch. Owner review is the stop
+at C1, not a reason to pause earlier routine implementation. No automatic merge,
+source collection, schedule activation, human sign-off or runtime model adoption.
+Observed locally: fresh native backup/restore and identical readout verified before
+pilot migration 8. Scoped promoter CONNECT/SCRAM and metadata/derived grants work;
+reader promotion and wrong-password authentication fail. All original source
+rows except the journal, old definitions/counters/source grants, original bytes
+and readout are preserved; selected replays are promoted and repeated idempotently.
+No new source request or active schedule. Full maintenance proof/credentials stay
+outside Git. The initial missing promoter CONNECT grant was corrected before
+promotion; the disposable clone had inherited a more permissive database default.
+
+Forty-three new compatibility cases and existing request/refresh regressions pass
+(61 focused). Historical defaults/pins/hash are retained, unsafe execution is gated,
+old policy pause remains available and manifests retain the recorded format.
+Dropping the source-lease pin guard fails its regression; it is restored. Full
+local `just check` passes 2,136 tests/93.07%; `just audit` is clean. The public
+progress record distinguishes this candidate from the historical percentage rubric.
+Hosted exact-head results and owner review accompany the delivery PR; do not label
+local checks hosted CI or human validation.
+
+Next after C1: explicit intent replacement if needed, then queryable buyer/CPV/KAD
+metadata and isolated Greek model evaluation.
+
 ## CI correction for replay promotion
 
 Owner reported PR #127 CI failure. Exact-head run 44163644708 passes quality and

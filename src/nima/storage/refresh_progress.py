@@ -62,6 +62,7 @@ def reconcile(session: RefreshSession) -> bool:
 
 def show(store: RefreshStore, policy_id: UUID, day: date) -> dict[str, object]:
     policy = store.options(policy_id)
+    compatibility = store.compatibility(policy_id)
     end = day - timedelta(days=1)
     with _db(store.dsn) as connection, connection.transaction():
         connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY")
@@ -123,6 +124,8 @@ def show(store: RefreshStore, policy_id: UUID, day: date) -> dict[str, object]:
         "policy_id": str(policy_id),
         "state": state[0],
         "enabled": state[0] == "enabled",
+        "execution_enabled": state[0] == "enabled" and compatibility["execution_compatible"],
+        **compatibility,
         "schedule_reconciliation": "required" if state[0] == "pending" else "last_acknowledged",
         "business_date": day.isoformat(),
         "coverage_start": policy.start.isoformat(),

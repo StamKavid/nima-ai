@@ -1,4 +1,49 @@
-# Capability progress: 2026-11-15
+# Capability progress: 2026-11-18
+
+## Current checkpoint C1 candidate
+
+The owner-approved direction is company and market intelligence, following
+[ADR-0005](decisions/0005-market-intelligence-foundation.md). The trusted data and
+analytics foundation precedes persona workflows, sector inference and models.
+The [C1 contract](../SPEC-source-ingestion.md#checkpoint-c1-operational-replay-and-saved-intent-compatibility)
+continues owner-merged #127 (`ef2b438`) through a bounded build/review checkpoint.
+
+The private pilot now runs reviewed migration 8. A fresh native snapshot backup,
+paired originals/request/readout and anchored manifest were restored and checked
+before the upgrade. Existing selected replays are promoted into derived SQL with
+original capture time separate from processing time. Source rows, old definitions,
+counters, source grants, archive bytes and the original readout are preserved,
+except the intentional journal/derived-schema additions and explicit new grants.
+The dedicated promoter uses scoped CONNECT/SCRAM and cannot write source tables;
+the reader can read the derived view and cannot promote. No source request was
+added and no live refresh schedule was activated. Private proof stays outside Git;
+this is a single-operator local pilot, not off-host recovery or a shared service.
+
+This C1 code candidate decodes known v1 saved intents against their own hashes and
+recorded values. New constructor defaults do not change an existing request or
+refresh child. Historical processing pins remain visible; incompatible collection,
+dispatch and policy activation fail before source/budget/RPC effects. Historical
+pause remains available, and prepared manifests retain the actual request format.
+Additive diagnostics distinguish saved enable state from executable compatibility.
+Only supported v1 formats/ceilings are implemented; no silent upgrade or linked
+replacement is claimed. Existing archive binding/resume restrictions remain.
+
+Local verification: 43 new compatibility cases, 61 focused request/refresh cases,
+and full `just check` at 2,136 passed/93.07%, with a clean audit. A removed pin guard
+fails its regression before restoration. Exact-head hosted checks and owner review
+are recorded with the delivery PR. C1 does not close human evidence review or task
+observation, select a runtime model, certify a metric or add source coverage.
+
+Next: queryable buyer-function, procurement CPV and reported supplier KAD metadata,
+keeping those concepts distinct, followed by an isolated Greek model evaluation.
+Explicit intent replacement is separate work if a version transition needs it.
+
+## Historical original-scope baseline (2026-11-15)
+
+The remaining sections retain the earlier graph/investigator release rubric and
+its evidence. Their 33% estimate is historical; it is not a refreshed company and
+market intelligence completion estimate. PR/test counts do not add capability
+credit, and no new overall percentage is invented at this checkpoint.
 
 Runtime baseline `4a33a3e` includes owner-merged graph G1–G5 (#91–#95), following
 approved [scope #87](graph/investigation-pilot.md)/plan #90 and checkpoints A–C.

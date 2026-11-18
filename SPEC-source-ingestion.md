@@ -633,3 +633,83 @@ latest-version expectations in existing tests; `dataops/replay.prepare_replay`,
 `dataops/promotion.py`, the shared public run lease key, archive CLI and three
 promotion test modules. Retain
 all pending request/refresh version-policy, metadata, model and human-review work.
+
+
+## Checkpoint C1: operational replay and saved-intent compatibility
+
+Owner authorizes automatic continuation to this checkpoint after merging #127 at
+`ef2b438`. Build and verify through C1 without routine approval pauses. Retain the
+PR review boundary; no automatic merge. Use the existing Python/PostgreSQL/Prefect
+stack and fixed version-one formats; no new dependency, migration, source request,
+schedule activation or model. The source-attempt allowance remains exhausted.
+
+C1 is reached when the existing pilot is safely upgraded to reviewed migration 8,
+its selected prior replays are promoted, saved request/policy identity no longer
+depends on current constructor defaults, incompatible source execution fails
+before effects, required local/hosted gates pass and a reviewable PR records results.
+Metadata and model work remain after this checkpoint. Unsupported old algorithms
+are not silently upgraded; linked intent replacement and format-v2 support are
+explicit later work rather than being implied by inspection compatibility.
+
+For private pilot maintenance, quiesce and inventory the source, retain a new native
+snapshot dump paired with original archives/request/readout/configuration and a
+separately anchored manifest. Restore that backup into an owned disposable database
+and verify contents, native CHECK reparse equivalence, migration 8, archived bytes
+and identical readout before touching the pilot. Then migrate under its configured
+NOLOGIN owner. Grant a dedicated promoter only four source metadata SELECTs and
+SELECT/INSERT on the two processing tables; grant the existing reader USAGE and
+SELECT on the derived view. Promote only previously selected verified hashes.
+Check idempotency, distinct capture/processing clocks, source rows/counters/schema,
+old role grants, original bytes/readout and the three HTTP guards. Only the journal
+and new derived tables/explicit grants may change. Keep credentials, full proof,
+rollback/restore details and all source values outside Git. Do not remove the
+original evidence or mislabel a local clone as off-host recovery.
+
+Add a small pure saved-intent codec in `src/nima/intent.py`, reusing Query/Limits.
+Version-one request/policy formats have frozen field sets and canonical shape.
+Validate each JSONB value against its own stored SHA-256 and schema. Decode recorded
+limits rather than reconstructing current defaults; validate finite types and
+apply the original fixed v1 workflow ceiling (100 pages, 3 attempts, 8 MiB/page,
+20 requests/minute, 20 s request timeout, 300 s run and 60 s retry delay) at the
+execution boundary. A new default cannot change an existing intent. Unknown
+processing pins remain inspectable; malformed/unknown formats fail with fixed
+reasons. No filesystem or HTTP write occurs while decoding.
+
+Submission with an existing UUID and the same explicit query/root reuses its
+validated immutable intent, including recorded pins/limits. Different explicit
+inputs conflict. Concurrent creation remains first-writer-wins; never rewrite
+old JSON/hash or copy new defaults into it. Keep the public execution-options
+method strict: current connector/normalizer support and v1 limits must be valid.
+Expose recorded version/pin/compatibility diagnostics in existing status surfaces.
+Prepared manifests also retain the recorded request format. Refresh `enabled`
+keeps its stored-state meaning; additive `execution_enabled` combines that state
+with current compatibility.
+Gate source leases and new dispatch before owner/budget/dispatch writes or RPC.
+Existing absolute archive binding/resume restrictions are not removed here.
+
+Refresh inspection/planning uses the recorded, supported v1 policy profile and
+own hash, rather than comparing to today's processing pins. Existing same-ID
+creation reuses identical explicit policy inputs. A historical policy can still
+be paused. Enable, active tick, new cycle/child and sending transitions require
+compatible connector/normalizer/profile before state changes or RPC. A mismatch
+must not enable the SQL gate, create a child with new pins or consume source
+budget. Disabling still closes the gate before reconciling the local schedule.
+No implicit replacement, altered cron, enlarged budget or new source freshness.
+
+Use real PostgreSQL for default/pin-change, concurrent reuse, immutable hash,
+malformed intent, bounded limits, blocked side effects and pause/enable/tick tests;
+reuse recorded fixtures and existing local Prefect tests. Demonstrate a mutation
+that drops a pin guard is caught, then restore it. Verify the private upgraded
+pilot offline; original readout must remain byte-identical. Commands:
+
+```sh
+uv run --frozen pytest tests/test_intent_compatibility.py tests/test_workflow_requests.py \
+  tests/test_refresh_store.py tests/test_workflow_pipeline.py
+just check
+just audit
+```
+
+After local checks, publish a focused PR and verify all three exact-head hosted
+jobs, repairing failures within the same batch. The owner reviews at C1 before
+metadata/model work; this checkpoint is not human metric certification or a live
+capture deployment.

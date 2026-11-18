@@ -6,13 +6,13 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import date
-from pathlib import Path
 from typing import cast
 from uuid import UUID, uuid4, uuid5
 
 from psycopg.types.json import Jsonb
 
 from nima.ingestion.config import CONNECTOR_VERSION, Query
+from nima.intent import IntentError, RefreshIntent, refresh_intent
 from nima.orchestration.refresh import CRON, TIMEZONE, VERSION, Policy, select_dates
 from nima.storage.postgres import NORMALIZER_VERSION, Connection
 from nima.storage.workflows import RequestStore, WorkflowError, _db
@@ -95,7 +95,17 @@ class RefreshStore:
                 "WHERE policy_id=%s",
                 (policy_id,),
             ).fetchone()
-            if row != (value, _digest(value)):
+            if row is None:
+                raise WorkflowError("policy_unavailable")
+            try:
+                saved = refresh_intent(row[0], row[1])
+            except IntentError:
+                raise WorkflowError("policy_invalid") from None
+            if (saved.start, saved.buyers, saved.root) != (
+                policy.start,
+                policy.buyers,
+                policy.root,
+            ):
                 raise WorkflowError("policy_conflict")
             if inserted:
                 connection.execute(
@@ -103,7 +113,7 @@ class RefreshStore:
                     (policy_id,),
                 )
 
-    def options(self, policy_id: UUID) -> Policy:
+    def saved(self, policy_id: UUID) -> RefreshIntent:
         with _db(self.dsn) as connection:
             row = connection.execute(
                 "SELECT configuration,configuration_sha256 FROM nima.refresh_policies "
@@ -112,18 +122,25 @@ class RefreshStore:
             ).fetchone()
         if row is None:
             raise WorkflowError("policy_unavailable")
-        value = cast(dict[str, object], row[0])
         try:
-            policy = Policy(
-                date.fromisoformat(cast(str, value["start_date"])),
-                tuple(cast(list[str], value["buyers"])),
-                Path(cast(str, value["archive_root"])),
-            )
-            if value != _parameters(policy) or row[1] != _digest(value):
-                raise ValueError
-            return policy
-        except (ValueError, TypeError, KeyError, OSError):
+            return refresh_intent(row[0], row[1])
+        except IntentError:
             raise WorkflowError("policy_invalid") from None
+
+    def options(self, policy_id: UUID) -> Policy:
+        saved = self.saved(policy_id)
+        return Policy(saved.start, saved.buyers, saved.root)
+
+    def compatibility(self, policy_id: UUID) -> dict[str, object]:
+        saved = self.saved(policy_id)
+        failure = saved.failure(CONNECTOR_VERSION, NORMALIZER_VERSION, VERSION, CRON, TIMEZONE)
+        return {
+            "format_version": saved.format_version,
+            "connector_version": saved.connector_version,
+            "normalizer_version": saved.normalizer_version,
+            "execution_compatible": failure is None,
+            "compatibility_failure": failure,
+        }
 
     def plan(self, policy_id: UUID, day: date) -> dict[str, object]:
         policy = self.options(policy_id)
@@ -135,22 +152,30 @@ class RefreshStore:
             "policy_id": str(policy_id),
             "business_date": day.isoformat(),
             "query_dates": [d.isoformat() for d in select_dates(policy, day, missing)],
+            **self.compatibility(policy_id),
         }
 
     @contextmanager
     def lease(self, policy_id: UUID) -> Iterator["RefreshSession"]:
-        policy = self.options(policy_id)
+        saved = self.saved(policy_id)
+        policy = Policy(saved.start, saved.buyers, saved.root)
         key = int.from_bytes(hashlib.sha256(b"refresh" + policy_id.bytes).digest()[:8], signed=True)
         with _db(self.dsn) as connection:
             if connection.execute("SELECT pg_try_advisory_lock(%s)", (key,)).fetchone() != (True,):
                 raise WorkflowError("policy_busy", True)
-            yield RefreshSession(self, connection, policy_id, policy)
+            yield RefreshSession(self, connection, policy_id, policy, saved)
 
 
 class RefreshSession:
     def __init__(
-        self, store: RefreshStore, connection: Connection, policy_id: UUID, policy: Policy
+        self,
+        store: RefreshStore,
+        connection: Connection,
+        policy_id: UUID,
+        policy: Policy,
+        saved: RefreshIntent,
     ):
+        self.saved = saved
         self.store, self.connection, self.policy_id, self.policy = (
             store,
             connection,
@@ -158,9 +183,16 @@ class RefreshSession:
             policy,
         )
 
+    def require_execution(self) -> None:
+        failure = self.saved.failure(CONNECTOR_VERSION, NORMALIZER_VERSION, VERSION, CRON, TIMEZONE)
+        if failure:
+            raise WorkflowError(failure)
+
     def state(self, state: str) -> None:
         if state not in {"paused", "pending", "enabled"}:
             raise ValueError("policy_state")
+        if state == "enabled":
+            self.require_execution()
         with self.connection.transaction():
             self.connection.execute(
                 "UPDATE nima.refresh_policies SET state=%s WHERE policy_id=%s",
@@ -172,6 +204,7 @@ class RefreshSession:
             )
 
     def enabled(self) -> bool:
+        self.require_execution()
         return self.connection.execute(
             "SELECT state FROM nima.refresh_policies WHERE policy_id=%s", (self.policy_id,)
         ).fetchone() == ("enabled",)
@@ -233,6 +266,7 @@ class RefreshSession:
         ).fetchone() == (True,)
 
     def children(self, cycle: Cycle) -> tuple[Child, ...]:
+        self.require_execution()
         for day in cycle.dates:
             request = uuid5(cycle.cycle_id, day.isoformat())
             RequestStore(self.store.dsn).submit(
@@ -253,6 +287,8 @@ class RefreshSession:
     def dispatch_state(self, request: UUID, state: str) -> None:
         if state not in {"sending", "accepted"}:
             raise ValueError("dispatch_state")
+        if state == "sending":
+            self.require_execution()
         self.connection.execute(
             "UPDATE nima.refresh_windows SET dispatch_state=%s "
             "WHERE policy_id=%s AND request_id=%s",
