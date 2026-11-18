@@ -1,5 +1,21 @@
 # Tasks
 
+## Checkpoint C3 — SQL metadata serving
+
+Continue after owner-merged #129 (`6051d41`); prior exact-head CI passes in runs
+44267217179 and 44267160859. Retain all pending human/model/dictionary work.
+
+- [x] C3a: freeze SQL snapshot contract, source boundaries and review checkpoint.
+- [ ] C3b: public canonical metadata preparation, prior bytes unchanged.
+- [ ] C3c: additive 0009/immutable snapshot/source FKs/occurrence view and upgrade tests.
+- [ ] C3d: selected-hash promotion and SQL/Python-equivalent read queries, restricted
+  roles, concurrency and real commit-boundary crash checks.
+- [ ] C3e: actual promote/query CLI with private fixed summaries.
+- [ ] C3f: official taxonomy assessment, mutation, disposable private proof, full
+  gates/audit and exact-head hosted jobs. Original pilot remains schema 8.
+- [ ] Owner review at C3; C4 dictionary installation and human validation remain open.
+
+
 ## Checkpoint C2 — structured metadata
 
 Continue after owner-merged #128 (`bd7fec4`); prior exact-head CI passes in runs
@@ -12,7 +28,7 @@ Continue after owner-merged #128 (`bd7fec4`); prior exact-head CI passes in runs
 - [x] C2e local: 46 new cases; invalid-code eligibility mutation fails and is
   restored. Full `just check`: 2,182 passed/93.13%; `just audit`: clean.
   Hosted exact-head results are recorded with the delivery PR before handoff.
-- [ ] Owner review at C2. SQL metadata indexes, taxonomy certification, identity
+- [x] Owner review at C2 through merged #129 (`6051d41`). SQL metadata indexes, taxonomy certification, identity
   joins, model adoption and human task validation remain separate.
 
 

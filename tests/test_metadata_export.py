@@ -248,3 +248,17 @@ def test_dimension_unavailable_from_source_is_not_a_zero(
             dsn="synthetic",
         )
     assert not (tmp_path / "out").exists()
+
+
+def test_public_preparation_matches_existing_export_without_publishing(
+    pg_dsn: str, tmp_path: Path
+) -> None:
+    from nima.metadata.export import prepare_metadata
+
+    root, out = tmp_path / "archive", tmp_path / "out"
+    run = kimdis_run(pg_dsn, root)
+    with reader(pg_dsn) as (dsn, _):
+        raw, prepared = prepare_metadata("kimdis", run, root, dsn=dsn)
+        assert not out.exists()
+        assert export_metadata("kimdis", run, root, out, dsn=dsn) == prepared
+        assert (out / (prepared.artifact_sha256 + ".json")).read_bytes() == raw

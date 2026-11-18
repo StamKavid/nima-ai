@@ -1,5 +1,6 @@
 """Query hash-verified captured metadata without advancing freshness or writing SQL."""
 
+import hashlib
 import json
 from collections import Counter
 from dataclasses import dataclass
@@ -138,24 +139,17 @@ def _result(
     return body, sum(counts.values()), matched
 
 
-def export_metadata(
+def prepare_metadata(
     source: str,
     run_id: UUID,
     archive_root: Path,
-    output: Path,
     *,
     dsn: str = "",
     dimension: str | None = None,
     code: str | None = None,
-) -> MetadataExport:
-    """Fully validate before private publication; paths are not artifact identity."""
-    extract.select_assertions([], dimension, code)
-    supported = {
-        "kimdis": ("buyer_function", "buyer_legal_class", "buyer_type", "procurement_cpv"),
-        "gemi": ("supplier_kad",),
-    }
-    if dimension is not None and dimension not in supported.get(source, ()):
-        raise MetadataError("metadata_input")
+) -> tuple[bytes, MetadataExport]:
+    """Prepare verified canonical bytes without publication, SQL writes or network."""
+    extract.validate_query(source, dimension, code)
     if (
         source not in {"kimdis", "gemi"}
         or not isinstance(run_id, UUID)
@@ -164,9 +158,8 @@ def export_metadata(
             or not path.is_absolute()
             or any(part in {"..", ".git"} for part in path.parts)
             or "\x00" in str(path)
-            for path in (archive_root, output)
+            for path in (archive_root,)
         )
-        or output.is_relative_to(archive_root)
         or (source == "kimdis" and not dsn.strip())
     ):
         raise MetadataError("metadata_input")
@@ -177,8 +170,8 @@ def export_metadata(
             else _gemi(run_id, archive_root)
         )
         body, count, matched = _result(source, capture, records, dimension, code)
-        digest = publish(output, body)
-        return MetadataExport(digest, len(records), count, matched)
+        digest = hashlib.sha256(body).hexdigest()
+        return body, MetadataExport(digest, len(records), count, matched)
     except ReplayError as error:
         suffix = error.reason.removeprefix("replay_")
         raise MetadataError("metadata_" + suffix) from None
@@ -190,3 +183,32 @@ def export_metadata(
         ) from None
     except OSError:
         raise MetadataError("metadata_output") from None
+
+
+def export_metadata(
+    source: str,
+    run_id: UUID,
+    archive_root: Path,
+    output: Path,
+    *,
+    dsn: str = "",
+    dimension: str | None = None,
+    code: str | None = None,
+) -> MetadataExport:
+    """Fully validate before private publication; paths are not artifact identity."""
+    if (
+        not isinstance(output, Path)
+        or not output.is_absolute()
+        or any(part in {"..", ".git"} for part in output.parts)
+        or "\x00" in str(output)
+        or (isinstance(archive_root, Path) and output.is_relative_to(archive_root))
+    ):
+        raise MetadataError("metadata_input")
+    body, result = prepare_metadata(
+        source, run_id, archive_root, dsn=dsn, dimension=dimension, code=code
+    )
+    try:
+        publish(output, body)
+    except (AssessmentError, OSError):
+        raise MetadataError("metadata_output") from None
+    return result

@@ -232,3 +232,14 @@ def select_assertions(
         if (dimension is None or row["dimension"] == dimension)
         and (code is None or (row["status"] == "reported" and row["code"] == code))
     ]
+
+
+def validate_query(source: str, dimension: str | None, code: str | None) -> None:
+    """Reject unavailable source dimensions before I/O rather than returning zero."""
+    select_assertions([], dimension, code)
+    supported = {
+        "kimdis": ("buyer_function", "buyer_legal_class", "buyer_type", "procurement_cpv"),
+        "gemi": ("supplier_kad",),
+    }
+    if source not in supported or (dimension is not None and dimension not in supported[source]):
+        raise MetadataError("metadata_input")
