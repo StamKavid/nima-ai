@@ -7,6 +7,7 @@ from nima.analytics.reconcile import ReconciliationError, reconcile
 from nima.analytics.request import RequestError, read_request
 from nima.analytics.result import ReadoutError, build_result
 from nima.analytics.snapshot import SnapshotError, read_snapshot
+from nima.contracts import ContractError, validate_output
 from nima.identity import AssessmentError
 from nima.identity.artifacts import publish
 
@@ -28,12 +29,17 @@ def export_readout(dsn: str, request_file: Path, output_directory: Path) -> Read
         )
         verified = reconcile(snapshot, request)
         body = build_result(verified)
+        validate_output(
+            body, metric=snapshot.metric.payload(), observation_count=len(snapshot.observations)
+        )
         digest = publish(output_directory, body)
         return ReadoutExport(
             digest, snapshot.metric.total, len(snapshot.metric.buyers), snapshot.metric.status
         )
     except (RequestError, SnapshotError, ReconciliationError) as error:
         raise ReadoutError(error.reason) from None
+    except ContractError:
+        raise ReadoutError("analytics_contract") from None
     except AssessmentError as error:
         raise ReadoutError(
             "analytics_limit" if error.reason == "assessment_limit" else "analytics_output"
