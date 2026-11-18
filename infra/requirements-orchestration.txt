@@ -727,7 +727,9 @@ jsonpointer==3.12 \
 jsonschema==4.26.0 \
     --hash=sha256:0c26707e2efad8aa1bfc5b7ce170f3fccc2e4918ff85989ba9ffa9facb2be326 \
     --hash=sha256:d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce
-    # via prefect
+    # via
+    #   nima-ai
+    #   prefect
 jsonschema-specifications==2025.9.1 \
     --hash=sha256:98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe \
     --hash=sha256:b540987f239e745613c7a9176f3edb72b832a4ac465cf02712288397832b5e8d
@@ -1549,6 +1551,7 @@ referencing==0.37.0 \
     # via
     #   jsonschema
     #   jsonschema-specifications
+    #   types-jsonschema
 regex==2026.11.9 \
     --hash=sha256:022c80076ecb4a1e967c6ff9feeecfdfc364183281667056d1953cd345b0b9a8 \
     --hash=sha256:04e1c78cba5e3edd5400e9d7319a3036f652faa599bfabbf888fec584a9a4772 \
@@ -1993,6 +1996,9 @@ typer==0.29.1 \
 types-defusedxml==0.7.0.20260504 \
     --hash=sha256:2ab2828a3f97111ba1c16cee273ad4124a831fc9198c41bf8368ff6ea48ad300 \
     --hash=sha256:a959e3a0a43b93e464bd625d91ec9193a2703ddc10443bdd627792485fae0b10
+types-jsonschema==4.26.0.20261006 \
+    --hash=sha256:29301f4e65e3928540cdf5e23ad716e38bb0c0b416a48dada213edd3d70206ec \
+    --hash=sha256:3eb7db61b6819d40addfdaac7173e749071a7d4a9a4394f0c844598ec84b2500
 typing-extensions==4.16.0 \
     --hash=sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8 \
     --hash=sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5

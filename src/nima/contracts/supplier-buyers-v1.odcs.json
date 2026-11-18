@@ -1,0 +1,481 @@
+{
+  "apiVersion": "v3.2.0",
+  "kind": "DataContract",
+  "id": "nima.supplier-buyers-readout",
+  "version": "1.0.0",
+  "name": "Captured KIMDIS supplier-to-buyer readout",
+  "status": "draft",
+  "domain": "company-market-intelligence",
+  "description": {
+    "purpose": "Describe and validate the existing bounded private captured-record readout.",
+    "usage": "Descriptive company and procurement research with retained evidence and coverage notes.",
+    "limitations": "Counts captured contract publications, not awards, paid spend, market share or wrongdoing. Reported identifiers are not verified legal identities. Captured revisions do not establish source currentness or national completeness. Private artifacts contain source data and must not be published by this contract."
+  },
+  "team": {
+    "name": "Nima maintainers",
+    "members": [
+      {
+        "username": "StamKavid",
+        "role": "owner"
+      }
+    ]
+  },
+  "schema": [
+    {
+      "name": "supplier_buyers_readout",
+      "logicalType": "object",
+      "dataGranularityDescription": "One artifact per explicit captured-run selection, reported supplier identifier and inclusive UTC observation cutoff; metric contributions are distinct source publication IDs.",
+      "properties": [
+        {
+          "name": "version",
+          "logicalType": "string",
+          "required": true,
+          "enum": [
+            {
+              "value": "nima-supplier-buyers-v1"
+            }
+          ]
+        },
+        {
+          "name": "source",
+          "logicalType": "string",
+          "required": true,
+          "enum": [
+            {
+              "value": "kimdis.contract"
+            }
+          ]
+        },
+        {
+          "name": "metric",
+          "logicalType": "object",
+          "required": true,
+          "properties": [
+            {
+              "name": "definition",
+              "logicalType": "object",
+              "required": true
+            },
+            {
+              "name": "definition_sha256",
+              "logicalType": "string",
+              "required": true,
+              "logicalTypeOptions": {
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            },
+            {
+              "name": "result",
+              "logicalType": "object",
+              "required": true,
+              "properties": [
+                {
+                  "name": "total",
+                  "logicalType": "integer",
+                  "required": true,
+                  "logicalTypeOptions": {
+                    "minimum": 0
+                  }
+                },
+                {
+                  "name": "buyers",
+                  "logicalType": "array",
+                  "required": true,
+                  "items": {
+                    "logicalType": "object"
+                  }
+                },
+                {
+                  "name": "unassigned_source_ids",
+                  "logicalType": "array",
+                  "required": true,
+                  "items": {
+                    "logicalType": "string"
+                  }
+                },
+                {
+                  "name": "cancelled_count",
+                  "logicalType": "integer",
+                  "required": true,
+                  "logicalTypeOptions": {
+                    "minimum": 0
+                  }
+                },
+                {
+                  "name": "not_cancelled_count",
+                  "logicalType": "integer",
+                  "required": true,
+                  "logicalTypeOptions": {
+                    "minimum": 0
+                  }
+                },
+                {
+                  "name": "unknown_cancellation_count",
+                  "logicalType": "integer",
+                  "required": true,
+                  "logicalTypeOptions": {
+                    "minimum": 0
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "request",
+          "logicalType": "object",
+          "required": true
+        },
+        {
+          "name": "request_sha256",
+          "logicalType": "string",
+          "required": true,
+          "logicalTypeOptions": {
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        {
+          "name": "snapshot_sha256",
+          "logicalType": "string",
+          "required": true,
+          "logicalTypeOptions": {
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        {
+          "name": "quality",
+          "logicalType": "object",
+          "required": true,
+          "properties": [
+            {
+              "name": "raw_bytes",
+              "logicalType": "string",
+              "required": true,
+              "enum": [
+                {
+                  "value": "verified_against_archived_bytes"
+                }
+              ]
+            },
+            {
+              "name": "projection",
+              "logicalType": "string",
+              "required": true,
+              "enum": [
+                {
+                  "value": "reconciled_against_archived_records"
+                }
+              ]
+            },
+            {
+              "name": "identity",
+              "logicalType": "string",
+              "required": true,
+              "enum": [
+                {
+                  "value": "reported_identifier_only"
+                }
+              ]
+            },
+            {
+              "name": "coverage",
+              "logicalType": "string",
+              "required": true,
+              "enum": [
+                {
+                  "value": "selected_complete_runs_only"
+                }
+              ]
+            },
+            {
+              "name": "source_current",
+              "logicalType": "string",
+              "required": true,
+              "enum": [
+                {
+                  "value": "not_established"
+                }
+              ]
+            },
+            {
+              "name": "legal_identity",
+              "logicalType": "string",
+              "required": true,
+              "enum": [
+                {
+                  "value": "not_verified"
+                }
+              ]
+            },
+            {
+              "name": "lineage",
+              "logicalType": "string",
+              "required": true,
+              "enum": [
+                {
+                  "value": "record_to_original_not_field_level"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "interpretation_limits",
+          "logicalType": "array",
+          "required": true,
+          "items": {
+            "logicalType": "string"
+          },
+          "logicalTypeOptions": {
+            "minItems": 1
+          }
+        },
+        {
+          "name": "coverage",
+          "logicalType": "object",
+          "required": true,
+          "properties": [
+            {
+              "name": "observation_count",
+              "logicalType": "integer",
+              "required": true,
+              "logicalTypeOptions": {
+                "minimum": 0
+              }
+            },
+            {
+              "name": "source_record_count",
+              "logicalType": "integer",
+              "required": true,
+              "logicalTypeOptions": {
+                "minimum": 0
+              }
+            },
+            {
+              "name": "version_count",
+              "logicalType": "integer",
+              "required": true,
+              "logicalTypeOptions": {
+                "minimum": 0
+              }
+            },
+            {
+              "name": "raw_object_count",
+              "logicalType": "integer",
+              "required": true,
+              "logicalTypeOptions": {
+                "minimum": 0
+              }
+            },
+            {
+              "name": "verified_raw_bytes",
+              "logicalType": "integer",
+              "required": true,
+              "logicalTypeOptions": {
+                "minimum": 0
+              }
+            },
+            {
+              "name": "runs",
+              "logicalType": "array",
+              "required": true,
+              "items": {
+                "logicalType": "object"
+              }
+            },
+            {
+              "name": "pages",
+              "logicalType": "array",
+              "required": true,
+              "items": {
+                "logicalType": "object"
+              },
+              "logicalTypeOptions": {
+                "minItems": 1
+              }
+            },
+            {
+              "name": "first_page_observed_at",
+              "logicalType": "string",
+              "required": true
+            },
+            {
+              "name": "last_page_observed_at",
+              "logicalType": "string",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "evidence",
+          "logicalType": "array",
+          "required": true,
+          "items": {
+            "logicalType": "object",
+            "properties": [
+              {
+                "name": "observation_id",
+                "logicalType": "integer",
+                "required": true,
+                "logicalTypeOptions": {
+                  "minimum": 1
+                }
+              },
+              {
+                "name": "source_id",
+                "logicalType": "string",
+                "required": true,
+                "logicalTypeOptions": {
+                  "pattern": "^kimdis:.+"
+                }
+              },
+              {
+                "name": "source",
+                "logicalType": "string",
+                "required": true,
+                "enum": [
+                  {
+                    "value": "kimdis.contract"
+                  }
+                ]
+              },
+              {
+                "name": "normalizer_version",
+                "logicalType": "string",
+                "required": true
+              },
+              {
+                "name": "content_sha256",
+                "logicalType": "string",
+                "required": true,
+                "logicalTypeOptions": {
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              {
+                "name": "raw_sha256",
+                "logicalType": "string",
+                "required": true,
+                "logicalTypeOptions": {
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              {
+                "name": "projection_sha256",
+                "logicalType": "string",
+                "required": true,
+                "logicalTypeOptions": {
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              {
+                "name": "json_pointer",
+                "logicalType": "string",
+                "required": true,
+                "logicalTypeOptions": {
+                  "pattern": "^/content/[0-9]+$"
+                }
+              },
+              {
+                "name": "record_index",
+                "logicalType": "integer",
+                "required": true,
+                "logicalTypeOptions": {
+                  "minimum": 0
+                }
+              },
+              {
+                "name": "page_number",
+                "logicalType": "integer",
+                "required": true,
+                "logicalTypeOptions": {
+                  "minimum": 0
+                }
+              },
+              {
+                "name": "run_id",
+                "logicalType": "string",
+                "required": true
+              },
+              {
+                "name": "observed_at",
+                "logicalType": "string",
+                "required": true
+              },
+              {
+                "name": "normalized",
+                "logicalType": "object",
+                "required": true
+              },
+              {
+                "name": "projection_version",
+                "logicalType": "string",
+                "required": true
+              },
+              {
+                "name": "selection",
+                "logicalType": "string",
+                "required": true
+              }
+            ]
+          }
+        }
+      ],
+      "quality": [
+        {
+          "name": "original_and_projection_reconciliation",
+          "type": "custom",
+          "engine": "nima",
+          "implementation": "nima.analytics.reconcile.reconcile",
+          "severity": "error",
+          "description": "Verify selected original bytes, normalization and projection facts before publication; never execute this metadata as code."
+        },
+        {
+          "name": "semantic_sql_parity",
+          "type": "custom",
+          "engine": "nima",
+          "implementation": "nima.analytics.snapshot.read_snapshot",
+          "severity": "error",
+          "description": "Compare the complete SQL result with the pure provider over the same frozen observations."
+        }
+      ]
+    }
+  ],
+  "authoritativeDefinitions": [
+    {
+      "type": "businessDefinition",
+      "url": "https://github.com/StamKavid/nima-ai/blob/main/docs/semantics/participation.md"
+    },
+    {
+      "type": "transformationImplementation",
+      "url": "https://github.com/StamKavid/nima-ai/blob/main/src/nima/semantics/participation.py"
+    }
+  ],
+  "customProperties": [
+    {
+      "property": "nima.semanticDefinition",
+      "value": {
+        "metric": "captured_contract_record_count.v1",
+        "status": "draft",
+        "source": "kimdis.contract",
+        "connector": "kimdis-contract-v1",
+        "normalizer": "kimdis-normalized-v1",
+        "projection": "kimdis-participation-v1",
+        "country": "GR",
+        "country_aliases": [
+          "GR",
+          "EL"
+        ],
+        "trim": " \t\r\n\f\u000b",
+        "tax_id": "nine_ascii_digits_nonzero_no_checksum",
+        "buyer_key": "kimdis.buyer-key:reported_ascii_trimmed",
+        "revision": "latest_captured_before_supplier_filter_ties_unresolved",
+        "grain": "distinct_source_id",
+        "cancellation": "include_true_false_unknown_with_breakdown",
+        "identity": "reported_identifier_only",
+        "sql_sha256": "85134c5d800350adfedf7dce6d995a36c48b194d919912695992f83369e11d5f"
+      },
+      "description": "Reviewed snapshot; must equal the authoritative provider including its SQL hash. Changes require explicit evolution."
+    }
+  ]
+}
