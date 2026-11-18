@@ -1,5 +1,18 @@
 # Tasks
 
+## Checkpoint C6 — selected-run DataOps health
+
+- [x] Verify #135 reaches main; freeze explicit selected-run/threshold contract.
+- [x] Pure attention policy with exact boundary/unknown/future/empty cases.
+- [x] Repeatable-read READ ONLY SQL aggregate sample, current projection backlog,
+  optional linked workflow, least privilege and unchanged-source tests.
+- [x] No-follow filesystem capacity sample and private canonical publication.
+- [x] Actual dataops health CLI, private-safe structured events and exit states.
+- Age/read-only mutations and private clone proof pass; packaged SQL and full
+  local gates/audit are required and recorded with the delivery PR before handoff.
+- Exact-head hosted results are recorded with the delivery PR before handoff.
+- [ ] Owner review; no source activation, repair, live-grant or global-health claim.
+
 ## Checkpoint C5 — source acceptance and readiness
 
 - [x] Verify #132/#133 reachability; #134 is merged at `ad62fb3` and the exact
@@ -11,7 +24,7 @@
 - [x] Specify KAD runtime acceptance without pretending a parser is installed.
 - Required local gates/audit and exact-head hosted results are recorded with the
   delivery PR before handoff; source inspection alone does not pass those gates.
-- [ ] Owner review of C5 documents; #134 main promotion is already merged.
+- [x] Owner reviewed C5 through merged #135 (`0fb8734`); #134 main promotion is merged.
 - [ ] Runtime KAD use: resolve reuse scope, full extraction/reconciliation proof
   and source-format contract before implementation/adoption.
 - [ ] Next independent implementation: bounded DataOps health/freshness report
