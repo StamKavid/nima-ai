@@ -68,8 +68,9 @@ file editing is not a policy-update mechanism.
 `nima.sources.kimdis_contracts` owns the source policy and unchanged
 `kimdis-normalized-v1` constant. Storage retains its public alias. No stored
 version, request identity, schema, original byte, replay or successful report is
-rewritten. Contract-version comparison remains the existing conservative policy;
-automatic historical PR-base comparison and durable check history remain later.
+rewritten. [Historical PR/push comparison](contract-evolution.md) applies the
+existing conservative policy to committed catalogues in CI. Durable per-dataset
+check history remains later.
 
 ```sh
 uv run --frozen pytest tests/test_contract_schema.py tests/test_ingestion_contracts.py

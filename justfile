@@ -50,6 +50,10 @@ container-lock-check:
     uv export --frozen --all-groups --no-emit-project --no-header --output-file work/image-requirements.txt > /dev/null
     cmp infra/requirements-orchestration.txt work/image-requirements.txt
 
+# Compare committed metadata using explicit full commit IDs, independent of dirty files.
+contracts-check base head:
+    uv run --frozen python scripts/check_contracts.py --base {{quote(base)}} --head {{quote(head)}}
+
 # Run every Docker case and validate one fresh full fixture receipt for export.
 source-worker-check receipt_dir="":
     #!/usr/bin/env bash

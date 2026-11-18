@@ -58,10 +58,10 @@ uv run --frozen pytest tests/test_data_contracts.py
 uv run --frozen pytest tests/test_data_contracts_publication.py
 ```
 
-These tests run in the existing `just check` gate. Historical PR-base comparison
-is not wired into CI yet; passing policy tests is not proof that every future PR
-was compared to a published contract. Contract-check history and scheduled
-monitoring also remain later increments. The current 24-hour health threshold is
+These tests run in the existing `just check` gate. The separate
+[committed historical comparison](contract-evolution.md) now checks PR/push
+catalogues in CI using immutable event baselines. Contract-check history and
+scheduled monitoring remain later increments. The current 24-hour health threshold is
 an operator setting, not a contract SLA or a government publication promise.
 
 Source acceptance and normalized-dataset contracts follow this first output
