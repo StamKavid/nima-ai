@@ -22,6 +22,11 @@ from nima.ingestion.config import Limits, Query, Summary
 from nima.storage.postgres import CheckpointError, Connection, PageStore, _connect, check_schema
 
 
+def run_lock_key(run_id: UUID) -> int:
+    """One lock namespace shared by collectors and offline processing."""
+    return int.from_bytes(hashlib.sha256(b"nima-run-v1" + run_id.bytes).digest()[:8], signed=True)
+
+
 class RunBusy(CheckpointError):
     """An active invocation holds the run's advisory lease."""
 
@@ -37,9 +42,7 @@ class RunStore(PageStore):
     def lease(self) -> Iterator[None]:
         # Session locks auto-release on connection/process death. Writer UUIDs
         # still fence stale writes if that connection is lost during HTTP I/O.
-        key = int.from_bytes(
-            hashlib.sha256(b"nima-run-v1" + self.run_id.bytes).digest()[:8], signed=True
-        )
+        key = run_lock_key(self.run_id)
         with _connect(self._dsn) as connection:
             if connection.execute("SELECT pg_try_advisory_lock(%s)", (key,)).fetchone() != (True,):
                 raise RunBusy("Run is busy")

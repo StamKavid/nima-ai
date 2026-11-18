@@ -1,5 +1,6 @@
 """Reprocess committed originals into a private dataset without creating observations."""
 
+import hashlib
 import re
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
@@ -190,26 +191,21 @@ def _dataset(
     )
 
 
-def replay_run(
-    dsn: str, run_id: UUID, archive_root: Path, output: Path, normalizer_version: str
-) -> Replay:
-    """Freeze SQL, verify originals, normalize and publish; never mutate source state."""
+def prepare_replay(
+    dsn: str, run_id: UUID, archive_root: Path, normalizer_version: str
+) -> tuple[bytes, Replay]:
+    """Freeze and verify a canonical replay without publishing or writing SQL."""
     if not isinstance(normalizer_version, str) or normalizer_version != NORMALIZER_VERSION:
         raise ReplayError("replay_version")
     if (
         not isinstance(dsn, str)
         or not dsn.strip()
         or not isinstance(run_id, UUID)
-        or any(
-            not isinstance(p, Path)
-            or not p.is_absolute()
-            or any(part in {"..", ".git"} for part in p.parts)
-            or "\x00" in str(p)
-            for p in (archive_root, output)
-        )
+        or not isinstance(archive_root, Path)
+        or not archive_root.is_absolute()
+        or any(part in {"..", ".git"} for part in archive_root.parts)
+        or "\x00" in str(archive_root)
     ):
-        raise ReplayError("replay_input")
-    if output.is_relative_to(archive_root):
         raise ReplayError("replay_input")
     try:
         run, pages = _snapshot(dsn, run_id)
@@ -236,11 +232,34 @@ def replay_run(
     except (OSError, InvalidRecord):
         raise ReplayError("replay_evidence") from None
     try:
-        digest = publish(output, encode(value))
+        body = encode(value)
+        digest = hashlib.sha256(body).hexdigest()
     except AssessmentError as error:
         raise ReplayError(
             "replay_limit" if error.reason == "assessment_limit" else "replay_output"
         ) from None
     except OSError:
         raise ReplayError("replay_output") from None
-    return Replay(digest, len(pages), normalized + quarantined, normalized, quarantined)
+    return body, Replay(digest, len(pages), normalized + quarantined, normalized, quarantined)
+
+
+def replay_run(
+    dsn: str, run_id: UUID, archive_root: Path, output: Path, normalizer_version: str
+) -> Replay:
+    """Publish the same prepared bytes used by explicit SQL replay promotion."""
+    if (
+        not isinstance(output, Path)
+        or not output.is_absolute()
+        or any(part in {"..", ".git"} for part in output.parts)
+        or "\x00" in str(output)
+        or (isinstance(archive_root, Path) and output.is_relative_to(archive_root))
+    ):
+        raise ReplayError("replay_input")
+    body, result = prepare_replay(dsn, run_id, archive_root, normalizer_version)
+    try:
+        publish(output, body)
+    except AssessmentError:
+        raise ReplayError("replay_output") from None
+    except OSError:
+        raise ReplayError("replay_output") from None
+    return result

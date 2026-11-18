@@ -1,5 +1,50 @@
 # Tasks
 
+## CI correction: PR #127
+
+- [x] Identify run 44163644708 failure: Compose smoke expects migration count 7;
+  quality and source-worker-egress jobs pass. Migration 0008 itself succeeds.
+- [x] Reproduce the exact embedded database failure, replace the stale count with
+  public schema validation and preserve every other smoke/quality control. Three
+  files: CI workflow, plan and this task record; no application/live-pilot change.
+- Evidence: real PostgreSQL 17 migration 8 reproduces the old assertion failure;
+  corrected block passes and rejects an incorrect checksum at unchanged count.
+  Image build succeeds; local Compose startup hits Docker disk exhaustion while
+  pulling PostgreSQL. Owned stack/image and disposable SQL database are removed.
+  Full local gates and corrected hosted checks are recorded with the PR.
+- [ ] Verify corrected Docker check and invalid-history rejection, owned cleanup,
+  required local gates/audit and all three hosted jobs on the corrected head.
+- [ ] Owner review/merge remains pending; retain the promotion follow-ups below.
+
+## Current extension: SQL replay promotion
+
+Owner merged #126 at `ecb5a85`; all three exact-head jobs pass in run 44154596290.
+Continue the approved DataOps plan; preserve all other pending tasks.
+
+- [x] P1: freeze explicit selected-hash, original-time and separate processing
+  schema contract in the source-ingestion spec and [plan](plan.md).
+- [x] P2: additive 0008 migration, immutable batches/results/view, old checksum
+  preservation, ownership/constraint and upgrade regressions. Five files.
+- [x] P3: shared public replay preparation plus bounded atomic SQL promotion,
+  shared source lease/recheck, limited promoter and deterministic retry/conflict
+  handling.
+  Verify real SQL/files, actual SIGKILL before/after commit and concurrent retries.
+  Files: replay, run storage, promotion module and its two test modules (five).
+- [x] P4: `archive promote` command with explicit selected hash, fixed private-safe
+  summaries and real CLI tests. Files: archive CLI and CLI promotion test module.
+- [x] P5: hash-guard mutation, private migrated clone proof and required full
+  `just check`/`just audit`; record only actual observed results and limitations.
+- Evidence: 42 focused cases pass, including actual SIGKILL and concurrent retries
+  with both read-committed and repeatable-read role defaults. A failing regression
+  led to explicit READ COMMITTED write isolation. Selected-hash mutation fails and
+  is restored. Private clone promotion/limited roles/original readout pass; source
+  pilot database, originals and three HTTP guards remain unchanged. Native CHECK
+  reparse equivalence is retained privately. No source request. Final local gate:
+  2,093 passed/93.10%, clean audit and verified final wheel contents.
+- [ ] Exact-head hosted checks and owner review/merge accompany the complete PR.
+- [ ] Follow-up: request/refresh version-policy handling, structured metadata,
+  isolated models and pending human validation; no implicit metric activation.
+
 ## Current extension: offline normalization replay
 
 Owner merged #125 at `d98a971`; run 44146760312 passes all three jobs. Same approved
@@ -24,7 +69,8 @@ DataOps plan; preserve pending human review, metadata and model work below.
   data/counters/schema, originals, source guards and reader-report bytes; no HTTP
   request. Full `just check` passes 2,051 cases/93.06%, and `just audit` is clean.
   Private evidence and replay datasets remain outside Git.
-- [ ] Exact-head hosted checks and owner review/merge accompany the delivery PR.
+- [x] Owner merged #126 at `ecb5a85`; exact-head run 44154596290 passes all
+  three jobs. Continue explicit SQL promotion above.
 - [ ] Follow-up: SQL promotion with distinct processing lineage and durable
   request/refresh version-policy handling; metadata remains after that boundary.
 

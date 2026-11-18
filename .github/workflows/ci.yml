@@ -182,6 +182,7 @@ jobs:
           from zoneinfo import ZoneInfo
           import httpx
           import psycopg
+          from nima.storage.postgres import validate_schema
 
           assert os.getuid() == 10001
           ZoneInfo('Europe/Athens')
@@ -205,7 +206,7 @@ jobs:
               assert response.json()['entrypoint'] == 'nima.orchestration.refresh_flow.refresh_flow'
               assert not response.json().get('schedules')
           with psycopg.connect(os.environ['NIMA_DATABASE_URL']) as connection:
-              assert connection.execute('SELECT count(*) FROM nima.schema_migrations').fetchone() == (7,)
+              validate_schema(connection)
               assert connection.execute('SELECT count(*) FROM nima.workflow_requests').fetchone() == (0,)
               assert connection.execute('SELECT count(*) FROM nima.refresh_policies').fetchone() == (0,)
               assert connection.execute('SELECT count(*) FROM nima.observations').fetchone() == (0,)
