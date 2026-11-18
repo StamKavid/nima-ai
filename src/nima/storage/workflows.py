@@ -8,7 +8,6 @@ import json
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import asdict
-from datetime import date
 from pathlib import Path
 from typing import cast
 from uuid import UUID, uuid4
@@ -18,6 +17,7 @@ from psycopg.types.json import Jsonb
 
 from nima.ingestion.config import CONNECTOR_VERSION, Limits, Query
 from nima.ingestion.transport import CollectionStopped
+from nima.intent import IntentError, RequestIntent, request_intent
 from nima.storage.postgres import (
     NORMALIZER_VERSION,
     CheckpointError,
@@ -133,10 +133,16 @@ class RequestStore:
                 "WHERE request_id=%s",
                 (request,),
             ).fetchone()
-            if row != (parameters, digest):
+            if row is None:
+                raise WorkflowError("request_unavailable")
+            try:
+                saved = request_intent(row[0], row[1])
+            except IntentError:
+                raise WorkflowError("request_version") from None
+            if (saved.query, saved.root) != (query, root):
                 raise WorkflowError("request_conflict")
 
-    def options(self, request: UUID) -> tuple[Query, Limits, Path]:
+    def saved(self, request: UUID) -> RequestIntent:
         with _db(self.dsn) as connection:
             row = connection.execute(
                 "SELECT parameters,parameters_sha256 FROM nima.workflow_requests "
@@ -145,30 +151,17 @@ class RequestStore:
             ).fetchone()
         if row is None:
             raise WorkflowError("request_unavailable")
-        p = cast(dict[str, object], row[0])
         try:
-            query = cast(dict[str, object], p["query"])
-            parsed = Query(
-                date.fromisoformat(cast(str, query["dateFrom"])),
-                date.fromisoformat(cast(str, query["dateTo"])),
-                tuple(cast(list[str], query.get("organizations", []))),
-            )
-            expected = {
-                "format_version": REQUEST_VERSION,
-                "query": parsed.payload(),
-                "limits": asdict(Limits()),
-                "archive_root": p["archive_root"],
-                "connector_version": CONNECTOR_VERSION,
-                "normalizer_version": NORMALIZER_VERSION,
-            }
-            if (
-                p != expected
-                or hashlib.sha256(json.dumps(p, sort_keys=True).encode()).hexdigest() != row[1]
-            ):
-                raise WorkflowError("request_version")
-            return parsed, Limits(), Path(cast(str, p["archive_root"]))
-        except (ValueError, TypeError, KeyError):
+            return request_intent(row[0], row[1])
+        except IntentError:
             raise WorkflowError("request_version") from None
+
+    def options(self, request: UUID) -> tuple[Query, Limits, Path]:
+        saved = self.saved(request)
+        failure = saved.failure(CONNECTOR_VERSION, NORMALIZER_VERSION)
+        if failure:
+            raise WorkflowError(failure)
+        return saved.query, saved.limits, saved.root
 
     def bind(self, request: UUID, run: UUID) -> None:
         query, limits, root = self.options(request)
@@ -229,7 +222,8 @@ class RequestStore:
             row = connection.execute(
                 """SELECT jsonb_build_object(
                 'request_id',w.request_id,'run_id',w.run_id,'status',w.status,'failure',w.failure,
-                'executions',w.executions,'attempts',w.attempts,'format_version',%s::text,
+                'executions',w.executions,'attempts',w.attempts,
+                'format_version',w.parameters->>'format_version',
                 'worker_liveness','unknown',
                 'collection_complete',coalesce(r.status IN ('complete','quarantined'),false),
                 'normalization_complete',coalesce(r.status='complete',false),
@@ -239,14 +233,28 @@ class RequestStore:
                     WHERE request_id=w.request_id AND state IN ('pending','unknown')),
                 'engine_run_id',(SELECT engine_run_id FROM nima.workflow_dispatches
                     WHERE request_id=w.request_id AND engine_run_id IS NOT NULL
-                    ORDER BY created_at DESC,dispatch_id LIMIT 1))
+                    ORDER BY created_at DESC,dispatch_id LIMIT 1)),
+                w.parameters,w.parameters_sha256
                 FROM nima.workflow_requests w LEFT JOIN nima.ingest_runs r USING(run_id)
                 WHERE w.request_id=%s""",
-                (REQUEST_VERSION, request),
+                (request,),
             ).fetchone()
         if row is None:
             raise WorkflowError("request_unavailable")
+        try:
+            saved = request_intent(row[1], row[2])
+        except IntentError:
+            raise WorkflowError("request_version") from None
+        failure = saved.failure(CONNECTOR_VERSION, NORMALIZER_VERSION)
         result = cast(dict[str, object], row[0])
+        result.update(
+            {
+                "connector_version": saved.connector_version,
+                "normalizer_version": saved.normalizer_version,
+                "execution_compatible": failure is None,
+                "compatibility_failure": failure,
+            }
+        )
         if isinstance(result["run_id"], str):
             try:
                 evidence = inspect_run(self.dsn, UUID(result["run_id"]))
@@ -264,6 +272,7 @@ class RequestStore:
         return result
 
     def begin_dispatch(self, request: UUID) -> UUID:
+        self.options(request)
         self.show(request)
         dispatch = uuid4()
         with _db(self.dsn) as connection:
@@ -286,6 +295,7 @@ class RequestStore:
 
     @contextmanager
     def source_lease(self, request: UUID) -> Iterator[RequestGuard]:
+        self.options(request)
         with _db(self.dsn) as connection:
             if connection.execute("SELECT pg_try_advisory_lock(812344030,1)").fetchone() != (True,):
                 raise WorkflowError("source_busy", True)

@@ -24,6 +24,8 @@ async def change_schedule(policy_id: UUID, *, enabled: bool) -> None:
     config = local_config()
     store = RefreshStore(config.dsn)
     with store.lease(policy_id) as session:
+        if enabled:
+            session.require_execution()
         # Close the SQL gate before any RPC, including enable acknowledgement loss.
         session.state("pending")
         try:

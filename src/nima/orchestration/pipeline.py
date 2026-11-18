@@ -12,7 +12,7 @@ from nima.ingestion.resume import resume
 from nima.ingestion.transport import Clock, SystemClock
 from nima.projections.worker import PROJECTION_VERSION, ProjectionFailure, drain
 from nima.storage.runs import RunStore, inspect_run, load_options
-from nima.storage.workflows import REQUEST_VERSION, RequestStore, WorkflowError, _db
+from nima.storage.workflows import RequestStore, WorkflowError, _db
 
 
 def _run(store: RequestStore, request: UUID) -> UUID:
@@ -26,7 +26,8 @@ def prepare_request(dsn: str, request: UUID) -> dict[str, object]:
     store = RequestStore(dsn)
     query, limits, root = store.options(request)
     with store.source_lease(request):
-        existing = store.show(request)["run_id"]
+        status = store.show(request)
+        existing = status["run_id"]
         if isinstance(existing, str):
             run = UUID(existing)
             if load_options(dsn, run) != (query, limits, root):
@@ -37,7 +38,7 @@ def prepare_request(dsn: str, request: UUID) -> dict[str, object]:
                 path = archive.start_run(
                     {
                         "format_version": 1,
-                        "request_version": REQUEST_VERSION,
+                        "request_version": status["format_version"],
                         "request_id": str(request),
                         "status": "prepared",
                         "query": query.payload(),

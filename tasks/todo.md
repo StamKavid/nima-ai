@@ -1,5 +1,27 @@
 # Tasks
 
+## Checkpoint C1 — auto-build authorized
+
+Owner continued after merged #127 (`ef2b438`); corrected head `f2eb17b` passes all
+three jobs in PR run 44168550280 and push run 44168539451. See the C1 source
+contract and [plan](plan.md); retain all pending human/model/metadata work below.
+
+- [x] C1a: freeze checkpoint and bounds; continue without routine approvals.
+- [x] C1b: verify private native backup/restore before applying reviewed migration 8
+  to the pilot; scope grants, promote prior selected replays and verify unchanged
+  source evidence/counters/old grants/readout and HTTP guards. Proof outside Git.
+- [x] C1c: pure v1 intent decoder and saved request identity/limits, additive
+  compatibility status, manifest lineage and execution/dispatch boundaries. Four files.
+- [x] C1d: refresh inspection/pause across processing-pin changes; gate enable,
+  tick/cycle/children/send before effects. Four files, same regression module.
+- [x] C1e local verification: meaningful source-lease pin mutation is rejected and
+  restored; 43 new/61 focused cases pass. Full `just check`: 2,136 passed/93.07%;
+  `just audit`: clean. Private maintenance/offline recheck passes. Only the reviewed
+  journal/derived/grant additions occur; no source request or schedule activation.
+- Hosted exact-head results are recorded with the delivery PR before C1 handoff.
+- [ ] Owner review at C1. No new source capture/schedule/model or human-certification
+  claim; metadata and explicit replacement remain later bounded work.
+
 ## CI correction: PR #127
 
 - [x] Identify run 44163644708 failure: Compose smoke expects migration count 7;
@@ -12,9 +34,10 @@
   Image build succeeds; local Compose startup hits Docker disk exhaustion while
   pulling PostgreSQL. Owned stack/image and disposable SQL database are removed.
   Full local gates and corrected hosted checks are recorded with the PR.
-- [ ] Verify corrected Docker check and invalid-history rejection, owned cleanup,
-  required local gates/audit and all three hosted jobs on the corrected head.
-- [ ] Owner review/merge remains pending; retain the promotion follow-ups below.
+- [x] Corrected hosted Docker check passes; local database checksum rejection,
+  owned cleanup, 2,093 tests/93.10% and clean audit pass. All three jobs pass in
+  PR run 44168550280 and push run 44168539451 on `f2eb17b`.
+- [x] Owner merged #127 at `ef2b438`; continue through C1 above.
 
 ## Current extension: SQL replay promotion
 
@@ -41,7 +64,8 @@ Continue the approved DataOps plan; preserve all other pending tasks.
   pilot database, originals and three HTTP guards remain unchanged. Native CHECK
   reparse equivalence is retained privately. No source request. Final local gate:
   2,093 passed/93.10%, clean audit and verified final wheel contents.
-- [ ] Exact-head hosted checks and owner review/merge accompany the complete PR.
+- [x] Owner merged #127 at `ef2b438`; corrected exact-head hosted checks pass
+  in run 44168550280. Continue pilot maintenance at C1.
 - [ ] Follow-up: request/refresh version-policy handling, structured metadata,
   isolated models and pending human validation; no implicit metric activation.
 
