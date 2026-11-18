@@ -1,5 +1,26 @@
 # Delivery plan
 
+## Active checkpoint C5: source acceptance and readiness
+
+Owner merged #132 to main at `6fbddc9`, then #133 into its feature base at
+`122e7e8`. #134 promotes the exact reviewed command tree to main; do not claim
+that integration completed before merge. Preserve existing app/tests/CI.
+
+C5a verifies branch reachability and opens the content-identical promotion. C5b
+assesses delivered/live/prepared source capabilities and records a stable,
+explicit analytics-core readiness rubric. C5c captures and inspects the official
+AADE catalogue, mapping and terms; freeze the five-column/release/reuse acceptance
+boundary before selecting a parser. C5d validates docs/links, runs required full
+gates/audit and exact-head hosted CI, then stops at owner review. No new app
+feature or source schedule is activated by a documentation checkpoint.
+
+Observed: both PDFs captured/hash-verified; 430/617 pages, two sampled text pages
+each, first correspondence table visually checked. Complete extraction is not
+validated. Transitional identifiers and reuse restrictions block automatic
+assumptions, not independent DataOps work. Runtime KAD adoption stays pending
+its explicit acceptance gates. Health/freshness and failure logging are the next
+independent implementation candidate while that source acceptance is resolved.
+
 ## Active checkpoint C4: reviewed deployment and CPV references
 
 Owner merged #131 at `7bdf5da` following #130. Prior final code `ec6402e` passes all
