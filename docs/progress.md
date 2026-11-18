@@ -1,5 +1,23 @@
 # Capability progress: 2026-11-18
 
+## Current checkpoint C8 candidate: ODCS output contract
+
+The owner continued the [data-contract extension](../SPEC-data-contracts.md).
+The first [ODCS output contract](semantics/data-contracts.md) binds the existing
+draft captured-record metric to a pinned official 3.2.0 schema, supported output
+shape and reviewed semantic/SQL definition. Original reconciliation still precedes
+publication; the new gate refuses shape, metric-payload and evidence-grain drift.
+Existing successful report bytes remain unchanged. Semantic-binding and version
+guard mutations fail their regressions and are restored; final local, packaged
+pilot and exact-head hosted evidence is recorded in the delivery PR before handoff.
+
+#136 is merged at `772c321`. Its separately authorized private health activation
+passed source/permission/report preservation checks and reported stale capture
+and low capacity. No source refresh or schedule was activated. The new contract
+has no freshness SLA and does not certify that capture. Input/normalized dataset
+contracts, automatic historical PR-base checks and durable validation history
+remain later; one output contract does not complete the platform's contracts.
+
 ## Current checkpoint C4 candidate
 
 Owner merged #130/#131; all three jobs passed on serving head `ec6402e` in

@@ -4,12 +4,14 @@
 
 - [x] Owner continues the bounded contract proposal; inspect official ODCS 3.2.0.
 - [x] Freeze spec and sequential slices; preserve all prior pending work.
-- [ ] C8b: pin official schema/license and explicit package provenance; reviewed
+- [x] C8b: pin official schema/license and explicit package provenance; reviewed
   output contract, offline shape/semantic validation and compatibility policy.
-- [ ] C8c: actual publication gate; real-SQL preservation/byte-replay and injected
+- [x] C8c: actual publication gate; real-SQL preservation/byte-replay and injected
   failure tests with fixed private-safe errors and no new report on failure.
-- [ ] C8d: meaningful mutation, packaged-wheel/offline proof, full local gates and
-  audit, final-head hosted checks and reviewable PR to main.
+- [x] C8d mutation: semantic-binding and major-version guard removals fail their
+  actual regressions and are restored. JSON boolean/numeric enum regression fixed.
+- Packaged-wheel/pilot byte-compatibility proof, final full local gates/audit and
+  exact-head hosted checks are required and recorded with the PR before handoff.
 - [ ] Owner review before deployment. Normalized/input contracts, automatic PR
   baseline checks, check-history storage and scheduled monitoring remain later.
 
