@@ -108,6 +108,9 @@ def test_compatible_committed_histories(history: tuple[Path, str], change: str) 
         ("corrupt", "contracts_invalid"),
         ("symlink", "contracts_mode"),
         ("oversized", "contracts_limit"),
+        ("duplicate_key", "contracts_invalid"),
+        ("nonfinite", "contracts_invalid"),
+        ("invalid_name", "contracts_invalid"),
     ],
 )
 def test_bad_committed_history_cannot_be_hidden_by_valid_working_files(
@@ -135,6 +138,12 @@ def test_bad_committed_history_cannot_be_hidden_by_valid_working_files(
         path.symlink_to("../../../../outside-private-sentinel")
     elif fault == "oversized":
         path.write_bytes(b"x" * (256 * 1024 + 1))
+    elif fault == "duplicate_key":
+        path.write_text(json.dumps(value)[:-1] + ', "id": "other"}')
+    elif fault == "nonfinite":
+        path.write_text(json.dumps(value)[:-1] + ', "extra": NaN}')
+    elif fault == "invalid_name":
+        path.rename(path.with_name("Invalid.odcs.json"))
     head = commit(root)
     if path.is_symlink():
         path.unlink()
@@ -167,3 +176,23 @@ def test_divergent_baseline_is_not_an_interface_history(history: tuple[Path, str
     unrelated = git(root, "commit-tree", tree, "-m", "Independent root")
     with pytest.raises(BaselineError, match="^contracts_history$"):
         check_repository(root, base=unrelated, head=head)
+
+
+def test_first_registration_and_empty_candidate(tmp_path: Path) -> None:
+    git(tmp_path, "init", "-q", "--initial-branch=main")
+    base = commit(tmp_path)
+    with pytest.raises(BaselineError, match="^contracts_empty$"):
+        check_repository(tmp_path, base=base, head=base)
+    write(tmp_path, document())
+    result = check_repository(tmp_path, base=base, head=commit(tmp_path))
+    assert result["added"] == result["total"] == 1 and result["compared"] == 0
+
+
+def test_contract_count_limit(history: tuple[Path, str]) -> None:
+    root, base = history
+    for index in range(64):
+        value = document()
+        value["id"] = f"synthetic.{index}"
+        write(root, value, f"extra-{index}.odcs.json")
+    with pytest.raises(BaselineError, match="^contracts_limit$"):
+        check_repository(root, base=base, head=commit(root))

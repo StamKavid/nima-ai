@@ -1,5 +1,6 @@
 """Read committed ODCS interfaces without executing historical code or source data."""
 
+import argparse
 import json
 import os
 import re
@@ -105,18 +106,22 @@ def _catalogue(root: Path, commit: str) -> dict[str, dict[str, Any]]:
     return catalogue
 
 
+def _local_history(root: Path) -> None:
+    # Promisor clones can fetch missing objects implicitly. Refuse them first.
+    if _git(
+        root,
+        "config",
+        "--get-regexp",
+        r"^(remote\..*\.promisor|extensions\.partial[Cc]lone)$",
+        codes=(0, 1),
+    ):
+        raise BaselineError("contracts_history")
+
+
 def check_repository(root: Path, *, base: str, head: str) -> dict[str, int]:
     """Compare one current descriptor per ID using the current supported profile."""
     try:
-        # Promisor clones can fetch missing objects implicitly. Refuse them first.
-        if _git(
-            root,
-            "config",
-            "--get-regexp",
-            r"^(remote\..*\.promisor|extensions\.partial[Cc]lone)$",
-            codes=(0, 1),
-        ):
-            raise BaselineError("contracts_history")
+        _local_history(root)
         _commit(root, base)
         _commit(root, head)
         _git(root, "merge-base", "--is-ancestor", base, head)
@@ -146,3 +151,69 @@ def check_repository(root: Path, *, base: str, head: str) -> dict[str, int]:
         raise BaselineError(reason) from None
     except (ValueError, KeyError, TypeError, RecursionError):
         raise BaselineError("contracts_invalid") from None
+
+
+class _Parser(argparse.ArgumentParser):
+    def error(self, message: str) -> Never:
+        raise BaselineError("contracts_configuration")
+
+
+def _ci_commits(root: Path) -> tuple[str, str]:
+    event = os.environ.get("GITHUB_EVENT_NAME", "")
+    if event == "pull_request":
+        base = os.environ.get("NIMA_CONTRACT_PR_BASE", "")
+    elif event == "push":
+        base = os.environ.get("NIMA_CONTRACT_PUSH_BEFORE", "")
+    elif event == "workflow_dispatch":
+        base = "0" * 40
+    else:
+        raise BaselineError("contracts_configuration")
+    if _SHA.fullmatch(base) is None:
+        raise BaselineError("contracts_configuration")
+    _local_history(root)
+    head = _git(root, "rev-parse", "--verify", "HEAD").decode("ascii").strip()
+    if base == "0" * 40:
+        if event == "pull_request":
+            raise BaselineError("contracts_configuration")
+        base = _git(root, "merge-base", head, "refs/remotes/origin/main").decode("ascii").strip()
+    return base, head
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Print only fixed diagnostics or commit identities and aggregate counts."""
+    try:
+        parser = _Parser(description=__doc__, allow_abbrev=False)
+        parser.add_argument("--repo", type=Path, default=Path.cwd())
+        parser.add_argument("--base")
+        parser.add_argument("--head")
+        parser.add_argument("--ci", action="store_true")
+        options = parser.parse_args(argv)
+        if options.ci:
+            if options.base is not None or options.head is not None:
+                raise BaselineError("contracts_configuration")
+            base, head = _ci_commits(options.repo)
+        else:
+            base, head = options.base, options.head
+            if base is None or head is None:
+                raise BaselineError("contracts_configuration")
+        result = check_repository(options.repo, base=base, head=head)
+        print(
+            json.dumps(
+                {
+                    "status": "passed",
+                    "version": "contract-baseline-v1",
+                    "base": base,
+                    "head": head,
+                    **result,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
+    except BaselineError as error:
+        print(json.dumps({"status": "failed", "failure": str(error)}, sort_keys=True))
+        return 2 if str(error) == "contracts_configuration" else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
