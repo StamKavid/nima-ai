@@ -108,5 +108,17 @@ bytes while checkpoint, observations, quarantine and outbox remain unchanged.
 Existing replay/readout bytes must reproduce through the packaged wheel on the
 selected private pilot. Meaningful guard mutation, full local gates/audit and
 final-head hosted checks precede owner review. Use the existing commands and
-quality floor; no new dependency, migration, CI-policy change, live source request
-or deployment. Historical PR comparison and durable check history remain later.
+quality floor; no new dependency, migration, live source request or deployment.
+Historical PR comparison and durable check history remain later.
+
+### Measured CI budget exception
+
+On unchanged head `7d7da93`, push run 44364797668 passes all jobs, including
+2,397 tests in 408.01 seconds and the audit. PR run 44365266941 attempts 1 and 2
+both reach the final workflow tests and are cancelled at the ten-minute job
+limit. Increase only `quality.timeout-minutes` from 10 to 15 for setup, runner
+variation and the complete gate. This is an explicit CI configuration change for
+owner review under CONSTRAINTS.md. Preserve every command, assertion, coverage
+threshold, pinned action/image, permission, fixture job and audit. The bound stays
+finite. New-head hosted verification is required; application-source byte equality
+allows reuse of the complete local application verification and packaged proof.

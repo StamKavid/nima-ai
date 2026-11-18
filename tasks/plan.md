@@ -12,7 +12,10 @@ version alias, with real SQL/raw-retention and quarantine tests. C9f verifies
 mutation, actual wheel/pilot replay/readout equality, full local gates/audit and
 final-head hosted jobs before owner review. Each slice is tested before the next.
 
-Keep all earlier tasks. No dependency/migration/CI edit or live acquisition. Raw
+Keep all earlier tasks. No dependency/migration edit or live acquisition. The
+measured CI exception in the spec changes only the quality-job budget to fifteen
+minutes after two unchanged-head PR attempts hit ten minutes; no check is removed
+or relaxed. Verify the isolated YAML change and new-head hosted jobs. Raw
 acceptance permits malformed record items for existing quarantine. Bad producer
 output instead stops the current page before SQL commit. Package policy loading
 is cached, never arbitrary source content. Historical compatibility automation

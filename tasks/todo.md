@@ -14,6 +14,8 @@
   source bytes are restored. Invalid compiled constraints fail before data checks.
 - Installed-wheel/pilot byte preservation, full local gates/audit and final-head
   hosted evidence are required and recorded with delivery PR before handoff.
+- [x] Record the measured CI-budget exception after two PR cancellations at ten
+  minutes; extend only the quality-job bound to fifteen, with all gates retained.
 - [ ] Owner review before deployment. Source activation, historical PR comparison
   and durable check history remain separate work.
 
