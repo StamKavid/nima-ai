@@ -3,15 +3,17 @@
 ## Checkpoint C9 — KIMDIS input and normalized contracts
 
 - [x] Verify #137 and exact contract changes reach main at `9cd4c8a`; freeze scope.
-- [ ] C9b: neutral schema module; C8 behavior/public APIs and assertions preserved.
-- [ ] C9c: explicit opaque-array and present-nullable flags, unsupported/repeated
+- [x] C9b: neutral schema module; C8 behavior/public APIs and assertions preserved.
+- [x] C9c: explicit opaque-array and present-nullable flags, unsupported/repeated
   custom flags refused, with conservative compatibility checks.
-- [ ] C9d: two draft ODCS documents, source-owned policy/version and cached
+- [x] C9d: two draft ODCS documents, source-owned policy/version and cached
   validators; exact money/unknowns/evidence/metadata binding tests.
-- [ ] C9e: actual normalizer gates and unchanged storage version alias; source
+- [x] C9e: actual normalizer gates and unchanged storage version alias; source
   quarantine versus fatal producer defect; real SQL page atomicity/raw retention.
-- [ ] C9f: guard mutation, installed-wheel/pilot byte preservation, full local
-  gates/audit and final-head hosted evidence recorded with delivery PR.
+- [x] C9f mutation: disabling source/producer hooks fails actual regressions;
+  source bytes are restored. Invalid compiled constraints fail before data checks.
+- Installed-wheel/pilot byte preservation, full local gates/audit and final-head
+  hosted evidence are required and recorded with delivery PR before handoff.
 - [ ] Owner review before deployment. Source activation, historical PR comparison
   and durable check history remain separate work.
 
