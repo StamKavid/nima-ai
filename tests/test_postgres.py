@@ -11,7 +11,7 @@ import pytest
 
 from nima.ingestion.archive import Archive
 from nima.projections.worker import drain
-from nima.storage.postgres import MigrationError, PageStore, check_schema, migrate
+from nima.storage.postgres import MigrationError, PageStore, check_schema, migrate, validate_schema
 from tests.test_collection import QUERY, body
 
 
@@ -19,7 +19,7 @@ def test_migration_is_repeatable_and_checksum_verified(pg_dsn: str) -> None:
     migrate(pg_dsn)
     migrate(pg_dsn)
     with psycopg.connect(pg_dsn, autocommit=True) as connection:
-        assert connection.execute("SELECT count(*) FROM nima.schema_migrations").fetchone() == (8,)
+        validate_schema(connection)
         connection.execute("UPDATE nima.schema_migrations SET sha256 = repeat('0', 64)")
     with pytest.raises(MigrationError):
         migrate(pg_dsn)
@@ -28,7 +28,10 @@ def test_migration_is_repeatable_and_checksum_verified(pg_dsn: str) -> None:
 def test_migration_rejects_a_newer_schema(pg_dsn: str) -> None:
     migrate(pg_dsn)
     with psycopg.connect(pg_dsn, autocommit=True) as connection:
-        connection.execute("INSERT INTO nima.schema_migrations VALUES (9, repeat('0', 64))")
+        connection.execute(
+            "INSERT INTO nima.schema_migrations "
+            "SELECT coalesce(max(version),0)+1,repeat('0',64) FROM nima.schema_migrations"
+        )
     with pytest.raises(MigrationError):
         migrate(pg_dsn)
 
