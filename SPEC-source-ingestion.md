@@ -900,3 +900,26 @@ certify source correctness. Match scope and unchecked check digit are explicit.
 Dictionary version/hash/language and original metadata hash pin every result.
 Reader/matcher tests use synthetic labels; real-release and retained pilot proof
 stay private. KAD crosswalks, ontology, models and human validation remain later.
+
+
+## Checkpoint C5: source acceptance and analytics readiness
+
+Continue after owner-merged #132/#133. Main contains #132; #133 targeted its
+feature base. Owner subsequently merged #134 at `ad62fb3`; the exact reviewed
+command files are now verified reachable from main. Keep the previously tested
+tree and the successful integration runs distinct.
+
+This increment records a capability-weighted [foundation assessment](docs/roadmap/analytics-readiness.md)
+and [KAD source acceptance](docs/sources/kad-reference.md). The roughly 60% estimate
+uses an explicit 100-point single-operator analytics-core denominator; it is not
+Greek data coverage, test coverage or an update to the historical investigator
+product percentage. Source code, tested-but-unpromoted work and live validation
+are separate states.
+
+Actual AADE catalogue/correspondence/terms captures stay private. Respect the
+source's transitional identifier column, exact historical code strings, release
+amendments and reuse restrictions. No runtime KAD parser/crosswalk, new dependency,
+schema, schedule, company-source request or model is installed at this checkpoint.
+Runtime acceptance requires resolved reuse scope and complete bounded extraction/
+reconciliation tests as specified in the source contract. Meanwhile prioritize
+DataOps health/freshness and descriptive metrics without activating new sources.

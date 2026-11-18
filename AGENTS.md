@@ -27,6 +27,12 @@ decisions. The upstream project policy was not copied into this repository.
   public repository visibility on 2026-11-14. Source code and reviewed documentation
   may be pushed to `StamKavid/nima-ai`; keep evidence, source data and secrets outside Git.
 - Record incomplete work honestly; a local check is not evidence of hosted CI.
+- Default delivery PRs to `main`. For a necessary stacked feature base, document
+  the dependency and retarget the open consumer after its provider merges before
+  offering it for main delivery. A merged feature-base PR is not a main merge.
+- When the owner reports a merge, verify that the intended changes are reachable
+  from `origin/main` before marking them delivered. Prepare a reviewed promotion
+  if needed; do not rewrite or automatically merge published history.
 - Use subagents only when the user or a relevant skill explicitly calls for them.
 
 ## Git identity

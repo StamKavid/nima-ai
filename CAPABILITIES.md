@@ -1,5 +1,9 @@
 # Nima capability map
 
+The [2026-11-18 foundation readiness assessment](docs/roadmap/analytics-readiness.md)
+records actual source connections, DataOps gaps and an explicit planning rubric.
+Its scope differs from the historical investigator-product percentage.
+
 ## Company and market intelligence direction
 
 The owner selected company/market intelligence on 2026-11-16: sectors,
