@@ -6,8 +6,8 @@ Continue after owner-merged #129 (`6051d41`); prior exact-head CI passes in runs
 44267217179 and 44267160859. Retain all pending human/model/dictionary work.
 
 - [x] C3a: freeze SQL snapshot contract, source boundaries and review checkpoint.
-- [ ] C3b: public canonical metadata preparation, prior bytes unchanged.
-- [ ] C3c: additive 0009/immutable snapshot/source FKs/occurrence view and upgrade tests.
+- [x] C3b: public canonical metadata preparation, prior bytes unchanged.
+- [x] C3c: additive 0009/immutable snapshot/source FKs/occurrence view and upgrade tests.
 - [ ] C3d: selected-hash promotion and SQL/Python-equivalent read queries, restricted
   roles, concurrency and real commit-boundary crash checks.
 - [ ] C3e: actual promote/query CLI with private fixed summaries.

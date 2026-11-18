@@ -9,7 +9,7 @@ Official TED/AADE taxonomy versions are assessed now; no company-source request.
 
 C3a (three files): extend contract/plan/tasks without discarding pending tasks.
 C3b (export/tests): public canonical preparation; existing C2 bytes unchanged.
-C3c (migration/registration/two version expectations/schema tests): additive 0009,
+C3c (migration/registration/version expectations/schema tests): additive 0009,
 immutable document store, source FKs and occurrence view. No live pilot DDL.
 C3d (SQL store/query SQL/tests): explicit-hash atomic promotion and read-only
 serving; public pure selection shared, SQL/Python parity, boundedness and exact
@@ -26,6 +26,14 @@ is explicit; source observation time never becomes processing time. Verify store
 canonical bytes at read time; archive integrity is promotion-time evidence only.
 C4 will pin authoritative taxonomy releases/languages/hashes and match separately,
 without silently converting KAD 2008 to KAD 2025 or inferring supplier sectors.
+
+Delivery is split into a schema/preparation provider PR and a dependent serving
+API/command PR. Schema mutation proves TRUNCATE refusal; private clone proof is
+retained outside Git. The initial full run reached 2,188 passing tests and caught
+two stale legacy head assumptions. Replace their literals with public schema
+validation and a dynamically newer journal version; preserve checksum and unknown-
+version refusal. Exact-head hosted gates and the final combined local gate are
+required before the two-PR C3 handoff, not waived by focused results.
 
 
 ## Completed checkpoint C2: structured market metadata
