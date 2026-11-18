@@ -1,6 +1,25 @@
 # Delivery plan
 
-## Active checkpoint C3: SQL metadata serving
+## Active checkpoint C4: reviewed deployment and CPV references
+
+Owner merged #131 at `7bdf5da` following #130. Prior final code `ec6402e` passes all
+three jobs in run 44290911542; C3's combined local gate is 2,213/93.05% with clean
+audit. Continue the same taxonomy roadmap without discarding human/model work.
+
+C4a performs private deployment of reviewed 0009 only: fresh native source backup,
+verified owned restore/migration, then migration of the unchanged pilot, narrow
+existing-role grants, selected prior metadata promotion, retry/refusal/readout
+checks and owned cleanup. No new source capture or schedule activation.
+C4b inspects official CPV data/reuse terms, freezes source/format/hash/language and
+matching semantics, then implements an offline bounded parser with adversarial
+and real-release checks. Source data stays outside Git. Empty download responses
+are rejected, not used as dictionaries. C4c adds private publication/matching and
+CLI as thin slices, with reported metadata unchanged. C4d runs meaningful mutation,
+full local gates/audit, package checks and exact-head hosted jobs before owner
+review. Actual dictionary scope is frozen after inspecting the source bytes.
+
+
+## Completed checkpoint C3: SQL metadata serving
 
 Owner merged #129 at `6051d41`; all three exact-head jobs pass on `0709027` in
 PR run 44267217179 and branch run 44267160859. Continue the same metadata plan.
