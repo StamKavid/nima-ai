@@ -1,13 +1,33 @@
 # Capability progress: 2026-11-18
 
-## Current checkpoint C2 candidate
+## Checkpoint C3 schema provider candidate
+
+Owner merged C2 through [#129](https://github.com/StamKavid/nima-ai/pull/129)
+(`6051d41`); all three jobs passed on `0709027` in runs 44267217179 and
+44267160859. The [C3 contract](../SPEC-source-ingestion.md#checkpoint-c3-explicitly-selected-sql-metadata-snapshots)
+continues SQL metadata serving in two reviewable parts.
+
+The first adds canonical preparation without file publication and additive 0009:
+an immutable derived snapshot table, exact source foreign keys, actual diagnostic
+counts and an occurrence view. UPDATE/DELETE/TRUNCATE are rejected. Prior migration
+bodies remain unchanged. Source observation time and processing time stay distinct.
+The serving implementation/commands follow in the dependent PR; C3 is not complete
+at this schema-only stage. No automatic pilot migration or schedule is activated.
+
+The [official taxonomy assessment](semantics/taxonomy-releases.md) records separate
+CPV and KAD release boundaries. Dictionary files/licences/parsers/matches are still
+C4 work; reported versions and `taxonomy_validation: not_checked` are preserved.
+Full hosted and combined local results are recorded with the delivery PRs before
+C3 handoff; private proof stays outside Git. Human pilot validation remains open.
+
+## Delivered checkpoint C2 (#129)
 
 Owner merged C1 through [#128](https://github.com/StamKavid/nima-ai/pull/128)
 (`bd7fec4`); all three exact-head jobs pass in PR run 44258789845 and branch run
 44258739500. Continue the same structured metadata roadmap under the
 [C2 contract](../SPEC-source-ingestion.md#checkpoint-c2-structured-market-metadata).
 
-The candidate adds [reported market metadata](semantics/market-metadata.md):
+The merged increment adds [reported market metadata](semantics/market-metadata.md):
 buyer function/legal classification/type and procurement CPV from verified KIMDIS
 captures, and reported supplier KAD/version/type/dates from completed GEMI archives.
 These describe different subjects and remain separate. Source paths, raw hashes,

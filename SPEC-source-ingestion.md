@@ -772,3 +772,61 @@ preservation. Mutation must break a meaningful regression. Full `just check`,
 `just audit` and all exact-head hosted jobs precede handoff. Then owner review;
 no automatic merge or human taxonomy certification. SQL metadata projections and
 Greek-model evaluation remain following work, not delivered by this checkpoint.
+
+
+## Checkpoint C3: explicitly selected SQL metadata snapshots
+
+Owner merged #129 at `6051d41`; continue the same metadata roadmap. C3 delivers
+PostgreSQL serving first, with an official taxonomy source/version assessment.
+Dictionary installation/matching is C4, not an implicit claim in this checkpoint.
+No new company lookup, dependency/CI change, live migration or model activation.
+
+Expose public `prepare_metadata` to generate the existing canonical unfiltered
+C2 bytes without publication. Existing exports/filters/bytes remain compatible.
+`metadata promote SOURCE --run-id UUID --archive-dir /ABS --snapshot-sha256 HASH`
+uses `NIMA_DATABASE_URL`, verifies original archives again, and requires the exact
+selected unfiltered canonical hash. KIMDIS must be complete/quarantined and is
+rechecked under the shared run lease. GEMI requires the explicitly completed
+archive to have been imported already, with matching immutable import manifest.
+No implicit source import or archive-file trust. Caller-supplied metadata JSON
+is not an ingestion path.
+
+Add reviewed migration 0009: one immutable `nima_processing.metadata_snapshots`
+table containing full verified metadata documents, separate KIMDIS/GEMI source
+foreign keys, extraction version, diagnostic counts, processing time and database
+principal. Preserve all previous migrations and the 26 original `nima` tables.
+Reject UPDATE/DELETE/TRUNCATE; primary-key lookup is the initial serving index.
+`reported_market_metadata` flattens assertion occurrences with source/run, field
+pointers, hashes, original observation time and separate processing time. Unknowns,
+duplicate positions and all C2 meaning/coverage boundaries remain intact.
+
+Promotion is one explicit READ COMMITTED transaction, idempotent under concurrent
+retries, with existing-row comparison and conflict refusal. A fresh selected hash
+is required when source scope changes. Only SELECT on source metadata/imports and
+SELECT/INSERT on the one derived table are needed; a reader has SELECT only.
+Source bytes/rows, original metrics and schedules remain unchanged.
+
+`metadata query --snapshot-sha256 HASH --output-dir /ABS [--dimension NAME]
+[--code EXACT]` is REPEATABLE READ/READ ONLY, with fixed connection timeouts and
+no archive or network requirement. An absent/unsupported/corrupt snapshot is an
+error, not zero. Validate the selected stored canonical hash before querying.
+Parameterized SQL preserves source-specific dimension rules and full quality
+coverage. Compare SQL output with the shared pure assertion-selection policy
+before private canonical publication. Output equals the C2 logical filtered
+snapshot. Integrity is verified at promotion time; SQL-only reading does not
+re-check a subsequently lost or damaged archive. It is not fresh source data.
+
+Bounds stay 5,000 records/10,000 assertions/32 MiB canonical output; no truncated
+success or automatic latest-snapshot selection. Terminal output remains fixed
+status/counts only, including a reuse flag for promotion. Source IDs, values,
+paths and selected hashes stay private.
+
+Acceptance: explicit migration upgrade/ownership/old checksum checks; source FKs
+and immutability; real restricted roles; KIMDIS/GEMI imported-source paths;
+selected-hash/stale/partial/corrupt/missing refusal; SQL/Python exact filter parity,
+zero-assertion records, relocation and deterministic retry; concurrent retries
+under both role isolation defaults; real process death at SQL commit boundaries.
+A meaningful guard mutation must fail. Full `just check`/`just audit`, built SQL
+resources and all exact-head hosted jobs precede C3 handoff. Private pilot schema
+stays at reviewed 8; any migration-9 pilot proof uses an owned disposable clone.
+Owner review/merge is the checkpoint; no automatic live deployment.

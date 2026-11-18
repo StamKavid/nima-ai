@@ -50,11 +50,11 @@ def test_additive_upgrade_keeps_old_bodies_and_source_data(pg_dsn: str, tmp_path
         assert c.execute("SELECT * FROM nima.raw_objects").fetchall() == [("a" * 64, 12)]
         assert c.execute(
             "SELECT tablename FROM pg_tables WHERE schemaname='nima_processing' ORDER BY tablename"
-        ).fetchall() == [("replay_batches",), ("replay_results",)]
+        ).fetchall() == [("metadata_snapshots",), ("replay_batches",), ("replay_results",)]
         assert c.execute("SELECT to_regclass('nima_processing.replayed_contracts')").fetchone() == (
             "nima_processing.replayed_contracts",
         )
-        assert len(_migrations()) == 8
+        assert len(_migrations()) == 9
 
 
 def test_configured_nologin_owner_owns_processing_schema_too(pg_dsn: str) -> None:

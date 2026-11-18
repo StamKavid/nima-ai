@@ -1,6 +1,42 @@
 # Delivery plan
 
-## Active checkpoint C2: structured market metadata
+## Active checkpoint C3: SQL metadata serving
+
+Owner merged #129 at `6051d41`; all three exact-head jobs pass on `0709027` in
+PR run 44267217179 and branch run 44267160859. Continue the same metadata plan.
+The C3 source contract separates SQL serving from C4 dictionary installation.
+Official TED/AADE taxonomy versions are assessed now; no company-source request.
+
+C3a (three files): extend contract/plan/tasks without discarding pending tasks.
+C3b (export/tests): public canonical preparation; existing C2 bytes unchanged.
+C3c (migration/registration/version expectations/schema tests): additive 0009,
+immutable document store, source FKs and occurrence view. No live pilot DDL.
+C3d (SQL store/query SQL/tests): explicit-hash atomic promotion and read-only
+serving; public pure selection shared, SQL/Python parity, boundedness and exact
+source/version/coverage semantics. Test roles, concurrency and actual SIGKILL.
+C3e (SQL CLI/router/tests): fixed summaries and private publication through actual
+commands. Preserve existing CLI forms. C3f (docs/progress): taxonomy source review,
+mutation, private disposable-clone proof, full gates/audit and hosted CI; stop at
+owner review. Keep all credentials/source evidence/operational proofs outside Git.
+
+One JSONB snapshot per canonical hash avoids a second synchronized fact store.
+An occurrence view serves the bounded snapshot using PostgreSQL's JSON operators;
+no claim of national-scale performance or code-index latency. Snapshot selection
+is explicit; source observation time never becomes processing time. Verify stored
+canonical bytes at read time; archive integrity is promotion-time evidence only.
+C4 will pin authoritative taxonomy releases/languages/hashes and match separately,
+without silently converting KAD 2008 to KAD 2025 or inferring supplier sectors.
+
+Delivery is split into a schema/preparation provider PR and a dependent serving
+API/command PR. Schema mutation proves TRUNCATE refusal; private clone proof is
+retained outside Git. The initial full run reached 2,188 passing tests and caught
+two stale legacy head assumptions. Replace their literals with public schema
+validation and a dynamically newer journal version; preserve checksum and unknown-
+version refusal. Exact-head hosted gates and the final combined local gate are
+required before the two-PR C3 handoff, not waived by focused results.
+
+
+## Completed checkpoint C2: structured market metadata
 
 Owner merged #128 at `bd7fec4`; all three jobs pass on prior head `78c8fce` in
 PR run 44258789845 and branch run 44258739500. C1 is owner-reviewed; pending human
