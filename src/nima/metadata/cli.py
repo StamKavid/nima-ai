@@ -18,6 +18,10 @@ class _Parser(argparse.ArgumentParser):
 
 
 def run(argv: list[str]) -> int:
+    if argv and argv[0] in {"cpv-reference", "cpv-match"}:
+        from nima.metadata.cpv_cli import run as cpv_run
+
+        return cpv_run(argv)
     if argv and argv[0] in {"promote", "query"}:
         from nima.metadata.sql_cli import run as sql_run
 
@@ -26,7 +30,7 @@ def run(argv: list[str]) -> int:
         parser = _Parser(
             prog="python -m nima metadata",
             allow_abbrev=False,
-            epilog="SQL operations: promote/query (use OPERATION --help).",
+            epilog="Operations: promote/query/cpv-reference/cpv-match (use OPERATION --help).",
         )
         parser.add_argument("source", choices=("kimdis", "gemi"))
         parser.add_argument("--run-id", type=UUID, required=True)

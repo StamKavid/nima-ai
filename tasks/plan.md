@@ -18,6 +18,13 @@ CLI as thin slices, with reported metadata unchanged. C4d runs meaningful mutati
 full local gates/audit, package checks and exact-head hosted jobs before owner
 review. Actual dictionary scope is frozen after inspecting the source bytes.
 
+Observed C4 scope: OP-TED SDK 1.15.1, CPV 2008, explicit ell/eng, base-code
+membership only. Real-release completeness checks cover 9,454 entries in both
+languages. The whole batch passes 2,285 tests/93.27% and a clean audit; meaningful
+duplicate-code/version-guard mutations are rejected and restored. Packaged reference and SQL commands reproduce the retained bytes. Exact-head
+hosted jobs remain the final handoff gate. No company-source
+request, model or human-certification claim is added.
+
 
 ## Completed checkpoint C3: SQL metadata serving
 

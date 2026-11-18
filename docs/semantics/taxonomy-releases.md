@@ -32,3 +32,12 @@ The distribution files, their hashes, licences and parsers have not been verifie
 in this assessment. Only primary landing-page release statements were inspected.
 C3's immutable SQL snapshots retain `taxonomy_validation: not_checked` and the
 reported version until dictionary support is separately reviewed.
+
+## C4 explicitly selected CPV implementation
+
+The [offline CPV reference reader and annotations](cpv-reference.md) now support
+the actual OP-TED SDK 1.15.1 genericode distribution and its CC BY 4.0 attribution.
+That follow-up supersedes the unverified-distribution statement above for this
+one CPV release only. Both Greek/English reads cover 9,454 entries. Base-code
+membership is separate from full-code/check-digit validity, source correctness
+and an unknown reported version. KAD crosswalk verification remains pending.
