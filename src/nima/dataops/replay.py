@@ -47,7 +47,7 @@ class Replay:
 
 
 @dataclass(frozen=True)
-class _Page:
+class CapturedPage:
     number: int
     raw_sha256: str
     byte_length: int
@@ -55,7 +55,7 @@ class _Page:
     record_count: int
 
 
-def _snapshot(dsn: str, run_id: UUID) -> tuple[dict[str, object], tuple[_Page, ...]]:
+def _snapshot(dsn: str, run_id: UUID) -> tuple[dict[str, object], tuple[CapturedPage, ...]]:
     with connect(dsn) as connection, connection.transaction():
         connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
         connection.execute("SET LOCAL TIME ZONE 'UTC'")
@@ -102,7 +102,7 @@ def _snapshot(dsn: str, run_id: UUID) -> tuple[dict[str, object], tuple[_Page, .
             if size > MAX_OBJECT_BYTES:
                 raise ReplayError("replay_limit")
             pages.append(
-                _Page(
+                CapturedPage(
                     cast(int, number), digest, size, observed.astimezone(UTC).isoformat(), records
                 )
             )
@@ -125,7 +125,7 @@ def _snapshot(dsn: str, run_id: UUID) -> tuple[dict[str, object], tuple[_Page, .
 
 
 def _dataset(
-    run: dict[str, object], pages: tuple[_Page, ...], bodies: dict[str, bytes]
+    run: dict[str, object], pages: tuple[CapturedPage, ...], bodies: dict[str, bytes]
 ) -> tuple[dict[str, object], int, int]:
     results = []
     normalized_count = quarantined_count = 0
@@ -191,12 +191,17 @@ def _dataset(
     )
 
 
-def prepare_replay(
-    dsn: str, run_id: UUID, archive_root: Path, normalizer_version: str
-) -> tuple[bytes, Replay]:
-    """Freeze and verify a canonical replay without publishing or writing SQL."""
-    if not isinstance(normalizer_version, str) or normalizer_version != NORMALIZER_VERSION:
-        raise ReplayError("replay_version")
+@dataclass(frozen=True)
+class CapturedSource:
+    """Frozen SQL metadata and hash-verified bytes; no open SQL handle or paths."""
+
+    run: dict[str, object]
+    pages: tuple[CapturedPage, ...]
+    bodies: dict[str, bytes]
+
+
+def read_capture(dsn: str, run_id: UUID, archive_root: Path) -> CapturedSource:
+    """Read one bounded committed capture for replay or independent projections."""
     if (
         not isinstance(dsn, str)
         or not dsn.strip()
@@ -220,7 +225,7 @@ def prepare_replay(
             p.raw_sha256: p.byte_length for p in pages
         }:
             raise ReplayError("replay_evidence")
-        value, normalized, quarantined = _dataset(run, pages, bodies)
+        return CapturedSource(run, pages, bodies)
     except MigrationError:
         raise ReplayError("replay_schema") from None
     except psycopg.Error:
@@ -231,6 +236,20 @@ def prepare_replay(
         ) from None
     except (OSError, InvalidRecord):
         raise ReplayError("replay_evidence") from None
+
+
+def prepare_replay(
+    dsn: str, run_id: UUID, archive_root: Path, normalizer_version: str
+) -> tuple[bytes, Replay]:
+    """Freeze and verify a canonical replay without publishing or writing SQL."""
+    if not isinstance(normalizer_version, str) or normalizer_version != NORMALIZER_VERSION:
+        raise ReplayError("replay_version")
+    capture = read_capture(dsn, run_id, archive_root)
+    try:
+        value, normalized, quarantined = _dataset(capture.run, capture.pages, capture.bodies)
+    except InvalidRecord:
+        raise ReplayError("replay_evidence") from None
+    pages = capture.pages
     try:
         body = encode(value)
         digest = hashlib.sha256(body).hexdigest()
