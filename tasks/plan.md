@@ -1,5 +1,23 @@
 # Delivery plan
 
+## Active checkpoint C9: KIMDIS input and normalized contracts
+
+Owner merged #137 at `9cd4c8a`; `2311539` and its exact files are verified on
+main. Continue the [approved contract extension](../SPEC-data-contracts.md#checkpoint-c9-source-acceptance-and-normalized-kimdis-records).
+C9a freezes this scope. C9b extracts neutral schema support, preserving C8 APIs
+and assertions. C9c adds explicit opaque-array/present-nullable profile flags with
+failure tests. C9d adds source-owned policies/two ODCS documents and cached offline
+validators. C9e integrates both public normalizers and the unchanged storage
+version alias, with real SQL/raw-retention and quarantine tests. C9f verifies
+mutation, actual wheel/pilot replay/readout equality, full local gates/audit and
+final-head hosted jobs before owner review. Each slice is tested before the next.
+
+Keep all earlier tasks. No dependency/migration/CI edit or live acquisition. Raw
+acceptance permits malformed record items for existing quarantine. Bad producer
+output instead stops the current page before SQL commit. Package policy loading
+is cached, never arbitrary source content. Historical compatibility automation
+and validation-history storage remain separately scoped follow-ups.
+
 ## Active checkpoint C8: first ODCS analytics contract
 
 Owner continued the explicit data-contract proposal on 2026-11-18. Implement the
