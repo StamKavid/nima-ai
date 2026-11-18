@@ -1,5 +1,21 @@
 # Tasks
 
+## Checkpoint C4 — reviewed deployment and CPV references
+
+Continue after owner-merged #131 (`7bdf5da`); C3 hosted run 44290911542 passes all
+three jobs. Preserve human validation, KAD crosswalk and model tasks below.
+
+- [x] Freeze C4 deployment/reference boundaries and sequential work.
+- [x] C4a: native verified backup/restore before reviewed pilot migration 9; narrow
+  grants, prior metadata promotion, original readout/source preservation and cleanup.
+- [ ] C4b: inspect and pin actual official CPV bytes, reuse attribution and format;
+  implement a bounded typed reader with malformed/security/coverage tests.
+- [ ] C4c: separately versioned reference matches/private publication/CLI; no source
+  assertions or historical versions overwritten and no inferred company sector.
+- [ ] C4d: real-release check, meaningful mutation, full gates/audit and hosted CI.
+- [ ] Owner review; dictionary features are not live by documentation alone.
+
+
 ## Checkpoint C3 — SQL metadata serving
 
 Continue after owner-merged #129 (`6051d41`); prior exact-head CI passes in runs
@@ -16,7 +32,7 @@ Continue after owner-merged #129 (`6051d41`); prior exact-head CI passes in runs
   Final combined `just check`: 2,213 passed/93.05%; `just audit`: clean.
 - Exact-head hosted gates are recorded with both delivery PRs before C3 handoff.
   Private proof stays outside Git; no implicit live migration or model activation.
-- [ ] Owner review at C3; C4 dictionary installation and human validation remain open.
+- [x] Owner review at C3 through merged #130/#131; C4 dictionary installation and human validation remain open.
 
 
 ## Checkpoint C2 — structured metadata

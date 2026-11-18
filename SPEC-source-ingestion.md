@@ -830,3 +830,73 @@ A meaningful guard mutation must fail. Full `just check`/`just audit`, built SQL
 resources and all exact-head hosted jobs precede C3 handoff. Private pilot schema
 stays at reviewed 8; any migration-9 pilot proof uses an owned disposable clone.
 Owner review/merge is the checkpoint; no automatic live deployment.
+
+
+## Checkpoint C4: reviewed pilot deployment and pinned CPV reference
+
+Owner merged #131 at `7bdf5da` after #130; continue the authorized data foundation
+work. First deploy only reviewed migration 9 after a fresh native backup/restore
+and unchanged-source checks. Scope existing promoter/reader grants to the new
+snapshot table/view, promote prior explicitly selected C2 metadata, verify reuse,
+reader refusal and original readout/source preservation. Keep credentials, archive
+bytes, operational details and proof outside Git. No new company-source request or
+schedule/model activation is authorized by reference-dictionary work.
+
+Then build an offline versioned CPV reference loader and separate dictionary-match
+output. Pin the official source/release, language, raw hash and reuse attribution.
+Inspect an actual official distribution before freezing its parser. Refuse empty
+HTTP acknowledgements, corrupt/malformed archives/XML, unsupported versions,
+conflicting codes, absent selected language and truncated success. Reference data
+and original reported metadata remain separate. No automatic KAD conversion,
+buyer-function-to-supplier classification, source-label overwrite or certification
+of company sectors. KAD crosswalk installation stays a subsequent bounded scope.
+
+Dictionary source/format details and matching grain must be recorded after direct
+inspection and before implementation. If a source supplies base codes without a
+check digit, that match scope must be explicit; it cannot claim full-code checksum
+validation. No silent source, language or version fallback. Any added parser
+package must have pinned versions, reviewed licensing, strict types, regenerated
+locks and the full existing security/audit gates. Work through a review checkpoint;
+no automatic merge of new parser/reference features.
+
+### C4 CPV contract frozen after inspecting the publisher release
+
+Use the OP-TED eForms SDK **1.15.1** `codelists/cpv.gc` captured from
+`https://raw.githubusercontent.com/OP-TED/eForms-SDK/1.15.1/codelists/cpv.gc`.
+The repository's tagged LICENSE is CC BY 4.0. Retain publisher, source and licence
+URLs, capture time, exact raw SHA-256 and selected language in every derived
+reference/match. This is an explicitly selected release, not a latest-version
+claim. Its genericode Identification names `cpv_2008_core`, Version `2008`, and
+CanonicalUri `http://publications.europa.eu/resource/dataset/cpv`. SDK release and
+taxonomy version are separate. Reject the earlier empty TED HTTP-202 response.
+
+The inspected file has 9,454 rows, eight-digit `code`, optional `parentCode`, and
+`ell_label` / `eng_label`. Reader v1 supports these two explicitly selected
+languages, with no fallback. Input is bounded to 64 MiB, 10,000 rows, depth 12,
+1,000,000 elements and 4,096 characters per leaf. Require the genericode 1.0 root,
+Identification/version, declared unique columns, unique rows and one nonempty
+selected label per code. Reject malformed XML, DTD/entities/external references,
+missing/duplicate cells, unknown columns, invalid parent links/cycles and exceeded
+bounds; never publish a partial dictionary. All row ordinals remain traceable.
+Use defusedxml 0.7.1 with explicit DTD/entity/external refusal; declare the already
+locked library as a runtime dependency and add its development-only type stubs.
+
+Pure preparation takes selected raw bytes, their expected SHA-256, capture time
+and language. Canonical reference JSON records the source and derived-format
+versions; exact case/Unicode text is retained, codes sorted, original zero-based
+row ordinals attached. No source data in Git. An offline CLI reads a private,
+no-follow regular file, validates all input before no-clobber publication, and
+prints fixed counts/status only. No downloader, database migration or scheduler.
+
+A separate command takes an explicit stored metadata-snapshot hash and the same
+selected captured reference, using the existing read-only SQL query. It writes a
+versioned annotation artifact, retaining the full reported record/assertion and
+original evidence lineage unchanged. Annotate only CPV occurrences. A reported
+`########-#` is compared by its first eight digits; outcomes distinguish base-code
+match, not found in the selected release, ineligible source value and explicit
+version conflict. Never validate or repair the check digit, populate an unknown
+reported taxonomy version, substitute source labels, infer supplier sectors, or
+certify source correctness. Match scope and unchecked check digit are explicit.
+Dictionary version/hash/language and original metadata hash pin every result.
+Reader/matcher tests use synthetic labels; real-release and retained pilot proof
+stay private. KAD crosswalks, ontology, models and human validation remain later.
