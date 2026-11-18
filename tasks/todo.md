@@ -1,5 +1,20 @@
 # Tasks
 
+## Release planning: v1.0 product and agent handoff
+
+- [x] Record baseline and distinguish package `0.0.1`, proposed milestones and
+  implemented bounded capabilities; keep the previous readiness denominator.
+- [x] Define v0.1/0.2/0.3/0.4/0.5/0.9/1.0 outcomes and R1–R10 acceptance.
+- [x] Prepare fourteen dependency-linked agent work packages with exit evidence,
+  boundaries, next-agent prompt and private-data/activation constraints.
+- [x] Link existing specs/capability/architecture and correct stale first-slice
+  "not implemented" headings without changing their metric/interface contracts.
+- Before handoff: check links, docs-only scope, required local gates/audit and
+  exact-head hosted evidence; record them in the roadmap PR.
+- [ ] Owner scope review. No source budget, deployment, tag or release is activated.
+- [ ] After verified #139 merge: scope V1-01 durable validation-result history;
+  retain human PV10, certification, access/operations and paused egress work.
+
 ## Checkpoint C9 — KIMDIS input and normalized contracts
 
 - [x] Verify #137 and exact contract changes reach main at `9cd4c8a`; freeze scope.
