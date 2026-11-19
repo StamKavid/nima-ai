@@ -29,7 +29,8 @@ terminal outcome. A deterministic outcome hash includes intent hash and check
 payload, excluding attempt UUID, database principal and wall time. Fresh attempt
 IDs perform fresh validation; unchanged results can share an outcome hash.
 Reusing an ID with different intent is a conflict. Reusing a completed ID returns
-its original attestation/time with `reused: true`, without rechecking files/SQL.
+its original attestation/time with `reused: true`, without rechecking the report,
+original evidence or source SQL. Request parsing still confirms the intent.
 It must never be presented as fresh evidence verification. A pending ID resumes
 under a session advisory lock; concurrent use fails as busy, never starts a second
 check. Process death releases the lock. A failed attempt stays failed; use a new
