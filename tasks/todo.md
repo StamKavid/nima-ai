@@ -16,9 +16,21 @@
   read-only transaction and timeouts; mid-audit grant seen; no state change.
   Locally verified on PostgreSQL 16 with a scratch-only version shim (not committed);
   PostgreSQL 17 proof is hosted CI only. Disabled-trigger mutation fails; restored.
-- [ ] O3d: CLI, private artifact, redaction, runbook and restore entry, derived
-  ingest/projector ceilings, guard mutation, wheel, full gates/audit, hosted jobs,
-  one review-ready PR. Owner merge and live rollout stay separate.
+- [x] O3d (code/docs): CLI for `access-audit` and print-only `access-grants`, private
+  no-clobber report, fixed errors/redaction, operator runbook and restore entry.
+  133 access tests, 100% line/branch on all five new modules.
+- [x] O3d local gates (exact tree): skills, format, lint, strict mypy, build, Bandit,
+  Gitleaks, pip-audit clean; committed contracts 3/3 unchanged vs main `d09ec20`;
+  133 access tests pass from the unpacked built wheel. Full suite on PG16 with a
+  scratch-only version shim: 2749 passed, 59 failed, all in subprocess/crash-style
+  tests that hit the PostgreSQL 17 guard; a 54-test sample on clean main fails the
+  same 8, so none is caused by this change. PostgreSQL 17 proof is hosted CI only.
+- [ ] O3d (delivery): hosted exact-head jobs green, then one review-ready PR.
+  Owner merge and live rollout stay separate.
+- [ ] O3e (separate, needs approval): derive `ingest-worker` and `projector`
+  ceilings from the SQL the workers run, with proof the real workers run under them.
+- Open finding for owner: 15 older evidence tables lack a TRUNCATE trigger; a fix
+  would be a reviewed migration.
 
 ## V1-03 O2 — selected refresh-policy health
 

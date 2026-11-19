@@ -91,6 +91,11 @@ actual schema/table/sequence/function owners in the catalog. The earlier drill
 found that connector timeout options replaced the requested migration role. The
 role-preservation increment below fixes connection setup; existing object owners
 still require explicit maintenance. Native restore uses explicit role selection.
+After recreating each role, run `dataops access-grants` for its profile, review and
+apply the output, then run `dataops access-audit` against the restored database and
+keep the report with the rehearsal record. See the
+[access audit](access-audit.md). It checks catalogue privileges and evidence
+triggers only; it does not replace the byte, row and archive checks below.
 
 ```sh
 "$NIMA_PG_BIN/pg_restore" --dbname=service=nima_restore \

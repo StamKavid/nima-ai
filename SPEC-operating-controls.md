@@ -193,8 +193,11 @@ could rewrite evidence. A pass proves catalogue state only, not passwords,
    splits the former single "operator" idea into read-only health and separate
    recovery-control roles. Database CONNECT is granted separately and is not part
    of the contract.
-   `ingest-worker` and `projector` ceilings are added in O3d only once derived from
-   the SQL those workers actually run; none is guessed.
+   `ingest-worker` and `projector` have no documented grant list. Their ceilings
+   are **not** part of this PR: deriving a safe ceiling needs a separate design and
+   proof that the real workers run under it (ingestion spans many tables and
+   several distinct duties). They are a separately approved follow-up (O3e); none
+   is guessed.
 2. **Grant script included.** `access-grants` is generated from the same contract
    and is print-only. Role names are validated and quoted as identifiers. A test
    applies generated grants to a disposable database and requires the audit to pass.
@@ -258,7 +261,7 @@ could rewrite evidence. A pass proves catalogue state only, not passwords,
    A grant committed mid-audit is seen, not hidden, and the audit changes nothing.
 4. **O3d** actual CLI for both commands, private no-clobber artifact, redaction
    proof, operator runbook with the grant matrix, restore-runbook entry,
-   derived `ingest-worker`/`projector` ceilings, installed wheel, restored guard
+   installed wheel, restored guard
    mutation (removing the evidence-trigger check must fail a regression), full
    `just check` and `just audit`, unchanged committed contracts and exact-head
    hosted jobs before one review-ready PR.
