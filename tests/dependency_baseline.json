@@ -1,0 +1,47 @@
+{
+  "forbidden_edges": [
+    [
+      "nima.dataops.replay",
+      "nima.sources.kimdis"
+    ],
+    [
+      "nima.ingestion.collector",
+      "nima.sources.kimdis"
+    ],
+    [
+      "nima.ingestion.gemi",
+      "nima.sources.gemi"
+    ],
+    [
+      "nima.storage.gemi",
+      "nima.sources.gemi"
+    ],
+    [
+      "nima.storage.gemi_archive",
+      "nima.sources.gemi"
+    ],
+    [
+      "nima.storage.postgres",
+      "nima.sources.kimdis"
+    ]
+  ],
+  "module_cycles": [
+    [
+      "nima.egress.bootstrap",
+      "nima.egress.gateway"
+    ],
+    [
+      "nima.sources.kimdis",
+      "nima.sources.kimdis_contracts"
+    ]
+  ],
+  "package_cycles": [
+    [
+      "nima.ingestion",
+      "nima.intent",
+      "nima.orchestration",
+      "nima.projections",
+      "nima.storage"
+    ]
+  ]
+}
