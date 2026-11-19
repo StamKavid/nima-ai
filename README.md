@@ -612,3 +612,5 @@ choice are documented in [repository settings](docs/repository-settings.md).
 Opt-in [workflow diagnostics](docs/operations/workflow-diagnostics.md) correlate
 application stages with SQL request/run IDs; private log supervision is an
 operator responsibility.
+Read-only [refresh-policy health](docs/operations/refresh-health.md) reports
+coverage gaps, aging observations and unresolved child budgets for a selected policy.

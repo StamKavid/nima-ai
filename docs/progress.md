@@ -1,6 +1,56 @@
 # Capability progress: 2026-11-19
 
-## V1-03 O1 candidate: workflow stage diagnostics
+## Current project and chapter position
+
+Merged main is `6f706f1` after #147, including exact `f230ea0` and identical
+files. The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
+is now **approximately 65/100**, up from 61: saved-intent/recovery evolution,
+contract history and diagnostics earned four points. Sources, semantic review and
+human task proof earned no new credit. This is not whole-v1.0 completion or
+coverage of Greek companies. The old 33% investigator/graph estimate below is a
+historical assessment of different scope.
+
+Current chapter: **v0.1 dependable foundation / V1-03 operating controls**.
+Contract evolution/first durable validation boundary, current-profile recovery
+and O1 diagnostics are delivered. O2 selected-policy health is the next code
+checkpoint; scoped runtime/operator setup, approved off-host restore and effective
+branch controls remain open. No milestone tag or v1.0 release is created.
+
+| Chapter | Current product position | Main remaining acceptance |
+|---|---|---|
+| v0.1 Foundation | In progress; bounded ingestion/evidence/contracts/recovery and diagnostics work | Full operations proof and deployment configuration |
+| v0.2 Shared semantics | One draft metric and CPV reference precursor | Reusable source/provider boundaries, shared semantic registry and reviewed definitions |
+| v0.3 Two-source data | One KIMDIS pilot feed | Diavgeia connector and cross-source quality/lineage |
+| v0.4 Insights | Planned metric families | Comparable activity, repeat participation, concentration and observed changes |
+| v0.5 Serving/workspace | Cited CLI precursor | Shared read-only API/exports and a minimal local interface |
+| v0.9 Release proof | Pending | Real source/analyst checks, observed daily cycles, off-host recovery and measured workload |
+| v1.0 Release | Not released; package remains 0.0.1 | All R1–R10 acceptance and explicit owner go/no-go |
+
+Sources: KIMDIS contracts has the bounded real end-to-end pilot. GEMI API code
+awaits key/live compatibility; Publicity is manual/fixture-backed with no deployed
+gateway. CPV is an offline reference, not a second company feed. Diavgeia/TED notice
+connectors and a runtime KAD dictionary remain pending. No live daily schedule is
+claimed. See the [version roadmap](roadmap/v1.0.md) and fixed rubric for details.
+
+## V1-03 O2 candidate: selected-policy health
+
+[O2](../SPEC-operating-controls.md#o2-selected-refresh-policy-health) adds one
+bounded read-only snapshot for recorded policy gaps, observation/tick ages and
+open-cycle child/budget attention. Native restricted-role/isolation/interleaved
+commit tests pass; the actual CLI privately publishes both attention and a passing
+reconciled empty capture. Source/configuration fields and stored failure strings
+are omitted. [Operator guidance](operations/refresh-health.md) defines scope,
+thresholds, reader grants and fixed errors. Mutation, installed wheel, complete
+gates/audit and exact-head hosted proof are recorded with delivery before handoff.
+No DDL, dependency, CI, source/control call or live activation. Candidate O2 code
+does not change the merged-baseline 65-point assessment above.
+
+## Delivered V1-03 O1 (#147): workflow stage diagnostics
+
+Owner merged #147 at `6f706f1`; exact `f230ea0` is verified. Full local gates:
+2628 tests/93.34%, clean audit/security checks, 33 installed-wheel cases, restored
+redaction mutation and all three exact-head hosted jobs in run 44540966944 passed.
+No private worker/log configuration or source/schedule enablement followed.
 
 Owner merged #146 at `476f9be`; exact reviewed `ded3478` and files are verified
 on main. V1-02's current-profile recovery code checkpoint is complete. The next

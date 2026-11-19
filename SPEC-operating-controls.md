@@ -100,6 +100,8 @@ health, event formats, recovery actions and source budgets retain their contract
 - Read one REPEATABLE READ, READ ONLY PostgreSQL snapshot with five-second
   statement and two-second lock timeouts. No locks for control, source/engine
   calls, filesystem archive inspection, migration, grant or journal mutation.
+  Set local `row_security=off` to refuse reads that would be filtered by RLS;
+  this does not bypass access policy or grant access to hidden records.
   Decode saved policy intent and compatibility in that same snapshot without
   constructing a filesystem-validating execution policy.
 - Bound saved configuration to 16 KiB before driver deserialization; return at

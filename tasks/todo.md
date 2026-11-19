@@ -3,10 +3,10 @@
 ## V1-03 O2 — selected refresh-policy health
 
 - [x] Verify #147 reviewed tree on main `6f706f1`; freeze bounded O2 contract.
-- [ ] O2a: typed pure rules; age/clock/coverage/blocked-child budget regressions.
-- [ ] O2b: one bounded SQL snapshot; real restricted role, frozen interleaving,
+- [x] O2a: typed pure rules; age/clock/coverage/blocked-child budget regressions.
+- [x] O2b: one bounded SQL snapshot; real restricted role, frozen interleaving,
   actual read-only/timeouts, missing/corrupt/oversized evidence refusal.
-- [ ] O2c: actual CLI/private artifact/fixed errors, operator procedure, merged-
+- [x] O2c: actual CLI/private artifact/fixed errors, operator procedure, merged-
   baseline project/chapter assessment, restored mutation and installed wheel.
 - [ ] O2d: full gates/audit and exact-head hosted jobs; one review-ready PR.
 
