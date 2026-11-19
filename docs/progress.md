@@ -48,7 +48,7 @@ three jobs) passed. No DDL, dependency, CI, source/control call or live activati
 The 65-point assessment above is not yet re-scored for delivered O2; that
 reassessment is pending and must keep the unchanged weights.
 
-## V1-03 O3 candidate: runtime-role and evidence-protection audit
+## Delivered V1-03 O3 (#149): runtime-role and evidence-protection audit
 
 [O3](../SPEC-operating-controls.md#o3-runtime-role-and-evidence-protection-audit)
 adds `dataops access-audit` (read-only) and `dataops access-grants` (print-only),
@@ -56,9 +56,11 @@ both driven by one packaged contract of seven documented role profiles and a
 33-table classification (22 evidence, 11 control). The audit checks effective
 privileges, role attributes and evidence-trigger state; a new unclassified table
 fails closed. [Operator guidance](operations/access-audit.md) lists the grant
-matrix, reason codes and limits. Candidate code receives no progress credit until
-reviewed and delivered. It adds no migration, dependency, CI change or grant
-execution, and `ingest-worker`/`projector` profiles are a separate follow-up.
+matrix, reason codes and limits. Owner merged #149 at `fa4d772`; exact reviewed
+`90d395a` is verified on main and all three hosted jobs passed on PostgreSQL 17.
+It adds no migration, dependency, CI change or grant execution; no live role was
+audited or provisioned. `ingest-worker`/`projector` profiles are a separate
+follow-up. The 65-point assessment is not yet re-scored for O2/O3.
 
 Open finding: 15 of the 22 evidence tables (migrations 0001-0007) have no TRUNCATE
 trigger, so TRUNCATE there is guarded by withheld privileges only and the table
