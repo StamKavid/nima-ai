@@ -38,18 +38,29 @@ def contract() -> dict[str, Any]:
         raise ContractError("analytics_contract") from None
 
 
-def validate_output(body: bytes, *, metric: dict[str, object], observation_count: int) -> None:
-    """Gate shape and semantic binding; callers must reconcile originals first."""
+def bound_contract() -> dict[str, Any]:
+    """Return supported metadata only when its semantic snapshot matches the provider."""
     from nima.semantics.participation import definition
 
     try:
         value = contract()
         metadata = {entry["property"]: entry["value"] for entry in value["customProperties"]}
-        policy = definition()
         if value["id"] != CONTRACT_ID or canonical(
             metadata["nima.semanticDefinition"]
-        ) != canonical(policy):
+        ) != canonical(definition()):
             raise ContractError("analytics_contract")
+        return value
+    except (OSError, ValueError, KeyError, TypeError, RecursionError):
+        raise ContractError("analytics_contract") from None
+
+
+def validate_output(body: bytes, *, metric: dict[str, object], observation_count: int) -> None:
+    """Gate shape and semantic binding; callers must reconcile originals first."""
+    from nima.semantics.participation import definition
+
+    try:
+        value = bound_contract()
+        policy = definition()
         result = json.loads(body)
         Draft202012Validator(value_schema(value)).validate(result)
         expected_hash = hashlib.sha256(canonical(policy).encode()).hexdigest()

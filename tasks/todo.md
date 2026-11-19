@@ -1,5 +1,18 @@
 # Tasks
 
+## V1-01 VH1 — selected-artifact validation health
+
+- [x] Verify #142 and reviewed head on main `ef657aa`; freeze bounded health scope.
+- [x] VH1b: typed records/shared decoding and complete bounded read-only SQL cohort.
+- [x] VH1c: deterministic current-policy, latest-start, tie, age and clock rules.
+- [x] VH1d: actual CLI, fixed events/errors and operator guidance.
+- [x] VH1e SQL: actual restricted roles, interleaved-commit snapshot, old corruption,
+  count/byte bounds and transaction-level write refusal. Latest-failure guard
+  mutation fails its regression and is restored.
+- Installed wheel, full local gates/audit and exact-head hosted proof are required
+  before handoff; record exact observations with the delivery PR.
+- [ ] Owner review; no live journal setup, source acquisition or activation.
+
 ## V1-01 — first durable validation boundary
 
 - [x] H1: verify #139/#140 on main `73f8aa4`, identity and bounded contract.
@@ -15,7 +28,8 @@
 - Split delivery: provider `feature/validation-journal` to main; consumer
   `feature/readout-validation-history` initially targets the provider. Retarget
   consumer to main after verified provider merge before offering main delivery.
-- [ ] Owner review; other dataset boundaries/health aggregation and live journal
+- [x] Owner merged #141/#142; exact `2c9cbf6` reaches main `ef657aa`.
+- Other dataset boundaries/health aggregation and live journal
   deployment remain later. No source request, pilot migration or schedule.
 
 ## Checkpoint C10 — historical contract comparison
