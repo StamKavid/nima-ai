@@ -1,5 +1,17 @@
 # Tasks
 
+## V1-01 — first durable validation boundary
+
+- [x] H1: verify #139/#140 on main `73f8aa4`, identity and bounded contract.
+- [ ] H2: pure identities/states, additive 0010 and real limited-role journal tests.
+- [ ] H3: shared preparation, preserving existing publication bytes/errors.
+- [ ] H4: post-publication validation and read-only inspection CLI; actual SQL,
+  private files, failure/cached/fresh semantics and no source mutation.
+- [ ] H5: process-kill/concurrency and mutation proof, packaged resource check,
+  full gates/audit and final-head hosted evidence before review.
+- [ ] Owner review; other dataset boundaries/health aggregation and live journal
+  deployment remain later. No source request, pilot migration or schedule.
+
 ## Checkpoint C10 — historical contract comparison
 
 - [x] Verify #138 reaches main at `9d29845`; freeze committed catalogue and CI rules.
@@ -14,7 +26,8 @@
   bootstrap, rename, SemVer, strict JSON, limits and missing-history refusal.
 - C10e: real main comparison, full local gates/audit, final-head hosted evidence
   and a reviewable PR are required before handoff; record results in the PR.
-- [ ] Owner review. Durable result history, source freshness and source activation
+- [x] Owner merged #139 at `73f8aa4`; #140 roadmap reaches the same main.
+- Durable result history, source freshness and source activation
   remain separate work; this gate does not establish dataset correctness.
 
 ## Checkpoint C9 — KIMDIS input and normalized contracts

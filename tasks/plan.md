@@ -1,5 +1,16 @@
 # Delivery plan
 
+## Active V1-01 checkpoint: readout validation journal
+
+Owner merged #139/#140 at `73f8aa4`; exact reviewed code/roadmap reachability is
+verified. The owner requested continuation on 2026-11-19. Implement
+[the bounded history contract](../SPEC-validation-history.md) in sequential H1–H5
+slices: contract; policy/schema/journal; shared preparation; explicit verifier and
+inspection; failure/recovery/full gates. Preserve all older pending work. Two
+append-only journal tables are an explicit new schema proposal for PR review;
+apply only to disposable tests, never automatically to the private pilot.
+Post-publication verification preserves read-only publication and artifact bytes.
+
 ## Active checkpoint C10: historical contract comparison
 
 Owner merged #138 at `9d29845`; exact `4716e4b` reachability/files are verified on
