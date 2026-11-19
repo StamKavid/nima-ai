@@ -83,7 +83,7 @@ verified review-ready PR; the operational acceptance below remains separate.
 O1 (#147), O2 selected-policy health (#148) and the O3 runtime-role audit (#149,
 `fa4d772`) are owner-merged. In progress:
 [O3e worker role profiles](../../SPEC-operating-controls.md#o3e-worker-role-profiles)
-(`projector` delivered in #150, `collector` next). Migration 0013 (#151) added TRUNCATE
+(`projector` delivered in #150, `collector` in #152; further duties paused until they go live). Migration 0013 (#151) added TRUNCATE
 triggers to the 15 older evidence tables; applying it to a private database is an owner action. Runtime provisioning and off-host
 operations stay separate.
 

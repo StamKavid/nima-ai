@@ -2,7 +2,7 @@
 
 ## Current project and chapter position
 
-Merged main is `d3d80c7` after #151 (migration 0013 TRUNCATE guards), including exact `8da0c32`.
+Merged main is `7dfc7b1` after #152 (O3e-2 collector profile), including exact `580508e`.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
 recovery evolution, contract history and diagnostics earned four points). It has
@@ -16,7 +16,7 @@ Current chapter: **v0.1 dependable foundation / V1-03 operating controls**.
 Contract evolution/first durable validation boundary, current-profile recovery
 O1 diagnostics, O2 selected-policy health (#148), the O3 runtime-role audit (#149) and
 the O3e-1 `projector` profile (#150) are delivered. O3e adds worker role profiles proven
-by running the real worker; `collector` follows. Migration 0013 (#151, O3f) adds
+by running the real worker; `projector` (#150) and `collector` (#152) are delivered. Migration 0013 (#151, O3f) adds
 TRUNCATE guards to the 15 older evidence tables; it is not yet applied to any private
 database.
 Scoped runtime/operator setup, approved off-host restore and effective branch
@@ -71,16 +71,19 @@ disposable test databases.
 Open operational finding: the `quality` job has a 15-minute timeout, and the same commit
 takes about 9.7 minutes on a fast runner and over 14 on a slow one. The duplicate `push`
 run timed out on #148 and on #151 (the PR runs, which count, passed). More tests make
-this likelier. Two small CI changes are proposed and await owner approval; none is made.
+this likelier. The owner approved two small changes (O3g): push CI only for main and dev, and
+a 20-minute `quality` timeout. They are in review as a candidate; nothing is merged yet.
 
-## V1-03 O3e-2 candidate: collector access profile
+## Delivered V1-03 O3e-2 (#152): collector access profile
 
 The `collector` ceiling is derived from the real run-journal and page-commit SQL and
 proven by running the real `collect` and `resume` offline under exactly the printed
 grants (a clean run, a run with a quarantined record, and a resume), and by showing
 that removing any single privilege breaks at least one scenario. No sequence grant is
-needed. Candidate code earns no progress credit until reviewed and delivered; no live
-role was provisioned and no source request was made.
+needed. Owner merged #152 at `7dfc7b1`; exact `580508e` is verified on main, and hosted runs
+44593722293 and 44593665861 passed all three jobs on that head. No live role was provisioned
+and no source request was made. Remaining duties (GEMI importer, replay promotion, workflow
+and refresh engines) have no profile yet and are paused until they go live.
 
 ## Delivered V1-03 O3e-1 (#150): projector access profile
 
