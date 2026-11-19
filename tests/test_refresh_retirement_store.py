@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import psycopg
 import pytest
+from psycopg import sql
 from psycopg.conninfo import make_conninfo
 
 from nima.storage import postgres
@@ -39,7 +40,7 @@ def test_retire_preserves_gaps_requests_and_original_budget(pg_dsn: str, tmp_pat
     assert database_snapshot(pg_dsn) == after
 
 
-@pytest.mark.parametrize("operation", ["UPDATE", "DELETE", "TRUNCATE"])
+@pytest.mark.parametrize("operation", ["UPDATE", "DELETE", "TRUNCATE", "CASCADE"])
 def test_owner_cannot_rewrite_or_truncate_retirement(
     pg_dsn: str, tmp_path: Path, operation: str
 ) -> None:
@@ -49,6 +50,7 @@ def test_owner_cannot_rewrite_or_truncate_retirement(
         "UPDATE": "UPDATE nima.refresh_retirements SET reason=reason",
         "DELETE": "DELETE FROM nima.refresh_retirements",
         "TRUNCATE": "TRUNCATE nima.refresh_retirements",
+        "CASCADE": "TRUNCATE nima.refresh_policies CASCADE",
     }
     with psycopg.connect(pg_dsn) as c, pytest.raises(psycopg.errors.ObjectNotInPrerequisiteState):
         c.execute(statements[operation])
@@ -104,6 +106,36 @@ def test_policy_lock_and_fixed_invalid_input_never_leave_a_decision(
     with pytest.raises(WorkflowError, match="^policy_unavailable$"):
         retire(pg_dsn, uuid4(), "operator_stop")
     assert database_snapshot(pg_dsn) == before
+
+
+def test_narrow_nonowner_operator_needs_no_source_write_privilege(
+    pg_dsn: str, tmp_path: Path
+) -> None:
+    _, policy = new_policy(pg_dsn, tmp_path / "raw")
+    role = "nima_retire_test_" + uuid4().hex
+    with psycopg.connect(pg_dsn, autocommit=True) as admin:
+        admin.execute(sql.SQL("CREATE ROLE {} LOGIN").format(sql.Identifier(role)))
+        try:
+            admin.execute(
+                sql.SQL("""
+                GRANT USAGE ON SCHEMA nima TO {role};
+                GRANT SELECT ON nima.schema_migrations,nima.refresh_policies,
+                    nima.refresh_retirements TO {role};
+                GRANT UPDATE(state) ON nima.refresh_policies TO {role};
+                GRANT INSERT ON nima.refresh_retirements,nima.refresh_events TO {role};
+                GRANT USAGE ON SEQUENCE nima.refresh_events_event_id_seq TO {role}
+                """).format(role=sql.Identifier(role))
+            )
+            limited = make_conninfo(pg_dsn, user=role)
+            assert retire(limited, policy, "operator_stop")["retired"] is True
+            assert admin.execute(
+                "SELECT database_principal FROM nima.refresh_retirements"
+            ).fetchone() == (role,)
+            with psycopg.connect(limited) as c, pytest.raises(psycopg.errors.InsufficientPrivilege):
+                c.execute("INSERT INTO nima.raw_objects VALUES (repeat('a',64),1)")
+        finally:
+            admin.execute(sql.SQL("DROP OWNED BY {}").format(sql.Identifier(role)))
+            admin.execute(sql.SQL("DROP ROLE {}").format(sql.Identifier(role)))
 
 
 def test_upgrade_ten_preserves_every_existing_table_and_checksum(

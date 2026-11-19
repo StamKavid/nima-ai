@@ -1,6 +1,24 @@
 # Capability progress: 2026-11-19
 
-## V1-02 R1 candidate: bounded same-request refresh recovery
+## V1-02 R2 candidate: audited permanent retirement
+
+Owner merged #144 at `82ded43`, including exact reviewed `5e90a32` and identical
+files. [Permanent retirement](operations/refresh-recovery.md#permanently-retire-a-policy)
+adds an immutable operator decision and SQL reservation fences. It stops future
+allocations/dispatch intents without changing failed children, budgets or missing
+coverage. Engine pause acknowledgement stays separate; already reserved work can
+still finish. Successor linking/new-budget authorization remains later work.
+
+Actual upgrade/owner/narrow-role, snapshot, before/after-commit SIGKILL and
+concurrent reservation tests pass. Both SQL-fence and repeatable-read quota guard
+mutations fail regressions and are restored. Dispatch control transactions now
+explicitly use READ COMMITTED; dataset snapshot isolation stays unchanged.
+Migration 0011 adds one table and guards; earlier bodies/source rows remain.
+Installed wheel, full gates/audit and exact-head hosted results are recorded with
+delivery before handoff. No private migration, retirement, source request or
+schedule activation. This is R2, not completed policy succession or V1-02.
+
+## Delivered V1-02 R1 (#144): bounded same-request refresh recovery
 
 Owner-merged #143 reaches main `435326a`, including exact reviewed `e29e1cd`.
 Saved-intent/default/version compatibility already exists. This increment adds

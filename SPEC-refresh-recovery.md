@@ -135,8 +135,9 @@ Application retirement and dispatch reservation explicitly use READ COMMITTED
 control transactions: state/count checks after locks see preceding commits even
 when connection defaults are repeatable-read. Dataset read snapshots keep their
 existing isolation. Test both defaults, including the final recovery quota slot.
-Direct SQL receives the trigger's fixed 55000 refusal; application paths return
-`policy_retired` before RPC. Source/processing version compatibility stays distinct
+Direct SQL receives the trigger's fixed 55000 refusal; application dispatch maps
+that refusal to `policy_retired` before RPC. Other invalid intent/version checks
+retain their existing precedence. Source/processing compatibility stays distinct
 from retirement. Historical incompatible policies remain stoppable.
 
 `refresh show` reads retirement with state/coverage in its repeatable-read snapshot;

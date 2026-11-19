@@ -3,11 +3,12 @@
 ## V1-02 R2 — permanent policy retirement
 
 - [x] Verify #144 reviewed tree reaches main `82ded43`; freeze retirement contract.
-- [ ] R2b: additive schema/API/shared lock, immutable stamped decision and old-data
+- [x] R2b: additive schema/API/shared lock, immutable stamped decision and old-data
   upgrade, roles, atomicity and concurrent control proof.
-- [ ] R2c: SQL/Python allocation/dispatch fences, snapshot reporting and SQL-only
+- [x] R2c: SQL/Python allocation/dispatch fences, snapshot reporting and SQL-only
   CLI; preserve normal R1 recovery and distinguish engine acknowledgement.
-- [ ] R2d: SIGKILL before/after commit and fence mutation restored.
+- [x] R2d: SIGKILL before/after commit; SQL fence and repeatable-read quota guard
+  mutations fail regressions and are restored.
 - Installed wheel, full gates/audit and exact-head hosted evidence are required
   before handoff; record observations with the delivery PR.
 - [ ] Owner review; no private migration, live retirement or source activation.
