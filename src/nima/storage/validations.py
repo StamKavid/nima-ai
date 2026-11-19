@@ -7,9 +7,18 @@ from typing import cast
 from uuid import UUID
 
 import psycopg
+from psycopg import sql
 from psycopg.types.json import Jsonb
 
-from nima.contracts.history import HistoryError, Intent, Outcome, decode_intent, decode_outcome
+from nima.contracts.history import (
+    HistoryError,
+    Intent,
+    Outcome,
+    ValidationRecord,
+    decode_intent,
+    decode_outcome,
+    valid_digest,
+)
 from nima.storage.connection import Connection, connect
 from nima.storage.postgres import MigrationError, validate_schema
 
@@ -54,14 +63,7 @@ def _database(dsn: str, *, write: bool) -> Iterator[Connection]:
         raise HistoryError("validation_database") from None
 
 
-def _read(c: Connection, attempt: UUID) -> dict[str, object]:
-    row = c.execute(
-        """SELECT a.intent_sha256,a.document,a.started_at,
-        o.outcome_sha256,o.document,o.recorded_at FROM nima_validation.attempts a
-        LEFT JOIN nima_validation.outcomes o USING (attempt_id,intent_sha256)
-        WHERE a.attempt_id=%s""",
-        (attempt,),
-    ).fetchone()
+def _record(row: tuple[object, ...] | None, attempt: UUID) -> ValidationRecord:
     if row is None:
         raise HistoryError("validation_unknown")
     intent = decode_intent(row[1])
@@ -70,17 +72,72 @@ def _read(c: Connection, attempt: UUID) -> dict[str, object]:
     result = None if row[4] is None else decode_outcome(row[4])
     if result is not None and (result.intent_sha256 != intent.digest or result.digest != row[3]):
         raise HistoryError("validation_integrity")
-    return {
-        "version": "nima-validation-history-v1",
-        "attempt_id": str(attempt),
-        "intent_sha256": intent.digest,
-        "intent": intent.payload(),
-        "started_at": cast(datetime, row[2]).isoformat(),
-        "recorded_at": None if row[5] is None else cast(datetime, row[5]).isoformat(),
-        "outcome_sha256": row[3],
-        "outcome": None if result is None else result.payload(),
-        "status": "pending" if result is None else result.status,
-    }
+    return ValidationRecord(
+        attempt, intent, cast(datetime, row[2]), result, cast(datetime | None, row[5])
+    )
+
+
+_COLUMNS = sql.SQL("""a.intent_sha256,a.document,a.started_at,
+    o.outcome_sha256,o.document,o.recorded_at""")
+
+
+def _read(c: Connection, attempt: UUID) -> dict[str, object]:
+    row = c.execute(
+        sql.SQL("SELECT ")
+        + _COLUMNS
+        + sql.SQL(""" FROM nima_validation.attempts a
+        LEFT JOIN nima_validation.outcomes o USING (attempt_id,intent_sha256)
+        WHERE a.attempt_id=%s"""),
+        (attempt,),
+    ).fetchone()
+    return _record(row, attempt).payload()
+
+
+MAX_HISTORY_ATTEMPTS = 1000
+MAX_HISTORY_BYTES = 8 * 1024 * 1024
+
+
+def _history_size(c: Connection, artifact: str) -> int:
+    row = c.execute(
+        """SELECT count(*),coalesce(sum(octet_length(a.document::text)
+        +coalesce(octet_length(o.document::text),0)),0)
+        FROM nima_validation.attempts a
+        LEFT JOIN nima_validation.outcomes o USING (attempt_id,intent_sha256)
+        WHERE a.document->>'artifact_sha256'=%s""",
+        (artifact,),
+    ).fetchone()
+    if row is None:
+        raise HistoryError("validation_integrity")
+    count, size = cast(int, row[0]), cast(int, row[1])
+    if count > MAX_HISTORY_ATTEMPTS or size > MAX_HISTORY_BYTES:
+        raise HistoryError("validation_limit")
+    return count
+
+
+def read_validation_history(
+    dsn: str, artifact: str
+) -> tuple[datetime, tuple[ValidationRecord, ...]]:
+    if not valid_digest(artifact):
+        raise HistoryError("validation_configuration")
+    with _database(dsn, write=False) as c, c.transaction():
+        c.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+        c.execute("SET LOCAL statement_timeout=5000")
+        c.execute("SET LOCAL lock_timeout=2000")
+        clock = c.execute("SELECT clock_timestamp()").fetchone()
+        if clock is None:
+            raise HistoryError("validation_integrity")
+        count = _history_size(c, artifact)
+        rows = c.execute(
+            sql.SQL("SELECT a.attempt_id,")
+            + _COLUMNS
+            + sql.SQL(""" FROM nima_validation.attempts a
+            LEFT JOIN nima_validation.outcomes o USING (attempt_id,intent_sha256)
+            WHERE a.document->>'artifact_sha256'=%s ORDER BY a.attempt_id"""),
+            (artifact,),
+        ).fetchall()
+        if len(rows) != count:
+            raise HistoryError("validation_integrity")
+        return cast(datetime, clock[0]), tuple(_record(row[1:], cast(UUID, row[0])) for row in rows)
 
 
 def show_validation(dsn: str, attempt: UUID) -> dict[str, object]:

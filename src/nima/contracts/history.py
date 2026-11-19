@@ -3,7 +3,9 @@
 import hashlib
 import re
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from typing import cast
+from uuid import UUID
 
 from nima.contracts.schema import canonical
 
@@ -146,3 +148,53 @@ def decode_intent(value: object) -> Intent:
         return result
     except (ValueError, TypeError, KeyError):
         raise HistoryError("validation_integrity") from None
+
+
+@dataclass(frozen=True)
+class ValidationRecord:
+    attempt_id: UUID
+    intent: Intent
+    started_at: datetime
+    outcome: Outcome | None
+    recorded_at: datetime | None
+
+    def __post_init__(self) -> None:
+        if (
+            not isinstance(self.attempt_id, UUID)
+            or not isinstance(self.intent, Intent)
+            or not isinstance(self.started_at, datetime)
+            or self.started_at.utcoffset() is None
+            or (self.outcome is None) != (self.recorded_at is None)
+            or (
+                self.recorded_at is not None
+                and (
+                    not isinstance(self.recorded_at, datetime)
+                    or self.recorded_at.utcoffset() is None
+                )
+            )
+            or (
+                self.outcome is not None
+                and (
+                    not isinstance(self.outcome, Outcome)
+                    or self.outcome.intent_sha256 != self.intent.digest
+                )
+            )
+        ):
+            raise HistoryError("validation_integrity")
+
+    @property
+    def status(self) -> str:
+        return "pending" if self.outcome is None else self.outcome.status
+
+    def payload(self) -> dict[str, object]:
+        return {
+            "version": "nima-validation-history-v1",
+            "attempt_id": str(self.attempt_id),
+            "intent_sha256": self.intent.digest,
+            "intent": self.intent.payload(),
+            "started_at": self.started_at.isoformat(),
+            "recorded_at": None if self.recorded_at is None else self.recorded_at.isoformat(),
+            "outcome_sha256": None if self.outcome is None else self.outcome.digest,
+            "outcome": None if self.outcome is None else self.outcome.payload(),
+            "status": self.status,
+        }
