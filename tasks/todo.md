@@ -4,11 +4,18 @@
 
 - [x] Spec approved 2026-11-19 (`SPEC-source-boundaries.md`): test both second-adapter kinds,
   shrink-only baseline for existing cycles, per-adapter versions.
-- [x] S1 freeze: `scripts/dependency_graph.py`, committed `tests/dependency_baseline.json`,
-  21 tests, 100% line/branch on the module; real-repo mutations (a forbidden import and a new
-  cycle) fail the check and are restored. Baseline today: six engine-to-source imports (three
-  KIMDIS, three GEMI), one five-package cycle group, two module cycles. Hosted proof pending.
-- [ ] S2 protocol: `nima/sources/base.py` and `KimdisAdapter`; conformance on KIMDIS.
+- [x] S1 freeze: owner merged #154 at `d3b0e90`; exact `d2febce` verified on main. Hosted run
+  44606219260 was the only run on that head and passed all three jobs (`quality` 12 min 46 s).
+  `scripts/dependency_graph.py`, committed `tests/dependency_baseline.json`, 21 tests, 100%
+  line/branch; real-repo mutations (a forbidden import and a new cycle) fail and are restored.
+  Baseline: six engine-to-source imports (three KIMDIS, three GEMI), one five-package cycle
+  group, two module cycles.
+- [x] S2 protocol (local): `nima/sources/base.py` (neutral, imports nothing) and `KimdisAdapter`
+  wrapping the unchanged parser; `InvalidRecord` now subclasses `SourcePageError`. 12 parser
+  conformance cases plus 4 database equivalence cases proving the adapter's output equals what
+  the current page store persists (rows, hashes, quarantine, source ids). Money-as-Decimal and
+  wrong-record-hash mutations fail and are restored; the S1 dependency check stays clean; 295
+  related existing tests pass. Remaining: hosted exact-head proof, then owner review.
 - [ ] S3 engine on the protocol: page store, collector, replay take the adapter; byte-for-byte
   regression; collector/projector access profiles unchanged.
 - [ ] S4 two synthetic adapters of different shape; conformance on all three.

@@ -1,6 +1,6 @@
 # Spec: source boundaries for a second feed — V1-04
 
-Status: **approved by the owner on 2026-11-19; slice S1 in progress.** Decisions below. Follows
+Status: **approved by the owner on 2026-11-19; S1 delivered (#154); S2 in review.** Decisions below. Follows
 #152 (`7dfc7b1`). This is backlog package V1-04 (`docs/roadmap/agent-backlog.md`), the first
 step of v0.2. It prepares a second source (Diavgeia decisions, V1-06) without copying the
 KIMDIS stack, and does not fetch, parse or activate any new source.
@@ -119,7 +119,10 @@ uv run --frozen mypy && just check && just audit
    change. `scripts/dependency_graph.py`, `tests/dependency_baseline.json`,
    `tests/test_dependency_graph.py`.
 2. **S2 protocol:** `base.py` and `KimdisAdapter` wrapping the existing functions; no engine
-   change; KIMDIS conformance passes.
+   change; KIMDIS conformance passes. `base.py` carries the page types, the `SourceAdapter`
+   protocol and `SourcePageError`; the adapter does the record conversion the page store does
+   today (evidence removed, money as exact decimal text), proven equal by a database test.
+   Version strings stay the existing process-wide constants until S3.
 3. **S3 engine on the protocol:** page store, collector and replay take the adapter with
    KIMDIS as the default; all existing tests and the byte-for-byte check pass.
 4. **S4 second adapters:** two synthetic adapters of deliberately different shape (for

@@ -2,8 +2,7 @@
 
 ## Current project and chapter position
 
-Merged main is `e2ab1a5` after #153 (CI trigger scope and 20-minute quality timeout), including
-exact `a73aadf`.
+Merged main is `d3b0e90` after #154 (V1-04 S1 import-graph check), including exact `d2febce`.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
 recovery evolution, contract history and diagnostics earned four points). It has
@@ -76,14 +75,17 @@ main and dev and `quality` has 20 minutes. Its own hosted run 44600852305 was th
 that head and `quality` took 15 min 23 s, which would have exceeded the old limit. Headroom is
 about 4.6 minutes, so parallel tests are the next option if a run passes about 18 minutes.
 
-## V1-04 candidate: source boundaries for a second feed
+## V1-04: source boundaries for a second feed (S1 delivered, S2 candidate)
 
-The owner approved [the spec](../SPEC-source-boundaries.md). Slice S1 adds an import-graph
-check with a committed shrink-only baseline: today six engine modules import a concrete source
-(three KIMDIS, three GEMI), one five-package import cycle group and two module cycles exist,
-and the check fails on any new one. No behavior change; later slices move the engine onto a
-`SourceAdapter` protocol and prove it with two synthetic adapters. A real second dataset is a
-gated, optional step. Candidate code earns no progress credit until reviewed and delivered.
+The owner approved [the spec](../SPEC-source-boundaries.md). Slice S1 (#154, merged at
+`d3b0e90`, hosted run 44606219260) added an import-graph check with a committed shrink-only
+baseline: six engine modules import a concrete source (three KIMDIS, three GEMI), one
+five-package import cycle group and two module cycles exist, and the check fails on any new one.
+Slice S2 is a candidate: a neutral `nima/sources/base.py` (page types, `SourceAdapter` protocol,
+`SourcePageError`) and a `KimdisAdapter` that wraps the unchanged parser, proven equal to what
+the page store persists today; the engine is not changed yet (S3). Later slices prove the
+protocol with two synthetic adapters. A real second dataset is a gated, optional step. Candidate
+code earns no progress credit until reviewed and delivered.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 
