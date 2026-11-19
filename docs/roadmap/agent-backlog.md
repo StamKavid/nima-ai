@@ -77,6 +77,10 @@ sweeps remain separately gated by actual source/version evidence.
 
 ## V1-03 — operating controls
 
+First bounded increment: [O1 workflow stage diagnostics](../../SPEC-operating-controls.md).
+V1-02 recovery code is owner-merged through #146 (`476f9be`). O1 stops at a
+verified review-ready PR; the operational acceptance below remains separate.
+
 Extend existing structured DataOps boundary events, selected-run health, scoped
 roles and local restore runbook. Do not label those missing wholesale. Define
 per-stage IDs, fixed failure reasons, source observation age versus processing
