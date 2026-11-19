@@ -1,5 +1,15 @@
 # Delivery plan
 
+## Active V1-02 R2: audited policy retirement
+
+Verify owner-merged #144 at `82ded43`, including exact `5e90a32` and identical
+tree. Follow [R2](../SPEC-refresh-recovery.md#r2-permanent-audited-policy-retirement):
+additive 0011/control decision API and shared policy lock; SQL/Python reservation
+fences; snapshot inspection and SQL-only CLI; then process death, mutation, wheel,
+full gates/audit and exact-head hosted evidence. Preserve all prior pending work.
+Only disposable tests receive DDL. Retain gaps/budgets and separate engine pause
+acknowledgement. Successor linking and explicit new-budget authorization stay later.
+
 ## Active V1-02 R1: bounded refresh-child recovery
 
 Owner-merged #143 reaches main `435326a`, including exact `e29e1cd` and identical

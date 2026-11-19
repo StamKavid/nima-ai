@@ -15,6 +15,8 @@ from nima.ingestion.config import CONNECTOR_VERSION, Query
 from nima.intent import IntentError, RefreshIntent, refresh_intent
 from nima.orchestration.refresh import CRON, TIMEZONE, VERSION, Policy, select_dates
 from nima.storage.postgres import NORMALIZER_VERSION, Connection
+from nima.storage.refresh_lifecycle import retirement
+from nima.storage.refresh_lock import policy_session
 from nima.storage.workflows import RequestStore, WorkflowError, _db
 
 
@@ -148,10 +150,12 @@ class RefreshStore:
             missing = missing_dates(
                 connection, policy_id, policy.start, date.fromordinal(day.toordinal() - 1)
             )
+            retired = retirement(connection, policy_id) is not None
         return {
             "policy_id": str(policy_id),
             "business_date": day.isoformat(),
             "query_dates": [d.isoformat() for d in select_dates(policy, day, missing)],
+            "retired": retired,
             **self.compatibility(policy_id),
         }
 
@@ -159,10 +163,7 @@ class RefreshStore:
     def lease(self, policy_id: UUID) -> Iterator["RefreshSession"]:
         saved = self.saved(policy_id)
         policy = Policy(saved.start, saved.buyers, saved.root)
-        key = int.from_bytes(hashlib.sha256(b"refresh" + policy_id.bytes).digest()[:8], signed=True)
-        with _db(self.dsn) as connection:
-            if connection.execute("SELECT pg_try_advisory_lock(%s)", (key,)).fetchone() != (True,):
-                raise WorkflowError("policy_busy", True)
+        with policy_session(self.dsn, policy_id) as connection:
             yield RefreshSession(self, connection, policy_id, policy, saved)
 
 
@@ -184,6 +185,8 @@ class RefreshSession:
         )
 
     def require_execution(self) -> None:
+        if retirement(self.connection, self.policy_id) is not None:
+            raise WorkflowError("policy_retired")
         failure = self.saved.failure(CONNECTOR_VERSION, NORMALIZER_VERSION, VERSION, CRON, TIMEZONE)
         if failure:
             raise WorkflowError(failure)

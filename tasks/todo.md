@@ -1,5 +1,20 @@
 # Tasks
 
+## V1-02 R2 — permanent policy retirement
+
+- [x] Verify #144 reviewed tree reaches main `82ded43`; freeze retirement contract.
+- [x] R2b: additive schema/API/shared lock, immutable stamped decision and old-data
+  upgrade, roles, atomicity and concurrent control proof.
+- [x] R2c: SQL/Python allocation/dispatch fences, snapshot reporting and SQL-only
+  CLI; preserve normal R1 recovery and distinguish engine acknowledgement.
+- [x] R2d: SIGKILL before/after commit; SQL fence and repeatable-read quota guard
+  mutations fail regressions and are restored.
+- Installed wheel, full gates/audit and exact-head hosted evidence are required
+  before handoff; record observations with the delivery PR.
+- [ ] Owner review; no private migration, live retirement or source activation.
+- [ ] Later: successor linking and explicit new-budget authorization; retirement
+  does not complete windows or create a new policy/request.
+
 ## V1-02 R1 — bounded same-request refresh recovery
 
 - [x] Verify #143 exact reviewed tree on main `435326a`; inspect existing intent
@@ -8,8 +23,9 @@
 - [x] R1c: enabled compatible policy/open-child control and actual CLI route.
 - [x] R1d: SQL locks/concurrency/unchanged history, unknown RPC, process death,
   actual local runner and evidence-based completion; budget mutation restored.
-- [ ] Installed-wheel, complete local gates/audit and final-head hosted evidence.
-- [ ] Owner review; no live recovery or source/schedule activation.
+- [x] Installed-wheel, complete local gates/audit and final-head hosted evidence
+  recorded in #144; owner merged exact `5e90a32` at main `82ded43`.
+- [x] Owner review via #144; no live recovery or source/schedule activation.
 - [ ] Later V1-02: separately specify audited exhausted-child resolution and
   policy supersession; preserve original budgets and terminal history.
 

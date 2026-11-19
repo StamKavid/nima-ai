@@ -53,3 +53,60 @@ retains the shared CLI diagnostics; keep credentials in environment settings.
 No SQL/engine
 atomic commit or automatic retry is claimed. See the [R1 contract](../../SPEC-refresh-recovery.md)
 for synthetic process/SQL/control verification and the remaining V1-02 scope.
+
+## Permanently retire a policy
+
+After explicit reviewed migration 0011 and operator grants, retirement is SQL-only:
+
+```sh
+uv run --frozen python -m nima refresh retire POLICY_UUID --reason budget_exhausted
+uv run --frozen python -m nima refresh show POLICY_UUID
+```
+
+Use `NIMA_DATABASE_URL` through protected environment settings. The other reasons
+are `processing_incompatible` and `operator_stop`; these are operator
+classifications, not verified data-quality findings. Retirement does not decode
+stored source configuration or inspect archives. No live retirement/migration is
+part of the code PR. Back up/restore using the existing procedure before live DDL.
+
+The database stamps one immutable decision/time/effective principal. Same reason
+reuses that decision; a different reason gives `retirement_conflict`. There is no
+unretire. The decision survives attempted owner UPDATE/DELETE/TRUNCATE, including
+parent-policy TRUNCATE CASCADE. This is a trusted database audit, not protection
+against an administrator changing DDL. Principal is stored in SQL, omitted from
+terminal summaries. No source data, request ID, clock, counter or window changes.
+
+Retirement closes the SQL reservation gate atomically. It keeps an acknowledged
+paused policy paused; otherwise `state=pending` records required engine pause
+acknowledgement. New cycles/windows, enable updates and linked child dispatch
+reservations are refused, including the general manual workflow path. Already
+reserved sends or accepted/running jobs can still finish; retirement is not
+cancellation. Independent collectors require the existing operator stop procedure.
+
+If schedule reconciliation is required, run the existing explicit
+`refresh pause POLICY_UUID` in the configured worker environment. Engine failure
+leaves reconciliation pending and the retirement gate closed. `refresh show`
+keeps retirement, processor compatibility and schedule state separate. It samples
+retirement with state/coverage in one read-only repeatable-read snapshot. Missing
+days and unfinished children remain visible; retirement never completes them.
+`refresh plan` remains a date preview and exposes a retirement flag.
+
+The narrow retirement operator needs existing migration/schema access plus:
+
+```sql
+GRANT USAGE ON SCHEMA nima TO RETIREMENT_OPERATOR;
+GRANT SELECT ON nima.schema_migrations,nima.refresh_policies,
+    nima.refresh_retirements TO RETIREMENT_OPERATOR;
+GRANT UPDATE(state) ON nima.refresh_policies TO RETIREMENT_OPERATOR;
+GRANT INSERT ON nima.refresh_retirements,nima.refresh_events TO RETIREMENT_OPERATOR;
+GRANT USAGE ON SEQUENCE nima.refresh_events_event_id_seq TO RETIREMENT_OPERATOR;
+```
+
+The role name is a placeholder; no role/grant is created automatically. Existing
+inspection roles need SELECT on the new table as well as their prior read grants.
+Other worker/inspection operations keep their own grants. The narrow retirement
+role was tested without source-table INSERT permission. Migration 0011 adds one
+control table (27 total in `nima`); original migration bodies remain unchanged.
+
+Successor linking and explicit new-budget authorization remain a later increment.
+Retirement creates no replacement policy/request and transfers no coverage.

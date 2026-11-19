@@ -7,6 +7,7 @@ from uuid import UUID
 from nima.orchestration.pipeline import finalize_request
 from nima.orchestration.refresh import select_dates
 from nima.storage.refresh import RefreshSession, RefreshStore, missing_dates
+from nima.storage.refresh_lifecycle import retirement
 from nima.storage.workflows import RequestStore, WorkflowError, _db
 
 
@@ -72,6 +73,7 @@ def show(store: RefreshStore, policy_id: UUID, day: date) -> dict[str, object]:
         ).fetchone()
         if state is None:
             raise WorkflowError("policy_unavailable")
+        retired = retirement(connection, policy_id)
         missing = missing_dates(connection, policy_id, policy.start, end)
         count = connection.execute(
             "SELECT count(DISTINCT query_date) FROM nima.refresh_windows "
@@ -118,13 +120,19 @@ def show(store: RefreshStore, policy_id: UUID, day: date) -> dict[str, object]:
             blocked = "dispatch_unknown"
         elif any(not r[3] and r[4] in {"partial", "failed", "deferred"} for r in children):
             blocked = "child_incomplete"
+    if retired is not None:
+        blocked = "policy_retired"
     fresh = sum(bool(r["reobserved"]) for r in recent)
     through = (missing[0] - timedelta(days=1)) if missing else end
     return {
         "policy_id": str(policy_id),
         "state": state[0],
         "enabled": state[0] == "enabled",
-        "execution_enabled": state[0] == "enabled" and compatibility["execution_compatible"],
+        "execution_enabled": state[0] == "enabled"
+        and compatibility["execution_compatible"]
+        and retired is None,
+        "retired": retired is not None,
+        "retirement": retired,
         **compatibility,
         "schedule_reconciliation": "required" if state[0] == "pending" else "last_acknowledged",
         "business_date": day.isoformat(),

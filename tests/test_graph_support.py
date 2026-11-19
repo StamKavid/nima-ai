@@ -1,4 +1,4 @@
-"""All 26 authoritative relations; retain the existing 23-table source helper."""
+"""Authoritative relations, including retirement when installed; retain the source helper."""
 
 import psycopg
 from psycopg import sql
@@ -9,6 +9,15 @@ from tests.test_identity_review_support import source_snapshot
 def database_snapshot(dsn: str) -> dict[str, list[object]]:
     source = source_snapshot(dsn)
     with psycopg.connect(dsn) as connection:
+        tables: tuple[str, ...] = (
+            "identity_entities",
+            "identity_review_events",
+            "identity_review_heads",
+        )
+        if connection.execute("SELECT to_regclass('nima.refresh_retirements')").fetchone() != (
+            None,
+        ):
+            tables += ("refresh_retirements",)
         return {
             **source,
             **{
@@ -20,10 +29,6 @@ def database_snapshot(dsn: str) -> dict[str, list[object]]:
                         ).format(sql.Identifier(table))
                     ).fetchall()
                 ]
-                for table in (
-                    "identity_entities",
-                    "identity_review_events",
-                    "identity_review_heads",
-                )
+                for table in tables
             },
         }

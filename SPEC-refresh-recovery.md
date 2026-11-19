@@ -91,3 +91,67 @@ Use `uv run --frozen pytest tests/test_refresh_recovery*.py`, existing workflow/
 refresh/intent regressions, installed-wheel execution, `just check`, `just audit`
 and final-head hosted jobs before owner review. Record exact synthetic verification
 with delivery. Keep original source evidence/private operational results outside Git.
+
+## R2: permanent, audited policy retirement
+
+Owner merged #144 at `82ded43a`, including exact reviewed `5e90a32`, and requested
+continuation on 2026-11-19. R2 stops future reservations for a retired policy;
+it is not a budget renewal, source cancellation or successor-policy operation.
+
+```sh
+uv run --frozen python -m nima refresh retire POLICY_UUID --reason budget_exhausted
+```
+
+Reasons are fixed operator classifications: `budget_exhausted`,
+`processing_incompatible`, `operator_stop`. They do not certify the condition.
+Use only `NIMA_DATABASE_URL`; retirement does not decode source intent, inspect
+archives, load Prefect or issue RPC/source requests. Invalid reason/UUID input
+fails before writing. Retire on an existing policy only; repeated same-reason
+calls reuse the original decision/time, different reasons conflict. There is no
+unretire. Approval is review of this code/migration, not a live retirement.
+
+Add migration 0011: one `nima.refresh_retirements` row per policy, with a policy
+FK, checked reason, database-stamped timestamp and effective database principal.
+Reject UPDATE/DELETE/TRUNCATE even for the owner. Preserve all migration 1–10
+bodies and every existing source/request/cycle/window/budget identity. Schema
+`nima` grows from 26 to 27 tables; adjust exact inventory assertions accordingly.
+No dependency, CI, grant, private deployment or schedule activation change.
+
+In one transaction, retirement records the decision and closes the SQL gate:
+keep already acknowledged `paused` state; otherwise set `pending`, and append the
+existing state event. It does not contact the engine. Pending means schedule
+pause acknowledgement remains required; the existing explicit `refresh pause`
+operation can finish that reconciliation. Failed RPC cannot reopen retirement.
+
+Serialize retirement with existing per-policy controls. PostgreSQL row locks
+also serialize retirement with cycle/window/dispatch INSERTs and enable updates;
+triggers reject these new reservations after retirement, including general manual
+workflow dispatch. Pending/paused updates and acknowledgements of earlier
+reservations remain allowed. A committed reservation can still send/finish after
+retirement; there is no distributed engine/SQL cancellation claim. Independent
+collectors remain subject to the existing operator stop procedure.
+
+Application retirement and dispatch reservation explicitly use READ COMMITTED
+control transactions: state/count checks after locks see preceding commits even
+when connection defaults are repeatable-read. Dataset read snapshots keep their
+existing isolation. Test both defaults, including the final recovery quota slot.
+Direct SQL receives the trigger's fixed 55000 refusal; application dispatch maps
+that refusal to `policy_retired` before RPC. Other invalid intent/version checks
+retain their existing precedence. Source/processing compatibility stays distinct
+from retirement. Historical incompatible policies remain stoppable.
+
+`refresh show` reads retirement with state/coverage in its repeatable-read snapshot;
+expose `retired`, reason/time, `execution_enabled=false`, and a retirement block
+reason. Preserve unfinished children, source observation times and missing days.
+Plan remains a preview, adding a retirement flag. Retire output includes version,
+policy ID, reason/time, reused flag and schedule reconciliation state, omitting
+database principal/configuration. Existing operational error/exit rules remain;
+new fixed errors are `retirement_reason` and `retirement_conflict`.
+
+R2a: contract/ADR/plan. R2b: schema/shared lock/retirement API plus actual immutable,
+upgrade/role/atomicity/race tests. R2c: execution fences/inspection/CLI and no-RPC
+tests, preserving R1 behavior for active policies. R2d: process death before/after
+commit, deliberate fence mutation restored, installed wheel, full local gates/
+audit and exact-head hosted proof before owner review. Test actual PostgreSQL
+and synthetic fixtures only. Successor linking, new-budget authorization and
+terminal child/cycle completion remain later; retirement cannot fill a gap.

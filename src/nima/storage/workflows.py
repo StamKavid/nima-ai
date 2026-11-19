@@ -49,6 +49,10 @@ def _db(dsn: str) -> Iterator[Connection]:
         raise WorkflowError("database_schema") from None
     except CheckpointError:
         raise WorkflowError("run_unavailable") from None
+    except psycopg.errors.ObjectNotInPrerequisiteState as error:
+        if error.diag.constraint_name == "refresh_policy_live":
+            raise WorkflowError("policy_retired") from None
+        raise WorkflowError("database", True) from None
     except psycopg.Error:
         raise WorkflowError("database", True) from None
 
@@ -287,6 +291,7 @@ class RequestStore:
         self.show(request)
         dispatch = uuid4()
         with _db(self.dsn) as connection, connection.transaction():
+            connection.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED")
             if recovery:
                 row = connection.execute(
                     "SELECT status,started_at,executions,attempts,projection_batches "
