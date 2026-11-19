@@ -25,14 +25,18 @@ less is fine; holding more is attention.
 | `analytics-reader` | schema_migrations, ingest_runs, run_pages, raw_objects, observations, record_versions, quarantine, projection_contracts/mentions/receipts | none |
 | `run-health-reader` | schema_migrations, ingest_runs, run_pages, observations, projection_receipts, workflow_requests | none |
 | `refresh-health-reader` | schema_migrations, refresh_policies/cycles/windows/retirements, workflow_requests/dispatches | none |
+| `projector` | schema_migrations, outbox, observations, record_versions, projection_receipts, projection_contracts (read); projection_contracts, projection_mentions, projection_receipts (insert) | INSERT projection tables; UPDATE(delivered_at) on outbox only; no sequence |
 | `validation-reader` | schema_migrations; `nima_validation` attempts, outcomes | none |
 | `validation-writer` | as the reader | INSERT on `nima_validation` attempts, outcomes |
 | `retirement-operator` | schema_migrations, refresh_policies, refresh_retirements | INSERT retirements and events; UPDATE(state) on policies; sequence `refresh_events_event_id_seq` |
 | `successor-operator` | the above plus refresh_successions, refresh_events, refresh_cycles | INSERT policies, events, successions; UPDATE(state) on policies; same sequence |
 
 Database `CONNECT` is granted separately and is not part of the contract.
-`ingest-worker` and `projector` profiles are not yet defined: no documented grant
-list exists for them, and a ceiling is not guessed. They are tracked as follow-up.
+The `projector` ceiling is not copied from a document: it is the smallest set under
+which the real projector (`drain`) completes with source evidence unchanged, and
+removing any one privilege makes it fail (see `tests/test_access_projector.py`).
+`collector` and the other pipeline duties get their profiles the same way, one
+reviewed increment at a time; none is guessed.
 
 ## Provision a role
 

@@ -25,10 +25,20 @@
   scratch-only version shim: 2749 passed, 59 failed, all in subprocess/crash-style
   tests that hit the PostgreSQL 17 guard; a 54-test sample on clean main fails the
   same 8, so none is caused by this change. PostgreSQL 17 proof is hosted CI only.
-- [ ] O3d (delivery): hosted exact-head jobs green, then one review-ready PR.
-  Owner merge and live rollout stay separate.
-- [ ] O3e (separate, needs approval): derive `ingest-worker` and `projector`
-  ceilings from the SQL the workers run, with proof the real workers run under them.
+- [x] O3d (delivery): owner merged #149 at `fa4d772`; exact reviewed `90d395a` is
+  verified on main. Hosted jobs on that head (quality, orchestration-compose,
+  source-worker-egress; runs 44574859669 and 44574968743) all passed on
+  PostgreSQL 17, so the local PG16-shim caveat is closed. No live rollout.
+- [x] O3e spec approved 2026-11-19 (per-duty profiles; sequences only if proven
+  necessary; TRUNCATE migration as a separate increment).
+- [ ] O3e-1 `projector`: contract entry, sufficiency/necessity tests with the real
+  `drain`, audit, runbook row and local gates are done (15 tests; two over-grant
+  mutations fail and are restored). Open PR #150 (draft); remaining: hosted
+  exact-head jobs green, then owner review.
+- [ ] O3e-2 `collector`: same shape with a recorded-sample fixture, no network.
+- [ ] TRUNCATE guards (separate branch/PR): migration 0013 on the 15 older evidence
+  tables; old data and the 22-table classification unchanged; audit limitation list
+  becomes empty only after it merges.
 - Open finding for owner: 15 older evidence tables lack a TRUNCATE trigger; a fix
   would be a reviewed migration.
 

@@ -168,6 +168,22 @@ _PROFILES: tuple[Profile, ...] = (
         ),
     ),
     Profile(
+        # Derived from the real projector SQL, then proven by sufficiency and necessity
+        # tests that run drain under exactly these grants; no sequence is needed.
+        "projector",
+        frozenset({"nima"}),
+        (
+            ("nima.schema_migrations", _S),
+            ("nima.outbox", _S),
+            ("nima.observations", _S),
+            ("nima.record_versions", _S),
+            ("nima.projection_receipts", _SI),
+            ("nima.projection_contracts", _SI),
+            ("nima.projection_mentions", _I),
+        ),
+        column_updates=(("nima.outbox", "delivered_at"),),
+    ),
+    Profile(
         "validation-writer",
         frozenset({"nima", "nima_validation"}),
         (

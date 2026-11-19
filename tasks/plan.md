@@ -1,6 +1,18 @@
 # Delivery plan
 
-## Active V1-03 O3: runtime-role and evidence-protection audit
+## Active V1-03 O3e: worker role profiles
+
+Owner approved the [O3e spec](../SPEC-operating-controls.md#o3e-worker-role-profiles)
+on 2026-11-19: per-duty profiles, sequence grants only when execution proves them
+necessary, and the TRUNCATE-trigger migration as a separate later increment. O3e-1
+adds the `projector` profile: sufficiency (real `drain` completes under exactly the
+printed grants with evidence bytes unchanged) and necessity (removing any one
+privilege makes it fail), plus the audit passing for that role. Then `collector` as
+O3e-2 after review. Next separate increment: additive migration 0013 adding TRUNCATE
+triggers to the 15 older evidence tables, with old-data preservation proof. No live
+deployment, source call or grant execution. Preserve all earlier tasks.
+
+## Previous V1-03 O3: runtime-role and evidence-protection audit
 
 Owner approved the [O3 spec](../SPEC-operating-controls.md#o3-runtime-role-and-evidence-protection-audit)
 on 2026-11-19: named access profiles, a print-only grant script and a restore-check
