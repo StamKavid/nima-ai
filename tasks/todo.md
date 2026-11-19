@@ -8,8 +8,9 @@
   strict mypy and Bandit clean. Guard mutations (trigger check, TRUNCATE excess)
   fail named regressions and are restored. Finding: 15 older evidence tables lack
   a TRUNCATE trigger; disclosed as a limitation, a fix would be a migration.
-- [ ] O3b: pure grant renderer from the same contract; identifier quoting/refusal;
-  rendered grants never exceed their profile ceiling.
+- [x] O3b: pure print-only grant renderer from the same contract. 76 access tests;
+  printed grants parse back to exactly each ceiling and pass the audit; unsafe/
+  reserved role names refused. Widened-grant mutation failed 16 tests; restored.
 - [ ] O3c: bounded catalogue adapter; real roles for every reason, generated grants
   pass audit, frozen snapshot with interleaved grant change.
 - [ ] O3d: CLI, private artifact, redaction, runbook and restore entry, derived
