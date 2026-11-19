@@ -119,6 +119,12 @@ def test_authorization_is_immutable_even_for_owner(
         c.execute(statements[operation])
 
 
+@pytest.mark.parametrize("authorized", [1, "yes"])
+def test_truthy_values_are_not_explicit_boolean_authorization(authorized: bool) -> None:
+    with pytest.raises(WorkflowError, match="^succession_authorization$"):
+        supersede("invalid-private-config", uuid4(), uuid4(), authorize_new_budgets=authorized)
+
+
 @pytest.mark.parametrize(
     "fault", ["authorization", "buyers", "enabled", "prior_enabled", "tick", "cycle", "retired"]
 )

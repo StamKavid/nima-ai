@@ -1,6 +1,24 @@
 # Capability progress: 2026-11-19
 
-## V1-02 R2 candidate: audited permanent retirement
+## V1-02 R3 candidate: final workflow-recovery code checkpoint
+
+Owner merged #145 at `3626314`; exact `0bbdbf6` and files are verified on main.
+[Explicit successor authority](operations/refresh-recovery.md#authorize-one-fresh-successor-generation)
+creates one fresh paused generation and immutable budget approval atomically.
+It preserves the old cohort/start, retired history, counters and gaps. Fresh
+observations earn separate coverage; prior successful windows are not copied.
+Inspection exposes only direct links. R3 is the final current-profile recovery
+code checkpoint; after verification/owner acceptance the next package is V1-03.
+
+Native SQL/role/upgrade/scope/identity checks, actual CLI, simulated processing-pin
+changes, expired-work fresh-observation progress, snapshot lineage, two isolation
+defaults and before/after-commit SIGKILL pass. Authorization and scope mutations
+fail regressions and are restored. Installed wheel, complete local gates/audit
+and exact-head hosted evidence are recorded with delivery before handoff. Only
+disposable tests receive migration 0012. Live migration/approval/activation,
+broader v0.1 operations and the wider v1.0 roadmap remain separate acceptance.
+
+## Delivered V1-02 R2 (#145): audited permanent retirement
 
 Owner merged #144 at `82ded43`, including exact reviewed `5e90a32` and identical
 files. [Permanent retirement](operations/refresh-recovery.md#permanently-retire-a-policy)

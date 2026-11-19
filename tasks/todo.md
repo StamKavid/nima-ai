@@ -4,12 +4,14 @@
 
 - [x] Verify #145 exact `0bbdbf6` reaches main `3626314`; freeze explicit successor
   authority, same-scope/paused creation and finite checkpoint acceptance.
-- [ ] R3b: 0012/atomic API, immutable stamped approval, original-schema/data
+- [x] R3b: 0012/atomic API, immutable stamped approval, original-schema/data
   preservation, fresh/same-scope target and idempotent/collision checks.
-- [ ] R3c: actual CLI and bounded snapshot lineage; expired-child refusal followed
+- [x] R3c: actual CLI and bounded snapshot lineage; expired-child refusal followed
   by separately authorized fresh observations with old evidence/budgets unchanged.
-- [ ] R3d: process death, concurrent/default-isolation/narrow-role checks and
-  meaningful mutation restored; installed-wheel, full gates/audit and hosted proof.
+- [x] R3d local: process death, concurrent/default-isolation/narrow-role checks and
+  authorization/scope guard mutations fail and are restored.
+- Installed-wheel, full gates/audit and final-head hosted proof are required
+  before announcing checkpoint complete; record exact results with delivery.
 - [ ] Announce checkpoint complete at review-ready PR; owner merge remains the
   delivery decision. No live setup, collection or schedule activation.
 

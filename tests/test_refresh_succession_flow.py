@@ -38,6 +38,11 @@ def test_actual_cli_creates_paused_successor_without_source_or_engine(
         pytest.fail("Creating a successor contacted the source or engine")
 
     monkeypatch.setattr(httpx.Client, "request", forbidden)
+    before = database_snapshot(pg_dsn)
+    with pytest.raises(SystemExit) as missing:
+        main(["refresh", "supersede", str(old), "--successor-id", str(new)])
+    assert missing.value.code == 2 and database_snapshot(pg_dsn) == before
+    capsys.readouterr()
     assert (
         main(
             [
@@ -141,3 +146,33 @@ def test_expired_generation_stays_failed_while_new_observation_reconciles(
         versions = c.execute("SELECT to_jsonb(v) FROM nima.record_versions v").fetchall()
         assert len(versions) == 2 and all(v in versions for v in old_versions)
         assert c.execute("SELECT count(*) FROM nima.observations").fetchone() == (2,)
+
+
+def test_lineage_uses_the_read_snapshot_and_never_traverses_a_chain(
+    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from nima.storage import refresh_progress
+    from nima.storage.connection import Connection
+    from nima.storage.refresh_lifecycle import policy_links
+
+    old, new = retired(pg_dsn, tmp_path / "raw")
+    store = RefreshStore(pg_dsn)
+
+    def interleave(c: Connection, selected: UUID) -> list[dict[str, object]]:
+        supersede(pg_dsn, old, new, authorize_new_budgets=True)
+        return policy_links(c, selected)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(refresh_progress, "policy_links", interleave)
+        assert show(store, old, DAY)["policy_links"] == []
+    direct = show(store, old, DAY)["policy_links"]
+    assert isinstance(direct, list) and len(direct) == 1
+    retire(pg_dsn, new, "operator_stop")
+    third = uuid4()
+    supersede(pg_dsn, new, third, authorize_new_budgets=True)
+    links = show(store, new, DAY)["policy_links"]
+    assert isinstance(links, list) and len(links) == 2
+    assert {r["predecessor_id"] for r in links} == {str(old), str(new)}
+    retire(pg_dsn, third, "operator_stop")
+    with pytest.raises(WorkflowError, match="^succession_conflict$"):
+        supersede(pg_dsn, third, old, authorize_new_budgets=True)
