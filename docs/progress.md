@@ -1,5 +1,20 @@
 # Capability progress: 2026-11-18
 
+## V1-01 candidate: durable output validation history
+
+Owner merged #139/#140 at `73f8aa4` and requested continuation. The
+[first history contract](../SPEC-validation-history.md) adds a separate append-only
+journal and an explicit post-publication verifier/inspection command. Existing
+publication remains read-only and byte-compatible; no source is acquired or
+private pilot migrated. Invalid, blocked and cached attestations remain explicit.
+
+Actual limited-role SQL, original/report preservation and process-kill/retry tests
+pass. Removing byte-equivalence enforcement fails its artifact regression and is
+restored. The provider and consumer are separate review checkpoints; full local
+gates/audit, package resources and final-head hosted evidence are recorded with
+delivery before handoff. Other dataset boundaries and health aggregation remain
+later; a recorded pass does not certify the metric, source or identity.
+
 ## Current checkpoint C10 candidate: contract evolution in CI
 
 Owner merged #138 into main at `9d29845`; reviewed head `4716e4b` and its exact

@@ -19,10 +19,11 @@ def _role(c: Connection, *, write: bool) -> None:
         (SELECT rolsuper OR rolbypassrls OR rolcreaterole FROM pg_roles WHERE rolname=current_user),
         EXISTS (SELECT 1 FROM pg_namespace n WHERE n.nspname IN
           ('nima','nima_processing','nima_validation')
-          AND has_schema_privilege(current_user,n.oid,'CREATE')),
+          AND (pg_has_role(current_user,n.nspowner,'MEMBER')
+               OR has_schema_privilege(current_user,n.oid,'CREATE'))),
         EXISTS (SELECT 1 FROM pg_class r JOIN pg_namespace n ON r.relnamespace=n.oid
           WHERE n.nspname IN ('nima','nima_processing','nima_validation') AND
-          ((r.relkind IN ('r','p','v','m','f') AND
+          (pg_has_role(current_user,r.relowner,'MEMBER') OR (r.relkind IN ('r','p','v','m','f') AND
             (has_table_privilege(current_user,r.oid,'UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')
              OR has_any_column_privilege(current_user,r.oid,'UPDATE,REFERENCES')
              OR (n.nspname<>'nima_validation' AND
@@ -43,6 +44,7 @@ def _database(dsn: str, *, write: bool) -> Iterator[Connection]:
         raise HistoryError("validation_configuration")
     try:
         with connect(dsn) as c:
+            c.execute("SET TIME ZONE 'UTC'")
             validate_schema(c)
             _role(c, write=write)
             yield c
