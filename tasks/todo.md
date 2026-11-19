@@ -8,7 +8,9 @@
   actual read-only/timeouts, missing/corrupt/oversized evidence refusal.
 - [x] O2c: actual CLI/private artifact/fixed errors, operator procedure, merged-
   baseline project/chapter assessment, restored mutation and installed wheel.
-- [ ] O2d: full gates/audit and exact-head hosted jobs; one review-ready PR.
+- [x] O2d: owner merged #148 at `d09ec20`; exact `9d866f0` verified on main. Local
+  gates 2675 tests/93.33%, clean audit, 47 installed-wheel cases and hosted run
+  44549710775 (all three jobs) passed. No live enablement. Score reassessment pending.
 
 ## V1-03 O1 — bounded workflow diagnostics
 

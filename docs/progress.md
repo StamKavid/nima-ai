@@ -12,9 +12,10 @@ historical assessment of different scope.
 
 Current chapter: **v0.1 dependable foundation / V1-03 operating controls**.
 Contract evolution/first durable validation boundary, current-profile recovery
-and O1 diagnostics are delivered. O2 selected-policy health is the next code
-checkpoint; scoped runtime/operator setup, approved off-host restore and effective
-branch controls remain open. No milestone tag or v1.0 release is created.
+and O1 diagnostics are delivered. O2 selected-policy health is delivered. The next
+code checkpoint is O3, a runtime-role and evidence-protection audit (spec awaiting
+owner approval). Scoped runtime/operator setup, approved off-host restore and
+effective branch controls remain open. No milestone tag or v1.0 release is created.
 
 | Chapter | Current product position | Main remaining acceptance |
 |---|---|---|
@@ -32,7 +33,7 @@ gateway. CPV is an offline reference, not a second company feed. Diavgeia/TED no
 connectors and a runtime KAD dictionary remain pending. No live daily schedule is
 claimed. See the [version roadmap](roadmap/v1.0.md) and fixed rubric for details.
 
-## V1-03 O2 candidate: selected-policy health
+## Delivered V1-03 O2 (#148): selected-policy health
 
 [O2](../SPEC-operating-controls.md#o2-selected-refresh-policy-health) adds one
 bounded read-only snapshot for recorded policy gaps, observation/tick ages and
@@ -40,10 +41,12 @@ open-cycle child/budget attention. Native restricted-role/isolation/interleaved
 commit tests pass; the actual CLI privately publishes both attention and a passing
 reconciled empty capture. Source/configuration fields and stored failure strings
 are omitted. [Operator guidance](operations/refresh-health.md) defines scope,
-thresholds, reader grants and fixed errors. Mutation, installed wheel, complete
-gates/audit and exact-head hosted proof are recorded with delivery before handoff.
-No DDL, dependency, CI, source/control call or live activation. Candidate O2 code
-does not change the merged-baseline 65-point assessment above.
+thresholds, reader grants and fixed errors. Owner merged #148 at `d09ec20`; exact
+reviewed `9d866f0` is verified on main. Local gates 2675 tests/93.33%, clean audit,
+47 installed-wheel cases, restored guard mutation and hosted run 44549710775 (all
+three jobs) passed. No DDL, dependency, CI, source/control call or live activation.
+The 65-point assessment above is not yet re-scored for delivered O2; that
+reassessment is pending and must keep the unchanged weights.
 
 ## Delivered V1-03 O1 (#147): workflow stage diagnostics
 
