@@ -296,7 +296,10 @@ and focused `tests/test_access_*.py` files. Commands:
 
 ## O3e: worker role profiles
 
-Status: **proposed; awaiting owner approval before any plan or code.** Follows
+Status: **approved by the owner on 2026-11-19; slice O3e-1 in progress.** Decisions:
+per-duty profiles (recommended option), a sequence grant only where execution proves
+it necessary, and the optional TRUNCATE-trigger migration approved as a **separate**
+increment (its own branch, spec section and PR) after O3e-1. Follows
 owner-merged #149 (`fa4d772`). O3 shipped seven profiles whose grants are documented
 in runbooks. The pipeline workers that actually write evidence have no documented
 grant list, so they are not yet covered. This spec closes that gap without guessing.

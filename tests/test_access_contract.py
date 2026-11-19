@@ -66,8 +66,9 @@ def test_only_evidence_tables_can_be_truncate_guarded() -> None:
         assert not rule.truncate_guarded or rule.kind is ac.TableKind.EVIDENCE
 
 
-def test_seven_documented_profiles_exist() -> None:
+def test_documented_and_proven_profiles_exist() -> None:
     assert set(ac.PROFILES) == {
+        "projector",
         "analytics-reader",
         "run-health-reader",
         "refresh-health-reader",
