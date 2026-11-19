@@ -15,6 +15,7 @@ from nima.ingestion.config import CONNECTOR_VERSION, Query
 from nima.intent import IntentError, RefreshIntent, refresh_intent
 from nima.orchestration.refresh import CRON, TIMEZONE, VERSION, Policy, select_dates
 from nima.storage.postgres import NORMALIZER_VERSION, Connection
+from nima.storage.refresh_lifecycle import retirement
 from nima.storage.refresh_lock import policy_session
 from nima.storage.workflows import RequestStore, WorkflowError, _db
 
@@ -149,10 +150,12 @@ class RefreshStore:
             missing = missing_dates(
                 connection, policy_id, policy.start, date.fromordinal(day.toordinal() - 1)
             )
+            retired = retirement(connection, policy_id) is not None
         return {
             "policy_id": str(policy_id),
             "business_date": day.isoformat(),
             "query_dates": [d.isoformat() for d in select_dates(policy, day, missing)],
+            "retired": retired,
             **self.compatibility(policy_id),
         }
 
@@ -182,6 +185,8 @@ class RefreshSession:
         )
 
     def require_execution(self) -> None:
+        if retirement(self.connection, self.policy_id) is not None:
+            raise WorkflowError("policy_retired")
         failure = self.saved.failure(CONNECTOR_VERSION, NORMALIZER_VERSION, VERSION, CRON, TIMEZONE)
         if failure:
             raise WorkflowError(failure)

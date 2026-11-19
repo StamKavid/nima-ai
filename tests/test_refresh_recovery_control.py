@@ -30,11 +30,12 @@ def child(dsn: str, root: Path) -> tuple[RefreshStore, UUID, UUID]:
     return store, policy, request
 
 
-def configuration(monkeypatch: pytest.MonkeyPatch, dsn: str, root: Path) -> None:
+def configuration(monkeypatch: pytest.MonkeyPatch, dsn: str, root: Path) -> LocalConfig:
     config = LocalConfig("http://127.0.0.1:1/api", dsn, root)
     monkeypatch.setattr(recovery, "local_config", lambda: config)
     monkeypatch.setattr(dispatch, "local_config", lambda: config)
     monkeypatch.setenv("NIMA_DATABASE_URL", dsn)
+    return config
 
 
 def test_accepted_recovery_holds_both_locks_and_preserves_request(
