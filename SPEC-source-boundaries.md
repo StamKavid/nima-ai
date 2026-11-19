@@ -48,9 +48,10 @@ A source adapter provides four things and nothing else:
 
 ```python
 class SourceAdapter(Protocol):
-    name: str                    # namespace prefix, e.g. "kimdis"
+    name: str  # namespace prefix, e.g. "kimdis"
     connector_version: str
     normalizer_version: str
+
     def query_payload(self) -> dict[str, object]: ...
     def normalize_page(self, raw: bytes, *, max_bytes: int) -> NormalizedPage: ...
 ```
