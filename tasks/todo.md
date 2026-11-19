@@ -31,8 +31,10 @@
   PostgreSQL 17, so the local PG16-shim caveat is closed. No live rollout.
 - [x] O3e spec approved 2026-11-19 (per-duty profiles; sequences only if proven
   necessary; TRUNCATE migration as a separate increment).
-- [ ] O3e-1 `projector`: contract entry; sufficiency and necessity tests with the real
-  `drain`; audit passes; runbook row; full gates; one review-ready PR.
+- [ ] O3e-1 `projector`: contract entry, sufficiency/necessity tests with the real
+  `drain`, audit, runbook row and local gates are done (15 tests; two over-grant
+  mutations fail and are restored). Open PR #150 (draft); remaining: hosted
+  exact-head jobs green, then owner review.
 - [ ] O3e-2 `collector`: same shape with a recorded-sample fixture, no network.
 - [ ] TRUNCATE guards (separate branch/PR): migration 0013 on the 15 older evidence
   tables; old data and the 22-table classification unchanged; audit limitation list

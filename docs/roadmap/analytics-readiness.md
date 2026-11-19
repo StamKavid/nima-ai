@@ -5,8 +5,9 @@
 Verified main `6f706f1` after owner-merged #147 includes reviewed `f230ea0`
 with identical files. Use the same seven weights and target denominator as the
 2026-11-18 baseline below. This is a planning judgement about the single-operator
-analytics foundation; it is not v1.0 completion or live coverage. Candidate O2
-policy health receives no credit until reviewed and delivered.
+analytics foundation; it is not v1.0 completion or live coverage. O2 policy health
+(#148) and the O3 access audit (#149) are since delivered but are **not yet scored**;
+re-scoring is pending and must keep these weights.
 
 | Capability | Weight | Earned | Change from 61-point baseline |
 |---|---:|---:|---|
@@ -21,7 +22,8 @@ policy health receives no credit until reviewed and delivered.
 
 Current chapter: **v0.1 dependable foundation**, work package **V1-03 operating
 controls**. Contract evolution/first journal boundary and current-profile recovery
-are delivered; O1 diagnostics is owner-merged. O2 adds selected-policy health.
+are delivered; O1 diagnostics, O2 selected-policy health and the O3 access audit are
+owner-merged.
 Scoped-runtime/operator configuration, approved off-host recovery and effective
 branch controls remain open. V0.1 is not released. The next chapter is v0.2 shared
 semantics, followed by v0.3 two-source data, v0.4 insights, v0.5 serving/workspace,

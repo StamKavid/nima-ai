@@ -80,9 +80,12 @@ sweeps remain separately gated by actual source/version evidence.
 First bounded increment: [O1 workflow stage diagnostics](../../SPEC-operating-controls.md).
 V1-02 recovery code is owner-merged through #146 (`476f9be`). O1 stops at a
 verified review-ready PR; the operational acceptance below remains separate.
-O1 is now owner-merged through #147 (`6f706f1`). Next:
-[O2 selected-policy health](../../SPEC-operating-controls.md#o2-selected-refresh-policy-health).
-Its read-only report leaves runtime provisioning and off-host operations separate.
+O1 (#147), O2 selected-policy health (#148) and the O3 runtime-role audit (#149,
+`fa4d772`) are owner-merged. In progress:
+[O3e worker role profiles](../../SPEC-operating-controls.md#o3e-worker-role-profiles)
+(`projector` in review, `collector` next) and a separately approved migration adding
+TRUNCATE triggers to the 15 older evidence tables. Runtime provisioning and off-host
+operations stay separate.
 
 Extend existing structured DataOps boundary events, selected-run health, scoped
 roles and local restore runbook. Do not label those missing wholesale. Define
