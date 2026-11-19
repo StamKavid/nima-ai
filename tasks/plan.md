@@ -1,5 +1,16 @@
 # Delivery plan
 
+## Active V1-03 O1: workflow stage diagnostics
+
+Owner-merged #146 reaches main `476f9be`, including exact reviewed `ded3478`
+and identical files. V1-02 current-profile code checkpoint is complete. Follow
+[O1](../SPEC-operating-controls.md): bounded opt-in events and failing tests,
+existing four-stage integration, real SQL/fixture failure and process proof,
+private operator runbook, mutation/wheel/full gates/audit and exact-head hosted
+results. No migrations, dependencies, CI changes or live operations. Preserve all
+older pending tasks. O1 ends at a verified review-ready PR; remaining V1-03
+operations acceptance is separate and must not be called complete.
+
 ## Active V1-02 R3: final workflow-recovery code checkpoint
 
 Owner merged #145 at `3626314`, including exact reviewed `0bbdbf6` and identical
