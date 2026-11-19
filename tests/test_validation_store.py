@@ -162,3 +162,44 @@ def test_database_stamps_and_foreign_key_are_enforced(pg_dsn: str) -> None:
             )
         with pytest.raises(HistoryError, match="^validation_unknown$"):
             show_validation(dsn, uuid4())
+
+
+@pytest.mark.parametrize("owned", ["TABLE nima_validation.attempts", "SCHEMA nima_validation"])
+def test_owner_is_refused_even_after_revoking_ordinary_mutation_grants(
+    pg_dsn: str, owned: str
+) -> None:
+    migrate(pg_dsn)
+    with journal_role(pg_dsn) as dsn, psycopg.connect(pg_dsn, autocommit=True) as c:
+        role = psycopg.conninfo.conninfo_to_dict(dsn)["user"]
+        assert isinstance(role, str)
+        owner = c.execute("SELECT current_user").fetchone()
+        assert owner is not None
+        try:
+            c.execute(
+                sql.SQL("GRANT CREATE ON SCHEMA nima_validation TO {}").format(sql.Identifier(role))
+            )
+            c.execute(sql.SQL("ALTER " + owned + " OWNER TO {}").format(sql.Identifier(role)))
+            c.execute(
+                sql.SQL("REVOKE CREATE ON SCHEMA nima_validation FROM {}").format(
+                    sql.Identifier(role)
+                )
+            )
+            c.execute(
+                sql.SQL("REVOKE ALL ON nima_validation.attempts FROM {}").format(
+                    sql.Identifier(role)
+                )
+            )
+            c.execute(
+                sql.SQL("GRANT SELECT,INSERT ON nima_validation.attempts TO {}").format(
+                    sql.Identifier(role)
+                )
+            )
+            with (
+                pytest.raises(HistoryError, match="^validation_database$"),
+                Journal(dsn, uuid4(), intent()).session(),
+            ):
+                pytest.fail("Object ownership cannot be reduced to table grants")
+        finally:
+            c.execute(
+                sql.SQL("ALTER " + owned + " OWNER TO {}").format(sql.Identifier(str(owner[0])))
+            )
