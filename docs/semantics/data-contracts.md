@@ -60,8 +60,10 @@ uv run --frozen pytest tests/test_data_contracts_publication.py
 
 These tests run in the existing `just check` gate. The separate
 [committed historical comparison](contract-evolution.md) now checks PR/push
-catalogues in CI using immutable event baselines. Contract-check history and
-scheduled monitoring remain later increments. The current 24-hour health threshold is
+catalogues in CI using immutable event baselines. Explicit post-publication
+[validation history](../operations/validation-history.md) records the first
+output boundary with a separate writer; other dataset boundaries and scheduled
+monitoring remain later increments. The current 24-hour health threshold is
 an operator setting, not a contract SLA or a government publication promise.
 
 Source acceptance and normalized-dataset contracts follow this first output

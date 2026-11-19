@@ -3,12 +3,18 @@
 ## V1-01 — first durable validation boundary
 
 - [x] H1: verify #139/#140 on main `73f8aa4`, identity and bounded contract.
-- [ ] H2: pure identities/states, additive 0010 and real limited-role journal tests.
-- [ ] H3: shared preparation, preserving existing publication bytes/errors.
-- [ ] H4: post-publication validation and read-only inspection CLI; actual SQL,
+- [x] H2: pure identities/states, additive 0010 and real limited-role journal tests.
+- [x] H3: shared preparation, preserving existing publication bytes/errors.
+- [x] H4: post-publication validation and read-only inspection CLI; actual SQL,
   private files, failure/cached/fresh semantics and no source mutation.
-- [ ] H5: process-kill/concurrency and mutation proof, packaged resource check,
-  full gates/audit and final-head hosted evidence before review.
+- [x] H5 process-kill/concurrency: SIGKILL/SIGINT before/after outcome commit;
+  pending resumes, committed results reuse, concurrent same-ID writes refuse.
+- [x] Byte-equivalence guard mutation fails its actual regression and is restored.
+- Packaged resource check, full gates/audit and final-head hosted evidence are
+  required before review; record exact observed results with both PRs.
+- Split delivery: provider `feature/validation-journal` to main; consumer
+  `feature/readout-validation-history` initially targets the provider. Retarget
+  consumer to main after verified provider merge before offering main delivery.
 - [ ] Owner review; other dataset boundaries/health aggregation and live journal
   deployment remain later. No source request, pilot migration or schedule.
 
