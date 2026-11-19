@@ -12,6 +12,15 @@ risk is an unseen TRUNCATE path; none exists in src/scripts/infra and the full s
 must stay green. Disposable databases only; the private pilot is never migrated here.
 Preserve all earlier tasks. O3e-2 `collector` follows after this merges.
 
+## Active V1-03 O3g: CI trigger scope and quality time budget
+
+Owner approved on 2026-11-19. One workflow edit only: `push` runs for main and dev, and the
+`quality` timeout moves from 15 to 20 minutes, with the evidence recorded in
+[O3g](../SPEC-operating-controls.md#o3g-ci-trigger-scope-and-quality-time-budget). No check,
+permission, pin, threshold or coverage change. The first hosted pull-request run verifies the
+new file; a feature branch without a pull request now needs `workflow_dispatch`. Preserve all
+earlier tasks. The next package after this is the V1-04 source-boundary spec (spec first).
+
 ## Active V1-03 O3e: worker role profiles
 
 Owner approved the [O3e spec](../SPEC-operating-controls.md#o3e-worker-role-profiles)

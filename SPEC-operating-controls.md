@@ -432,3 +432,39 @@ blocked. The seven newer evidence tables already carry a statement-level guard.
    15 new triggers is reported with its exact reason.
 5. Normal ingestion, projection and the full suite are unaffected; full gates, wheel
    proof and hosted exact-head jobs precede one review-ready PR.
+
+## O3g: CI trigger scope and quality time budget
+
+Status: **approved by the owner on 2026-11-19** (the recommendation to scope push CI and
+raise the quality timeout).
+
+### Evidence
+
+CI ran twice for every commit on a pull-request branch: once for the `pull_request` event
+and once for the `push` event. The `quality` job has a 15-minute `timeout-minutes`. The same
+commit's `quality` job took about 9.6 to 14.2 minutes depending on the runner, and the
+duplicate push run timed out (cancelled at about 15 minutes) on #148 and #151. In both cases
+the pull-request run, which is the one that counts, passed. The suite grew from 2,628 tests
+(#147) to 2,675 (#148), then by 133 (#149), 15 (#150), 86 (#151) and 34 (#152), which makes a
+slow-runner timeout more likely. No assertion failed in any timed-out job.
+
+### Change
+
+- `push` runs only for `main` and `dev`; `pull_request` (base main or dev) and
+  `workflow_dispatch` are unchanged. Feature-branch commits are covered by the pull request
+  run, so each commit is checked once instead of twice and runner load roughly halves.
+- `quality` `timeout-minutes` moves from 15 to 20. The other jobs keep their budgets
+  (`source-worker-egress` 25, `orchestration-compose` 10). No check, permission, pin,
+  threshold or coverage floor changes.
+
+### Consequences and limits
+
+- A feature branch without an open pull request gets no automatic CI. Use
+  `workflow_dispatch` on that ref, or open a draft pull request.
+- A pull request whose base is another feature branch (a stacked base) was already outside
+  `pull_request` branches `[main, dev]` and still is.
+- Tag pushes no longer trigger CI. A release rehearsal must use a pull request or manual
+  dispatch.
+- The pull-request run itself exercises the new workflow file, so the first hosted run on
+  that pull request is the verification.
+- Rollback: revert the workflow edit; nothing else depends on it.
