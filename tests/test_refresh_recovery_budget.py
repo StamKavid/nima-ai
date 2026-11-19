@@ -12,19 +12,22 @@ BUDGET = RecoveryBudget("deferred", NOW - timedelta(minutes=5), 1, 3, 0, 1)
 
 
 @pytest.mark.parametrize(
-    "field,value,reason",
+    "budget,reason",
     [
-        ("status", "complete", "recovery_complete"),
-        ("executions", 4, "workflow_execution_limit"),
-        ("attempts", 300, "workflow_attempt_limit"),
-        ("projection_batches", 100, "projection_budget"),
-        ("dispatches", 4, "recovery_dispatch_limit"),
-        ("started_at", NOW + timedelta(microseconds=1), "recovery_clock"),
-        ("started_at", NOW - timedelta(minutes=30, microseconds=1), "workflow_deadline"),
+        (replace(BUDGET, status="complete"), "recovery_complete"),
+        (replace(BUDGET, executions=4), "workflow_execution_limit"),
+        (replace(BUDGET, attempts=300), "workflow_attempt_limit"),
+        (replace(BUDGET, projection_batches=100), "projection_budget"),
+        (replace(BUDGET, dispatches=4), "recovery_dispatch_limit"),
+        (replace(BUDGET, started_at=NOW + timedelta(microseconds=1)), "recovery_clock"),
+        (
+            replace(BUDGET, started_at=NOW - timedelta(minutes=30, microseconds=1)),
+            "workflow_deadline",
+        ),
     ],
 )
-def test_each_original_budget_can_refuse_a_send(field: str, value: object, reason: str) -> None:
-    assert replace(BUDGET, **{field: value}).failure(NOW) == reason
+def test_each_original_budget_can_refuse_a_send(budget: RecoveryBudget, reason: str) -> None:
+    assert budget.failure(NOW) == reason
 
 
 def test_queued_and_exact_remaining_headroom_are_eligible() -> None:
