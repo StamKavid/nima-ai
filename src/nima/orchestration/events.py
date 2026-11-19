@@ -38,6 +38,7 @@ _REASONS = frozenset(
         "projection_incomplete",
         "quarantined",
         "request_conflict",
+        "request_processing_version",
         "request_unavailable",
         "request_unprepared",
         "request_version",

@@ -3,13 +3,17 @@
 import io
 import json
 import sys
+import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from uuid import UUID, uuid4
 
 import psycopg
 import pytest
 
+from nima.ingestion.archive import ArchiveError
 from nima.orchestration.events import workflow_stage
+from nima.storage.postgres import CheckpointError, MigrationError
 from nima.storage.workflows import WorkflowError
 
 
@@ -84,6 +88,9 @@ def test_events_are_correlated_but_retries_have_new_invocations(
         (ValueError("private SQL and company"), "unexpected_error", False, "failed"),
         (psycopg.OperationalError("private DSN"), "database", True, "failed"),
         (OSError("private path"), "archive_invalid", False, "failed"),
+        (ArchiveError("private path"), "archive_invalid", False, "failed"),
+        (CheckpointError("private run"), "run_unavailable", False, "failed"),
+        (MigrationError("private schema"), "run_unavailable", False, "failed"),
         (KeyboardInterrupt("private text"), "interrupted", False, "interrupted"),
         (SystemExit("private text"), "interrupted", False, "interrupted"),
     ],
@@ -161,3 +168,27 @@ def test_closed_sink_fails_with_fixed_code(monkeypatch: pytest.MonkeyPatch) -> N
         workflow_stage("finalize", uuid4()),
     ):
         pytest.fail("Closed stderr cannot acknowledge diagnostics")
+
+
+def test_concurrent_stages_publish_whole_lines(monkeypatch: pytest.MonkeyPatch) -> None:
+    class SplitSink(io.StringIO):
+        def write(self, text: str) -> int:
+            middle = len(text) // 2
+            super().write(text[:middle])
+            time.sleep(0.001)
+            super().write(text[middle:])
+            return len(text)
+
+    sink = SplitSink()
+    monkeypatch.setenv("NIMA_WORKFLOW_EVENTS", "stderr")
+    monkeypatch.setattr(sys, "stderr", sink)
+
+    def stage(_: int) -> None:
+        with workflow_stage("project", uuid4()) as events:
+            events.bind_run(uuid4())
+
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        list(executor.map(stage, range(16)))
+    rows = records(sink.getvalue())
+    assert len(rows) == 48 and len({row["invocation_id"] for row in rows}) == 16
+    assert sum(row["event"] == "succeeded" for row in rows) == 16
