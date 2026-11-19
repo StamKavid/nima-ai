@@ -609,3 +609,6 @@ or live cohort selected by this implementation.
 
 Repository branch cleanup, main/dev protection status, and the Python 3.12/3.14
 choice are documented in [repository settings](docs/repository-settings.md).
+Opt-in [workflow diagnostics](docs/operations/workflow-diagnostics.md) correlate
+application stages with SQL request/run IDs; private log supervision is an
+operator responsibility.

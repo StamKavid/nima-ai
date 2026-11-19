@@ -1,6 +1,23 @@
 # Capability progress: 2026-11-19
 
-## V1-02 R3 candidate: final workflow-recovery code checkpoint
+## V1-03 O1 candidate: workflow stage diagnostics
+
+Owner merged #146 at `476f9be`; exact reviewed `ded3478` and files are verified
+on main. V1-02's current-profile recovery code checkpoint is complete. The next
+bounded [diagnostic contract](../SPEC-operating-controls.md) adds opt-in stderr
+events around the existing four application stages, with request/run/invocation
+IDs, processing time and fixed failure codes. Default behavior and SQL/source
+budgets remain unchanged; no additional SQL or HTTP request is made for events.
+
+Synthetic native SQL/HTTP, redaction, sink-failure, concurrent-line and real
+SIGKILL/retry tests pass. An open trace can follow committed SQL; inspect durable
+state before recovery. [Operator guidance](operations/workflow-diagnostics.md)
+defines private retention and scope. Full gates/audit, wheel, mutation and hosted
+evidence are recorded with delivery before handoff. No source access, migration,
+schedule or private operator configuration is activated. O1 is one code increment,
+not full V1-03 or v0.1 acceptance.
+
+## Delivered V1-02 R3 (#146): final workflow-recovery code checkpoint
 
 Owner merged #145 at `3626314`; exact `0bbdbf6` and files are verified on main.
 [Explicit successor authority](operations/refresh-recovery.md#authorize-one-fresh-successor-generation)
@@ -9,6 +26,11 @@ It preserves the old cohort/start, retired history, counters and gaps. Fresh
 observations earn separate coverage; prior successful windows are not copied.
 Inspection exposes only direct links. R3 is the final current-profile recovery
 code checkpoint; after verification/owner acceptance the next package is V1-03.
+
+Owner acceptance is now verified: #146 reviewed `ded3478` reaches main `476f9be`.
+Local gates passed 2595 tests at 93.27%, dependency audit, 32 installed-wheel
+tests and restored guard mutations. Exact-head hosted run 44535222081 passed
+all three jobs. No private deployment or source/schedule activation followed.
 
 Native SQL/role/upgrade/scope/identity checks, actual CLI, simulated processing-pin
 changes, expired-work fresh-observation progress, snapshot lineage, two isolation

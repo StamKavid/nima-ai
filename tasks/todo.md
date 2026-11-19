@@ -1,5 +1,17 @@
 # Tasks
 
+## V1-03 O1 — bounded workflow diagnostics
+
+- [x] Verify #146 reviewed head reaches main `476f9be`; freeze O1 contract.
+- [x] O1a: default-off/strict configuration, bounded event records and failure
+  privacy; prove failures and sink-error precedence with focused tests.
+- [x] O1b: instrument existing four stages, preserve results/budgets and prove
+  real SQL/fixture retry/failure and process-termination behavior.
+- [ ] O1c: private log retention/diagnosis procedure, guard mutation, installed
+  wheel, full gates/audit and final-head hosted checks; one review-ready PR.
+- Later V1-03: non-owner runtime proof, full policy/child health, protected
+  operator configuration, approved off-host restore and effective branch rules.
+
 ## V1-02 R3 — final workflow-recovery code checkpoint
 
 - [x] Verify #145 exact `0bbdbf6` reaches main `3626314`; freeze explicit successor
@@ -12,8 +24,10 @@
   authorization/scope guard mutations fail and are restored.
 - Installed-wheel, full gates/audit and final-head hosted proof are required
   before announcing checkpoint complete; record exact results with delivery.
-- [ ] Announce checkpoint complete at review-ready PR; owner merge remains the
-  delivery decision. No live setup, collection or schedule activation.
+- [x] Checkpoint complete at #146 review-ready delivery; owner merged `476f9be`,
+  exact `ded3478` verified. Full local (2595 tests, 93.27%), audit, 32 installed-
+  wheel tests, restored guard mutations and hosted run 44535222081 passed.
+  No live setup, collection or schedule activation.
 
 ## V1-02 R2 — permanent policy retirement
 
@@ -28,8 +42,8 @@
   before handoff; record observations with the delivery PR.
 - [x] Owner merged #145 at `3626314`; exact `0bbdbf6` verified. Full local/wheel/
   mutation and both exact-head CI runs are recorded there. No private deployment.
-- [ ] Later: successor linking and explicit new-budget authorization; retirement
-  does not complete windows or create a new policy/request.
+- [x] Successor linking/explicit new-budget authorization delivered separately
+  in #146. Retirement itself never completes windows or creates a policy/request.
 
 ## V1-02 R1 — bounded same-request refresh recovery
 
@@ -42,8 +56,9 @@
 - [x] Installed-wheel, complete local gates/audit and final-head hosted evidence
   recorded in #144; owner merged exact `5e90a32` at main `82ded43`.
 - [x] Owner review via #144; no live recovery or source/schedule activation.
-- [ ] Later V1-02: separately specify audited exhausted-child resolution and
-  policy supersession; preserve original budgets and terminal history.
+- [x] Current-profile exhausted-child/policy decisions delivered in #145/#146;
+  original budgets and terminal history remain intact. Future source formats and
+  late-correction sweeps retain their separate acceptance.
 
 ## V1-01 VH1 — selected-artifact validation health
 
