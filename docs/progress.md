@@ -2,7 +2,7 @@
 
 ## Current project and chapter position
 
-Merged main is `fa4d772` after #149 (O3 access audit), including exact `90d395a`.
+Merged main is `af41981` after #150 (O3e-1 projector profile), including exact `e91d1e6`.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
 recovery evolution, contract history and diagnostics earned four points). It has
@@ -14,10 +14,10 @@ historical assessment of different scope.
 
 Current chapter: **v0.1 dependable foundation / V1-03 operating controls**.
 Contract evolution/first durable validation boundary, current-profile recovery
-O1 diagnostics, O2 selected-policy health (#148) and the O3 runtime-role audit (#149)
-are delivered. O3e adds worker role profiles proven by running the real worker; the
-`projector` profile is in review (#150) and `collector` follows. A migration adding
-TRUNCATE triggers to the 15 older evidence tables is approved as a separate increment.
+O1 diagnostics, O2 selected-policy health (#148), the O3 runtime-role audit (#149) and
+the O3e-1 `projector` profile (#150) are delivered. O3e adds worker role profiles proven
+by running the real worker; `collector` follows. Migration 0013, adding TRUNCATE
+triggers to the 15 older evidence tables, is a candidate (O3f) awaiting review.
 Scoped runtime/operator setup, approved off-host restore and effective branch
 controls remain open. No milestone tag or v1.0 release is created.
 
@@ -51,6 +51,27 @@ reviewed `9d866f0` is verified on main. Local gates 2675 tests/93.33%, clean aud
 three jobs) passed. No DDL, dependency, CI, source/control call or live activation.
 The 65-point assessment above is not yet re-scored for delivered O2; that
 reassessment is pending and must keep the unchanged weights.
+
+## V1-03 O3f candidate: evidence TRUNCATE guards
+
+[O3f](../SPEC-operating-controls.md#o3f-evidence-truncate-guards) adds additive migration
+0013: a statement-level TRUNCATE guard on the 15 older evidence tables, reusing the
+existing reject function. Verified on a real catalogue: twelve tables were open to a
+`TRUNCATE ... CASCADE` wipe and are now closed; three (`raw_objects`, `run_pages`,
+`gemi_imports`) were already blocked indirectly and gain an independent guard. A plain
+TRUNCATE of a referenced table is rejected by PostgreSQL itself. This corrects the
+broader O3 wording that all fifteen were unprotected. After it merges the audit's
+limitation list is empty. Candidate code earns no progress credit until reviewed and
+delivered; it is applied only to disposable test databases, never to the private pilot.
+
+## Delivered V1-03 O3e-1 (#150): projector access profile
+
+Owner merged #150 at `af41981`; exact `e91d1e6` is verified on main. The `projector`
+ceiling (SELECT on six tables, INSERT on three projection tables, UPDATE of the outbox
+`delivered_at` column only, no sequence) is proven by running the real `drain` under
+exactly those grants and by removing each privilege. Hosted run 44581097628 passed all
+three jobs on that head; it was merged while two jobs were still running, and they
+finished green afterwards. No live role was provisioned.
 
 ## Delivered V1-03 O3 (#149): runtime-role and evidence-protection audit
 

@@ -198,7 +198,7 @@ def test_upgrade_eleven_keeps_all_original_rows_and_checksums(
     from nima.storage import postgres
 
     migrations = postgres._migrations()
-    assert [v for v, _, _ in migrations] == list(range(1, 13))
+    assert [v for v, _, _ in migrations] == list(range(1, 14))
     with monkeypatch.context() as patch:
         patch.setattr(postgres, "_migrations", lambda: migrations[:11])
         retired(pg_dsn, tmp_path / "raw")

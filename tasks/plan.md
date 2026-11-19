@@ -1,5 +1,17 @@
 # Delivery plan
 
+## Active V1-03 O3f: evidence TRUNCATE guards
+
+Owner approved the [O3f spec](../SPEC-operating-controls.md#o3f-evidence-truncate-guards)
+on 2026-11-19. One additive migration 0013 adds statement-level TRUNCATE guards to the
+15 older evidence tables, reusing `nima.reject_mutation`. Order: tests that fail first
+(guard, upgrade-from-12 preservation, history/checksums, audit with an empty
+limitation list), then the migration and migration-list update, then contract, runbook
+and status documents, then full gates, wheel, hosted exact-head jobs and one PR. Main
+risk is an unseen TRUNCATE path; none exists in src/scripts/infra and the full suite
+must stay green. Disposable databases only; the private pilot is never migrated here.
+Preserve all earlier tasks. O3e-2 `collector` follows after this merges.
+
 ## Active V1-03 O3e: worker role profiles
 
 Owner approved the [O3e spec](../SPEC-operating-controls.md#o3e-worker-role-profiles)

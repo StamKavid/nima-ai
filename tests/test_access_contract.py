@@ -41,15 +41,7 @@ EXPECTED_CONTROL = {
     "nima.refresh_windows",
     "nima.identity_review_heads",
 }
-EXPECTED_TRUNCATE_GUARDED = {
-    "nima_processing.replay_batches",
-    "nima_processing.replay_results",
-    "nima_processing.metadata_snapshots",
-    "nima_validation.attempts",
-    "nima_validation.outcomes",
-    "nima.refresh_retirements",
-    "nima.refresh_successions",
-}
+EXPECTED_TRUNCATE_GUARDED = EXPECTED_EVIDENCE  # 0013 guarded the fifteen older tables
 REWRITE = {ac.Priv.UPDATE, ac.Priv.DELETE, ac.Priv.TRUNCATE, ac.Priv.TRIGGER, ac.Priv.REFERENCES}
 
 

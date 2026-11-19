@@ -197,14 +197,14 @@ def test_sequence_privileges_beyond_ceiling_are_flagged() -> None:
 
 
 def test_missing_or_disabled_evidence_trigger_is_flagged() -> None:
-    missing = with_table(clean("analytics-reader"), "nima.quarantine", triggers=())
+    missing = with_table(clean("analytics-reader"), "nima.quarantine", triggers=(TRUNCATE_TRIGGER,))
     assert codes(aa.assess(missing, "analytics-reader")) == [
         (R.EVIDENCE_TRIGGER_MISSING, "nima.quarantine", "")
     ]
     disabled = with_table(
         clean("analytics-reader"),
         "nima.quarantine",
-        triggers=(replace(NO_REWRITE_TRIGGER, enabled=False),),
+        triggers=(replace(NO_REWRITE_TRIGGER, enabled=False), TRUNCATE_TRIGGER),
     )
     assert codes(aa.assess(disabled, "analytics-reader")) == [
         (R.EVIDENCE_TRIGGER_DISABLED, "nima.quarantine", "")
@@ -222,7 +222,9 @@ def test_missing_or_disabled_evidence_trigger_is_flagged() -> None:
 def test_trigger_that_does_not_block_update_and_delete_before_the_write_is_missing(
     weak: aa.TriggerFacts,
 ) -> None:
-    snap = with_table(clean("analytics-reader"), "nima.observations", triggers=(weak,))
+    snap = with_table(
+        clean("analytics-reader"), "nima.observations", triggers=(weak, TRUNCATE_TRIGGER)
+    )
     assert codes(aa.assess(snap, "analytics-reader")) == [
         (R.EVIDENCE_TRIGGER_MISSING, "nima.observations", "")
     ]
@@ -233,7 +235,9 @@ def test_update_and_delete_may_be_guarded_by_two_separate_triggers() -> None:
         replace(NO_REWRITE_TRIGGER, events=frozenset({"UPDATE"})),
         replace(NO_REWRITE_TRIGGER, events=frozenset({"DELETE"})),
     )
-    snap = with_table(clean("analytics-reader"), "nima.observations", triggers=triggers)
+    snap = with_table(
+        clean("analytics-reader"), "nima.observations", triggers=(*triggers, TRUNCATE_TRIGGER)
+    )
     assert aa.assess(snap, "analytics-reader").passed
 
 
@@ -246,15 +250,24 @@ def test_guarded_truncate_trigger_that_disappears_is_flagged() -> None:
     ]
 
 
-def test_unguarded_evidence_tables_are_disclosed_as_limitations_not_failures() -> None:
+def test_every_evidence_table_is_guarded_so_no_limitations_are_reported() -> None:
+    result = aa.assess(clean("analytics-reader"), "analytics-reader")
+    assert result.passed and result.limitations == ()
+
+
+def test_an_unguarded_evidence_table_is_disclosed_as_a_sorted_limitation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rules = ac.table_rules()
+    for name in ("nima.raw_objects", "nima.observations"):
+        rules[name] = replace(rules[name], truncate_guarded=False)
+    monkeypatch.setattr(aa, "table_rules", lambda: rules)
     result = aa.assess(clean("analytics-reader"), "analytics-reader")
     assert result.passed
-    assert "nima.raw_objects" in {
-        s.removeprefix("truncate_not_trigger_guarded:") for s in result.limitations
-    }
-    assert all(s.startswith("truncate_not_trigger_guarded:") for s in result.limitations)
-    assert len(result.limitations) == 15
-    assert list(result.limitations) == sorted(result.limitations)
+    assert result.limitations == (
+        "truncate_not_trigger_guarded:nima.observations",
+        "truncate_not_trigger_guarded:nima.raw_objects",
+    )
 
 
 def test_unclassified_and_missing_tables_fail_closed() -> None:

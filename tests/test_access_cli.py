@@ -74,7 +74,7 @@ def test_clean_role_publishes_a_private_passing_report(
     body = json.loads(report.read_text())
     assert body["version"] == "access-audit-v1" and body["status"] == "checks_passed"
     assert body["contract_version"] == ac.CONTRACT_VERSION and body["profile"] == "analytics-reader"
-    assert body["role"] == "svc" and body["reasons"] == [] and len(body["limitations"]) == 15
+    assert body["role"] == "svc" and body["reasons"] == [] and body["limitations"] == []
     assert [e["event"] for e in events(err)] == ["started", "completed"]
     assert {e["component"] for e in events(err)} == {"dataops.access_audit"}
 
