@@ -11,8 +11,11 @@
 - [x] O3b: pure print-only grant renderer from the same contract. 76 access tests;
   printed grants parse back to exactly each ceiling and pass the audit; unsafe/
   reserved role names refused. Widened-grant mutation failed 16 tests; restored.
-- [ ] O3c: bounded catalogue adapter; real roles for every reason, generated grants
-  pass audit, frozen snapshot with interleaved grant change.
+- [x] O3c: bounded catalogue adapter and 32 real-role/real-catalogue tests: printed
+  grants pass for all seven profiles; each drift/privilege/role reason; bounds;
+  read-only transaction and timeouts; mid-audit grant seen; no state change.
+  Locally verified on PostgreSQL 16 with a scratch-only version shim (not committed);
+  PostgreSQL 17 proof is hosted CI only. Disabled-trigger mutation fails; restored.
 - [ ] O3d: CLI, private artifact, redaction, runbook and restore entry, derived
   ingest/projector ceilings, guard mutation, wheel, full gates/audit, hosted jobs,
   one review-ready PR. Owner merge and live rollout stay separate.

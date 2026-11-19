@@ -217,9 +217,13 @@ could rewrite evidence. A pass proves catalogue state only, not passwords,
 - Audit inputs: `--role NAME`, `--profile NAME`, absolute private `--output-dir`.
   Connection comes from protected `NIMA_DATABASE_URL`; no credential-bearing
   argument. Grants inputs: `--profile NAME`, `--role NAME`; output goes to stdout.
-- One REPEATABLE READ, READ ONLY snapshot with five-second statement and
+- One REPEATABLE READ, READ ONLY transaction with five-second statement and
   two-second lock timeouts. Uses catalogue functions and views only; reads no
-  application rows and takes no control locks.
+  application rows and takes no control locks. Object and trigger lists come from
+  the transaction snapshot, but PostgreSQL's privilege functions return the newest
+  committed grants even inside it (verified on a real server). A grant committed
+  during the audit is therefore reported, never hidden. The audit is point-in-time,
+  not an atomic cross-object snapshot.
 - Per evidence table: a `BEFORE UPDATE OR DELETE` immutability trigger exists and
   is enabled (`tgenabled = 'O'`); the audited role holds no UPDATE, DELETE,
   TRUNCATE or TRIGGER privilege on it unless the profile ceiling names that exact
@@ -251,7 +255,7 @@ could rewrite evidence. A pass proves catalogue state only, not passwords,
    passes; generated grants applied to a fresh role pass; UPDATE on evidence, a
    disabled or dropped immutability trigger, a TRUNCATE grant, a superuser, an
    owner and a table added after the contract each produce their exact reason.
-   Frozen-snapshot proof with an interleaved grant change.
+   A grant committed mid-audit is seen, not hidden, and the audit changes nothing.
 4. **O3d** actual CLI for both commands, private no-clobber artifact, redaction
    proof, operator runbook with the grant matrix, restore-runbook entry,
    derived `ingest-worker`/`projector` ceilings, installed wheel, restored guard
