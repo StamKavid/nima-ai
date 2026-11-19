@@ -3,11 +3,19 @@
 ## V1-03 O3f — evidence TRUNCATE guards
 
 - [x] Owner approved 2026-11-19; spec, plan and tasks recorded on this branch.
-- [ ] O3f-1: failing tests first (guard for all 15 tables; upgrade from 12 with data;
+- [x] O3f-1: failing tests first (guard for all 15 tables; upgrade from 12 with data;
   history/checksums; audit limitation list empty; drop/disable detected).
-- [ ] O3f-2: migration 0013 and migration-list update; contract flags, runbook and
-  status documents.
-- [ ] O3f-3: full gates/audit, wheel, hosted exact-head jobs; one review-ready PR.
+- [x] O3f-2: migration 0013 and migration-list update (pinned counts 12->13 in five
+  tests); contract flags, runbook and status documents. 66 guard tests; emptying the
+  migration fails 47 of them and restoring it passes. Finding corrected: twelve tables
+  were open to a CASCADE wipe; three were already blocked indirectly.
+- [x] O3f-3 local: skills, format, lint, strict mypy, build, Bandit, Gitleaks and pip-audit
+  clean; contracts 3/3 unchanged vs main `af41981`; 146 guard/access tests pass from the
+  unpacked wheel (0013.sql identical). Full suite on PG16 with a scratch-only version
+  shim: 2835 passed, 59 failed, and the failing set is identical to the baseline
+  (subprocess tests that hit the PostgreSQL 17 guard). PostgreSQL 17 proof is hosted CI.
+- [ ] O3f-3 delivery: hosted exact-head jobs green, then owner review. Applying 0013 to
+  the private pilot is a separate owner action and is never automatic.
 
 ## V1-03 O3 — runtime-role and evidence-protection audit
 
@@ -40,14 +48,11 @@
   PostgreSQL 17, so the local PG16-shim caveat is closed. No live rollout.
 - [x] O3e spec approved 2026-11-19 (per-duty profiles; sequences only if proven
   necessary; TRUNCATE migration as a separate increment).
-- [ ] O3e-1 `projector`: contract entry, sufficiency/necessity tests with the real
-  `drain`, audit, runbook row and local gates are done (15 tests; two over-grant
-  mutations fail and are restored). Open PR #150 (draft); remaining: hosted
-  exact-head jobs green, then owner review.
+- [x] O3e-1 `projector`: owner merged #150 at `af41981`; exact `e91d1e6` verified on main.
+  15 tests; two over-grant mutations fail and are restored. Hosted run 44581097628 passed
+  all three jobs on that head (merged while two jobs were running; they finished green).
 - [ ] O3e-2 `collector`: same shape with a recorded-sample fixture, no network.
-- [ ] TRUNCATE guards (separate branch/PR): migration 0013 on the 15 older evidence
-  tables; old data and the 22-table classification unchanged; audit limitation list
-  becomes empty only after it merges.
+- [ ] TRUNCATE guards: tracked above as O3f (this branch).
 - Open finding for owner: 15 older evidence tables lack a TRUNCATE trigger; a fix
   would be a reviewed migration.
 

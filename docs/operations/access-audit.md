@@ -86,16 +86,18 @@ failure, never an empty pass.
   the ceiling (`privilege_excess`). UPDATE, DELETE, TRUNCATE, TRIGGER or
   REFERENCES on an evidence table is the distinct `evidence_rewrite_privilege`.
 - Evidence protection: an enabled BEFORE trigger covers UPDATE and DELETE
-  (`evidence_trigger_missing` / `evidence_trigger_disabled`); the seven newer
+  (`evidence_trigger_missing` / `evidence_trigger_disabled`); all 22
   evidence tables also need an enabled TRUNCATE trigger (`truncate_trigger_missing`).
 - Sequences: privileges beyond the profile (`sequence_privilege_excess`).
 
 ## Known limitations (reported on every audit)
 
-- Fifteen older evidence tables have no TRUNCATE trigger, so TRUNCATE there is
-  protected only by withholding the privilege, which this audit checks. The table
-  owner is not blocked. Each is listed as `truncate_not_trigger_guarded:<table>`.
-  A trigger would need a reviewed migration and is not part of this change.
+- Evidence tables block TRUNCATE with a statement trigger (migration 0013 added the
+  guard to the fifteen tables from 0001-0007). It stops mistakes and over-privileged
+  runtime roles, including the table owner (PostgreSQL itself rejects a plain TRUNCATE of
+  a referenced table first; the guard closes `TRUNCATE ... CASCADE`), but not a superuser, who can still disable
+  a trigger or set `session_replication_role`. A database that has not yet applied
+  0013 reports `truncate_not_trigger_guarded:<table>` for each unguarded table.
 - The audit is point-in-time, not an atomic snapshot. PostgreSQL privilege
   functions return the newest committed grants, so a grant made during the audit
   is reported rather than hidden.

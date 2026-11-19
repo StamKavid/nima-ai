@@ -402,6 +402,13 @@ blocked. The seven newer evidence tables already carry a statement-level guard.
   `TRUNCATE ... CASCADE` from a referenced table is rejected too. It is a guard
   against mistakes and over-privileged runtime roles, not a boundary against a
   superuser, who can still disable a trigger or set `session_replication_role`.
+- Nuance, verified by emptying the migration: PostgreSQL rejects a plain `TRUNCATE` of a
+  referenced table with a foreign-key error before any trigger runs, so the guard
+  matters for unreferenced tables and for `TRUNCATE ... CASCADE`, which is the form
+  that could wipe evidence. Twelve tables were open to a CASCADE wipe and are now
+  closed. `raw_objects`, `run_pages` and `gemi_imports` were already blocked indirectly,
+  because newer guarded tables reference them; they now have their own independent
+  guard. The O3 wording that the fifteen tables were unprotected was too broad.
 - Audit and contract: all 22 evidence tables become `truncate_guarded`, so the
   `truncate_not_trigger_guarded:*` limitation list becomes empty and a missing
   TRUNCATE trigger on any evidence table is `truncate_trigger_missing`. Report format
@@ -415,9 +422,9 @@ blocked. The seven newer evidence tables already carry a statement-level guard.
 
 ### Acceptance
 
-1. Each of the 15 tables rejects TRUNCATE for the owner and for a role granted the
-   TRUNCATE privilege, with the fixed error, leaving rows and counts unchanged;
-   UPDATE and DELETE are still rejected.
+1. `TRUNCATE ... CASCADE` of each of the 15 tables is rejected for the owner and for a
+   role holding TRUNCATE everywhere, with the fixed error, leaving every table
+   unchanged; a plain TRUNCATE never succeeds; UPDATE and DELETE are still rejected.
 2. A database built at version 12 with real rows upgrades to 13 with every table's
    rows, grants and ownership identical, and applying 0013 twice is a no-op.
 3. The migration history lists 13 entries with unchanged checksums for 1-12.
