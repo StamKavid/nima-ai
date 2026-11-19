@@ -67,7 +67,7 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     policy.add_argument("--policy-id", type=UUID, required=True)
     policy.add_argument("--start-date", type=_date, required=True)
     policy.add_argument("--buyer-id", action="append", required=True)
-    for operation in ("plan", "show", "enable", "pause", "tick", "recover", "retire"):
+    for operation in ("plan", "show", "enable", "pause", "tick", "recover", "retire", "supersede"):
         command = refresh.add_parser(operation)
         command.add_argument("policy_id", type=UUID)
         if operation == "plan":
@@ -78,6 +78,9 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
             from nima.storage.refresh_lifecycle import REASONS
 
             command.add_argument("--reason", choices=REASONS, required=True)
+        elif operation == "supersede":
+            command.add_argument("--successor-id", type=UUID, required=True)
+            command.add_argument("--authorize-new-budgets", action="store_true", required=True)
     workflows = commands.add_parser("workflows").add_subparsers(dest="operation", required=True)
     submit = workflows.add_parser("submit", help="Persist and dispatch one explicit local workflow")
     submit.add_argument("source", choices=["kimdis"])
@@ -328,6 +331,8 @@ def main(argv: list[str] | None = None) -> int:
             as_of=getattr(args, "as_of", None),
             request=getattr(args, "request_id", None),
             reason=getattr(args, "reason", None),
+            successor=getattr(args, "successor_id", None),
+            authorize_new_budgets=getattr(args, "authorize_new_budgets", False),
         )
     if args.command == "workflows":
         from nima.orchestration.cli import run

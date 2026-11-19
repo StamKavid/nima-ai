@@ -22,6 +22,8 @@ def run(
     as_of: date | None = None,
     request: UUID | None = None,
     reason: str | None = None,
+    successor: UUID | None = None,
+    authorize_new_budgets: bool = False,
 ) -> int:
     try:
         dsn = os.environ.get("NIMA_DATABASE_URL", "")
@@ -36,6 +38,16 @@ def run(
             store.create(policy_id, Policy(start, buyers, config.archive_root))
         elif operation == "plan":
             print(json.dumps(store.plan(policy_id, as_of or day), allow_nan=False))
+            return 0
+        elif operation == "supersede":
+            from nima.storage.refresh_succession import supersede
+
+            if successor is None:
+                raise WorkflowError("configuration")
+            result = supersede(
+                dsn, policy_id, successor, authorize_new_budgets=authorize_new_budgets
+            )
+            print(json.dumps(result, allow_nan=False))
             return 0
         elif operation == "retire":
             from nima.storage.refresh_lifecycle import retire

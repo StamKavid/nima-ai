@@ -15,7 +15,7 @@ from nima.ingestion.config import CONNECTOR_VERSION, Query
 from nima.intent import IntentError, RefreshIntent, refresh_intent
 from nima.orchestration.refresh import CRON, TIMEZONE, VERSION, Policy, select_dates
 from nima.storage.postgres import NORMALIZER_VERSION, Connection
-from nima.storage.refresh_lifecycle import retirement
+from nima.storage.refresh_lifecycle import policy_links, retirement
 from nima.storage.refresh_lock import policy_session
 from nima.storage.workflows import RequestStore, WorkflowError, _db
 
@@ -152,11 +152,13 @@ class RefreshStore:
                 connection, policy_id, policy.start, date.fromordinal(day.toordinal() - 1)
             )
             retired = retirement(connection, policy_id) is not None
+            links = policy_links(connection, policy_id)
         return {
             "policy_id": str(policy_id),
             "business_date": day.isoformat(),
             "query_dates": [d.isoformat() for d in select_dates(policy, day, missing)],
             "retired": retired,
+            "policy_links": links,
             **self.compatibility(policy_id),
         }
 
