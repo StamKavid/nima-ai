@@ -7,7 +7,7 @@ from uuid import UUID
 from nima.orchestration.pipeline import finalize_request
 from nima.orchestration.refresh import select_dates
 from nima.storage.refresh import RefreshSession, RefreshStore, missing_dates
-from nima.storage.refresh_lifecycle import retirement
+from nima.storage.refresh_lifecycle import policy_links, retirement
 from nima.storage.workflows import RequestStore, WorkflowError, _db
 
 
@@ -74,6 +74,7 @@ def show(store: RefreshStore, policy_id: UUID, day: date) -> dict[str, object]:
         if state is None:
             raise WorkflowError("policy_unavailable")
         retired = retirement(connection, policy_id)
+        links = policy_links(connection, policy_id)
         missing = missing_dates(connection, policy_id, policy.start, end)
         count = connection.execute(
             "SELECT count(DISTINCT query_date) FROM nima.refresh_windows "
@@ -133,6 +134,7 @@ def show(store: RefreshStore, policy_id: UUID, day: date) -> dict[str, object]:
         and retired is None,
         "retired": retired is not None,
         "retirement": retired,
+        "policy_links": links,
         **compatibility,
         "schedule_reconciliation": "required" if state[0] == "pending" else "last_acknowledged",
         "business_date": day.isoformat(),

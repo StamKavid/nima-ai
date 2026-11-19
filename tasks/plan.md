@@ -1,5 +1,16 @@
 # Delivery plan
 
+## Active V1-02 R3: final workflow-recovery code checkpoint
+
+Owner merged #145 at `3626314`, including exact reviewed `0bbdbf6` and identical
+files. Follow [R3](../SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint):
+additive 0012/atomic paused-successor authorization, then bounded lineage/CLI and
+expired-child fresh-observation proof, process failures, mutation/wheel/full gates
+and final-head hosted results. Preserve all earlier tasks and original budgets/
+evidence. No private migration or source activation. Explicitly announce checkpoint
+completion at verified review-ready delivery; merge/live rollout remain distinct.
+The next planned module after owner acceptance is V1-03, not another R4 expansion.
+
 ## Active V1-02 R2: audited policy retirement
 
 Verify owner-merged #144 at `82ded43`, including exact `5e90a32` and identical

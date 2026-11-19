@@ -15,12 +15,13 @@ from nima.ingestion.config import CONNECTOR_VERSION, Query
 from nima.intent import IntentError, RefreshIntent, refresh_intent
 from nima.orchestration.refresh import CRON, TIMEZONE, VERSION, Policy, select_dates
 from nima.storage.postgres import NORMALIZER_VERSION, Connection
-from nima.storage.refresh_lifecycle import retirement
+from nima.storage.refresh_lifecycle import policy_links, retirement
 from nima.storage.refresh_lock import policy_session
 from nima.storage.workflows import RequestStore, WorkflowError, _db
 
 
-def _parameters(policy: Policy) -> dict[str, object]:
+def policy_parameters(policy: Policy) -> dict[str, object]:
+    """Build the installed profile without altering saved policy identities."""
     return {
         "version": VERSION,
         "start_date": policy.start.isoformat(),
@@ -36,7 +37,7 @@ def _parameters(policy: Policy) -> dict[str, object]:
     }
 
 
-def _digest(value: dict[str, object]) -> str:
+def configuration_digest(value: dict[str, object]) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
 
 
@@ -84,13 +85,13 @@ class RefreshStore:
         self.dsn = dsn
 
     def create(self, policy_id: UUID, policy: Policy) -> None:
-        value = _parameters(policy)
+        value = policy_parameters(policy)
         with _db(self.dsn) as connection, connection.transaction():
             inserted = connection.execute(
                 "INSERT INTO nima.refresh_policies "
                 "(policy_id,configuration,configuration_sha256,start_date) VALUES (%s,%s,%s,%s) "
                 "ON CONFLICT DO NOTHING RETURNING 1",
-                (policy_id, Jsonb(value), _digest(value), policy.start),
+                (policy_id, Jsonb(value), configuration_digest(value), policy.start),
             ).fetchone()
             row = connection.execute(
                 "SELECT configuration,configuration_sha256 FROM nima.refresh_policies "
@@ -151,11 +152,13 @@ class RefreshStore:
                 connection, policy_id, policy.start, date.fromordinal(day.toordinal() - 1)
             )
             retired = retirement(connection, policy_id) is not None
+            links = policy_links(connection, policy_id)
         return {
             "policy_id": str(policy_id),
             "business_date": day.isoformat(),
             "query_dates": [d.isoformat() for d in select_dates(policy, day, missing)],
             "retired": retired,
+            "policy_links": links,
             **self.compatibility(policy_id),
         }
 

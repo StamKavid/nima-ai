@@ -49,7 +49,8 @@ def test_owner_cannot_rewrite_or_truncate_retirement(
     statements = {
         "UPDATE": "UPDATE nima.refresh_retirements SET reason=reason",
         "DELETE": "DELETE FROM nima.refresh_retirements",
-        "TRUNCATE": "TRUNCATE nima.refresh_retirements",
+        # The successor FK requires CASCADE before PostgreSQL reaches the triggers.
+        "TRUNCATE": "TRUNCATE nima.refresh_retirements CASCADE",
         "CASCADE": "TRUNCATE nima.refresh_policies CASCADE",
     }
     with psycopg.connect(pg_dsn) as c, pytest.raises(psycopg.errors.ObjectNotInPrerequisiteState):
@@ -142,7 +143,7 @@ def test_upgrade_ten_preserves_every_existing_table_and_checksum(
     pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     migrations = postgres._migrations()
-    assert [item[0] for item in migrations] == list(range(1, 12))
+    assert [item[0] for item in migrations] == list(range(1, 13))
     with monkeypatch.context() as patch:
         patch.setattr(postgres, "_migrations", lambda: migrations[:10])
         _, policy = new_policy(pg_dsn, tmp_path / "raw")
@@ -152,7 +153,7 @@ def test_upgrade_ten_preserves_every_existing_table_and_checksum(
     postgres.migrate(pg_dsn)
     postgres.migrate(pg_dsn)
     after = database_snapshot(pg_dsn)
-    assert len(after) == 27 and after["refresh_retirements"] == []
+    assert len(after) == 28 and after["refresh_retirements"] == []
     for table in before.keys() - {"schema_migrations"}:
         assert after[table] == before[table]
     with psycopg.connect(pg_dsn) as c:

@@ -155,3 +155,75 @@ commit, deliberate fence mutation restored, installed wheel, full local gates/
 audit and exact-head hosted proof before owner review. Test actual PostgreSQL
 and synthetic fixtures only. Successor linking, new-budget authorization and
 terminal child/cycle completion remain later; retirement cannot fill a gap.
+
+## R3: explicit successor authorization — final code checkpoint
+
+Owner merged #145 at `3626314` with exact reviewed `0bbdbf6`, then requested
+continuation and a clear checkpoint end. R3 finishes this **current KIMDIS v1
+workflow-recovery code checkpoint** at a review-ready PR with complete verification.
+Owner merge establishes main delivery; private deployment, live collection,
+arbitrary future policy formats and the wider v1.0 roadmap remain separate.
+
+```sh
+uv run --frozen python -m nima refresh supersede OLD_POLICY_UUID \
+  --successor-id NEW_POLICY_UUID --authorize-new-budgets
+```
+
+Use existing environment-only database configuration. Require distinct UUIDs,
+an already-retired predecessor, an unused successor ID and explicit boolean
+authorization. No adoption of existing policies. Inherit the exact buyers,
+coverage start, archive root, cadence, overlap, lag and child cap; only processing
+pins come from the installed supported profile. Validate recorded old intent/hash
+and the new supported intent before writing. Existing archive-path metadata
+validation remains; read no evidence bodies and create no archive. No Prefect,
+source request, schedule activation or private migration is part of this task.
+
+Approval concerns fresh source-work budgets, not resetting an old request. The
+fixed `nima-refresh-budgets-v1` profile retains request ceilings of 100 pages,
+3 attempts/page, 8 MiB/body, 20 requests/minute, 20-second request/300-second run/
+60-second retry-delay limits; enclosing limits remain 4 executions, 300 reserved
+attempts, 100 projection batches and 30 minutes per request, up to 14 one-day
+children per cycle and 10 buyers. These are per-request/cycle limits, not one total
+lifetime policy allowance. Existing supported-v1 checks remain authoritative.
+Future incompatible profiles need their own versioned implementation/review.
+
+Add migration 0012 with one immutable `nima.refresh_successions` authorization per
+predecessor and a unique successor: FK to predecessor retirement, FK to successor
+policy, required true authorization, fixed budget-profile ID, database-stamped
+successor configuration hash/time/effective principal. Enforce distinct IDs,
+same non-processing scope, and a fresh paused successor (no ticks, cycles,
+retirement or prior enabled/pending state). Reject UPDATE/DELETE/TRUNCATE/CASCADE.
+Row locks serialize validation with enable/retire/allocation. The fresh-unretired
+target and retired source prevent cycles. Prior migrations 1–11 stay unchanged;
+`nima` grows from 27 to 28 tables, with exact inventories updated.
+
+Create the paused successor, initial state event and authorization in **one SQL
+transaction** under the predecessor's shared policy lock and READ COMMITTED.
+Any collision/error/death before commit leaves no successor or link. Same pair
+reuses the original authorization without reinterpreting it against new defaults;
+another target conflicts. Reuse may report the successor's current state, and
+never re-pauses or activates it. Keep the predecessor/retirement, requests,
+clocks, counters, observations, versions, archived bytes and missing days intact.
+Existing committed reservations retain their R2 semantics.
+
+The successor starts with its own coverage: **copy no successful windows or
+observations as new work**. It will reobserve the inherited range after separate
+explicit enablement. Original successes/gaps remain attributable to the retired
+generation. Explain this cost before any live use. Inspection includes only the
+direct predecessor/successor (at most two links) inside its existing read-only
+snapshot; no unbounded traversal or combined coverage claim. Responses contain
+IDs, bound configuration hash, budget profile, authorization time, reused flag
+and successor state; omit principal, archive path and source labels.
+
+Fixed errors: `succession_authorization`, `succession_not_retired`,
+`succession_conflict`, `succession_profile`; retain existing configuration,
+policy/archive/database errors and operational exit rules. No new dependency,
+CI edit, grants or notifications. Add public configuration/hash preparation
+helpers only where needed; avoid a creation/inspection import cycle.
+
+Slices: R3a contract/plan; R3b schema/atomic API and native SQL constraints/upgrade;
+R3c CLI/bounded lineage and actual expired-child fresh-observation progress;
+R3d before/after-commit SIGKILL, concurrency, narrow-role/guard mutation, installed
+wheel, `just check`, `just audit`, historical contracts and exact-head hosted jobs.
+Only synthetic/disposable fixtures. Then explicitly report **checkpoint complete**
+and stop at owner review. Next planned module is V1-03 operating controls.

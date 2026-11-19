@@ -1,5 +1,20 @@
 # Tasks
 
+## V1-02 R3 — final workflow-recovery code checkpoint
+
+- [x] Verify #145 exact `0bbdbf6` reaches main `3626314`; freeze explicit successor
+  authority, same-scope/paused creation and finite checkpoint acceptance.
+- [x] R3b: 0012/atomic API, immutable stamped approval, original-schema/data
+  preservation, fresh/same-scope target and idempotent/collision checks.
+- [x] R3c: actual CLI and bounded snapshot lineage; expired-child refusal followed
+  by separately authorized fresh observations with old evidence/budgets unchanged.
+- [x] R3d local: process death, concurrent/default-isolation/narrow-role checks and
+  authorization/scope guard mutations fail and are restored.
+- Installed-wheel, full gates/audit and final-head hosted proof are required
+  before announcing checkpoint complete; record exact results with delivery.
+- [ ] Announce checkpoint complete at review-ready PR; owner merge remains the
+  delivery decision. No live setup, collection or schedule activation.
+
 ## V1-02 R2 — permanent policy retirement
 
 - [x] Verify #144 reviewed tree reaches main `82ded43`; freeze retirement contract.
@@ -11,7 +26,8 @@
   mutations fail regressions and are restored.
 - Installed wheel, full gates/audit and exact-head hosted evidence are required
   before handoff; record observations with the delivery PR.
-- [ ] Owner review; no private migration, live retirement or source activation.
+- [x] Owner merged #145 at `3626314`; exact `0bbdbf6` verified. Full local/wheel/
+  mutation and both exact-head CI runs are recorded there. No private deployment.
 - [ ] Later: successor linking and explicit new-budget authorization; retirement
   does not complete windows or create a new policy/request.
 

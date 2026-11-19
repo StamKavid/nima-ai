@@ -67,6 +67,14 @@ progress; original evidence/versions stay unchanged. Propose historical correcti
 sweeps only after measured source-date behavior; seven-day overlap is not CDC.
 Area: orchestration/refresh and its storage adapter; keep schema changes isolated.
 
+Current-profile implementation checkpoint: R1 (#144) bounded same-request recovery;
+R2 (#145) immutable retirement; R3 explicit paused-successor/new-budget authority
+([contract](../../SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint)).
+R3 ends this code checkpoint at verified review-ready delivery; owner merge and
+live migration/activation remain distinct. After acceptance, advance to V1-03
+rather than inventing another recovery increment. Future formats/correction
+sweeps remain separately gated by actual source/version evidence.
+
 ## V1-03 — operating controls
 
 Extend existing structured DataOps boundary events, selected-run health, scoped

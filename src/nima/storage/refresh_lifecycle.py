@@ -11,6 +11,30 @@ from nima.storage.workflows import WorkflowError
 REASONS = ("budget_exhausted", "processing_incompatible", "operator_stop")
 
 
+def policy_links(connection: Connection, policy: UUID) -> list[dict[str, object]]:
+    """Unique endpoints bound direct lineage to two records; never traverse a chain."""
+    rows = connection.execute(
+        "SELECT s.predecessor_id,s.successor_id,s.successor_configuration_sha256,"
+        "s.budget_profile,s.authorized_at,s.new_budgets_authorized,p.state "
+        "FROM nima.refresh_successions s JOIN nima.refresh_policies p "
+        "ON p.policy_id=s.successor_id "
+        "WHERE s.predecessor_id=%s OR s.successor_id=%s ORDER BY s.predecessor_id",
+        (policy, policy),
+    ).fetchall()
+    return [
+        {
+            "predecessor_id": str(row[0]),
+            "successor_id": str(row[1]),
+            "successor_configuration_sha256": row[2],
+            "budget_profile": row[3],
+            "authorized_at": cast(datetime, row[4]).isoformat(),
+            "new_budgets_authorized": row[5],
+            "successor_state": row[6],
+        }
+        for row in rows
+    ]
+
+
 def retirement(connection: Connection, policy: UUID) -> dict[str, object] | None:
     row = connection.execute(
         "SELECT reason,recorded_at FROM nima.refresh_retirements WHERE policy_id=%s", (policy,)

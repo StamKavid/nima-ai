@@ -110,3 +110,54 @@ control table (27 total in `nima`); original migration bodies remain unchanged.
 
 Successor linking and explicit new-budget authorization remain a later increment.
 Retirement creates no replacement policy/request and transfers no coverage.
+
+## Authorize one fresh successor generation
+
+After reviewed migration 0012, use a **new, unused** policy UUID and an already
+retired predecessor. Review the inherited cohort and budget profile first:
+
+```sh
+uv run --frozen python -m nima refresh show OLD_POLICY_UUID
+uv run --frozen python -m nima refresh supersede OLD_POLICY_UUID \
+  --successor-id NEW_POLICY_UUID --authorize-new-budgets
+uv run --frozen python -m nima refresh show NEW_POLICY_UUID
+```
+
+This creates a paused policy and one immutable authorization atomically. Buyers,
+coverage start, archive root and scheduling profile are inherited exactly;
+processing pins use the installed supported v1 profile. Existing policies cannot
+be adopted. The command uses only database configuration and archive-path
+metadata validation, with no evidence reads, archive creation, Prefect/source
+request or activation. Live use is separate from code approval and requires the
+existing backup/migration and protected-worker procedures.
+
+The required flag authorizes **fresh budgets**, not a reset of old work. The fixed
+[`nima-refresh-budgets-v1` profile](../../SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint)
+retains existing request/cycle ceilings, including 300 reserved attempts per
+request and at most 14 children per cycle. These are not one lifetime allowance
+for an enabled policy. A successor reobserves the inherited range and starts its
+own coverage; it receives no copied successful windows. This may revisit dates
+already collected by the old generation. Review that cost before separately
+enabling a schedule. Old failures, gaps, original bytes and counters remain.
+
+Same-pair retries reuse the original approval/time/hash, even after activation or
+runtime changes; they never re-pause or activate it. Another target conflicts.
+SQL records the effective principal, time and actual immutable successor config
+hash, and rejects used/active/different-scope targets and mutation/truncation.
+`refresh show` exposes at most the direct incoming/outgoing links in its snapshot;
+it does not combine coverage or traverse an entire chain. Principal/path/source
+labels stay out of terminal summaries. Already reserved old work retains R2's
+completion semantics.
+
+The narrow successor operator needs schema usage, SELECT on `schema_migrations`,
+`refresh_policies`, `refresh_retirements`, `refresh_successions`, `refresh_events`
+and `refresh_cycles`; UPDATE(state) on `refresh_policies`; INSERT on
+`refresh_policies`, `refresh_events`, `refresh_successions`; and USAGE on
+`refresh_events_event_id_seq` (all in `nima`). No source-table INSERT is needed.
+Inspection roles additionally need SELECT on `refresh_successions`. No grants
+are automatic. Migration 0012 adds one table, bringing `nima` to 28; older bodies
+stay unchanged. Source activation keeps its separate existing permissions.
+
+This is the final R3 code checkpoint for current-profile workflow recovery. It
+ends at fully verified, review-ready delivery, with main merge and live rollout
+tracked separately. The next planned work package is V1-03 operating controls.
