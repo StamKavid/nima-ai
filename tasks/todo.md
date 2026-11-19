@@ -3,11 +3,14 @@
 ## V1-01 VH1 — selected-artifact validation health
 
 - [x] Verify #142 and reviewed head on main `ef657aa`; freeze bounded health scope.
-- [ ] VH1b: typed records/shared decoding and complete bounded read-only SQL cohort.
-- [ ] VH1c: deterministic current-policy, latest-start, tie, age and clock rules.
-- [ ] VH1d: actual CLI, fixed events/errors and operator guidance.
-- [ ] VH1e: real SQL/roles, concurrent snapshot/old-corruption/bounds, meaningful
-  mutation, installed wheel, full local gates/audit and exact-head hosted proof.
+- [x] VH1b: typed records/shared decoding and complete bounded read-only SQL cohort.
+- [x] VH1c: deterministic current-policy, latest-start, tie, age and clock rules.
+- [x] VH1d: actual CLI, fixed events/errors and operator guidance.
+- [x] VH1e SQL: actual restricted roles, interleaved-commit snapshot, old corruption,
+  count/byte bounds and transaction-level write refusal. Latest-failure guard
+  mutation fails its regression and is restored.
+- Installed wheel, full local gates/audit and exact-head hosted proof are required
+  before handoff; record exact observations with the delivery PR.
 - [ ] Owner review; no live journal setup, source acquisition or activation.
 
 ## V1-01 — first durable validation boundary

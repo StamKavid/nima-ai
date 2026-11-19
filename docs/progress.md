@@ -1,6 +1,23 @@
-# Capability progress: 2026-11-18
+# Capability progress: 2026-11-19
 
-## V1-01 candidate: durable output validation history
+## V1-01 VH1 candidate: selected journal health
+
+Owner-merged #141/#142 reach main `ef657aa`, including exact reviewed `2c9cbf6`.
+[Selected-artifact journal health](operations/validation-history.md#health-of-an-explicitly-selected-artifacts-journal)
+adds a bounded read-only snapshot and pure time/current-policy assessment. Newer
+failures cannot be hidden by older late-completing passes; old corruption blocks
+a verdict. Empty, pending, stale, tied, clock and old-policy states stay explicit.
+Counts retain historical outcomes without treating them as current source truth.
+
+Actual SQL/role/interleaved-snapshot tests and a latest-failure guard mutation pass;
+the guard is restored. Existing output bytes and prior command behavior remain.
+Final full gates/audit, wheel and exact-head hosted evidence are recorded with
+delivery before handoff. No new schema, source access, private migration or
+schedule. This inspects recorded attestations; it does not revalidate current
+artifacts or certify a metric/source. Other dataset boundaries and live setup
+remain separate work.
+
+## Delivered V1-01 first boundary (#141/#142)
 
 Owner merged #139/#140 at `73f8aa4` and requested continuation. The
 [first history contract](../SPEC-validation-history.md) adds a separate append-only

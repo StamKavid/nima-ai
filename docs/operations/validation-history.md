@@ -90,3 +90,45 @@ this operation; there is no distributed SQL/filesystem commit claim.
 History is append-only with no automatic pruning. Source freshness, metric review,
 identity uncertainty and coverage remain separate trust dimensions. Passing this
 validator does not make captured data national, source-current or legally verified.
+
+## Health of an explicitly selected artifact's journal
+
+With the same restricted journal reader, inspect recorded-check health:
+
+```sh
+uv run --frozen python -m nima dataops validation-health \
+  --artifact-sha256 SHA256 --max-check-age-hours 24 --max-pending-age-minutes 30
+```
+
+Replace `SHA256` with the actual report hash. Both thresholds are required
+operator settings: 1–8,760 hours and 1–10,080 minutes. They are not source SLAs.
+The command needs only `NIMA_VALIDATION_DATABASE_URL`; it neither runs a new
+validation nor reads the report, originals or source database. Its explicit scope
+is `recorded_validation_history_only`. Current file integrity and source freshness
+remain separate checks.
+
+The complete selected history is read in one repeatable-read read-only snapshot,
+with a maximum of 1,000 attempts and 8 MiB of stored JSON. Exceeding a bound fails
+without truncation. Cohort queries have a five-second statement/two-second lock
+limit; connection/schema/role setup retains the existing limits. Stored hashes
+and associations are checked for every row, including older ones. Corrupt history
+prevents a verdict rather than being hidden behind a later pass.
+
+`checks_passed` means the latest-started attempt passed under the current bound
+contract and validator, its completion is within the age threshold, and no pending
+attempt is overdue or clock anomaly present. Earlier failures remain counted;
+a later valid pass can resolve their attention. An older late-finishing check
+cannot mask a newer failure. Equal latest start times are ambiguous and all tied
+IDs are exposed. A cached result does not acquire a new timestamp.
+
+`attention` explains no checks, pending/failed/blocked latest checks, stale checks,
+old policy, overdue pending attempts, tied latest starts or clock anomalies.
+Exactly-at-threshold ages are fresh/not overdue. Counts, SQL sample time, current
+policy, latest IDs/state/times and last current-policy pass time stay visible.
+No history exists for a selected hash does not mean its artifact is absent.
+Exit 0 means checks_passed; 3 attention; configuration/operational/interruption
+codes retain their existing meaning. Output is at most 64 KiB.
+
+This first health view is per declared artifact, not a source-wide or per-run
+assessment. It does not change history, certify the draft metric or activate any
+schedule. Live journal setup and other dataset boundaries remain separate work.
