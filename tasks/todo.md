@@ -56,7 +56,11 @@
 - [x] O3e-1 `projector`: owner merged #150 at `af41981`; exact `e91d1e6` verified on main.
   15 tests; two over-grant mutations fail and are restored. Hosted run 44581097628 passed
   all three jobs on that head (merged while two jobs were running; they finished green).
-- [ ] O3e-2 `collector`: same shape with a recorded-sample fixture, no network.
+- [x] O3e-2 `collector` (local): 33 tests prove the real `collect` and `resume` complete under
+  exactly the printed grants in three offline scenarios (clean, quarantined record, resume of
+  an interrupted run) and that removing any privilege breaks at least one; no sequence needed.
+  Two over-grants (SELECT on outbox, UPDATE of `query`) fail their own necessity case; restored.
+- [ ] O3e-2 delivery: gates, wheel, hosted exact-head jobs; one review-ready PR.
 - [x] TRUNCATE guards: delivered as O3f (#151).
 - Open finding for owner: 15 older evidence tables lack a TRUNCATE trigger; a fix
   would be a reviewed migration.

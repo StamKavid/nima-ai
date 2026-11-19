@@ -296,7 +296,7 @@ and focused `tests/test_access_*.py` files. Commands:
 
 ## O3e: worker role profiles
 
-Status: **approved by the owner on 2026-11-19; slice O3e-1 in progress.** Decisions:
+Status: **approved by the owner on 2026-11-19; O3e-1 `projector` delivered (#150); O3e-2 `collector` in review.** Decisions:
 per-duty profiles (recommended option), a sequence grant only where execution proves
 it necessary, and the optional TRUNCATE-trigger migration approved as a **separate**
 increment (its own branch, spec section and PR) after O3e-1. Follows

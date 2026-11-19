@@ -73,6 +73,15 @@ takes about 9.7 minutes on a fast runner and over 14 on a slow one. The duplicat
 run timed out on #148 and on #151 (the PR runs, which count, passed). More tests make
 this likelier. Two small CI changes are proposed and await owner approval; none is made.
 
+## V1-03 O3e-2 candidate: collector access profile
+
+The `collector` ceiling is derived from the real run-journal and page-commit SQL and
+proven by running the real `collect` and `resume` offline under exactly the printed
+grants (a clean run, a run with a quarantined record, and a resume), and by showing
+that removing any single privilege breaks at least one scenario. No sequence grant is
+needed. Candidate code earns no progress credit until reviewed and delivered; no live
+role was provisioned and no source request was made.
+
 ## Delivered V1-03 O3e-1 (#150): projector access profile
 
 Owner merged #150 at `af41981`; exact `e91d1e6` is verified on main. The `projector`
