@@ -1,5 +1,14 @@
 # Tasks
 
+## V1-03 O3f — evidence TRUNCATE guards
+
+- [x] Owner approved 2026-11-19; spec, plan and tasks recorded on this branch.
+- [ ] O3f-1: failing tests first (guard for all 15 tables; upgrade from 12 with data;
+  history/checksums; audit limitation list empty; drop/disable detected).
+- [ ] O3f-2: migration 0013 and migration-list update; contract flags, runbook and
+  status documents.
+- [ ] O3f-3: full gates/audit, wheel, hosted exact-head jobs; one review-ready PR.
+
 ## V1-03 O3 — runtime-role and evidence-protection audit
 
 - [x] Spec approved 2026-11-19: profiles, print-only grant script, restore check.

@@ -378,3 +378,50 @@ approved one at a time.
 Each slice ends in one review-ready PR with full `just check`/`just audit` and
 hosted exact-head jobs. Existing profiles and the audit report format
 (`access-audit-v1`) stay unchanged; new profiles only add names.
+
+## O3f: evidence TRUNCATE guards
+
+Status: **approved by the owner on 2026-11-19** (the optional migration in O3e decision
+3), as its own increment on `feature/evidence-truncate-guards`. Closes the finding
+recorded in O3: 15 of the 22 evidence tables (migrations 0001-0007) block UPDATE and
+DELETE with row triggers but have no TRUNCATE trigger, and row triggers do not fire on
+TRUNCATE. Today only withheld privileges protect them, and the table owner is not
+blocked. The seven newer evidence tables already carry a statement-level guard.
+
+### Contract
+
+- Add one forward-only, additive migration `0013.sql`. For each of the 15 tables it
+  creates `<name>_no_truncate BEFORE TRUNCATE ... FOR EACH STATEMENT EXECUTE FUNCTION
+  nima.reject_mutation()`, reusing the existing function and its 55000 error
+  'Evidence rows are immutable'. No new function, table, column, index or data change.
+- Tables: raw_objects, run_pages, record_versions, observations, quarantine,
+  projection_contracts, projection_mentions, projection_receipts, gemi_imports,
+  gemi_responses, gemi_profile_versions, gemi_observations, refresh_events,
+  identity_entities and identity_review_events, all in `nima`.
+- Effect: TRUNCATE on any of them is rejected for every role, the owner included, and
+  `TRUNCATE ... CASCADE` from a referenced table is rejected too. It is a guard
+  against mistakes and over-privileged runtime roles, not a boundary against a
+  superuser, who can still disable a trigger or set `session_replication_role`.
+- Audit and contract: all 22 evidence tables become `truncate_guarded`, so the
+  `truncate_not_trigger_guarded:*` limitation list becomes empty and a missing
+  TRUNCATE trigger on any evidence table is `truncate_trigger_missing`. Report format
+  `access-audit-v1` and all profiles are unchanged; only the limitation list shrinks.
+- Compatibility: databases at version 12 apply only 0013; the stored checksums of 1-12
+  are untouched. Existing rows, roles, grants and ownership are preserved. No code
+  path truncates these tables (checked in `src`, `scripts` and `infra`).
+- Rollout: apply only to disposable test databases here. Running `migrate` on the
+  private pilot is a separate owner action and is never automatic. A rollback is a
+  new forward migration dropping the 15 triggers; it has no data effect.
+
+### Acceptance
+
+1. Each of the 15 tables rejects TRUNCATE for the owner and for a role granted the
+   TRUNCATE privilege, with the fixed error, leaving rows and counts unchanged;
+   UPDATE and DELETE are still rejected.
+2. A database built at version 12 with real rows upgrades to 13 with every table's
+   rows, grants and ownership identical, and applying 0013 twice is a no-op.
+3. The migration history lists 13 entries with unchanged checksums for 1-12.
+4. The audit passes with an empty limitation list; dropping or disabling any one of the
+   15 new triggers is reported with its exact reason.
+5. Normal ingestion, projection and the full suite are unaffected; full gates, wheel
+   proof and hosted exact-head jobs precede one review-ready PR.
