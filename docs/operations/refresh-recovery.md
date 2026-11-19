@@ -47,7 +47,9 @@ death can leave a pending intent. Both count against headroom. Retry the same
 request only after inspecting it. Never infer non-delivery from a lost response.
 
 Exit codes retain refresh semantics: 0 acknowledgement, 1 operational/eligibility
-refusal, 2 configuration, 130 interruption. Error output contains fixed reasons,
-without DSNs, archive paths or arbitrary engine exception text. No SQL/engine
+refusal, 2 configuration, 130 interruption. Operational errors contain fixed reasons,
+without DSNs, archive paths or arbitrary engine exception text. Argument parsing
+retains the shared CLI diagnostics; keep credentials in environment settings.
+No SQL/engine
 atomic commit or automatic retry is claimed. See the [R1 contract](../../SPEC-refresh-recovery.md)
 for synthetic process/SQL/control verification and the remaining V1-02 scope.

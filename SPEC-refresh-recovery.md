@@ -56,7 +56,9 @@ proof of non-delivery. Success may advance a `sending` window to `accepted`, but
 never regresses an accepted window or marks work/coverage complete. Reconcile
 through the existing evidence path on a later tick. The terminal response has
 policy/request IDs, dispatch acknowledgement and existing request status/budget
-summary, without DSN/path/source text. Retain existing fixed CLI error/exit rules.
+summary, without DSN/path/source text. Retain existing fixed operational CLI errors
+and exit rules; argument parsing keeps the shared CLI behavior. Credentials stay
+in environment settings, never arguments.
 
 ## Recovery and limits
 
