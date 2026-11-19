@@ -10,14 +10,20 @@
   line/branch; real-repo mutations (a forbidden import and a new cycle) fail and are restored.
   Baseline: six engine-to-source imports (three KIMDIS, three GEMI), one five-package cycle
   group, two module cycles.
-- [x] S2 protocol (local): `nima/sources/base.py` (neutral, imports nothing) and `KimdisAdapter`
-  wrapping the unchanged parser; `InvalidRecord` now subclasses `SourcePageError`. 12 parser
-  conformance cases plus 4 database equivalence cases proving the adapter's output equals what
-  the current page store persists (rows, hashes, quarantine, source ids). Money-as-Decimal and
-  wrong-record-hash mutations fail and are restored; the S1 dependency check stays clean; 295
-  related existing tests pass. Remaining: hosted exact-head proof, then owner review.
-- [ ] S3 engine on the protocol: page store, collector, replay take the adapter; byte-for-byte
-  regression; collector/projector access profiles unchanged.
+- [x] S2 protocol: owner merged #155 at `bb99485`; exact `cf62969` verified on main. Hosted run
+  44609972812 was the only run on that head and passed all three jobs (`quality` 12 min 55 s).
+  Neutral `nima/sources/base.py` and a `KimdisAdapter` wrapping the unchanged parser; 12 parser
+  conformance cases and 4 database equivalence cases.
+- [x] S3 engine on the protocol (local): characterization pins recorded from the unmodified
+  engine (four scenarios; all database rows, the archive sidecar files and the replay artifact,
+  stable across independent databases) and committed before the change. The page store, run
+  store, collector, resume and replay now take an adapter (default KIMDIS through a registry);
+  the pins pass unchanged on the moved engine, and a stand-in source runs through the real store,
+  collector and replay. The KIMDIS edges are gone from the dependency baseline (three GEMI edges
+  remain; cycles unchanged). Mutations (sidecar key order, wrong record hash, engine re-importing
+  KIMDIS) fail and are restored. An initial pin set missed the wrong-hash mutation because every
+  page had one record, so a multi-record scenario was added and its pin recorded from the old
+  engine in a separate worktree. Remaining: full suite and hosted exact-head proof, then review.
 - [ ] S4 two synthetic adapters of different shape; conformance on all three.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
 

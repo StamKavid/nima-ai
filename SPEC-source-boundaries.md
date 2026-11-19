@@ -1,6 +1,6 @@
 # Spec: source boundaries for a second feed — V1-04
 
-Status: **approved by the owner on 2026-11-19; S1 delivered (#154); S2 in review.** Decisions below. Follows
+Status: **approved by the owner on 2026-11-19; S1 (#154) and S2 (#155) delivered; S3 in review.** Decisions below. Follows
 #152 (`7dfc7b1`). This is backlog package V1-04 (`docs/roadmap/agent-backlog.md`), the first
 step of v0.2. It prepares a second source (Diavgeia decisions, V1-06) without copying the
 KIMDIS stack, and does not fetch, parse or activate any new source.
@@ -123,8 +123,15 @@ uv run --frozen mypy && just check && just audit
    protocol and `SourcePageError`; the adapter does the record conversion the page store does
    today (evidence removed, money as exact decimal text), proven equal by a database test.
    Version strings stay the existing process-wide constants until S3.
-3. **S3 engine on the protocol:** page store, collector and replay take the adapter with
-   KIMDIS as the default; all existing tests and the byte-for-byte check pass.
+3. **S3 engine on the protocol:** page store, run store, collector, resume and replay take the
+   adapter, with KIMDIS the default through `nima/sources/registry.py`, the one place that knows
+   which adapters exist; all existing tests and the byte-for-byte pins pass. The neutral page
+   types gain an evidence pointer on records and issues, the response hash and every record's
+   hash, which the archive sidecars and replay need to reproduce today's bytes. Known limits
+   left for later: the collector's HTTP transport and request shape are still KIMDIS-specific;
+   the pilot-archive recovery that replay uses is typed by archive layout (the page store's is
+   labelled `kimdis`), so replay for a new source shares that label; and the three GEMI engine
+   imports belong to a separate pipeline and stay in the baseline.
 4. **S4 second adapters:** two synthetic adapters of deliberately different shape (for
    example different pagination, ID scheme and money format) and the full conformance suite on
    all three. Two shapes show the protocol is general, not fitted to KIMDIS.
@@ -137,8 +144,8 @@ Each slice ends in one review-ready PR with full gates and hosted exact-head job
 
 ## Success criteria
 
-- Zero engine imports of a concrete source module (today: seven importers, of which three
-  are engine modules).
+- Zero engine imports of the KIMDIS source module (done in S3; before: three engine modules).
+  The three GEMI imports are recorded in the baseline and tracked, not removed here.
 - The synthetic adapter runs collect, resume, replay and quarantine with **no engine change**.
 - Existing crash, resume, replay and access tests pass unchanged; evidence bytes identical.
 - The dependency test rejects a new cycle and a new forbidden edge.
