@@ -156,3 +156,100 @@ Use stdlib/dataclasses, existing psycopg and private artifact helpers. Commands:
 all existing gates. No dependency, migration, CI, live acquisition or schedule
 change. O2 ends at one verified review-ready PR; remaining V1-03 deployment,
 runtime-role, off-host restore and repository-control acceptance stays separate.
+
+## O3: runtime-role and evidence-protection audit
+
+Status: **proposed; awaiting owner approval before any plan or code.** Continues
+after owner-merged #148 (`d09ec20`, exact reviewed `9d866f0`). It addresses the
+V1-03 exit item "enforce non-owner runtime writes and immutable evidence". Today
+that proof is per feature: each evidence table has its own immutability trigger
+and a few role tests exist, but nothing states the whole role contract or fails
+when a new table arrives unclassified or a role holds more than intended.
+
+### Objective
+
+Add one read-only `dataops access-audit` command that compares a named database
+role's effective privileges, and the protection of every Nima table, with a
+packaged, versioned access contract. An operator learns, from catalogue state at
+one snapshot, whether a runtime role could rewrite evidence. The audit never
+grants, revokes, creates roles or alters triggers; provisioning stays an owner
+action. It proves catalogue state only, not passwords, `pg_hba.conf`, network
+exposure, a compromised superuser or a deployed role model.
+
+### Assumptions (correct these before approval)
+
+1. Schemas in scope are `nima`, `nima_processing` and `nima_validation`.
+2. Role classes are `reader`, `ingest`, `projector` and `operator`, matching the
+   existing runbooks. Each class is a privilege **ceiling**; holding less is
+   acceptable, holding more is attention.
+3. Every table is classified `evidence` (append-only), `control` (mutable by
+   design, with named writer classes) or `reference`. An unclassified table is a
+   failure, so later migrations must classify what they add.
+4. No new dependency, migration, CI change, live acquisition, deployment or grant.
+5. Tests use a disposable local PostgreSQL 16 started by the test fixture setup,
+   as existing store tests do through `NIMA_TEST_DSN`.
+
+### Contract and limits
+
+- Inputs: `--role NAME`, `--class reader|ingest|projector|operator`, absolute
+  private `--output-dir`. Connection comes from protected `NIMA_DATABASE_URL`;
+  no credential-bearing argument.
+- One REPEATABLE READ, READ ONLY snapshot with five-second statement and
+  two-second lock timeouts. Uses catalogue functions and views only; reads no
+  application rows and takes no control locks.
+- Per evidence table: a `BEFORE UPDATE OR DELETE` immutability trigger exists and
+  is enabled (`tgenabled = 'O'`); the audited role holds no UPDATE, DELETE,
+  TRUNCATE or TRIGGER privilege on it. Per control table: only the contract's
+  writer classes may write. Column-level UPDATE grants count as UPDATE.
+- Per role: not superuser, no CREATEROLE/CREATEDB/REPLICATION/BYPASSRLS, owns no
+  Nima object, holds no CREATE on a Nima schema or the database, is not a member
+  of the schema owner role, and has no privilege beyond its class ceiling on
+  sequences or functions.
+- Bounded input and output: at most 128 tables and 64 sequences/functions in
+  scope; excess is refused, never truncated. Canonical private report at most
+  32 KiB, version `access-audit-v1`, containing the contract version, role name,
+  class, snapshot time, object names and fixed reason codes only. No passwords,
+  connection strings, grant text from the server or row data.
+- Exit codes follow O2: 0 passed, 3 attention, 2 invalid configuration, 1
+  operational or publication failure, 130 interruption. An unreadable catalogue,
+  a missing role or an unknown class is a failure, never an empty pass.
+  `checks_passed` means only these recorded checks passed.
+
+### Slices and finite acceptance
+
+1. **O3a** pure typed contract and assessment: table classification, class
+   ceilings, fixed reason codes, unclassified-table and excess-privilege cases.
+   No database or new dependencies.
+2. **O3b** bounded catalogue adapter with real roles: a least-privilege reader
+   passes; an ingest role granted UPDATE on evidence, a disabled or dropped
+   immutability trigger, a TRUNCATE grant, a superuser, an owner and a table
+   added after the contract each produce their exact reason. Frozen-snapshot
+   proof with an interleaved grant change.
+3. **O3c** actual CLI, private no-clobber artifact, redaction proof, operator
+   runbook with the grant matrix, installed wheel, restored guard mutation
+   (removing the evidence-trigger check must fail a regression), full
+   `just check` and `just audit`, unchanged committed contracts and exact-head
+   hosted jobs before one review-ready PR.
+
+Code: `dataops/access_audit.py`, `dataops/access_audit_store.py`,
+`dataops/access_audit_cli.py`, the existing command router, a packaged contract
+resource and focused pytest files. Commands:
+`uv run --frozen pytest tests/test_access_audit*.py -q`, `uv run --frozen mypy`,
+`just check`, `just audit`. Preserve the 90% coverage floor and every gate.
+
+### Boundaries
+
+- Always: fail closed on anything unclassified or unreadable; keep reports free
+  of secrets and row data; test with real roles, not mocks.
+- Ask first: any migration, dependency, CI edit, or grant-generating helper.
+- Never: change roles or grants from this command, connect to a live deployment,
+  or describe a passing audit as proof of a secure deployment.
+
+### Open questions
+
+1. Are the four role classes right, or should `operator` be split (for example
+   recovery operator versus read-only health operator)?
+2. Do you want a documented grant matrix only (recommended), or also a later,
+   separately reviewed script that prints the `GRANT` statements?
+3. Should the audit be allowed to run against a restored backup as the check for
+   the off-host restore rehearsal? I would say yes, and I'd record it there.
