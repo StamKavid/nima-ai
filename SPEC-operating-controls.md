@@ -381,8 +381,8 @@ hosted exact-head jobs. Existing profiles and the audit report format
 
 ## O3f: evidence TRUNCATE guards
 
-Status: **approved by the owner on 2026-11-19** (the optional migration in O3e decision
-3), as its own increment on `feature/evidence-truncate-guards`. Closes the finding
+Status: **delivered: owner merged #151 at `d3d80c7` (exact reviewed `8da0c32`).** Approved
+by the owner on 2026-11-19 (the optional migration in O3e decision 3) as its own increment. Closes the finding
 recorded in O3: 15 of the 22 evidence tables (migrations 0001-0007) block UPDATE and
 DELETE with row triggers but have no TRUNCATE trigger, and row triggers do not fire on
 TRUNCATE. Today only withheld privileges protect them, and the table owner is not

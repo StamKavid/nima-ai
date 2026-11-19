@@ -96,8 +96,9 @@ failure, never an empty pass.
   guard to the fifteen tables from 0001-0007). It stops mistakes and over-privileged
   runtime roles, including the table owner (PostgreSQL itself rejects a plain TRUNCATE of
   a referenced table first; the guard closes `TRUNCATE ... CASCADE`), but not a superuser, who can still disable
-  a trigger or set `session_replication_role`. A database that has not yet applied
-  0013 reports `truncate_not_trigger_guarded:<table>` for each unguarded table.
+  a trigger or set `session_replication_role`. The audit refuses any database that has
+  not applied every migration, 0013 included (fixed `access_audit_unavailable`, exit 1),
+  so applying the migration, an owner action, must come before auditing a role there.
 - The audit is point-in-time, not an atomic snapshot. PostgreSQL privilege
   functions return the newest committed grants, so a grant made during the audit
   is reported rather than hidden.

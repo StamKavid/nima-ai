@@ -14,8 +14,13 @@
   unpacked wheel (0013.sql identical). Full suite on PG16 with a scratch-only version
   shim: 2835 passed, 59 failed, and the failing set is identical to the baseline
   (subprocess tests that hit the PostgreSQL 17 guard). PostgreSQL 17 proof is hosted CI.
-- [ ] O3f-3 delivery: hosted exact-head jobs green, then owner review. Applying 0013 to
-  the private pilot is a separate owner action and is never automatic.
+- [x] O3f-3 delivery: owner merged #151 at `d3d80c7`; exact `8da0c32` verified on main. Hosted
+  run 44588545458 passed all three jobs on that head. The duplicate push run's `quality`
+  timed out at 15 minutes (runner variance; also seen on #148) and was re-run once.
+  Applying 0013 to the private pilot is a separate owner action; the audit refuses an
+  unmigrated database (tested).
+- [ ] CI timeout (needs owner approval, ask-first): push CI only on main/dev and raise the
+  `quality` timeout to 20 minutes. Evidence: same commit 9.7 vs 14+ minutes.
 
 ## V1-03 O3 — runtime-role and evidence-protection audit
 
@@ -52,7 +57,7 @@
   15 tests; two over-grant mutations fail and are restored. Hosted run 44581097628 passed
   all three jobs on that head (merged while two jobs were running; they finished green).
 - [ ] O3e-2 `collector`: same shape with a recorded-sample fixture, no network.
-- [ ] TRUNCATE guards: tracked above as O3f (this branch).
+- [x] TRUNCATE guards: delivered as O3f (#151).
 - Open finding for owner: 15 older evidence tables lack a TRUNCATE trigger; a fix
   would be a reviewed migration.
 
