@@ -15,7 +15,7 @@ from tests.test_metadata_export import kimdis_run
 def test_metadata_schema_is_separate_and_previous_migrations_preserved(pg_dsn: str) -> None:
     from nima.storage.postgres import _migrations
 
-    assert len(_migrations()) == 12
+    assert len(_migrations()) == 13
     migrate(pg_dsn)
     migrate(pg_dsn)
     with psycopg.connect(pg_dsn) as c:
