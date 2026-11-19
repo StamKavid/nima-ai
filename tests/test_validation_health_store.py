@@ -93,3 +93,38 @@ def test_interleaved_commit_does_not_change_frozen_cohort(
         assert len(read_validation_history(dsn, value.artifact_sha256)[1]) == 1
         monkeypatch.setattr(validations, "_history_size", original)
         assert len(read_validation_history(dsn, value.artifact_sha256)[1]) == 2
+
+
+def test_byte_budget_and_read_only_transaction_are_independent_guards(
+    pg_dsn: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from nima.storage import validations
+    from nima.storage.connection import Connection
+
+    migrate(pg_dsn)
+    value = intent()
+    with journal_role(pg_dsn) as dsn:
+        with Journal(dsn, uuid4(), value).session():
+            pass
+        with monkeypatch.context() as patch:
+            patch.setattr(validations, "MAX_HISTORY_BYTES", 1)
+            with pytest.raises(HistoryError, match="^validation_limit$"):
+                read_validation_history(dsn, value.artifact_sha256)
+        blocked = []
+
+        def write(c: Connection, artifact: str) -> int:
+            try:
+                c.execute(
+                    "INSERT INTO nima_validation.attempts (attempt_id,intent_sha256,document) "
+                    "VALUES (%s,%s,%s)",
+                    (uuid4(), value.digest, Jsonb(value.payload())),
+                )
+            except psycopg.errors.ReadOnlySqlTransaction:
+                blocked.append(True)
+                raise
+            pytest.fail("Health's transaction unexpectedly accepted a write")
+
+        monkeypatch.setattr(validations, "_history_size", write)
+        with pytest.raises(HistoryError, match="^validation_database$"):
+            read_validation_history(dsn, value.artifact_sha256)
+        assert blocked == [True]

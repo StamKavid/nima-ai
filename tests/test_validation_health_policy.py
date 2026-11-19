@@ -128,3 +128,12 @@ def test_duplicate_or_mixed_artifact_selection_is_refused() -> None:
         assess_history(
             "0" * 64, NOW, (value,), POLICY, max_check_age_hours=24, max_pending_age_minutes=30
         )
+    with pytest.raises(HistoryError, match="^validation_integrity$"):
+        assess_history(
+            "b" * 64,
+            NOW.replace(tzinfo=None),
+            (value,),
+            POLICY,
+            max_check_age_hours=24,
+            max_pending_age_minutes=30,
+        )

@@ -1,4 +1,4 @@
-"""Small versioned validation records; no source values or execution metadata."""
+"""Versioned check identities and separate execution metadata; no source values."""
 
 import hashlib
 import re
