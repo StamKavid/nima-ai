@@ -60,6 +60,7 @@ def test_only_evidence_tables_can_be_truncate_guarded() -> None:
 
 def test_documented_and_proven_profiles_exist() -> None:
     assert set(ac.PROFILES) == {
+        "collector",
         "projector",
         "analytics-reader",
         "run-health-reader",

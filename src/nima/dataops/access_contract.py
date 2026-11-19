@@ -182,6 +182,38 @@ _PROFILES: tuple[Profile, ...] = (
         column_updates=(("nima.outbox", "delivered_at"),),
     ),
     Profile(
+        # Candidate from the real PageStore/RunStore SQL, to be proven by running the real
+        # collect and resume under exactly these grants and by removing each privilege.
+        "collector",
+        frozenset({"nima"}),
+        (
+            ("nima.schema_migrations", _S),
+            ("nima.ingest_runs", _SI),
+            ("nima.http_attempts", _SI),
+            ("nima.run_pages", _SI),
+            ("nima.observations", _SI),
+            ("nima.raw_objects", _I),
+            ("nima.source_records", _I),
+            ("nima.record_versions", _I),
+            ("nima.outbox", _I),
+            ("nima.quarantine", _I),
+        ),
+        column_updates=(
+            ("nima.http_attempts", "finished_at"),
+            ("nima.http_attempts", "raw_sha256"),
+            ("nima.http_attempts", "receipt"),
+            ("nima.http_attempts", "state"),
+            ("nima.ingest_runs", "failure"),
+            ("nima.ingest_runs", "next_page"),
+            ("nima.ingest_runs", "owner"),
+            ("nima.ingest_runs", "page_size"),
+            ("nima.ingest_runs", "status"),
+            ("nima.ingest_runs", "total_pages"),
+            ("nima.ingest_runs", "total_records"),
+            ("nima.ingest_runs", "updated_at"),
+        ),
+    ),
+    Profile(
         "validation-writer",
         frozenset({"nima", "nima_validation"}),
         (
