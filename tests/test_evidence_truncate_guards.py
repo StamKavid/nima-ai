@@ -232,3 +232,23 @@ def test_losing_or_disabling_a_new_guard_is_reported_exactly(
             c.execute(sql.SQL("DROP OWNED BY {}").format(sql.Identifier(role)))
             c.execute(sql.SQL("DROP ROLE {}").format(sql.Identifier(role)))
     assert reasons == [(aa.ReasonCode.TRUNCATE_TRIGGER_MISSING, f"nima.{table}")]
+
+
+def test_audit_refuses_a_database_that_has_not_applied_0013(
+    pg_dsn: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An unmigrated database cannot be audited at all; it is never a partial pass."""
+    from nima.dataops.health import HealthError
+
+    migrations = postgres._migrations()
+    with monkeypatch.context() as patch:
+        patch.setattr(postgres, "_migrations", lambda: migrations[:12])
+        migrate(pg_dsn)
+        with psycopg.connect(pg_dsn, autocommit=True) as c:
+            role = new_role(c)
+    with pytest.raises(HealthError, match="^access_audit_unavailable$"):
+        store.read_snapshot(pg_dsn, role)
+    migrate(pg_dsn)  # once migrated the same role can be audited
+    assert store.read_snapshot(pg_dsn, role).role.name == role
+    with psycopg.connect(pg_dsn, autocommit=True) as c:
+        c.execute(sql.SQL("DROP ROLE {}").format(sql.Identifier(role)))

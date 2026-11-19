@@ -25,6 +25,7 @@ less is fine; holding more is attention.
 | `analytics-reader` | schema_migrations, ingest_runs, run_pages, raw_objects, observations, record_versions, quarantine, projection_contracts/mentions/receipts | none |
 | `run-health-reader` | schema_migrations, ingest_runs, run_pages, observations, projection_receipts, workflow_requests | none |
 | `refresh-health-reader` | schema_migrations, refresh_policies/cycles/windows/retirements, workflow_requests/dispatches | none |
+| `collector` | schema_migrations, ingest_runs, http_attempts, run_pages, observations (read); insert on ingest_runs, http_attempts, run_pages, observations, raw_objects, source_records, record_versions, outbox, quarantine | UPDATE only the run-journal columns (`owner`, `status`, `failure`, `updated_at`, `next_page`, `total_records`, `total_pages`, `page_size`) and the attempt columns (`state`, `finished_at`, `raw_sha256`, `receipt`); no sequence |
 | `projector` | schema_migrations, outbox, observations, record_versions, projection_receipts, projection_contracts (read); projection_contracts, projection_mentions, projection_receipts (insert) | INSERT projection tables; UPDATE(delivered_at) on outbox only; no sequence |
 | `validation-reader` | schema_migrations; `nima_validation` attempts, outcomes | none |
 | `validation-writer` | as the reader | INSERT on `nima_validation` attempts, outcomes |
@@ -35,8 +36,12 @@ Database `CONNECT` is granted separately and is not part of the contract.
 The `projector` ceiling is not copied from a document: it is the smallest set under
 which the real projector (`drain`) completes with source evidence unchanged, and
 removing any one privilege makes it fail (see `tests/test_access_projector.py`).
-`collector` and the other pipeline duties get their profiles the same way, one
-reviewed increment at a time; none is guessed.
+The `collector` ceiling is proven the same way across three real scenarios: a fresh
+collection, one with a quarantined record, and a resume of an interrupted run
+(`tests/test_access_collector.py`). It reads `observations` at table level because
+the profile model has no column-level SELECT; it can read what it writes. The other
+pipeline duties (GEMI import, replay promotion, workflow and refresh engines) get
+their profiles the same way, one reviewed increment at a time; none is guessed.
 
 ## Provision a role
 
@@ -96,8 +101,9 @@ failure, never an empty pass.
   guard to the fifteen tables from 0001-0007). It stops mistakes and over-privileged
   runtime roles, including the table owner (PostgreSQL itself rejects a plain TRUNCATE of
   a referenced table first; the guard closes `TRUNCATE ... CASCADE`), but not a superuser, who can still disable
-  a trigger or set `session_replication_role`. A database that has not yet applied
-  0013 reports `truncate_not_trigger_guarded:<table>` for each unguarded table.
+  a trigger or set `session_replication_role`. The audit refuses any database that has
+  not applied every migration, 0013 included (fixed `access_audit_unavailable`, exit 1),
+  so applying the migration, an owner action, must come before auditing a role there.
 - The audit is point-in-time, not an atomic snapshot. PostgreSQL privilege
   functions return the newest committed grants, so a grant made during the audit
   is reported rather than hidden.

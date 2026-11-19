@@ -13,7 +13,7 @@ TABLE_RE = re.compile(
     rf"^GRANT {PRIVS} ON (?P<objs>[a-z_.]+(?:, [a-z_.]+)*) TO \"(?P<role>[^\"]+)\";$"
 )
 COLUMN_RE = re.compile(
-    r"^GRANT UPDATE \((?P<col>[a-z_]+)\) ON (?P<table>[a-z_.]+) TO \"(?P<role>[^\"]+)\";$"
+    r"^GRANT UPDATE \((?P<col>[a-z_][a-z0-9_]*)\) ON (?P<table>[a-z_.]+) TO \"(?P<role>[^\"]+)\";$"
 )
 SCHEMA_RE = re.compile(
     r"^GRANT USAGE ON SCHEMA (?P<objs>[a-z_]+(?:, [a-z_]+)*) TO \"(?P<role>[^\"]+)\";$"
