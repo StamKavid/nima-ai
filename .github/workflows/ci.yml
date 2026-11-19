@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main, dev]
   push:
+    branches: [main, dev]
   workflow_dispatch:
 
 permissions:
@@ -18,7 +19,7 @@ jobs:
     name: quality
     if: github.event_name != 'push' || github.event.deleted != true
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:17-bookworm@sha256:665dc7b37ac52a17e298511414c21d23ffa4e6a6ef6225b3e5d59c7afb35e994

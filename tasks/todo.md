@@ -19,8 +19,10 @@
   timed out at 15 minutes (runner variance; also seen on #148) and was re-run once.
   Applying 0013 to the private pilot is a separate owner action; the audit refuses an
   unmigrated database (tested).
-- [ ] CI timeout (needs owner approval, ask-first): push CI only on main/dev and raise the
-  `quality` timeout to 20 minutes. Evidence: same commit 9.7 vs 14+ minutes.
+- [ ] O3g CI trigger scope and quality time budget: owner approved 2026-11-19; change made on
+  `feature/ci-push-scope-timeout` (push CI for main/dev only; `quality` timeout 15 to 20
+  minutes). Remaining: the pull-request run on that branch is its own verification, then
+  owner review. Feature branches without a PR now need `workflow_dispatch`.
 
 ## V1-03 O3 — runtime-role and evidence-protection audit
 
@@ -60,7 +62,9 @@
   exactly the printed grants in three offline scenarios (clean, quarantined record, resume of
   an interrupted run) and that removing any privilege breaks at least one; no sequence needed.
   Two over-grants (SELECT on outbox, UPDATE of `query`) fail their own necessity case; restored.
-- [ ] O3e-2 delivery: gates, wheel, hosted exact-head jobs; one review-ready PR.
+- [x] O3e-2 delivery: owner merged #152 at `7dfc7b1`; exact `580508e` verified on main. Hosted
+  runs 44593722293 and 44593665861 passed all three jobs on that head (quality 12.3 and 12.6
+  minutes). Further duties are paused until they go live.
 - [x] TRUNCATE guards: delivered as O3f (#151).
 - Open finding for owner: 15 older evidence tables lack a TRUNCATE trigger; a fix
   would be a reviewed migration.
