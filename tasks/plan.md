@@ -1,5 +1,16 @@
 # Delivery plan
 
+## Active V1-03 O2: selected-policy health
+
+Owner-merged #147 is on main `6f706f1`, including exact reviewed `f230ea0` and
+identical files. O1 is delivered. Follow [O2](../SPEC-operating-controls.md#o2-selected-refresh-policy-health):
+typed pure attention rules; bounded single-snapshot SQL and real role/isolation/
+cardinality proof; CLI/private artifact/operator guidance; guard mutation,
+installed wheel, complete local gates/audit and exact-head hosted checks. Preserve
+all prior work. No DDL, dependencies, CI edits, source/engine call or deployment.
+Reassess the existing 100-point foundation rubric at merged #147 only; do not
+credit candidate O2 code or invent an overall-v1.0 completion percentage.
+
 ## Active V1-03 O1: workflow stage diagnostics
 
 Owner-merged #146 reaches main `476f9be`, including exact reviewed `ded3478`

@@ -1,4 +1,39 @@
-# Analytics foundation readiness — 2026-11-18
+# Analytics foundation readiness
+
+## Current assessment — 2026-11-19: approximately 65/100
+
+Verified main `6f706f1` after owner-merged #147 includes reviewed `f230ea0`
+with identical files. Use the same seven weights and target denominator as the
+2026-11-18 baseline below. This is a planning judgement about the single-operator
+analytics foundation; it is not v1.0 completion or live coverage. Candidate O2
+policy health receives no credit until reviewed and delivered.
+
+| Capability | Weight | Earned | Change from 61-point baseline |
+|---|---:|---:|---|
+| Source integration/coverage | 20 | 6 | Unchanged: KIMDIS pilot; no additional live company feed |
+| Ingestion and versioned storage | 15 | 14 | +1: saved-intent compatibility and explicit current-profile recovery/succession preserve old identities/budgets |
+| Data quality and deduplication | 15 | 13 | +1: historical ODCS compatibility gate and first durable validation-history/health boundary |
+| Lineage and reproducibility | 10 | 9 | Unchanged: broader cross-source/document lineage remains |
+| Semantic definitions and references | 15 | 9 | Unchanged: one draft metric, no newly certified definitions |
+| Analytics delivery and user proof | 10 | 4 | Unchanged: cited supplier–buyer CLI; human task/source review remains pending |
+| DataOps and operations | 15 | 10 | +2: selected-run health, audited recovery decisions and opt-in correlated stage events; daily/off-host/runtime proof still open |
+| **Total** | **100** | **65** | **+4, with unchanged scope and weights** |
+
+Current chapter: **v0.1 dependable foundation**, work package **V1-03 operating
+controls**. Contract evolution/first journal boundary and current-profile recovery
+are delivered; O1 diagnostics is owner-merged. O2 adds selected-policy health.
+Scoped-runtime/operator configuration, approved off-host recovery and effective
+branch controls remain open. V0.1 is not released. The next chapter is v0.2 shared
+semantics, followed by v0.3 two-source data, v0.4 insights, v0.5 serving/workspace,
+v0.9 operational/user proof and v1.0 owner-approved release.
+
+Latest merged verification: 2628 tests/93.34%, clean dependency/security gates,
+33 installed-wheel cases and all three hosted jobs in run 44540966944. These
+prove tested code behavior, not publisher truth, continuous operation or analyst
+usefulness. The historical 61-point and old investigator-product estimates keep
+their original scope below; do not add or compare their different denominators.
+
+## Historical assessment — 2026-11-18
 
 This is a capability assessment, not a percentage of Greek companies covered or
 of the whole eventual product. It replaces no historical scope or estimate. The

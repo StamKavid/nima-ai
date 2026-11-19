@@ -84,3 +84,73 @@ O1 ends at one verified review-ready PR. V1-03 remains incomplete until scoped
 runtime-role proof, approved off-host restore, protected operator configuration,
 full policy/child health and effective branch-rule findings are addressed. Those
 are separate work, not implied by O1 or permission to deploy it.
+
+## O2: selected refresh-policy health
+
+Continue after owner-merged #147 (`6f706f1`, exact reviewed `f230ea0`). Add one
+read-only `dataops refresh-health` command to expose recorded policy gaps,
+unresolved children and aging observations. Existing `refresh show`, selected-run
+health, event formats, recovery actions and source budgets retain their contracts.
+
+### Contract and limits
+
+- Required inputs: explicit policy UUID, absolute private output directory,
+  `--max-tick-age-hours` and `--max-observation-age-hours` (integers 1–8760).
+  Use the protected `NIMA_DATABASE_URL`; no credential-bearing CLI argument.
+- Read one REPEATABLE READ, READ ONLY PostgreSQL snapshot with five-second
+  statement and two-second lock timeouts. No locks for control, source/engine
+  calls, filesystem archive inspection, migration, grant or journal mutation.
+  Decode saved policy intent and compatibility in that same snapshot without
+  constructing a filesystem-validating execution policy.
+- Bound saved configuration to 16 KiB before driver deserialization; return at
+  most 14 children, seven recent query dates and seven oldest missing dates.
+  Refuse excess/missing/mismatched cycle children, rather than truncating them.
+  Bound the canonical private report to 32 KiB. SQL aggregates remain protected
+  by statement timeout; this is not a constant-time national history scan.
+- Prefer the single open cycle to a later completed cycle; otherwise select the
+  latest cycle. Inspect all its children and recorded request/run IDs, states,
+  start/update times and consumed budgets. Use existing `RecoveryBudget` policy
+  for conservative headroom diagnostics, without authorizing recovery.
+- Count completed distinct query dates from policy start through yesterday in
+  Europe/Athens. Report the gap count and up to seven oldest gaps. For each of
+  the last seven eligible dates, select its latest completed business-date cycle
+  and report its reconciled window observation time and whether it was
+  reobserved for today's business date. Completion is recorded SQL evidence;
+  this command does not reverify archive/projection contents.
+- Keep processing sample/tick/request-update clocks separate from reconciled
+  source-window observation clocks. Missing/future clocks, threshold age strictly
+  greater than its configured limit, missing coverage, overdue overlap, paused/
+  retired/pending policy, incompatible processing pins and unresolved child work
+  produce fixed attention reasons. Complete request labels alone never establish
+  reconciled coverage. Worker liveness and publisher correction coverage remain
+  unknown. `checks_passed` means only these selected recorded checks passed.
+- Publish through the existing private no-clobber artifact publisher. The JSON
+  artifact carries version `refresh-health-v1`, policy/selected-cycle/child IDs,
+  thresholds, clocks, counts and fixed reasons. No company, buyer, archive path,
+  saved configuration, raw driver/engine message or stored failure text is copied.
+  stdout contains only status/attention count (or a fixed failure). Stderr contains
+  fixed started/completed/failed component events, with no source values.
+- Exit 0 checks passed, 3 attention, 2 invalid configuration, 1 operational/
+  integrity/publication failure, 130 interruption. Invalid/absent/corrupt evidence
+  must never become an empty healthy report. Existing command routes stay intact.
+
+### Slices and finite acceptance
+
+1. Pure typed snapshot/assessment tests for boundaries, clocks, coverage and
+   child budgets; implement without source or workflow-SDK dependencies.
+2. Bounded SQL adapter and actual restricted-role tests: immutable source state,
+   unavailable/schema/size/cardinality refusal, open-cycle preference and an
+   interleaved commit proving a single frozen snapshot/read-only transaction.
+3. Actual CLI/private output/error/redaction proof, operator procedure and current
+   project/chapter progress. A removed blocked-child guard must fail its regression
+   and be restored. Installed wheel, full `just check`/`just audit`, unchanged
+   committed contracts and exact-head hosted jobs precede review-ready delivery.
+
+Code: `dataops/refresh_health.py`, `dataops/refresh_health_store.py`,
+`dataops/refresh_health_cli.py`, existing command router; focused pytest files.
+Use stdlib/dataclasses, existing psycopg and private artifact helpers. Commands:
+`uv run --frozen pytest tests/test_refresh_health*.py -q`,
+`uv run --frozen mypy`, `just check`, `just audit`. Preserve 90% coverage and
+all existing gates. No dependency, migration, CI, live acquisition or schedule
+change. O2 ends at one verified review-ready PR; remaining V1-03 deployment,
+runtime-role, off-host restore and repository-control acceptance stays separate.

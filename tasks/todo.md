@@ -1,5 +1,15 @@
 # Tasks
 
+## V1-03 O2 — selected refresh-policy health
+
+- [x] Verify #147 reviewed tree on main `6f706f1`; freeze bounded O2 contract.
+- [ ] O2a: typed pure rules; age/clock/coverage/blocked-child budget regressions.
+- [ ] O2b: one bounded SQL snapshot; real restricted role, frozen interleaving,
+  actual read-only/timeouts, missing/corrupt/oversized evidence refusal.
+- [ ] O2c: actual CLI/private artifact/fixed errors, operator procedure, merged-
+  baseline project/chapter assessment, restored mutation and installed wheel.
+- [ ] O2d: full gates/audit and exact-head hosted jobs; one review-ready PR.
+
 ## V1-03 O1 — bounded workflow diagnostics
 
 - [x] Verify #146 reviewed head reaches main `476f9be`; freeze O1 contract.
@@ -7,8 +17,9 @@
   privacy; prove failures and sink-error precedence with focused tests.
 - [x] O1b: instrument existing four stages, preserve results/budgets and prove
   real SQL/fixture retry/failure and process-termination behavior.
-- [ ] O1c: private log retention/diagnosis procedure, guard mutation, installed
-  wheel, full gates/audit and final-head hosted checks; one review-ready PR.
+- [x] O1c: #147 owner-merged at `6f706f1`, exact `f230ea0` verified. Full local
+  gates: 2628 tests/93.34%; audit, 33 installed-wheel tests, restored redaction
+  guard and both hosted runs 44540966944/44540876746 passed. No live enablement.
 - Later V1-03: non-owner runtime proof, full policy/child health, protected
   operator configuration, approved off-host restore and effective branch rules.
 
