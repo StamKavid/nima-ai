@@ -10,6 +10,7 @@ from uuid import UUID
 
 from nima.contracts.history import HistoryError
 from nima.dataops.validation import validate_readout
+from nima.dataops.validation_health import prepare_validation_health
 from nima.storage.validations import show_validation
 
 
@@ -39,6 +40,10 @@ def run(argv: list[str]) -> int:
         operations = parser.add_subparsers(dest="operation", required=True, parser_class=_Parser)
         verify = operations.add_parser("validate-readout", allow_abbrev=False)
         inspect = operations.add_parser("validation-show", allow_abbrev=False)
+        health = operations.add_parser("validation-health", allow_abbrev=False)
+        health.add_argument("--artifact-sha256", required=True)
+        health.add_argument("--max-check-age-hours", required=True, type=int)
+        health.add_argument("--max-pending-age-minutes", required=True, type=int)
         for operation in (verify, inspect):
             operation.add_argument("--attempt-id", required=True, type=_uuid)
         verify.add_argument("--request", required=True, type=Path)
@@ -47,6 +52,13 @@ def run(argv: list[str]) -> int:
         journal_dsn = os.environ.get("NIMA_VALIDATION_DATABASE_URL", "")
         if args.operation == "validation-show":
             result = show_validation(journal_dsn, args.attempt_id)
+        elif args.operation == "validation-health":
+            result = prepare_validation_health(
+                journal_dsn,
+                args.artifact_sha256,
+                max_check_age_hours=args.max_check_age_hours,
+                max_pending_age_minutes=args.max_pending_age_minutes,
+            )
         else:
             result = validate_readout(
                 os.environ.get("NIMA_DATABASE_URL", ""),
@@ -62,7 +74,7 @@ def run(argv: list[str]) -> int:
     else:
         _event("completed", status=result["status"], reused=result.get("reused"))
         print(json.dumps(result, allow_nan=False))
-        return 3 if result["status"] in {"failed", "blocked"} else 0
+        return 3 if result["status"] in {"failed", "blocked", "attention"} else 0
     _event("failed", reason=reason)
     print(json.dumps({"status": "failed", "failure": reason}))
     return (

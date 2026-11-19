@@ -6,10 +6,13 @@ import argparse
 def run(argv: list[str]) -> int:
     if argv in (["--help"], ["-h"]):
         parser = argparse.ArgumentParser(prog="python -m nima dataops")
-        parser.add_argument("operation", choices=("health", "validate-readout", "validation-show"))
+        parser.add_argument(
+            "operation",
+            choices=("health", "validate-readout", "validation-show", "validation-health"),
+        )
         parser.print_help()
         return 0
-    if argv and argv[0] in {"validate-readout", "validation-show"}:
+    if argv and argv[0] in {"validate-readout", "validation-show", "validation-health"}:
         from nima.dataops.validation_cli import run as validation_run
 
         return validation_run(argv)
