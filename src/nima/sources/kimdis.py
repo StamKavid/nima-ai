@@ -6,18 +6,25 @@ The response hash identifies the archived decoded HTTP response body.
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from decimal import Decimal, InvalidOperation
-from typing import Literal, Never, cast
+from typing import Literal, Never, Protocol, cast
 
 from nima.contracts.schema import ContractError
+from nima.sources.base import (
+    DEFAULT_MAX_BYTES,
+    NormalizedPage,
+    NormalizedRecord,
+    PageIssue,
+    SourcePageError,
+)
 from nima.sources.kimdis_contracts import NORMALIZER_VERSION as NORMALIZER_VERSION
 from nima.sources.kimdis_contracts import validate_record, validate_source
 
 type Relation = Literal["award", "previous_record", "commitment_decision", "payment_order"]
 
 
-class InvalidRecord(ValueError):
+class InvalidRecord(SourcePageError):
     """A source response cannot be normalized without guessing or losing meaning."""
 
 
@@ -361,3 +368,59 @@ def normalize_page(raw_response: bytes, *, max_bytes: int = 8 * 1024 * 1024) -> 
         tuple(source_ids),
         tuple(_source_hash(value) for value in content),
     )
+
+
+class _HasPayload(Protocol):
+    def payload(self) -> dict[str, object]: ...
+
+
+def _record_index(evidence: Evidence) -> int:
+    return int(evidence.json_pointer.rsplit("/", 1)[1])
+
+
+def _normalized(contract: Contract) -> dict[str, object]:
+    """The JSON the engine stores for a record: no evidence, money as exact decimal text."""
+    value = asdict(contract)
+    del value["evidence"]
+    for field in ("net_amount", "gross_amount"):
+        if value[field] is not None:
+            value[field] = str(value[field])
+    return value
+
+
+class KimdisAdapter:
+    """KIMDIS contracts as a source adapter; the parsing above is unchanged."""
+
+    name = "kimdis"
+    connector_version = "kimdis-contract-v1"
+    normalizer_version = NORMALIZER_VERSION
+
+    def __init__(self, query: _HasPayload) -> None:
+        self._query = query
+
+    def query_payload(self) -> dict[str, object]:
+        return self._query.payload()
+
+    def normalize_page(self, raw: bytes, *, max_bytes: int = DEFAULT_MAX_BYTES) -> NormalizedPage:
+        page = normalize_page(raw, max_bytes=max_bytes)
+        records = tuple(
+            NormalizedRecord(
+                index=_record_index(contract.evidence),
+                source_id=contract.source_id,
+                content_sha256=page.record_hashes[_record_index(contract.evidence)],
+                normalized=_normalized(contract),
+            )
+            for contract in page.contracts
+        )
+        issues = tuple(PageIssue(_record_index(i.evidence), i.reason) for i in page.issues)
+        return NormalizedPage(
+            number=page.number,
+            size=page.size,
+            total_records=page.total_records,
+            total_pages=page.total_pages,
+            last=page.last,
+            record_count=page.record_count,
+            records=records,
+            issues=issues,
+            source_ids=page.source_ids,
+        )
