@@ -1,5 +1,15 @@
 # Delivery plan
 
+## Active V1-01 checkpoint VH1: journal health
+
+Verify owner-merged #142 at `ef657aa`, including exact `2c9cbf6` source reachability.
+Continue the [selected-artifact health contract](../SPEC-validation-history.md#vh1-selected-artifact-validation-health):
+typed shared records/bounded SQL, pure freshness/current-policy rules, CLI and
+operator documentation, then mutation/wheel/full gates and hosted evidence.
+No new schema, dependency, source connection, validation attempt or private
+deployment. Preserve all pending source, workflow, human-validation and retention
+work. Existing health/readout/validation commands retain their semantics.
+
 ## Active V1-01 checkpoint: readout validation journal
 
 Owner merged #139/#140 at `73f8aa4`; exact reviewed code/roadmap reachability is

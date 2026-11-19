@@ -118,3 +118,62 @@ This records one output boundary. Other dataset contracts, scheduler integration
 retention/pruning policy, cross-source health aggregation and live deployment
 remain subsequent V1-01 work. Append-only history is retained until a separately
 reviewed archival/retention policy exists; no automatic deletion is introduced.
+
+## VH1: selected-artifact validation health
+
+Owner merged #142 at `ef657aa` and requested continuation on 2026-11-19. Add one
+read-only journal-health report for an explicit lowercase artifact SHA-256:
+
+```sh
+python -m nima dataops validation-health --artifact-sha256 SHA256 \
+  --max-check-age-hours 24 --max-pending-age-minutes 30
+```
+
+Use only `NIMA_VALIDATION_DATABASE_URL` and the existing restricted reader profile.
+No source connection, report/archive read, new validation, SQL write, migration,
+grant, repair, schedule or private deployment. Package metadata is read offline.
+This is recorded-validation health, separate from source/capture freshness and
+current artifact integrity. Preserve all existing command results and report bytes.
+
+Read the complete selected cohort in one repeatable-read READ ONLY transaction.
+Preflight at most 1,000 attempts and 8 MiB of intent/outcome JSON; exceeding either
+fails as `validation_limit`, with no truncation. Each cohort query has a five-second
+statement/two-second lock bound; connection/schema/role setup keeps existing bounds.
+Use one bulk read, verify every stored intent/outcome hash and association, then
+close SQL before pure assessment. Never perform per-attempt SQL or trust only a
+latest row. Missing cohort produces attention, not a valid zero-check verdict.
+
+The current supported contract must be bound to its actual semantic provider.
+Compare recorded contract ID/version/hash and validator version with this policy;
+an old-policy pass cannot establish current-policy health. Keep counts for all
+historical passed/failed/blocked/pending records and current-policy attempts.
+
+Latest means greatest **start time**, not last completion: an older slow check
+must not mask a newer failed/blocked/pending attempt. Equal latest start times are
+ambiguous; expose all tied IDs without choosing an arbitrary causal winner.
+`checks_passed` requires one latest attempt, current policy, passed/fresh outcome,
+no overdue pending attempt and no clock anomaly. Otherwise return `attention`
+with sorted fixed reasons: no_checks, ambiguous_latest, latest_pending,
+latest_failed, latest_blocked, latest_policy_mismatch, stale_check,
+overdue_pending, future_timestamp, clock_order. Earlier failures remain counted;
+a later valid pass can resolve their operational attention. Younger older pending
+attempts remain visible even when the latest pass is healthy.
+
+Thresholds are explicit operator settings: exact integers, 1–8,760 hours and
+1–10,080 pending minutes. Equality is fresh/not overdue; only strictly greater
+age triggers attention. Future start/completion or completion before start is a
+clock anomaly. These are not provider SLAs. Include SQL sample time, selection,
+policy, thresholds, counts, latest IDs/state/times, last current-policy pass time
+and `verification_scope: recorded_validation_history_only` in versioned JSON.
+Health does not revalidate files or certify metrics, identities or source accuracy.
+
+Exit 0 checks_passed, 3 attention, 2 configuration, 1 operational/integrity/limit,
+130 interrupted. Keep fixed private-safe stderr events and no source values,
+private paths, principals or DSNs in output. Bound output to 64 KiB.
+
+Slices: VH1a freezes this contract; VH1b introduces typed recorded checks/shared
+decoding and bounded SQL history; VH1c adds pure time/policy assessment;
+VH1d exposes CLI and operator instructions; VH1e verifies real restricted SQL,
+concurrent snapshot consistency, oldest-corruption refusal, exact time/tie/current
+policy cases, a guard mutation, installed wheel, full gates/audit and final-head
+hosted jobs. Live setup and other dataset boundaries remain later work.
