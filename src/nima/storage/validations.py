@@ -43,6 +43,7 @@ def _database(dsn: str, *, write: bool) -> Iterator[Connection]:
         raise HistoryError("validation_configuration")
     try:
         with connect(dsn) as c:
+            c.execute("SET TIME ZONE 'UTC'")
             validate_schema(c)
             _role(c, write=write)
             yield c
