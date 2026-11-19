@@ -1,5 +1,19 @@
 # Delivery plan
 
+## Active V1-04: source boundaries for a second feed
+
+Owner approved the [spec](../SPEC-source-boundaries.md) on 2026-11-19. Dependency order, each a
+separate review-ready PR with full gates and hosted exact-head jobs: S1 freeze the import graph
+with a shrink-only baseline (no behavior change); S2 the neutral `SourceAdapter` protocol and a
+`KimdisAdapter` wrapper; S3 move the page store, collector and replay onto the protocol with
+KIMDIS as the default and a byte-for-byte regression; S4 two synthetic adapters of different
+shape and one conformance suite for all three; S5 (gated, optional) a real small public dataset
+only after the owner names it, its reuse terms are checked and a network host is allowed. Main
+risks: touching the evidence path in S3 (mitigated by byte-for-byte equality and the unchanged
+collector/projector access necessity tests) and the existing five-package import cycle, which is
+recorded and not fixed here. No migration, dependency or CI change; no live source request.
+Preserve all earlier tasks.
+
 ## Active V1-03 O3f: evidence TRUNCATE guards
 
 Owner approved the [O3f spec](../SPEC-operating-controls.md#o3f-evidence-truncate-guards)
@@ -12,14 +26,12 @@ risk is an unseen TRUNCATE path; none exists in src/scripts/infra and the full s
 must stay green. Disposable databases only; the private pilot is never migrated here.
 Preserve all earlier tasks. O3e-2 `collector` follows after this merges.
 
-## Active V1-03 O3g: CI trigger scope and quality time budget
+## Delivered V1-03 O3g: CI trigger scope and quality time budget
 
-Owner approved on 2026-11-19. One workflow edit only: `push` runs for main and dev, and the
-`quality` timeout moves from 15 to 20 minutes, with the evidence recorded in
-[O3g](../SPEC-operating-controls.md#o3g-ci-trigger-scope-and-quality-time-budget). No check,
-permission, pin, threshold or coverage change. The first hosted pull-request run verifies the
-new file; a feature branch without a pull request now needs `workflow_dispatch`. Preserve all
-earlier tasks. The next package after this is the V1-04 source-boundary spec (spec first).
+Owner merged #153 at `e2ab1a5` (exact `a73aadf`). `push` runs for main and dev only, and the
+`quality` timeout is 20 minutes; evidence in
+[O3g](../SPEC-operating-controls.md#o3g-ci-trigger-scope-and-quality-time-budget). A feature
+branch without a pull request needs `workflow_dispatch`. Preserve all earlier tasks.
 
 ## Active V1-03 O3e: worker role profiles
 

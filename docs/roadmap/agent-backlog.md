@@ -102,6 +102,9 @@ infrastructure purchase or schedule is implied by the code PRs.
 
 ## V1-04 — source boundaries that support a second feed
 
+Spec approved 2026-11-19: [SPEC-source-boundaries.md](../../SPEC-source-boundaries.md). S1 (import
+graph check with a shrink-only baseline) is in review; S2-S4 follow, S5 is gated.
+
 Measure current imports/coupling before a narrow extraction. Separate pure source
 normalization/types from transport/storage and publish necessary APIs. Preserve
 archive-first, checkpoint, outbox, lease, quarantine and exact-money guarantees.

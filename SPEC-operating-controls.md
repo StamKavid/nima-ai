@@ -435,8 +435,10 @@ blocked. The seven newer evidence tables already carry a statement-level guard.
 
 ## O3g: CI trigger scope and quality time budget
 
-Status: **approved by the owner on 2026-11-19** (the recommendation to scope push CI and
-raise the quality timeout).
+Status: **delivered: owner merged #153 at `e2ab1a5` (exact `a73aadf`).** Approved by the owner on
+2026-11-19 (the recommendation to scope push CI and raise the quality timeout). Its own hosted
+run 44600852305 was the only run on that head; `quality` took 15 min 23 s on a slow runner,
+which the old 15-minute limit would have cancelled.
 
 ### Evidence
 

@@ -1,5 +1,19 @@
 # Tasks
 
+## V1-04 — source boundaries for a second feed
+
+- [x] Spec approved 2026-11-19 (`SPEC-source-boundaries.md`): test both second-adapter kinds,
+  shrink-only baseline for existing cycles, per-adapter versions.
+- [x] S1 freeze: `scripts/dependency_graph.py`, committed `tests/dependency_baseline.json`,
+  21 tests, 100% line/branch on the module; real-repo mutations (a forbidden import and a new
+  cycle) fail the check and are restored. Baseline today: six engine-to-source imports (three
+  KIMDIS, three GEMI), one five-package cycle group, two module cycles. Hosted proof pending.
+- [ ] S2 protocol: `nima/sources/base.py` and `KimdisAdapter`; conformance on KIMDIS.
+- [ ] S3 engine on the protocol: page store, collector, replay take the adapter; byte-for-byte
+  regression; collector/projector access profiles unchanged.
+- [ ] S4 two synthetic adapters of different shape; conformance on all three.
+- [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
+
 ## V1-03 O3f — evidence TRUNCATE guards
 
 - [x] Owner approved 2026-11-19; spec, plan and tasks recorded on this branch.
@@ -19,10 +33,12 @@
   timed out at 15 minutes (runner variance; also seen on #148) and was re-run once.
   Applying 0013 to the private pilot is a separate owner action; the audit refuses an
   unmigrated database (tested).
-- [ ] O3g CI trigger scope and quality time budget: owner approved 2026-11-19; change made on
-  `feature/ci-push-scope-timeout` (push CI for main/dev only; `quality` timeout 15 to 20
-  minutes). Remaining: the pull-request run on that branch is its own verification, then
-  owner review. Feature branches without a PR now need `workflow_dispatch`.
+- [x] O3g CI trigger scope and quality time budget: owner merged #153 at `e2ab1a5`; exact
+  `a73aadf` verified on main. Its own hosted run 44600852305 was the only run on that head
+  (no duplicate push run) and passed all three jobs; `quality` took 15 min 23 s, which would
+  have exceeded the old 15-minute limit. Feature branches without a PR now need
+  `workflow_dispatch`. Headroom is about 4.6 minutes; revisit parallel tests if a run passes
+  about 18 minutes.
 
 ## V1-03 O3 — runtime-role and evidence-protection audit
 

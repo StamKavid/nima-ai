@@ -2,7 +2,8 @@
 
 ## Current project and chapter position
 
-Merged main is `7dfc7b1` after #152 (O3e-2 collector profile), including exact `580508e`.
+Merged main is `e2ab1a5` after #153 (CI trigger scope and 20-minute quality timeout), including
+exact `a73aadf`.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
 recovery evolution, contract history and diagnostics earned four points). It has
@@ -68,11 +69,21 @@ a private database. Owner merged #151 at `d3d80c7`; exact `8da0c32` is verified 
 and hosted run 44588545458 passed all three jobs on that head. It was applied only to
 disposable test databases.
 
-Open operational finding: the `quality` job has a 15-minute timeout, and the same commit
-takes about 9.7 minutes on a fast runner and over 14 on a slow one. The duplicate `push`
-run timed out on #148 and on #151 (the PR runs, which count, passed). More tests make
-this likelier. The owner approved two small changes (O3g): push CI only for main and dev, and
-a 20-minute `quality` timeout. They are in review as a candidate; nothing is merged yet.
+Operational finding, resolved by O3g (#153, merged at `e2ab1a5`): the `quality` job had a
+15-minute timeout, and the same commit took about 9.7 minutes on a fast runner and over 14 on a
+slow one. The duplicate `push` run timed out on #148 and #151. CI now runs on push only for
+main and dev and `quality` has 20 minutes. Its own hosted run 44600852305 was the only run on
+that head and `quality` took 15 min 23 s, which would have exceeded the old limit. Headroom is
+about 4.6 minutes, so parallel tests are the next option if a run passes about 18 minutes.
+
+## V1-04 candidate: source boundaries for a second feed
+
+The owner approved [the spec](../SPEC-source-boundaries.md). Slice S1 adds an import-graph
+check with a committed shrink-only baseline: today six engine modules import a concrete source
+(three KIMDIS, three GEMI), one five-package import cycle group and two module cycles exist,
+and the check fails on any new one. No behavior change; later slices move the engine onto a
+`SourceAdapter` protocol and prove it with two synthetic adapters. A real second dataset is a
+gated, optional step. Candidate code earns no progress credit until reviewed and delivered.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 
