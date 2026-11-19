@@ -10,6 +10,8 @@ def run(argv: list[str]) -> int:
             "operation",
             choices=(
                 "health",
+                "access-audit",
+                "access-grants",
                 "refresh-health",
                 "validate-readout",
                 "validation-show",
@@ -18,6 +20,14 @@ def run(argv: list[str]) -> int:
         )
         parser.print_help()
         return 0
+    if argv and argv[0] == "access-audit":
+        from nima.dataops.access_cli import run_audit
+
+        return run_audit(argv)
+    if argv and argv[0] == "access-grants":
+        from nima.dataops.access_cli import run_grants
+
+        return run_grants(argv)
     if argv and argv[0] == "refresh-health":
         from nima.dataops.refresh_health_cli import run as refresh_health_run
 

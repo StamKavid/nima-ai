@@ -1,5 +1,17 @@
 # Delivery plan
 
+## Active V1-03 O3: runtime-role and evidence-protection audit
+
+Owner approved the [O3 spec](../SPEC-operating-controls.md#o3-runtime-role-and-evidence-protection-audit)
+on 2026-11-19: named access profiles, a print-only grant script and a restore-check
+use. One packaged contract feeds both `access-audit` and `access-grants`.
+Dependency order: O3a pure contract and assessment, then O3b grant renderer from
+that contract, O3c real-role catalogue adapter, O3d CLI/runbook/mutation/wheel/
+gates/hosted proof. Each slice is test-first and verified before the next. Main risk:
+a profile ceiling guessed wider than the real SQL; mitigate by deriving only from
+documented grants, and from executed worker SQL for ingest/projector. No migration,
+dependency, CI edit, live connection or grant execution. Preserve all older work.
+
 ## Active V1-03 O2: selected-policy health
 
 Owner-merged #147 is on main `6f706f1`, including exact reviewed `f230ea0` and

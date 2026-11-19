@@ -156,3 +156,140 @@ Use stdlib/dataclasses, existing psycopg and private artifact helpers. Commands:
 all existing gates. No dependency, migration, CI, live acquisition or schedule
 change. O2 ends at one verified review-ready PR; remaining V1-03 deployment,
 runtime-role, off-host restore and repository-control acceptance stays separate.
+
+## O3: runtime-role and evidence-protection audit
+
+Status: **approved by the owner on 2026-11-19 with the decisions below.** Continues
+after owner-merged #148 (`d09ec20`, exact reviewed `9d866f0`). It addresses the
+V1-03 exit item "enforce non-owner runtime writes and immutable evidence". Today
+that proof is per feature: each evidence table has its own immutability trigger
+and a few role tests exist, but nothing states the whole role contract or fails
+when a new table arrives unclassified or a role holds more than intended.
+
+### Objective
+
+One packaged, versioned **access contract** drives two commands, so documentation,
+grants and checks cannot drift apart:
+
+- `dataops access-audit` is read-only. It compares a named role's effective
+  privileges, and the protection of every Nima table, with the contract.
+- `dataops access-grants` only **prints** the reviewed `GRANT` statements for a
+  profile and role name. It never connects to a database or executes SQL; the
+  owner reviews and runs the output. Provisioning stays an owner action.
+
+An operator learns, from catalogue state at one snapshot, whether a runtime role
+could rewrite evidence. A pass proves catalogue state only, not passwords,
+`pg_hba.conf`, network exposure, a compromised superuser or a deployed role model.
+
+### Decisions recorded
+
+1. **Profiles, not four coarse classes.** The runbooks already define narrow
+   per-capability roles, so the contract uses named access profiles. A profile is
+   a privilege **ceiling**: holding less is fine, holding more is attention.
+   Version 1 profiles come only from documented grants: `analytics-reader`,
+   `run-health-reader`, `refresh-health-reader`, `validation-writer`,
+   `validation-reader`, `retirement-operator` and `successor-operator`. The two
+   health readers are separate because their runbooks grant different tables. This
+   splits the former single "operator" idea into read-only health and separate
+   recovery-control roles. Database CONNECT is granted separately and is not part
+   of the contract.
+   `ingest-worker` and `projector` have no documented grant list. Their ceilings
+   are **not** part of this PR: deriving a safe ceiling needs a separate design and
+   proof that the real workers run under it (ingestion spans many tables and
+   several distinct duties). They are a separately approved follow-up (O3e); none
+   is guessed.
+2. **Grant script included.** `access-grants` is generated from the same contract
+   and is print-only. Role names are validated and quoted as identifiers. A test
+   applies generated grants to a disposable database and requires the audit to pass.
+3. **Restore check.** The audit runs against a restored backup as one check of the
+   off-host restore rehearsal; the restore runbook records this. It is evidence for
+   that rehearsal, not a replacement for it.
+
+### Assumptions (still open to correction)
+
+1. Schemas in scope are `nima`, `nima_processing` and `nima_validation`.
+2. Every table is classified `evidence` (append-only), `control` (mutable by
+   design, with named writer profiles) or `reference`. An unclassified table is a
+   failure, so later migrations must classify what they add.
+3. No new dependency, migration, CI change, live acquisition or deployment.
+4. Tests use a disposable local PostgreSQL 16 through `NIMA_TEST_DSN`, as existing
+   store tests do.
+
+### Contract and limits
+
+- Audit inputs: `--role NAME`, `--profile NAME`, absolute private `--output-dir`.
+  Connection comes from protected `NIMA_DATABASE_URL`; no credential-bearing
+  argument. Grants inputs: `--profile NAME`, `--role NAME`; output goes to stdout.
+- One REPEATABLE READ, READ ONLY transaction with five-second statement and
+  two-second lock timeouts. Uses catalogue functions and views only; reads no
+  application rows and takes no control locks. Object and trigger lists come from
+  the transaction snapshot, but PostgreSQL's privilege functions return the newest
+  committed grants even inside it (verified on a real server). A grant committed
+  during the audit is therefore reported, never hidden. The audit is point-in-time,
+  not an atomic cross-object snapshot.
+- Per evidence table: a `BEFORE UPDATE OR DELETE` immutability trigger exists and
+  is enabled (`tgenabled = 'O'`); the audited role holds no UPDATE, DELETE,
+  TRUNCATE or TRIGGER privilege on it unless the profile ceiling names that exact
+  column or operation. Per control table: only the contract's writer profiles may
+  write. Column-level UPDATE grants count as UPDATE.
+- Per role: not superuser, no CREATEROLE/CREATEDB/REPLICATION/BYPASSRLS, owns no
+  Nima object, holds no CREATE on a Nima schema or the database, is not a member
+  of the schema owner role, and has no sequence or function privilege beyond its
+  profile ceiling.
+- At most 128 tables and 64 sequences/functions in scope; excess is refused, never
+  truncated. Canonical private report at most 32 KiB, version `access-audit-v1`,
+  containing contract version, role name, profile, snapshot time, object names and
+  fixed reason codes only. No passwords, connection strings, server grant text or
+  row data.
+- Exit codes follow O2: 0 passed, 3 attention, 2 invalid configuration, 1
+  operational or publication failure, 130 interruption. An unreadable catalogue,
+  a missing role or an unknown profile is a failure, never an empty pass.
+  `checks_passed` means only these recorded checks passed.
+
+### Slices and finite acceptance
+
+1. **O3a** pure typed contract and assessment: table classification, profile
+   ceilings, fixed reason codes, unclassified-table and excess-privilege cases.
+   No database or new dependencies.
+2. **O3b** pure grant renderer from the same contract: identifier quoting, refusal
+   of invalid names, deterministic output, and a test that every rendered grant is
+   within its profile's ceiling.
+3. **O3c** bounded catalogue adapter with real roles: a least-privilege reader
+   passes; generated grants applied to a fresh role pass; UPDATE on evidence, a
+   disabled or dropped immutability trigger, a TRUNCATE grant, a superuser, an
+   owner and a table added after the contract each produce their exact reason.
+   A grant committed mid-audit is seen, not hidden, and the audit changes nothing.
+4. **O3d** actual CLI for both commands, private no-clobber artifact, redaction
+   proof, operator runbook with the grant matrix, restore-runbook entry,
+   installed wheel, restored guard
+   mutation (removing the evidence-trigger check must fail a regression), full
+   `just check` and `just audit`, unchanged committed contracts and exact-head
+   hosted jobs before one review-ready PR.
+
+Code: `dataops/access_contract.py` (with a packaged contract resource),
+`dataops/access_audit.py`, `dataops/access_audit_store.py`,
+`dataops/access_grants.py`, `dataops/access_cli.py`, the existing command router
+and focused `tests/test_access_*.py` files. Commands:
+`uv run --frozen pytest tests/test_access*.py -q`, `uv run --frozen mypy`,
+`just check`, `just audit`. Preserve the 90% coverage floor and every gate.
+
+### Boundaries
+
+- Always: fail closed on anything unclassified or unreadable; keep reports free
+  of secrets and row data; test with real roles, not mocks.
+- Ask first: any migration, dependency or CI edit.
+- Never: execute grants or change roles from either command, connect to a live
+  deployment, or describe a passing audit as proof of a secure deployment.
+
+### Findings recorded during O3a
+
+- The contract classifies 33 tables: 22 evidence and 11 control, pinned by an
+  explicit test so any change to the classification must be a visible edit.
+- Only 7 of the 22 evidence tables (those from migration 0008 onward) have a
+  TRUNCATE-blocking trigger. The other 15 block UPDATE and DELETE only, and row
+  triggers do not fire on TRUNCATE. For those 15, TRUNCATE is protected by
+  withholding the privilege from runtime roles, which the audit checks, but the
+  table owner is not blocked. The audit lists the 15 as fixed limitations. Adding
+  TRUNCATE triggers would be a migration and needs separate owner approval.
+- O3c needs PostgreSQL 17 (the migration runner refuses any other version). The
+  hosted CI service container is 17; the O3a/O3b slices need no database.

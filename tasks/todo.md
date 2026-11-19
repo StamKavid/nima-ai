@@ -1,5 +1,37 @@
 # Tasks
 
+## V1-03 O3 — runtime-role and evidence-protection audit
+
+- [x] Spec approved 2026-11-19: profiles, print-only grant script, restore check.
+- [x] O3a: typed access contract (seven documented profiles), 33-table classification,
+  fixed reasons and pure assessment. 46 tests, 100% line/branch on both modules; ruff,
+  strict mypy and Bandit clean. Guard mutations (trigger check, TRUNCATE excess)
+  fail named regressions and are restored. Finding: 15 older evidence tables lack
+  a TRUNCATE trigger; disclosed as a limitation, a fix would be a migration.
+- [x] O3b: pure print-only grant renderer from the same contract. 76 access tests;
+  printed grants parse back to exactly each ceiling and pass the audit; unsafe/
+  reserved role names refused. Widened-grant mutation failed 16 tests; restored.
+- [x] O3c: bounded catalogue adapter and 32 real-role/real-catalogue tests: printed
+  grants pass for all seven profiles; each drift/privilege/role reason; bounds;
+  read-only transaction and timeouts; mid-audit grant seen; no state change.
+  Locally verified on PostgreSQL 16 with a scratch-only version shim (not committed);
+  PostgreSQL 17 proof is hosted CI only. Disabled-trigger mutation fails; restored.
+- [x] O3d (code/docs): CLI for `access-audit` and print-only `access-grants`, private
+  no-clobber report, fixed errors/redaction, operator runbook and restore entry.
+  133 access tests, 100% line/branch on all five new modules.
+- [x] O3d local gates (exact tree): skills, format, lint, strict mypy, build, Bandit,
+  Gitleaks, pip-audit clean; committed contracts 3/3 unchanged vs main `d09ec20`;
+  133 access tests pass from the unpacked built wheel. Full suite on PG16 with a
+  scratch-only version shim: 2749 passed, 59 failed, all in subprocess/crash-style
+  tests that hit the PostgreSQL 17 guard; a 54-test sample on clean main fails the
+  same 8, so none is caused by this change. PostgreSQL 17 proof is hosted CI only.
+- [ ] O3d (delivery): hosted exact-head jobs green, then one review-ready PR.
+  Owner merge and live rollout stay separate.
+- [ ] O3e (separate, needs approval): derive `ingest-worker` and `projector`
+  ceilings from the SQL the workers run, with proof the real workers run under them.
+- Open finding for owner: 15 older evidence tables lack a TRUNCATE trigger; a fix
+  would be a reviewed migration.
+
 ## V1-03 O2 — selected refresh-policy health
 
 - [x] Verify #147 reviewed tree on main `6f706f1`; freeze bounded O2 contract.
@@ -8,7 +40,9 @@
   actual read-only/timeouts, missing/corrupt/oversized evidence refusal.
 - [x] O2c: actual CLI/private artifact/fixed errors, operator procedure, merged-
   baseline project/chapter assessment, restored mutation and installed wheel.
-- [ ] O2d: full gates/audit and exact-head hosted jobs; one review-ready PR.
+- [x] O2d: owner merged #148 at `d09ec20`; exact `9d866f0` verified on main. Local
+  gates 2675 tests/93.33%, clean audit, 47 installed-wheel cases and hosted run
+  44549710775 (all three jobs) passed. No live enablement. Score reassessment pending.
 
 ## V1-03 O1 — bounded workflow diagnostics
 
