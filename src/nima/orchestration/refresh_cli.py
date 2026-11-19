@@ -20,6 +20,7 @@ def run(
     start: date | None = None,
     buyers: tuple[str, ...] = (),
     as_of: date | None = None,
+    request: UUID | None = None,
 ) -> int:
     try:
         dsn = os.environ.get("NIMA_DATABASE_URL", "")
@@ -34,6 +35,13 @@ def run(
             store.create(policy_id, Policy(start, buyers, config.archive_root))
         elif operation == "plan":
             print(json.dumps(store.plan(policy_id, as_of or day), allow_nan=False))
+            return 0
+        elif operation == "recover":
+            from nima.orchestration.recovery import recover_child
+
+            if request is None:
+                raise WorkflowError("configuration")
+            print(json.dumps(asyncio.run(recover_child(policy_id, request)), allow_nan=False))
             return 0
         elif operation in {"enable", "pause", "tick"}:
             from nima.orchestration.refresh_control import change_schedule, tick

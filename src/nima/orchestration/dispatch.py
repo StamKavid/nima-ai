@@ -9,13 +9,15 @@ from nima.orchestration.config import local_config
 from nima.storage.workflows import RequestStore, WorkflowError
 
 
-async def dispatch_request(request: UUID) -> dict[str, object]:
+async def dispatch_request(request: UUID, *, recovery: bool = False) -> dict[str, object]:
     config = local_config()
     store = RequestStore(config.dsn)
     status = store.show(request)
-    if status["status"] == "complete":
+    if status["status"] == "complete" and not recovery:
         return status
-    dispatch = store.begin_dispatch(request)
+    dispatch = (
+        store.begin_dispatch(request, recovery=True) if recovery else store.begin_dispatch(request)
+    )
     try:
         from prefect.client.orchestration import PrefectClient
 
