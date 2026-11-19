@@ -1,5 +1,16 @@
 # Delivery plan
 
+## Active V1-02 R1: bounded refresh-child recovery
+
+Owner-merged #143 reaches main `435326a`, including exact `e29e1cd` and identical
+files. Saved-intent/default/version handling already exists; retain and test it.
+Follow [R1](../SPEC-refresh-recovery.md): pure budgets/source-lock reuse and atomic
+dispatch reservation, then policy-scoped control/CLI, real SQL/process/engine
+failure proof, mutation, installed wheel, full local gates/audit and exact-head
+hosted checks. Preserve all earlier pending work. No live operation, migration,
+dependency, CI edit or schedule. Expired-child terminal decisions and policy
+supersession remain separately scoped; never reset identity, deadline or counters.
+
 ## Active V1-01 checkpoint VH1: journal health
 
 Verify owner-merged #142 at `ef657aa`, including exact `2c9cbf6` source reachability.
