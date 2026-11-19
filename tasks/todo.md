@@ -4,9 +4,9 @@
 
 - [x] Verify #143 exact reviewed tree on main `435326a`; inspect existing intent
   compatibility and freeze recovery eligibility/budgets/acknowledgement contract.
-- [ ] R1b: pure budget policy, shared source session and atomic capped reservation.
-- [ ] R1c: enabled compatible policy/open-child control and actual CLI route.
-- [ ] R1d: SQL locks/concurrency/unchanged history, unknown RPC, process death,
+- [x] R1b: pure budget policy, shared source session and atomic capped reservation.
+- [x] R1c: enabled compatible policy/open-child control and actual CLI route.
+- [x] R1d: SQL locks/concurrency/unchanged history, unknown RPC, process death,
   actual local runner and evidence-based completion; budget mutation restored.
 - [ ] Installed-wheel, complete local gates/audit and final-head hosted evidence.
 - [ ] Owner review; no live recovery or source/schedule activation.

@@ -1,6 +1,25 @@
 # Capability progress: 2026-11-19
 
-## V1-01 VH1 candidate: selected journal health
+## V1-02 R1 candidate: bounded same-request refresh recovery
+
+Owner-merged #143 reaches main `435326a`, including exact reviewed `e29e1cd`.
+Saved-intent/default/version compatibility already exists. This increment adds
+[explicit child recovery](operations/refresh-recovery.md) for an enabled,
+compatible policy's unreconciled sending/accepted child. Policy/source locks span
+the local control send; row-locked reservation checks all original budgets and
+a four-total-dispatch cap. Unknown/pending sends consume headroom. Request/run,
+deadline and counters remain intact; evidence reconciliation still owns coverage.
+
+Actual SQL/concurrency and CLI control tests pass. Real local Prefect/runner
+SIGKILL/retry tests pass, including completion of duplicate accepted jobs with
+one synthetic source read. Removing the exact-budget refusal fails its SQL
+regression and is restored. Installed-wheel, full local gates/audit and exact-head
+hosted evidence are recorded with delivery before handoff. No live recovery,
+source request, migration, dependency, CI change or schedule. Expired/exhausted
+children remain blocked for a separately scoped audited terminal/policy decision.
+This is the first recovery increment, not completion of all V1-02 or v0.1 work.
+
+## Delivered V1-01 VH1 (#143): selected journal health
 
 Owner-merged #141/#142 reach main `ef657aa`, including exact reviewed `2c9cbf6`.
 [Selected-artifact journal health](operations/validation-history.md#health-of-an-explicitly-selected-artifacts-journal)
