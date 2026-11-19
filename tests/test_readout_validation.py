@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 from pathlib import Path
 from uuid import uuid4
 
@@ -50,6 +51,8 @@ def test_fresh_and_cached_checks_preserve_sources_and_report(pg_dsn: str, tmp_pa
         ("original", "inputs_unavailable"),
         ("symlink", "artifact_unavailable"),
         ("mode", "artifact_unavailable"),
+        ("hardlink", "artifact_unavailable"),
+        ("oversized", "artifact_unavailable"),
     ],
 )
 def test_failed_or_blocked_inputs_are_recorded_without_mutation(
@@ -81,6 +84,10 @@ def test_failed_or_blocked_inputs_are_recorded_without_mutation(
             report.symlink_to(saved)
         elif fault == "mode":
             report.chmod(0o644)
+        elif fault == "hardlink":
+            os.link(report, report.with_suffix(".linked"))
+        elif fault == "oversized":
+            report.write_bytes(b"x" * (1024 * 1024 + 1))
         before = state(pg_dsn)
         attempt = uuid4()
         result = validate_readout(source, journal, attempt, selection, report)
@@ -93,3 +100,25 @@ def test_failed_or_blocked_inputs_are_recorded_without_mutation(
         assert "private-sentinel" not in json.dumps(result)
         assert str(tmp_path) not in json.dumps(result)
         assert state(pg_dsn) == before
+
+
+def test_empty_capture_is_valid_without_inventing_participation(
+    pg_dsn: str, tmp_path: Path
+) -> None:
+    from nima.analytics.request import ReadoutRequest
+    from nima.graph.pilot_archive import ArchiveBinding
+    from tests.test_analytics_snapshot import seed
+    from tests.test_semantics import CUTOFF, TAX
+
+    root = tmp_path / "raw"
+    run = seed(pg_dsn, root, empty=True)
+    request = ReadoutRequest((run,), CUTOFF, TAX, (ArchiveBinding("kimdis", run, root),))
+    selection = request_file(request, tmp_path / "request.json")
+    with reader(pg_dsn) as (source, _), journal_role(pg_dsn) as journal:
+        summary = export_readout(source, selection, tmp_path / "reports")
+        assert summary.outcome == "empty_capture"
+        report = tmp_path / "reports" / (summary.artifact_sha256 + ".json")
+        result = validate_readout(source, journal, uuid4(), selection, report)
+        outcome = result["outcome"]
+        assert isinstance(outcome, dict)
+        assert result["status"] == "passed" and outcome["record_count"] == 0
