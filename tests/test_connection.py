@@ -56,7 +56,7 @@ def test_requested_nologin_role_owns_schema_and_every_migrated_object(pg_dsn: st
             ).fetchone() == (owner,)
             assert connection.execute(
                 "SELECT count(*) FROM pg_tables WHERE schemaname='nima'"
-            ).fetchone() == (26,)
+            ).fetchone() == (27,)
             assert connection.execute(
                 """SELECT count(*) FROM pg_class c
                 JOIN pg_namespace n ON n.oid=c.relnamespace

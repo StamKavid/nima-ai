@@ -15,6 +15,7 @@ from nima.ingestion.config import CONNECTOR_VERSION, Query
 from nima.intent import IntentError, RefreshIntent, refresh_intent
 from nima.orchestration.refresh import CRON, TIMEZONE, VERSION, Policy, select_dates
 from nima.storage.postgres import NORMALIZER_VERSION, Connection
+from nima.storage.refresh_lock import policy_session
 from nima.storage.workflows import RequestStore, WorkflowError, _db
 
 
@@ -159,10 +160,7 @@ class RefreshStore:
     def lease(self, policy_id: UUID) -> Iterator["RefreshSession"]:
         saved = self.saved(policy_id)
         policy = Policy(saved.start, saved.buyers, saved.root)
-        key = int.from_bytes(hashlib.sha256(b"refresh" + policy_id.bytes).digest()[:8], signed=True)
-        with _db(self.dsn) as connection:
-            if connection.execute("SELECT pg_try_advisory_lock(%s)", (key,)).fetchone() != (True,):
-                raise WorkflowError("policy_busy", True)
+        with policy_session(self.dsn, policy_id) as connection:
             yield RefreshSession(self, connection, policy_id, policy, saved)
 
 

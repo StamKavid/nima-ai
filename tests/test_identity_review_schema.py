@@ -28,7 +28,7 @@ OLD_HASHES = (
 
 def test_packaged_migration_preserves_all_six_original_checksums() -> None:
     migrations = _migrations()
-    assert [item[0] for item in migrations] == list(range(1, 11))
+    assert [item[0] for item in migrations] == list(range(1, 12))
     assert tuple(item[2] for item in migrations[:6]) == OLD_HASHES
     assert migrations[6][1] == files("nima.storage").joinpath("migrations/0007.sql").read_text()
 
