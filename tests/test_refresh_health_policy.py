@@ -3,6 +3,7 @@
 import json
 from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
+from typing import TypedDict, cast
 from uuid import uuid4
 
 import pytest
@@ -48,8 +49,26 @@ def sample() -> PolicyHealthSample:
     )
 
 
-def report(value: PolicyHealthSample) -> dict[str, object]:
-    return json.loads(assess(value, max_tick_age_hours=24, max_observation_age_hours=24).body)
+class ChildReport(TypedDict):
+    attention_reasons: list[str]
+
+
+class CycleReport(TypedDict):
+    children: list[ChildReport]
+
+
+class Report(TypedDict):
+    status: str
+    attention_reasons: list[str]
+    worker_liveness: str
+    artifact_version: str
+    cycle: CycleReport | None
+
+
+def report(value: PolicyHealthSample) -> Report:
+    return cast(
+        Report, json.loads(assess(value, max_tick_age_hours=24, max_observation_age_hours=24).body)
+    )
 
 
 def test_checks_passed_is_only_a_selected_recorded_assessment() -> None:
@@ -98,18 +117,28 @@ def test_missing_future_and_unreobserved_windows_never_turn_green(kind: str) -> 
 
 
 @pytest.mark.parametrize(
-    "reason,changes",
+    "reason",
     [
-        ("policy_paused", {"state": "paused"}),
-        ("policy_retired", {"retired": True}),
-        ("schedule_pending", {"state": "pending"}),
-        ("processing_incompatible", {"compatible": False}),
-        ("coverage_gaps", {"missing_days": 1, "oldest_missing": (DAY - timedelta(days=1),)}),
+        "policy_paused",
+        "policy_retired",
+        "schedule_pending",
+        "processing_incompatible",
+        "coverage_gaps",
     ],
 )
-def test_policy_attention_dimensions_stay_explicit(reason: str, changes: dict[str, object]) -> None:
-    value = report(replace(sample(), **changes))
-    assert reason in value["attention_reasons"]
+def test_policy_attention_dimensions_stay_explicit(reason: str) -> None:
+    value = sample()
+    if reason == "policy_paused":
+        value = replace(value, state="paused")
+    elif reason == "policy_retired":
+        value = replace(value, retired=True)
+    elif reason == "schedule_pending":
+        value = replace(value, state="pending")
+    elif reason == "processing_incompatible":
+        value = replace(value, compatible=False)
+    else:
+        value = replace(value, missing_days=1, oldest_missing=(DAY - timedelta(days=1),))
+    assert reason in report(value)["attention_reasons"]
 
 
 @pytest.mark.parametrize(
@@ -129,7 +158,7 @@ def test_unreconciled_child_cannot_hide_behind_recent_data_or_complete_status(st
     result = report(value)
     assert "cycle_unresolved" in result["attention_reasons"]
     cycle = result["cycle"]
-    assert isinstance(cycle, dict)
+    assert cycle is not None
     assert cycle["children"][0]["attention_reasons"]
     if status != "complete":
         assert "workflow_deadline" in cycle["children"][0]["attention_reasons"]
@@ -148,7 +177,15 @@ def test_cardinality_and_naive_clocks_are_evidence_failures() -> None:
 
 @pytest.mark.parametrize("hours", [0, 8761, True, "private"])
 def test_invalid_thresholds_refuse_without_echoing_input(hours: object) -> None:
-    from typing import cast
 
     with pytest.raises(HealthError, match="^refresh_health_configuration$"):
         assess(sample(), max_tick_age_hours=cast(int, hours), max_observation_age_hours=24)
+
+
+def test_recent_fresh_window_does_not_hide_an_older_due_window() -> None:
+    value = sample()
+    day = value.start - timedelta(days=1)
+    value = replace(
+        value, start=day, recent=(RecentWindow(day, NOW - timedelta(hours=25), DAY), *value.recent)
+    )
+    assert "observation_older_than_threshold" in report(value)["attention_reasons"]

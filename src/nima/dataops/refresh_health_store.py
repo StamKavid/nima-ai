@@ -70,6 +70,7 @@ def read_snapshot(dsn: str, policy_id: UUID) -> PolicyHealthSample:
             c.execute("SET LOCAL TIME ZONE 'UTC'")
             c.execute("SET LOCAL statement_timeout = 5000")
             c.execute("SET LOCAL lock_timeout = 2000")
+            c.execute("SET LOCAL row_security = off")
             validate_schema(c)
             with c.cursor(row_factory=class_row(_PolicyRow)) as cursor:
                 policy = cursor.execute(
@@ -168,7 +169,7 @@ def read_snapshot(dsn: str, policy_id: UUID) -> PolicyHealthSample:
                     tuple(selected.query_dates),
                     children,
                 )
-                validate_cycle(cycle)
+                validate_cycle(cycle, saved.start)
             return PolicyHealthSample(
                 policy_id,
                 policy.sampled_at,

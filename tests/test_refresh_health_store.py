@@ -84,12 +84,12 @@ def test_interleaved_commit_cannot_change_child_snapshot(
     from nima.dataops import refresh_health_store as adapter
 
     _, policy, request = child(pg_dsn, tmp_path / "raw")
-    original = adapter.missing_dates
     # The wrapper keeps a real reader transaction open across a separate commit.
     from datetime import date
     from uuid import UUID
 
     from nima.storage.connection import Connection
+    from nima.storage.refresh import missing_dates as original
 
     def commit(c: Connection, policy_id: UUID, start: date, end: date) -> tuple[date, ...]:
         result = original(c, policy_id, start, end)
@@ -110,3 +110,117 @@ def test_interleaved_commit_cannot_change_child_snapshot(
         assert c.execute(
             "SELECT status FROM nima.workflow_requests WHERE request_id=%s", (request,)
         ).fetchone() == ("failed",)
+
+
+def test_server_enforces_readonly_transaction_and_timeouts(
+    pg_dsn: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from datetime import date
+    from uuid import UUID
+
+    from nima.dataops import refresh_health_store as adapter
+    from nima.storage.connection import Connection
+    from nima.storage.refresh import missing_dates as original
+
+    _, policy, _ = child(pg_dsn, tmp_path / "raw")
+
+    def inspect(c: Connection, policy_id: UUID, start: date, end: date) -> tuple[date, ...]:
+        assert c.execute("""SELECT current_setting('transaction_read_only'),
+            current_setting('transaction_isolation'),current_setting('statement_timeout'),
+            current_setting('lock_timeout'),current_setting('row_security')""").fetchone() == (
+            "on",
+            "repeatable read",
+            "5s",
+            "2s",
+            "off",
+        )
+        with pytest.raises(psycopg.errors.ReadOnlySqlTransaction), c.transaction():
+            c.execute("UPDATE nima.refresh_policies SET last_tick_at=clock_timestamp()")
+        return original(c, policy_id, start, end)
+
+    monkeypatch.setattr(adapter, "missing_dates", inspect)
+    assert read_snapshot(pg_dsn, policy).policy_id == policy
+
+
+@pytest.mark.parametrize("oversized", [False, True])
+def test_configuration_is_bounded_before_decode_and_hash_checked(
+    pg_dsn: str,
+    tmp_path: Path,
+    oversized: bool,
+) -> None:
+    from psycopg.types.json import Jsonb
+
+    _, policy, _ = child(pg_dsn, tmp_path / "raw")
+    with psycopg.connect(pg_dsn) as c:
+        c.execute("ALTER TABLE nima.refresh_policies DISABLE TRIGGER refresh_policy_identity")
+        if oversized:
+            c.execute(
+                "UPDATE nima.refresh_policies SET configuration=configuration || %s",
+                (Jsonb({"private_marker": "x" * 20000}),),
+            )
+        else:
+            c.execute("UPDATE nima.refresh_policies SET configuration_sha256=repeat('0',64)")
+    expected = "refresh_health_limit" if oversized else "refresh_health_evidence"
+    with reader(pg_dsn) as dsn, pytest.raises(HealthError, match=f"^{expected}$"):
+        read_snapshot(dsn, policy)
+
+
+def test_open_cycle_cannot_be_hidden_by_a_later_completed_cycle(
+    pg_dsn: str, tmp_path: Path
+) -> None:
+    _, policy, _ = child(pg_dsn, tmp_path / "raw")
+    before = read_snapshot(pg_dsn, policy)
+    assert before.cycle is not None
+    with psycopg.connect(pg_dsn) as c:
+        c.execute(
+            """INSERT INTO nima.refresh_cycles
+            (cycle_id,policy_id,business_date,query_dates,completed_at)
+            SELECT %s,policy_id,business_date+1,query_dates,clock_timestamp()
+            FROM nima.refresh_cycles WHERE cycle_id=%s""",
+            (uuid4(), before.cycle.cycle_id),
+        )
+    with reader(pg_dsn) as dsn:
+        after = read_snapshot(dsn, policy)
+    assert after.cycle == before.cycle
+
+
+def test_fifteenth_child_refuses_instead_of_publishing_truncated_health(
+    pg_dsn: str,
+    tmp_path: Path,
+) -> None:
+    from datetime import timedelta
+
+    from tests.test_refresh_store import DAY, new_policy
+
+    store, policy = new_policy(pg_dsn, tmp_path / "raw", start=DAY - timedelta(days=30))
+    with store.lease(policy) as session:
+        session.state("enabled")
+        cycle = session.cycle(DAY)
+        assert cycle is not None and len(session.children(cycle)) == 14
+    with psycopg.connect(pg_dsn) as c:
+        request = uuid4()
+        c.execute(
+            """INSERT INTO nima.workflow_requests(request_id,parameters,parameters_sha256)
+            SELECT %s,parameters,parameters_sha256 FROM nima.workflow_requests LIMIT 1""",
+            (request,),
+        )
+        c.execute(
+            """INSERT INTO nima.refresh_windows(cycle_id,policy_id,query_date,request_id)
+            VALUES(%s,%s,%s,%s)""",
+            (cycle.cycle_id, policy, DAY - timedelta(days=31), request),
+        )
+    with reader(pg_dsn) as dsn, pytest.raises(HealthError, match="^refresh_health_evidence$"):
+        read_snapshot(dsn, policy)
+
+
+def test_row_security_cannot_silently_hide_the_open_cycle(pg_dsn: str, tmp_path: Path) -> None:
+    _, policy, _ = child(pg_dsn, tmp_path / "raw")
+    with psycopg.connect(pg_dsn) as c:
+        c.execute("ALTER TABLE nima.refresh_cycles ENABLE ROW LEVEL SECURITY")
+        c.execute(
+            "CREATE POLICY hide_refresh_cycles ON nima.refresh_cycles FOR SELECT USING(false)"
+        )
+    with reader(pg_dsn) as dsn, pytest.raises(HealthError, match="^refresh_health_database$"):
+        read_snapshot(dsn, policy)

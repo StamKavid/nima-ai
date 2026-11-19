@@ -53,12 +53,13 @@ class PolicyHealthSample:
     cycle: RefreshCycle | None
 
 
-def validate_cycle(c: RefreshCycle) -> None:
+def validate_cycle(c: RefreshCycle, start: date) -> None:
     if (
         not 1 <= len(c.query_dates) <= 14
         or len(c.children) != len(c.query_dates)
         or tuple(sorted(set(c.query_dates))) != c.query_dates
         or tuple(child.query_date for child in c.children) != c.query_dates
+        or any(not start <= d < c.business_date for d in c.query_dates)
     ):
         raise HealthError("refresh_health_evidence")
 
@@ -150,7 +151,7 @@ def assess(
     cycle_report: dict[str, object] | None = None
     if s.cycle is not None:
         c = s.cycle
-        validate_cycle(c)
+        validate_cycle(c, s.start)
         if c.completed_at is None:
             flags.add("cycle_unresolved")
         if c.business_date > day:
