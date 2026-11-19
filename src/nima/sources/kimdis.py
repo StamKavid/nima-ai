@@ -8,7 +8,7 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass
 from decimal import Decimal, InvalidOperation
-from typing import Literal, Never, Protocol, cast
+from typing import Literal, Never, cast
 
 from nima.contracts.schema import ContractError
 from nima.sources.base import (
@@ -16,6 +16,7 @@ from nima.sources.base import (
     NormalizedPage,
     NormalizedRecord,
     PageIssue,
+    PayloadSource,
     SourcePageError,
 )
 from nima.sources.kimdis_contracts import NORMALIZER_VERSION as NORMALIZER_VERSION
@@ -370,10 +371,6 @@ def normalize_page(raw_response: bytes, *, max_bytes: int = 8 * 1024 * 1024) -> 
     )
 
 
-class _HasPayload(Protocol):
-    def payload(self) -> dict[str, object]: ...
-
-
 def _record_index(evidence: Evidence) -> int:
     return int(evidence.json_pointer.rsplit("/", 1)[1])
 
@@ -395,10 +392,12 @@ class KimdisAdapter:
     connector_version = "kimdis-contract-v1"
     normalizer_version = NORMALIZER_VERSION
 
-    def __init__(self, query: _HasPayload) -> None:
+    def __init__(self, query: PayloadSource | None = None) -> None:
         self._query = query
 
     def query_payload(self) -> dict[str, object]:
+        if self._query is None:
+            raise ValueError("this adapter was created without a query")
         return self._query.payload()
 
     def normalize_page(self, raw: bytes, *, max_bytes: int = DEFAULT_MAX_BYTES) -> NormalizedPage:
@@ -406,13 +405,17 @@ class KimdisAdapter:
         records = tuple(
             NormalizedRecord(
                 index=_record_index(contract.evidence),
+                evidence_pointer=contract.evidence.json_pointer,
                 source_id=contract.source_id,
                 content_sha256=page.record_hashes[_record_index(contract.evidence)],
                 normalized=_normalized(contract),
             )
             for contract in page.contracts
         )
-        issues = tuple(PageIssue(_record_index(i.evidence), i.reason) for i in page.issues)
+        issues = tuple(
+            PageIssue(_record_index(i.evidence), i.evidence.json_pointer, i.reason)
+            for i in page.issues
+        )
         return NormalizedPage(
             number=page.number,
             size=page.size,
@@ -420,7 +423,9 @@ class KimdisAdapter:
             total_pages=page.total_pages,
             last=page.last,
             record_count=page.record_count,
+            response_sha256=hashlib.sha256(raw).hexdigest(),
             records=records,
             issues=issues,
             source_ids=page.source_ids,
+            record_hashes=page.record_hashes,
         )

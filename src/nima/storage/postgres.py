@@ -5,7 +5,6 @@ and https://www.psycopg.org/psycopg3/docs/basic/params.html .
 """
 
 import hashlib
-from dataclasses import asdict
 from datetime import datetime
 from importlib.resources import files
 from uuid import UUID
@@ -14,11 +13,14 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 from nima.ingestion.archive import Archive
-from nima.ingestion.config import CONNECTOR_VERSION, Query
-from nima.sources.kimdis import NORMALIZER_VERSION as NORMALIZER_VERSION
-from nima.sources.kimdis import normalize_page
+from nima.ingestion.config import Query
+from nima.sources.base import SourceAdapter
+from nima.sources.registry import DEFAULT_NORMALIZER_VERSION, default_adapter
 from nima.storage.connection import Connection as Connection
 from nima.storage.connection import connect
+
+# The default source's normalizer version, kept here because many modules import it from the store.
+NORMALIZER_VERSION = DEFAULT_NORMALIZER_VERSION
 
 
 class MigrationError(ValueError):
@@ -88,11 +90,16 @@ def migrate(dsn: str) -> None:
 class PageStore:
     """Each operation owns its connection and commits exactly one transaction."""
 
-    def __init__(self, dsn: str, archive: Archive) -> None:
+    def __init__(self, dsn: str, archive: Archive, adapter: SourceAdapter | None = None) -> None:
         self._dsn, self.archive = dsn, archive
+        self.adapter = adapter if adapter is not None else default_adapter()
 
     def _identity(self) -> tuple[str, str, str]:
-        return CONNECTOR_VERSION, NORMALIZER_VERSION, str(self.archive.root)
+        return (
+            self.adapter.connector_version,
+            self.adapter.normalizer_version,
+            str(self.archive.root),
+        )
 
     def start_run(self, run_id: UUID, query: Query) -> None:
         with _connect(self._dsn) as connection, connection.transaction():
@@ -123,7 +130,7 @@ class PageStore:
         if observed_at.utcoffset() is None:
             raise ValueError("Observation time must include a timezone")
         digest = self.archive.store(raw_body)
-        page = normalize_page(raw_body, max_bytes=max_bytes)
+        page = self.adapter.normalize_page(raw_body, max_bytes=max_bytes)
         shape = (page.total_records, page.total_pages, page.size)
         with _connect(self._dsn) as connection, connection.transaction():
             row = connection.execute(
@@ -164,23 +171,17 @@ class PageStore:
                     list(page.source_ids),
                 ),
             )
-            for contract in page.contracts:
-                index = int(contract.evidence.json_pointer.rsplit("/", 1)[1])
-                version = (contract.source_id, NORMALIZER_VERSION, page.record_hashes[index])
-                normalized = asdict(contract)
-                del normalized["evidence"]
-                for field in ("net_amount", "gross_amount"):
-                    if normalized[field] is not None:
-                        normalized[field] = str(normalized[field])
+            for record in page.records:
+                version = (record.source_id, self.adapter.normalizer_version, record.content_sha256)
                 connection.execute(
                     """INSERT INTO nima.source_records VALUES (%s)
                     ON CONFLICT DO NOTHING""",
-                    (contract.source_id,),
+                    (record.source_id,),
                 )
                 connection.execute(
                     """INSERT INTO nima.record_versions VALUES (%s, %s, %s, %s)
                     ON CONFLICT DO NOTHING""",
-                    (*version, Jsonb(normalized)),
+                    (*version, Jsonb(record.normalized)),
                 )
                 connection.execute(
                     """WITH observed AS (INSERT INTO nima.observations
@@ -188,13 +189,12 @@ class PageStore:
                      normalizer_version, content_sha256)
                     VALUES (%s, %s, %s, %s, %s, %s) RETURNING observation_id)
                     INSERT INTO nima.outbox (observation_id) SELECT observation_id FROM observed""",
-                    (run_id, page.number, index, *version),
+                    (run_id, page.number, record.index, *version),
                 )
             for issue in page.issues:
-                index = int(issue.evidence.json_pointer.rsplit("/", 1)[1])
                 connection.execute(
                     "INSERT INTO nima.quarantine VALUES (%s, %s, %s, %s)",
-                    (run_id, page.number, index, issue.reason),
+                    (run_id, page.number, issue.index, issue.reason),
                 )
             connection.execute(
                 """UPDATE nima.ingest_runs SET next_page = %s,

@@ -30,6 +30,15 @@ SCENARIOS: dict[str, list[bytes]] = {
     "clean-three-pages": [body(page=n, total=3) for n in range(3)],
     "quarantined-record": [body(total=1, title=42)],
     "joint-supplier-money": [page_body(joint_record())],
+    # Three records on one page: valid at index 0, quarantined at 1, valid at 2. Without this a
+    # wrong per-record hash or index would be invisible, since every other page has one record.
+    "multi-record-mixed": [
+        page_body(
+            joint_record(),
+            {"referenceNumber": "26SYMV000000009", "title": 7},
+            {**joint_record(), "referenceNumber": "26SYMV000000002"},
+        )
+    ],
 }
 
 # Recorded from the engine on main bb99485, before the engine used the adapter protocol.
@@ -37,6 +46,7 @@ EXPECTED = {
     "clean-three-pages": "4f738aa3efcec128dcd081127b8b8f4ffd534b86e084454dd51823927bb2c010",
     "quarantined-record": "f46da2f34d24ee765141b5b5a4857de0250f005e9168fe98921ff06ca2862512",
     "joint-supplier-money": "f9c72a7db7b3cfe145ab9cf76b7b7c80d97e66c10faaa6c9f32c66a4e51c2663",
+    "multi-record-mixed": "5baa7039284002ff3524af6980ed2a6c42f9efe2c8ddb94dc40f0d6330c3f409",
 }
 
 

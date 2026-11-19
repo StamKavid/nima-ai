@@ -28,7 +28,7 @@ ENGINE_PREFIXES = (
     "nima.projections",
 )
 SOURCE_PREFIX = "nima.sources."
-ALLOWED_SOURCE_MODULES = frozenset({"nima.sources.base"})
+ALLOWED_SOURCE_MODULES = frozenset({"nima.sources.base", "nima.sources.registry"})
 KINDS = ("package_cycles", "module_cycles", "forbidden_edges")
 
 type Graph = Mapping[str, frozenset[str]]

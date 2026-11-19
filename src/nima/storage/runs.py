@@ -19,6 +19,7 @@ from psycopg.types.json import Jsonb
 
 from nima.ingestion.archive import Archive
 from nima.ingestion.config import Limits, Query, Summary
+from nima.sources.base import SourceAdapter
 from nima.storage.postgres import CheckpointError, Connection, PageStore, _connect, check_schema
 
 
@@ -32,8 +33,15 @@ class RunBusy(CheckpointError):
 
 
 class RunStore(PageStore):
-    def __init__(self, dsn: str, archive: Archive, run_id: UUID, limits: Limits):
-        super().__init__(dsn, archive)
+    def __init__(
+        self,
+        dsn: str,
+        archive: Archive,
+        run_id: UUID,
+        limits: Limits,
+        adapter: SourceAdapter | None = None,
+    ):
+        super().__init__(dsn, archive, adapter)
         self.run_id, self.owner, self.limits = run_id, uuid4(), limits
         self._attempt_id: int | None = None
         self._lease_connection: Connection | None = None

@@ -4,6 +4,7 @@ The suite is parametrized over adapter cases. KIMDIS is the first; later slices 
 and every one of them must pass every test here without changing the engine.
 """
 
+import hashlib
 import json
 import re
 from collections.abc import Callable
@@ -159,3 +160,20 @@ def test_kimdis_adapter_keeps_the_exact_processing_identity() -> None:
         NORMALIZER_VERSION,
     )
     assert adapter.query_payload() == QUERY.payload()
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_pages_expose_response_hash_record_hashes_and_unique_evidence_pointers(
+    case: AdapterCase,
+) -> None:
+    adapter = case.make()
+    for raw in (*case.pages, case.money_page, case.quarantine_page):
+        page = adapter.normalize_page(raw)
+        assert page.response_sha256 == hashlib.sha256(raw).hexdigest()
+        assert len(page.record_hashes) == page.record_count
+        assert all(re.fullmatch(r"[0-9a-f]{64}", h) for h in page.record_hashes)
+        pointers = [r.evidence_pointer for r in page.records]
+        pointers += [i.evidence_pointer for i in page.issues]
+        assert all(pointers) and len(pointers) == len(set(pointers)) == page.record_count
+        for record in page.records:
+            assert page.record_hashes[record.index] == record.content_sha256
