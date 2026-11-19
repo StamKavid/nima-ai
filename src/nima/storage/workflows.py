@@ -8,6 +8,7 @@ import json
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import asdict
+from datetime import datetime
 from pathlib import Path
 from typing import cast
 from uuid import UUID, uuid4
@@ -27,6 +28,7 @@ from nima.storage.postgres import (
     check_schema,
 )
 from nima.storage.runs import inspect_run
+from nima.workflows.recovery import RecoveryBudget
 
 REQUEST_VERSION = "nima-kimdis-request-v1"
 
@@ -49,6 +51,15 @@ def _db(dsn: str) -> Iterator[Connection]:
         raise WorkflowError("run_unavailable") from None
     except psycopg.Error:
         raise WorkflowError("database", True) from None
+
+
+@contextmanager
+def source_session(dsn: str) -> Iterator[Connection]:
+    """Serialize collection and recovery sends without changing request state."""
+    with _db(dsn) as connection:
+        if connection.execute("SELECT pg_try_advisory_lock(812344030,1)").fetchone() != (True,):
+            raise WorkflowError("source_busy", True)
+        yield connection
 
 
 class RequestGuard:
@@ -271,11 +282,38 @@ class RequestStore:
                 result[key] = evidence[key]
         return result
 
-    def begin_dispatch(self, request: UUID) -> UUID:
+    def begin_dispatch(self, request: UUID, *, recovery: bool = False) -> UUID:
         self.options(request)
         self.show(request)
         dispatch = uuid4()
-        with _db(self.dsn) as connection:
+        with _db(self.dsn) as connection, connection.transaction():
+            if recovery:
+                row = connection.execute(
+                    "SELECT status,started_at,executions,attempts,projection_batches "
+                    "FROM nima.workflow_requests WHERE request_id=%s FOR UPDATE",
+                    (request,),
+                ).fetchone()
+                if row is None:
+                    raise WorkflowError("request_unavailable")
+                # Sample/count after the row lock, including any writer we waited for.
+                count = connection.execute(
+                    "SELECT count(*),clock_timestamp() FROM nima.workflow_dispatches "
+                    "WHERE request_id=%s",
+                    (request,),
+                ).fetchone()
+                if count is None:
+                    raise WorkflowError("request_unavailable")
+                budget = RecoveryBudget(
+                    cast(str, row[0]),
+                    cast(datetime | None, row[1]),
+                    cast(int, row[2]),
+                    cast(int, row[3]),
+                    cast(int, row[4]),
+                    cast(int, count[0]),
+                )
+                failure = budget.failure(cast(datetime, count[1]))
+                if failure:
+                    raise WorkflowError(failure)
             connection.execute(
                 "INSERT INTO nima.workflow_dispatches (dispatch_id,request_id) VALUES (%s,%s)",
                 (dispatch, request),
@@ -296,9 +334,7 @@ class RequestStore:
     @contextmanager
     def source_lease(self, request: UUID) -> Iterator[RequestGuard]:
         self.options(request)
-        with _db(self.dsn) as connection:
-            if connection.execute("SELECT pg_try_advisory_lock(812344030,1)").fetchone() != (True,):
-                raise WorkflowError("source_busy", True)
+        with source_session(self.dsn) as connection:
             owner = uuid4()
             row = connection.execute(
                 "UPDATE nima.workflow_requests SET source_owner=%s WHERE request_id=%s RETURNING 1",

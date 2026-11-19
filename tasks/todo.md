@@ -1,5 +1,18 @@
 # Tasks
 
+## V1-02 R1 — bounded same-request refresh recovery
+
+- [x] Verify #143 exact reviewed tree on main `435326a`; inspect existing intent
+  compatibility and freeze recovery eligibility/budgets/acknowledgement contract.
+- [x] R1b: pure budget policy, shared source session and atomic capped reservation.
+- [x] R1c: enabled compatible policy/open-child control and actual CLI route.
+- [x] R1d: SQL locks/concurrency/unchanged history, unknown RPC, process death,
+  actual local runner and evidence-based completion; budget mutation restored.
+- [ ] Installed-wheel, complete local gates/audit and final-head hosted evidence.
+- [ ] Owner review; no live recovery or source/schedule activation.
+- [ ] Later V1-02: separately specify audited exhausted-child resolution and
+  policy supersession; preserve original budgets and terminal history.
+
 ## V1-01 VH1 — selected-artifact validation health
 
 - [x] Verify #142 and reviewed head on main `ef657aa`; freeze bounded health scope.
@@ -11,7 +24,8 @@
   mutation fails its regression and is restored.
 - Installed wheel, full local gates/audit and exact-head hosted proof are required
   before handoff; record exact observations with the delivery PR.
-- [ ] Owner review; no live journal setup, source acquisition or activation.
+- [x] Owner merged #143; exact `e29e1cd` reaches main `435326a`. No live journal
+  setup, source acquisition or activation follows from that code merge.
 
 ## V1-01 — first durable validation boundary
 

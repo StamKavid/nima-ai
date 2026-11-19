@@ -586,9 +586,11 @@ docker compose -f infra/compose.orchestration.yml exec app python -m nima refres
 
 Repeated ticks reuse their original request IDs. Unknown or failed children block
 further dispatch and later cycles. Inspect `blocked_reason` and the child request
-IDs; use the existing `workflows show/dispatch` commands for explicit recovery of
-the same request. Exhausted budgets do not reset on redispatch. Policy changes
-require a new policy identity and explicit operator review.
+IDs; use `refresh recover POLICY_UUID --request-id REQUEST_UUID` for a bounded
+retry of the same child while its original budgets permit. See the
+[recovery runbook](docs/operations/refresh-recovery.md) for eligibility, unknown
+delivery and dispatch caps. Exhausted budgets stay blocked. Audited terminal
+resolution/policy supersession remains separately scoped work.
 
 If pause reports `policy_busy`, retry after the short coordinator returns.
 Already accepted/running children may finish after pause. `state=pending` means
