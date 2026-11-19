@@ -54,7 +54,7 @@ def test_additive_upgrade_keeps_old_bodies_and_source_data(pg_dsn: str, tmp_path
         assert c.execute("SELECT to_regclass('nima_processing.replayed_contracts')").fetchone() == (
             "nima_processing.replayed_contracts",
         )
-        assert len(_migrations()) == 11
+        assert len(_migrations()) == 12
 
 
 def test_configured_nologin_owner_owns_processing_schema_too(pg_dsn: str) -> None:

@@ -50,8 +50,13 @@ def _db(dsn: str) -> Iterator[Connection]:
     except CheckpointError:
         raise WorkflowError("run_unavailable") from None
     except psycopg.errors.ObjectNotInPrerequisiteState as error:
-        if error.diag.constraint_name == "refresh_policy_live":
-            raise WorkflowError("policy_retired") from None
+        reasons = {
+            "refresh_policy_live": "policy_retired",
+            "refresh_succession_valid": "succession_conflict",
+        }
+        constraint = error.diag.constraint_name
+        if constraint is not None and constraint in reasons:
+            raise WorkflowError(reasons[constraint]) from None
         raise WorkflowError("database", True) from None
     except psycopg.Error:
         raise WorkflowError("database", True) from None

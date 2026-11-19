@@ -96,7 +96,7 @@ def test_export_closes_every_sql_connection_before_build_encode_and_publish_and_
     assert first == export.export_graph(pg_dsn, parsed, output, entity_id=chosen.entity_id)
     assert old == (artifact.read_bytes(), artifact.stat().st_mtime_ns)
     assert output.stat().st_mode & 0o777 == 0o700 and artifact.stat().st_mode & 0o777 == 0o600
-    assert len(before) == 27 and database_snapshot(pg_dsn) == before
+    assert len(before) == 28 and database_snapshot(pg_dsn) == before
     assert first["automatic_identity_links"] == 0 and first["reviewed_accepted_links"] == 1
     assert not any(
         k in first for k in ("nodes", "edges", "name", "title", "rationale", "output_dir")

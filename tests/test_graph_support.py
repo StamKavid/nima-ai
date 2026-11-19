@@ -18,6 +18,10 @@ def database_snapshot(dsn: str) -> dict[str, list[object]]:
             None,
         ):
             tables += ("refresh_retirements",)
+        if connection.execute("SELECT to_regclass('nima.refresh_successions')").fetchone() != (
+            None,
+        ):
+            tables += ("refresh_successions",)
         return {
             **source,
             **{
