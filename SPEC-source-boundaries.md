@@ -1,7 +1,7 @@
 # Spec: source boundaries for a second feed — V1-04
 
-Status: **proposed; awaiting owner approval before any plan or code.** Follows #152
-(`7dfc7b1`). This is backlog package V1-04 (`docs/roadmap/agent-backlog.md`), the first
+Status: **approved by the owner on 2026-11-19; slice S1 in progress.** Decisions below. Follows
+#152 (`7dfc7b1`). This is backlog package V1-04 (`docs/roadmap/agent-backlog.md`), the first
 step of v0.2. It prepares a second source (Diavgeia decisions, V1-06) without copying the
 KIMDIS stack, and does not fetch, parse or activate any new source.
 
@@ -22,11 +22,15 @@ Measured with a real import graph over `src/nima` (18 packages) on main `7dfc7b1
 - Seven modules outside it import it: `ingestion.collector`, `storage.postgres` (the shared
   `PageStore`, imported by 26 modules), `dataops.replay`, `analytics.reconcile` and three
   `metadata` modules. The engine's own storage layer is therefore coupled to one source.
+- The dependency check built in S1 finds **six** engine-to-concrete-source imports: three
+  KIMDIS (`dataops.replay`, `ingestion.collector`, `storage.postgres`) and three GEMI
+  (`ingestion.gemi`, `storage.gemi`, `storage.gemi_archive`). GEMI is already a second source
+  in the repository, wired directly into engine modules the same way.
 - Shared engine modules also carry KIMDIS literals (for example `ingestion.config.Query` is
   a KIMDIS date/buyer query, and `NORMALIZER_VERSION` is a single global).
-- Three package-level import cycles already exist (`ingestion`, `orchestration`, `storage`;
-  `orchestration`, `projections`, `storage`; `orchestration`, `storage`), plus two
-  module-level ones (`egress.bootstrap`/`gateway`, `kimdis`/`kimdis_contracts`). A dependency
+- Package imports contain one connected cycle group of five packages (`ingestion`, `intent`,
+  `orchestration`, `projections`, `storage`; the first rough pass missed `intent`), plus two
+  module-level cycles (`egress.bootstrap`/`gateway`, `kimdis`/`kimdis_contracts`). A dependency
   test that demands "no cycles" would fail today.
 
 ## Assumptions (correct before approval)
@@ -34,12 +38,13 @@ Measured with a real import graph over `src/nima` (18 packages) on main `7dfc7b1
 1. No database migration is needed: `record_versions.normalized` is JSON, `source_id` is
    already namespaced text and `ingest_runs.query` is JSON. Per-source `connector_version`
    and `normalizer_version` are the only values that stop being process-wide constants.
-2. The second adapter in this package is a **synthetic test adapter**, not Diavgeia. A real
+2. The second adapters in this package are **synthetic test adapters**, not Diavgeia. A real
    second source needs its own access and reuse acceptance first (V1-06).
 3. `ingestion.config.Query` stays KIMDIS-shaped for now; the engine treats a run's query as an
    opaque JSON payload supplied by the adapter.
-4. Existing import cycles are recorded and not fixed here; the dependency test only forbids
-   new ones and new forbidden edges.
+4. Existing import cycles and engine-to-source imports are recorded in a committed baseline
+   and not fixed here; the dependency test forbids new ones and requires the baseline to
+   shrink as they are removed.
 5. No new dependency, no CI edit, no live request.
 
 ## The boundary
@@ -104,17 +109,26 @@ uv run --frozen mypy && just check && just audit
   real store, not mocks.
 - Ask first: any migration, dependency or CI change; changing a persisted identifier or
   version string; fixing the existing import cycles.
-- Never: add a second live source, request any network resource, or let the engine branch on
-  a source name.
+- Never: add a second live source, request a network resource (except in the gated S5 step,
+  after the owner names the dataset, reuse terms are checked and a host is allowed), or let
+  the engine branch on a source name.
 
 ## Slices and finite acceptance
 
-1. **S1 freeze:** the import-graph test and cycle baseline, no behavior change.
+1. **S1 freeze:** the import-graph check, its committed baseline and tests, no behavior
+   change. `scripts/dependency_graph.py`, `tests/dependency_baseline.json`,
+   `tests/test_dependency_graph.py`.
 2. **S2 protocol:** `base.py` and `KimdisAdapter` wrapping the existing functions; no engine
    change; KIMDIS conformance passes.
 3. **S3 engine on the protocol:** page store, collector and replay take the adapter with
    KIMDIS as the default; all existing tests and the byte-for-byte check pass.
-4. **S4 second adapter:** synthetic adapter and the full conformance suite on both.
+4. **S4 second adapters:** two synthetic adapters of deliberately different shape (for
+   example different pagination, ID scheme and money format) and the full conformance suite on
+   all three. Two shapes show the protocol is general, not fitted to KIMDIS.
+5. **S5 real dataset (gated, optional):** a recorded sample of one small public dataset
+   behind the same suite. It starts only when the owner names the dataset, its reuse terms
+   are checked from the official source, and a network host is allowed; otherwise it stays
+   blocked and is not guessed.
 
 Each slice ends in one review-ready PR with full gates and hosted exact-head jobs.
 
@@ -126,12 +140,10 @@ Each slice ends in one review-ready PR with full gates and hosted exact-head job
 - Existing crash, resume, replay and access tests pass unchanged; evidence bytes identical.
 - The dependency test rejects a new cycle and a new forbidden edge.
 
-## Open questions
+## Decisions recorded (2026-11-19)
 
-1. Is a test-only synthetic second adapter the right exit proof now (recommended), or do you
-   want a real small public dataset before V1-06's access review?
-2. Record the three existing package cycles as a shrink-only baseline (recommended), or fix
-   them first? Fixing them touches orchestration and is a separate, larger package.
-3. May the engine's `connector_version` and `normalizer_version` become per-adapter values
-   (assumption 1), given they are stored in evidence tables and used in processing identity?
+1. **Second adapters:** test both. Two synthetic adapters of different shape now (S4), and a
+   real small public dataset as the gated S5 step above. The real dataset is not assumed.
+2. **Existing cycles:** recorded as a shrink-only baseline, not fixed here.
+3. **Versions:** `connector_version` and `normalizer_version` may become per-adapter values;
    KIMDIS keeps today's exact strings, so existing rows stay valid.
