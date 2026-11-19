@@ -1,5 +1,21 @@
 # Tasks
 
+## V1-03 O3 — runtime-role and evidence-protection audit
+
+- [x] Spec approved 2026-11-19: profiles, print-only grant script, restore check.
+- [x] O3a: typed access contract (seven documented profiles), 33-table classification,
+  fixed reasons and pure assessment. 46 tests, 100% line/branch on both modules; ruff,
+  strict mypy and Bandit clean. Guard mutations (trigger check, TRUNCATE excess)
+  fail named regressions and are restored. Finding: 15 older evidence tables lack
+  a TRUNCATE trigger; disclosed as a limitation, a fix would be a migration.
+- [ ] O3b: pure grant renderer from the same contract; identifier quoting/refusal;
+  rendered grants never exceed their profile ceiling.
+- [ ] O3c: bounded catalogue adapter; real roles for every reason, generated grants
+  pass audit, frozen snapshot with interleaved grant change.
+- [ ] O3d: CLI, private artifact, redaction, runbook and restore entry, derived
+  ingest/projector ceilings, guard mutation, wheel, full gates/audit, hosted jobs,
+  one review-ready PR. Owner merge and live rollout stay separate.
+
 ## V1-03 O2 — selected refresh-policy health
 
 - [x] Verify #147 reviewed tree on main `6f706f1`; freeze bounded O2 contract.
