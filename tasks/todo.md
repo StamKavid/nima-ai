@@ -29,8 +29,8 @@
   verified on main. Hosted jobs on that head (quality, orchestration-compose,
   source-worker-egress; runs 44574859669 and 44574968743) all passed on
   PostgreSQL 17, so the local PG16-shim caveat is closed. No live rollout.
-- [ ] O3e (separate, needs approval): derive `ingest-worker` and `projector`
-  ceilings from the SQL the workers run, with proof the real workers run under them.
+- [ ] O3e: worker role profiles. Spec proposed in `SPEC-operating-controls.md#o3e-worker-role-profiles`;
+  awaiting owner approval (granularity, sequences, optional TRUNCATE migration).
 - Open finding for owner: 15 older evidence tables lack a TRUNCATE trigger; a fix
   would be a reviewed migration.
 

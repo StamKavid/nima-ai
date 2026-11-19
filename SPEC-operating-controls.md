@@ -293,3 +293,85 @@ and focused `tests/test_access_*.py` files. Commands:
   TRUNCATE triggers would be a migration and needs separate owner approval.
 - O3c needs PostgreSQL 17 (the migration runner refuses any other version). The
   hosted CI service container is 17; the O3a/O3b slices need no database.
+
+## O3e: worker role profiles
+
+Status: **proposed; awaiting owner approval before any plan or code.** Follows
+owner-merged #149 (`fa4d772`). O3 shipped seven profiles whose grants are documented
+in runbooks. The pipeline workers that actually write evidence have no documented
+grant list, so they are not yet covered. This spec closes that gap without guessing.
+
+### What is known
+
+- Every command reads the same `NIMA_DATABASE_URL`; only validation has its own
+  variable. The code does not separate worker roles, so the grants a worker needs
+  are defined only by the SQL its command runs.
+- The projector writes `projection_contracts`, `projection_mentions`,
+  `projection_receipts` and updates `outbox.delivered_at`; it reads
+  observations and the outbox with `FOR UPDATE SKIP LOCKED`. Ingestion, GEMI
+  import, replay promotion and the workflow and refresh engines each write other
+  tables. No exhaustive per-command table exists yet; grep of `INSERT/UPDATE`
+  statements is not a safe source because statements span lines and call helpers.
+
+### Approach: ceilings proven by execution, not by reading
+
+A ceiling is the smallest privilege set under which the real command completes,
+proven in two directions on a disposable PostgreSQL 17 database:
+
+1. **Sufficient:** grants printed from the candidate profile are applied to a fresh
+   NOLOGIN role and the actual command (or the actual store function it calls)
+   completes with the expected result and unchanged evidence bytes.
+2. **Necessary:** removing each table-level privilege, one at a time, makes that same
+   run fail with a permission error. A privilege whose removal changes nothing is
+   not in the ceiling. This stops a ceiling from drifting wide.
+
+The candidate set starts from static SQL review of the command; execution decides.
+The audit then covers the new profile automatically, since it reads the same
+contract. No privilege is ever added because "it might be needed".
+
+### Proposed profiles and order
+
+Each profile is one **duty**, not one process, so a role can be as narrow as the
+duty. Recommended order, each its own reviewed slice:
+
+1. `projector` (smallest, clearest SQL above).
+2. `collector` (page, raw object, record version, observation, quarantine, outbox,
+   run and HTTP-attempt writes).
+3. `gemi-importer` and `replay-promoter` (separate commands with separate tables).
+4. `workflow-runner` and `refresh-engine` (workflow and refresh control tables).
+
+Stopping after slice 1 or 2 is a valid outcome. Profiles for later duties are
+approved one at a time.
+
+### Decisions needed
+
+1. **Granularity.** Per duty as above (recommended), or one broad `pipeline-worker`
+   profile. A broad profile is faster but lets the projector hold collector write
+   rights, which defeats the purpose of the audit.
+2. **Sequence use.** Identity sequences (`observations`, `http_attempts`) are written
+   through INSERT. Confirm that USAGE on the sequence is part of the ceiling only
+   where execution proves it necessary.
+3. **TRUNCATE gap (separate, optional).** Fifteen older evidence tables have no
+   TRUNCATE trigger. I recommend a small additive migration `0013` adding statement
+   level BEFORE TRUNCATE triggers to those tables, with tests proving existing rows
+   and the 22-table evidence classification are unchanged. It is a schema change and
+   needs your explicit approval; it is **not** part of O3e unless you say so.
+
+### Boundaries
+
+- Always: disposable databases only; evidence bytes compared before and after each
+  run; failures are fixed codes.
+- Ask first: any migration, dependency or CI change, including the TRUNCATE triggers.
+- Never: grant to, or audit, a live deployment from tests; widen a ceiling without a
+  failing necessity test; run a source or engine call to learn what a worker needs.
+
+### Slices and acceptance
+
+1. **O3e-1** `projector`: contract entry, sufficiency and necessity tests with the
+   real `drain` function, audit passes, runbook row.
+2. **O3e-2** `collector`: same shape with a recorded-sample fixture and no network.
+3. Later duties only after the previous slice is reviewed.
+
+Each slice ends in one review-ready PR with full `just check`/`just audit` and
+hosted exact-head jobs. Existing profiles and the audit report format
+(`access-audit-v1`) stay unchanged; new profiles only add names.
