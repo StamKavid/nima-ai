@@ -34,6 +34,9 @@ the first pilot; Publicity first and API secondary; one stable network connectio
 no proxy purchase, provider contact, identity decision or production activation.
 User clarification: source websites must not receive the investigator's home or
 office IP. This applies to manual capture, automated collection and API requests.
+Exception recorded 2026-11-20: the owner waived this rule for the keyed GEMI Open
+Data API only (it already identifies the owner through the key), for the smoke
+test and bounded pilot. Publicity website capture keeps the remote-worker rule.
 Search by AFM/name, public-document downloading and SQL import are later extensions
 with their own source contracts. Ordinary manual discovery can identify the pilot
 numbers, but a name search never automatically selects a matching company.

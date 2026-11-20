@@ -1,5 +1,15 @@
 # GEMI access and pilot runbook
 
+Update, 2026-11-20: a personal key now exists (kept in the owner's untracked `.env`,
+never recorded here). From the owner's Windows shell, `GET /health` returned HTTP 200
+and `GET /companies?name=COSMOTE&resultsSize=1` returned HTTP 200 with a
+`searchResults` list; this confirms the `api_key` header form. The first response
+without the key returned 401 `No API key found in request`. No collector run has
+happened yet: the archive code needs Linux and Docker was not running. Observed
+profile traits to handle: activities repeat per KAD revision (`kad_2008`, `kad_2026`)
+with date ranges, profiles carry `persons` (personal data) and `branch` registry
+numbers. The first collector pilot ID is `1037501000`.
+
 Status, 2026-11-10: PR #18 is merged (`2fc4f40`). The personal-key collector pilot
 is pending. The user submitted the application; no NIMA_GEMI_API_KEY is configured.
 A separate direct HTTPS request equivalent to Swagger's profile operation used
