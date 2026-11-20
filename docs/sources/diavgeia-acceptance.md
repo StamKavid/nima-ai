@@ -191,28 +191,20 @@ one-to-one link, and must not be turned into a single chain.
 
 ## Measure first
 
-Before any Diavgeia request, count what our own KIMDIS data already contains. Run these on the pilot
-database with a read-only connection. They return counts and ADA identifiers only (no names, tax
-numbers or amounts). The normalized JSON of each KIMDIS record holds its typed references in
-`references`, each with `source_field` and `target_id` (`diavgeia:<ADA>` for `diavgeiaADA`).
+Before any Diavgeia request, count what our own KIMDIS data already contains. The command below is
+read-only (its session cannot write), is tested against synthetic records, and prints counts and public
+ADA identifiers only: no record content, names, tax numbers or amounts. A record counts once however
+many versions it has. Run it against the pilot database:
 
-```sql
--- 1. How many KIMDIS records cite a Diavgeia decision at all?
-SELECT count(DISTINCT v.source_id) AS kimdis_records,
-       count(DISTINCT v.source_id) FILTER (WHERE r.ref ->> 'source_field' = 'diavgeiaADA')
-         AS cite_a_diavgeia_ada
-FROM nima.record_versions v
-LEFT JOIN LATERAL jsonb_array_elements(v.normalized -> 'references') AS r(ref) ON true
-WHERE v.source_id LIKE 'kimdis:%';
-
--- 2. How many records share each cited ADA? (a high count means an umbrella, not a 1:1 link)
-SELECT r.ref ->> 'target_id' AS cited_decision,
-       count(DISTINCT v.source_id) AS kimdis_records
-FROM nima.record_versions v
-CROSS JOIN LATERAL jsonb_array_elements(v.normalized -> 'references') AS r(ref)
-WHERE v.source_id LIKE 'kimdis:%' AND r.ref ->> 'source_field' = 'diavgeiaADA'
-GROUP BY 1 ORDER BY 2 DESC LIMIT 20;
+```sh
+NIMA_DATABASE_URL="<read-only connection to the pilot database>" \
+  uv run python -m scripts.diavgeia_link_census --top 20
 ```
+
+It prints, as JSON: `kimdis_records`, `cite_a_diavgeia_ada`, `distinct_cited_decisions`,
+`decisions_cited_by_more_than_one_record`, `max_records_citing_one_decision`, and `most_shared`
+(the cited decisions with the most records citing each). It reads the typed references stored in
+each record's normalized JSON (`source_field` `diavgeiaADA`, target `diavgeia:<ADA>`).
 
 How to read the result: if few records cite an ADA, the explicit key is too sparse for the pilot
 and the fallback in decision 4 applies. If most cited ADAs are shared by many records, the key
@@ -358,30 +350,35 @@ report on KIMDIS 2017-2025.
 8. How Diavgis estimates its links: its policy and methodology texts (both supplied by the owner) say that records of one procurement share an `ocid` and that 0% of links are confirmed by explicit proof, but they do not describe the matching method. Its 62% and 99% contractor-named figures were not checked. The leads listed as unread remain unread.
 9. What KIMDIS officially says `diavgeiaADA` refers to, how often it is filled and whether its ADAs are shared by many records (the counts in "Measure first" answer the last two).
 
-## Decisions for the owner
+## Decisions (owner)
 
-1. **Accept Diavgeia as the second source for a bounded pilot?** **Decided: yes** (owner,
-   2026-11-20), subject to 2-5.
-2. **Reuse and attribution.** Accept CC BY 4.0 plus Law 3448/2006 with a fixed source statement,
-   and set its wording. Recommended: accept.
-3. **Personal data.** Choose what is retained about natural persons (names, tax numbers, document
-   text), how long, and who may see it. Recommended: archive originals privately, keep fixtures
-   synthetic, and project supplier tax numbers only for legal entities until a policy exists. This
-   matches the practice Diavgis states: no natural-person tax numbers, individual contractors by name
-   with a pseudonymous identifier.
-4. **First decision class and how it is found.** Revised recommendation: take the ADAs that KIMDIS
-   records already cite in `diavgeiaADA` for one small KIMDIS cohort, and fetch exactly those
-   decisions one by one with `GET /decisions/:ada` (and their `versionlog`). That tests the
-   explicit KIMDIS-to-Diavgeia key end to end, avoids search paging and window rules, keeps the
-   run small enough to review by hand, and touches only decisions we already have a reason to
-   read. Δ.2.2 by organisation and window remains the fallback if too few records carry the field.
-   Because Diavgis reports that none of its own links is confirmed by explicit proof, **run the two
-   counts in "Measure first" before choosing**: if the field is sparse, or its ADAs are shared by
-   many records, the explicit-key pilot loses most of its value and this choice is revisited
-   before anything is fetched.
-5. **Network.** A pilot needs `diavgeia.gov.gr` on the source worker's egress allowlist and a rate
-   limit the owner chooses. Nothing is fetched until you approve both.
+Recorded on 2026-11-20 on the owner's explicit instruction, "record decisions 2, 3, 4 and 5 as
+decided", after the owner was shown the five lines below.
 
-If you accept, the next steps are a spec for the Diavgeia adapter (identity, versions, status
-handling, window rules), recorded synthetic samples for the conformance suite, and then the
-approved bounded real run.
+1. **Accept Diavgeia as the second source for a bounded pilot.** Decided: yes, 2026-11-20.
+2. **Reuse and attribution.** Decided, 2026-11-20. Accept CC BY 4.0 plus Law 3448/2006. Wherever
+   Diavgeia-derived data is shown or exported, the source statement is: "Source: Diavgeia
+   (diavgeia.gov.gr), CC BY 4.0; data retrieved on `<date>`".
+3. **Personal data.** Decided, 2026-11-20. Originals stay in the private archive only; test
+   fixtures are synthetic; supplier tax numbers are projected only for legal entities until a
+   written policy covers individuals. This matches the practice Diavgis states: no natural-person
+   tax numbers, individual contractors by name with a pseudonymous identifier. It is a working rule,
+   not legal advice.
+4. **First step.** Decided, 2026-11-20: measure first. Run the census above on the pilot database.
+   Only if a healthy share of records cite distinct ADAs, take the ADAs one small KIMDIS cohort
+   cites and fetch exactly those decisions one by one with `GET /decisions/:ada` (and their
+   `versionlog`). If the field is sparse or its ADAs are shared by many records, the choice is
+   revisited before anything is fetched, and Δ.2.2 by organisation and window remains the fallback.
+   Diavgis's published chains are at most a later cross-check; its results are not trusted in place
+   of our own measurement.
+5. **Network and rate.** Decided, 2026-11-20. The engine's existing default request rate, with
+   `diavgeia.gov.gr` added to the source worker's egress allowlist only for the pilot and only in
+   the change that introduces the adapter.
+
+**What recording these decisions does not do.** It changes no code, environment or allowlist, and it
+permits no Diavgeia request. Nothing is fetched before the census has been run and reviewed and the
+adapter change, including its egress entry, has been reviewed and merged.
+
+Next steps: the owner runs the census; then a spec for the Diavgeia adapter (identity, versions,
+status handling), recorded synthetic samples for the conformance suite, and only then the approved
+bounded real run.
