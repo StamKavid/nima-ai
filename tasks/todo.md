@@ -105,7 +105,9 @@
   owner's explicit instruction, 2026-11-20: attribution wording, personal-data rule, "measure first"
   (the census), and the default request rate with a pilot-only egress entry added in the adapter
   change. No Diavgeia request and no adapter code until the census has been run and reviewed.
-- [x] Prior art on linking these sources (docs only, follow-up to the dossier): Diavgis (Open
+- [x] Prior art on linking these sources (docs only, follow-up to the dossier; owner merged #161 at
+  `4c6d41f`, exact `5f74cc4` verified on main, hosted run 44742139156 green, `quality` 13 min 10 s):
+  Diavgis (Open
   Contracting registry) links Diavgeia, KIMDIS and TED, and says records of one procurement share
   an `ocid`, but names no keys. Its policy page blocks automated clients, so the owner pasted its
   text and its methodology page (no hash). The methodology says none of its links is confirmed by
