@@ -197,10 +197,8 @@ retrieved by the registry 2026-11-03, read here 2026-11-20). What the page says:
   sources": Diavgeia, KIMDIS and TED, covering planning, tender, award, contract and
   implementation, as OCDS (the Open Contracting Data Standard), with the OCID prefix `ocds-r3r7e7`.
 - "Records across these sources that belong to the same contracting process are identified and
-  linked together." **The page does not say by which keys or fields.** It points to the project's
-  own publication policy, <https://diavgis.gr/ocds-policy>, which is where that is likely
-  documented. **That page answers with a bot challenge (HTTP 403, "Just a moment...") and was not
-  read; no workaround was attempted.**
+  linked together." **That page does not say by which keys or fields.** It points to the project's
+  own publication policy, <https://diavgis.gr/ocds-policy>, described next.
 - Licence CC BY 4.0. Data starts 2026-03-01; coverage is "a large sample rather than a full census";
   "The details of natural persons are redacted"; four OCDS fields are withheld for a paid service.
   Counts shown: about 2.56 million parties, 381 thousand tenders, 1.41 million awards, 1.25 million
@@ -210,9 +208,33 @@ retrieved by the registry 2026-11-03, read here 2026-11-20). What the page says:
   releases share one release date; some releases have incoherent dates (for example an award dated
   after a related contract's signature); and amounts contain extreme outliers.
 
+**Diavgis publication policy, text supplied by the owner on 2026-11-20.** The page answers
+automated clients with a bot challenge (HTTP 403, "Just a moment..."), so it was not fetched here and
+no workaround was attempted; the owner copied its text from a browser. There is no original file or
+hash for it. What it says (Greek, with a gloss):
+
+- Format OCDS 1.1 release packages, OCID prefix `ocds-r3r7e7`, Greece from 2026-03-01, with the
+  pagination extension. It publishes procurement processes from "τα επίσημα ανοικτά δεδομένα της
+  Διαύγειας, του ΚΗΜΔΗΣ και του EU TED" (the official open data of Diavgeia, KIMDIS and EU TED).
+- **"Οι εγγραφές της ίδιας προμήθειας μοιράζονται ένα ocid"**: records of the same procurement
+  share one `ocid`. This is the link, but the page **does not name the keys or fields used to
+  decide that records belong together**. It refers to a "Μεθοδολογία" (methodology) page, not yet
+  seen.
+- Access is free without a key or account, with a request limit per IP address. New records daily;
+  when a source corrects or completes records after publication, "οι αλλαγές δημοσιεύονται ως νέες
+  εγγραφές" (the changes are published as new releases).
+- Personal data: "Δεν δημοσιεύεται ποτέ ΑΦΜ φυσικού προσώπου. Φυσικό πρόσωπο που είναι ανάδοχος
+  εμφανίζεται με όνομα και ψευδώνυμο αναγνωριστικό· τα υπόλοιπα προσωπικά δεδομένα παραλείπονται"
+  (a natural person's tax number is never published; a natural person who is a contractor appears
+  with a name and a pseudonymous identifier; other personal data is omitted). This is a useful
+  precedent for our own personal-data policy.
+- "Τα δεδομένα αποδίδουν τις πηγές όπως δημοσιεύονται": the data reproduces sources as published,
+  so source errors in amounts or dates can appear here too. Licence CC BY 4.0, credit "Diavgis,
+  https://diavgis.gr".
+
 **What this means.** Someone has already built a three-source linked dataset, so the idea is
-feasible and Diavgis is a possible cross-check. But we cannot yet say which keys it uses, its
-non-unique party identifiers support our rule that a tax number is a grouping key and not an
+feasible and Diavgis is a possible cross-check. But we cannot yet say which keys it uses (the
+methodology page is the next thing to read), its non-unique party identifiers support our rule that a tax number is a grouping key and not an
 identity, and its "all active" status shows why we must track revocation ourselves (see the
 version log above) instead of inheriting someone else's status. It is a derived product with its own
 errors: it should be compared with, never used as a source of truth.
@@ -244,7 +266,7 @@ report on KIMDIS 2017-2025.
 5. Whether revoked decisions keep their documents available.
 6. Whether any decision type links explicitly to a KIMDIS identifier, in metadata or in PDF text.
 7. Real response shapes: this dossier read documentation and sample JSON, not live responses.
-8. By which keys Diavgis links Diavgeia, KIMDIS and TED: its policy page is behind a bot challenge and was not read. The leads listed as unread remain unread.
+8. By which keys Diavgis links Diavgeia, KIMDIS and TED: its policy text (supplied by the owner) says only that records of one procurement share an `ocid`; its methodology page has not been seen. The leads listed as unread remain unread.
 9. What KIMDIS officially says `diavgeiaADA` refers to, and how often it is filled.
 
 ## Decisions for the owner
@@ -255,7 +277,9 @@ report on KIMDIS 2017-2025.
    and set its wording. Recommended: accept.
 3. **Personal data.** Choose what is retained about natural persons (names, tax numbers, document
    text), how long, and who may see it. Recommended: archive originals privately, keep fixtures
-   synthetic, and project supplier tax numbers only for legal entities until a policy exists.
+   synthetic, and project supplier tax numbers only for legal entities until a policy exists. This
+   matches the practice Diavgis states: no natural-person tax numbers, individual contractors by name
+   with a pseudonymous identifier.
 4. **First decision class and how it is found.** Revised recommendation: take the ADAs that KIMDIS
    records already cite in `diavgeiaADA` for one small KIMDIS cohort, and fetch exactly those
    decisions one by one with `GET /decisions/:ada` (and their `versionlog`). That tests the

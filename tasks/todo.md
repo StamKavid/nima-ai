@@ -104,8 +104,9 @@
   (accept for a bounded pilot): **yes**, 2026-11-20. Open: attribution wording, personal-data
   policy, first decision class, egress allowlist and rate limit. No code until then.
 - [x] Prior art on linking these sources (docs only, follow-up to the dossier): Diavgis (Open
-  Contracting registry) links Diavgeia, KIMDIS and TED, but its page names no keys and its policy
-  page is behind a bot challenge, so its method is unread and no workaround was attempted. The
+  Contracting registry) links Diavgeia, KIMDIS and TED, and says records of one procurement share
+  an `ocid`, but names no keys. Its policy page blocks automated clients, so the owner pasted its
+  text (no hash); the methodology page, where the keys likely are, is still unseen. The
   arXiv corpus is Diavgeia-only and the iMEdD article is commentary. Unread leads are listed.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
   Candidate: fetch exactly the ADAs a small KIMDIS cohort cites in `diavgeiaADA` (one by one, with
