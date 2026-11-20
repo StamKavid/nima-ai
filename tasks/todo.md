@@ -46,7 +46,7 @@
   **Correction (2026-11-20):** "resume passes for the synthetic sources" held only because every
   synthetic run used a KIMDIS-shaped `Query`; `load_options` rebuilds a KIMDIS `Query`, so a
   real non-KIMDIS run could not be resumed, and every request still goes to the KIMDIS
-  endpoint. Specified below; not yet fixed.
+  endpoint. Fixed by N1 (#158: request, provenance) and N2 (#159: run options, resume).
 - [x] Spec `SPEC-source-neutral-collection.md` approved 2026-11-20: two PRs, no migration, five
   deferred items with triggers.
 - [x] N1 source-neutral request and provenance: owner merged #158 at `535a16e`; exact `d4aec07`
@@ -73,8 +73,10 @@
     credentials check was only tested with a user and a password together, and the password check
     was dead logic (any userinfo already makes the username non-null), so it was removed.
   - [x] N1.5 full gates, draft PR and hosted exact-head proof.
-- [ ] N2 adapter-owned run options and resume through the registry (same spec). Tasks, each
-  test-first:
+- [x] N2 adapter-owned run options and resume through the registry: owner merged #159 at
+  `384a446`; exact `db389a2` verified on main (tree identical). Hosted run 44709623301 was the
+  only run on that head and passed all three jobs (`quality` 11 min 42 s). Local suite 3136
+  passed, 59 failed (the unchanged PG16 environment baseline). Tasks, each test-first:
   - [x] N2.1 tests first, failing: generic `load_run_options` (payload, connector version,
     limits, root); KIMDIS `Query` parsing in the KIMDIS module with the old error messages;
     `registry.adapter_from_run`; `collect` takes its query from the adapter and refuses a
@@ -85,7 +87,7 @@
     `PayloadSource`, generic `load_run_options` in storage (no `Query`), KIMDIS parsing and
     `from_payload` in the KIMDIS module, registry lookup by connector version, `collect` and
     `resume` use them; the orchestration pipeline keeps its own KIMDIS helper.
-  - [x] N2.3 (local) mutations: twenty across `collect`, `resume`, the registry, the KIMDIS
+  - [x] N2.3 mutations: twenty across `collect`, `resume`, the registry, the KIMDIS
     rebuild, `QueryPayload`, `load_run_options` and the pipeline; three survived and were closed
     with tests (a shallow copy of the saved payload, and the pipeline's comparison of a prepared
     run with its request, which had no test before N2 for query, limits or archive root). One
