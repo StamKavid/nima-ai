@@ -1,7 +1,7 @@
 # Spec: semantic model, party tier and metric catalogue (V1-05)
 
-Module ID: `semantic-model`. Status: **draft for owner review, 2026-11-20; no code until
-approved.** Backlog card: [V1-05](../roadmap/agent-backlog.md). Release gates served:
+Module ID: `semantic-model`. Status: **decisions D1-D5 recorded as recommended by the owner on 2026-11-20 ("do
+recommended for 1-5"); spec otherwise awaiting the owner's approval; no code until approved.** Backlog card: [V1-05](../roadmap/agent-backlog.md). Release gates served:
 R5 (shared semantics, at least four internally certified metrics) and the acceptance
 scenarios U1-U4 of the [v1.0 release contract](SPEC-release-v1.0.md). It extends, and does
 not replace, the [first shared definition](SPEC-semantic-layer.md) (`semantic-layer`),
@@ -84,7 +84,7 @@ Conflict and placeholder rules (new, all disclosed, none hidden):
 - Same tax text with different countries stays two keys; same key with different names is not a
   conflict.
 - Placeholder or repeated-digit tax IDs beyond the existing all-zero rule are **disclosed
-  counts**, not silently excluded (decision D4 sets the list).
+  counts**, not silently excluded (decision D4).
 - A key that appears as both buyer and supplier stays two roles; no cross-role merge.
 - Reviewed `reject` and `revoke` decisions can only remove a link from a reviewed-basis result;
   they never edit a reported-identifier group.
@@ -99,9 +99,9 @@ Only explicit source references form edges: `award` (`auctionRefNo`), `previous_
   `reference_unresolved`, kept and counted, not guessed.
 - A reference records that a record **cites** another; it does not say the cited record is
   superseded. Counts stay publication counts; an amendment with a new ID remains a separate
-  publication (decision D5 asks whether a second, chain-collapsed basis is wanted).
+  publication (decision D5: no second basis now).
 - A reference shared by many records (an umbrella) is flagged, never turned into a chain
-  (threshold set in decision D5).
+  (threshold measured first, decision D5).
 - Stages stay distinct: commitment, award, contract and payment are never summed.
 
 ## Metric catalogue
@@ -176,9 +176,9 @@ mypy as locked. Example of the intended shape:
 ```python
 @dataclass(frozen=True)
 class CpvPeriodCount:
-    cpv_main_code: str | None      # None means the unclassified bucket
-    period: str | None             # "2026-03"; None means unknown_period
-    record_count: int              # distinct selected records
+    cpv_main_code: str | None  # None means the unclassified bucket
+    period: str | None  # "2026-03"; None means unknown_period
+    record_count: int  # distinct selected records
 ```
 
 ## Testing strategy
@@ -224,16 +224,18 @@ byte; no migration unless separately approved; `just check` and `just audit` pas
 This satisfies the *definition* part of R5. `certified` status, and therefore the full gate,
 still needs the owner's real-data reconciliation.
 
-## Decisions needed from the owner
+## Decisions (recorded 2026-11-20)
 
-- **D1 Metric set.** Are U2 (CPV by period), U3 (buyer concentration) and U4 (change between
-  captures) the right three, with U1 unchanged? Recommended: yes.
-- **D2 Period basis.** Calendar month of the reported submission date, Europe/Athens.
-  Alternative: UTC month. Recommended: Athens, because source dates are Greek civil dates.
-- **D3 Concentration measure.** Record-participation counts with an explicit unresolved share
-  (recommended) versus fractional 1/k allocation of joint records.
-- **D4 Placeholder tax IDs.** Which patterns beyond all-zero count as placeholders (for
-  example repeated digits)? Recommended: disclose counts first, then decide from real data in S2.
-- **D5 Lifecycle.** Keep amendments as separate publications (recommended, as today), and
-  set the umbrella-reference threshold (Diavgis uses 25; recommended: measure first, then
-  set). Do you want a second, chain-collapsed counting basis later?
+The owner answered "do recommended for 1-5". Recorded as follows.
+
+- **D1 Metric set:** U1 unchanged plus U2 (CPV by period), U3 (buyer record concentration) and
+  U4 (change between captures).
+- **D2 Period basis:** calendar month of the reported submission date in Europe/Athens civil time.
+- **D3 Concentration measure:** record-participation counts with an explicit unresolved share; no
+  fractional allocation of joint records.
+- **D4 Placeholder tax IDs:** only the existing all-zero rule excludes a key now; other
+  suspicious patterns are disclosed as counts. Slice S2 reports real-data frequencies and
+  proposes any further rule for a later decision.
+- **D5 Lifecycle:** amendments stay separate publications. The umbrella-reference threshold is
+  measured on real data before it is set (Diavgis's 25 is a reference point, not adopted). No
+  chain-collapsed second basis in V1-05; revisit when V1-07 cross-source joins are specified.
