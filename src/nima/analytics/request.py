@@ -12,7 +12,7 @@ from uuid import UUID
 
 from nima.evidence import EvidenceError, artifacts
 from nima.graph.pilot_archive import ArchiveBinding
-from nima.semantics.participation import valid_tax_id
+from nima.semantics.parties import valid_tax_id
 
 MAX_REQUEST_BYTES = 16 * 1024
 FORMAT = "nima-participation-request-v1"
