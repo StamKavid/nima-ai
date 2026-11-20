@@ -183,24 +183,57 @@ into it through `diavgeiaADA`. Matching that field to a Diavgeia type (Β.1.3 co
 obligation, "ΑΝΑΛΗΨΗ ΥΠΟΧΡΕΩΣΗΣ") is an inference from the names and must be confirmed on real
 records.
 
-## Prior art: who else links these sources (leads only, not yet read)
+## Prior art: who else links these sources
 
-A web search on 2026-11-20 found the projects below. **Everything here comes from search-result
-snippets and summaries, which are not sources, and none of the pages could be read** because their
-hosts are not on this environment's allowlist. Treat each as a lead to verify.
+Read on 2026-11-20 from the original pages (raw HTML archived outside Git; SHA-256 of each below).
+A first web search also produced leads; summaries in search results are not sources and are used
+only to find pages.
 
-| Lead | What it reportedly is | Why it matters |
-|---|---|---|
-| "Greece: Diavgis", <https://data.open-contracting.org/en/publication/161> | An independent project listed in the Open Contracting registry, reported to aggregate Diavgeia, KIMDIS and TED, with natural persons redacted and coverage described as a sample | Closest prior art. Its methodology would show which keys it joins on; the page and its linked documentation are the thing to read |
-| iMEdD Lab, <https://lab.imedd.org/en/?p=9919> | Appeared with Diavgis in results; content unknown | Unread |
-| arXiv 2512.05647, <https://arxiv.org/abs/2512.05647> | A corpus of roughly a million Diavgeia decisions with text extracted from PDFs, linking a GitHub repository | Diavgeia side only; useful for field shapes and scale, not for linking to KIMDIS |
-| "Public spending as LOD: the case of Greece", <https://semantic-web-journal.net/node/464> | An older linked-data effort on Greek public spending | Prior art for a typed-reference model |
-| ΚΥΑ 4968/22-01-2026, new article 6α "Ανοικτά δεδομένα ΚΗΜΔΗΣ", and a later amendment 87338/14-10-2026 (ΦΕΚ Β΄ 6275/16-10-2026) | Reported legal basis for KIMDIS open data | Bears on KIMDIS reuse terms, which this project currently records as CC BY 4.0. The primary FEK text must be read; the search hits were tax-news sites |
-| Vouliwatch and Solomon, "Consultocracy" report (2026) | Reported analysis of KIMDIS contracts 2017-2025 | Evidence that others use KIMDIS at scale; method unread |
+**Diavgis**, <https://data.open-contracting.org/en/publication/161> (Open Contracting Partnership
+data registry entry; SHA-256 `d4d1f6b8e801ce719fecb961c6207259e0444e54ac2a50845d88316143ef2009`,
+retrieved by the registry 2026-11-03, read here 2026-11-20). What the page says:
 
-What the search did **not** find: any page documenting the keys or field mappings used to join
-KIMDIS, Diavgeia, GEMI and TED. Search summaries described ADA as Diavgeia's identifier and ADAM as
-KIMDIS's; that is a summary's wording, not a verified statement, and it is not used above.
+- "an independent project that publishes public procurement data aggregated from three official
+  sources": Diavgeia, KIMDIS and TED, covering planning, tender, award, contract and
+  implementation, as OCDS (the Open Contracting Data Standard), with the OCID prefix `ocds-r3r7e7`.
+- "Records across these sources that belong to the same contracting process are identified and
+  linked together." **The page does not say by which keys or fields.** It points to the project's
+  own publication policy, <https://diavgis.gr/ocds-policy>, which is where that is likely
+  documented. **That page answers with a bot challenge (HTTP 403, "Just a moment...") and was not
+  read; no workaround was attempted.**
+- Licence CC BY 4.0. Data starts 2026-03-01; coverage is "a large sample rather than a full census";
+  "The details of natural persons are redacted"; four OCDS fields are withheld for a paid service.
+  Counts shown: about 2.56 million parties, 381 thousand tenders, 1.41 million awards, 1.25 million
+  contracts, daily updates.
+- Its own data-quality notes, which are relevant to us: some `parties/id` values are not unique, so
+  organisations cannot always be told apart; all awards and contracts carry status `active`; many
+  releases share one release date; some releases have incoherent dates (for example an award dated
+  after a related contract's signature); and amounts contain extreme outliers.
+
+**What this means.** Someone has already built a three-source linked dataset, so the idea is
+feasible and Diavgis is a possible cross-check. But we cannot yet say which keys it uses, its
+non-unique party identifiers support our rule that a tax number is a grouping key and not an
+identity, and its "all active" status shows why we must track revocation ourselves (see the
+version log above) instead of inheriting someone else's status. It is a derived product with its own
+errors: it should be compared with, never used as a source of truth.
+
+**Others, read 2026-11-20 (not linking projects):**
+
+- arXiv 2512.05647, <https://arxiv.org/abs/2512.05647> (SHA-256
+  `6530296f3559b4ab309e63005fd8ff6bfd05de9f555fdfdb964e49923d77a73a`): a corpus of one million
+  Diavgeia decisions with text extracted from PDFs and an extraction pipeline. The abstract mentions
+  no KIMDIS link. Whether it names a code repository is unverified (none was found in the page).
+- iMEdD Lab, "The slow death of open data in Greece", <https://lab.imedd.org/en/the-slow-death-of-open-data-in-greece/>
+  (SHA-256 `c744b9db76a6483230ee62469209dd7b11695461ac87dfee452d7da0598bf5c9`): policy commentary
+  on open data. It quotes a ministry statement that KIMDIS then had no API; that is older context
+  and says nothing about linking.
+
+**Still unread leads (found by search, pages not opened):** the Open Contracting entry's linked
+tutorials; "Public spending as LOD: the case of Greece" (<https://semantic-web-journal.net/node/464>);
+the joint decision ΚΥΑ 4968/22-01-2026 adding article 6α "Ανοικτά δεδομένα ΚΗΜΔΗΣ", and a later
+amendment 87338/14-10-2026 (ΦΕΚ Β΄ 6275/16-10-2026), which bear on KIMDIS reuse terms (this project
+records CC BY 4.0) and need the primary gazette text; the Vouliwatch and Solomon "Consultocracy"
+report on KIMDIS 2017-2025.
 
 ## Not verified (explicitly)
 
@@ -211,7 +244,7 @@ KIMDIS's; that is a summary's wording, not a verified statement, and it is not u
 5. Whether revoked decisions keep their documents available.
 6. Whether any decision type links explicitly to a KIMDIS identifier, in metadata or in PDF text.
 7. Real response shapes: this dossier read documentation and sample JSON, not live responses.
-8. Anything in the prior-art table: none of those pages were read.
+8. By which keys Diavgis links Diavgeia, KIMDIS and TED: its policy page is behind a bot challenge and was not read. The leads listed as unread remain unread.
 9. What KIMDIS officially says `diavgeiaADA` refers to, and how often it is filled.
 
 ## Decisions for the owner
