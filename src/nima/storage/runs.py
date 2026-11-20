@@ -9,8 +9,8 @@ https://www.postgresql.org/docs/17/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS
 import hashlib
 from collections.abc import Iterator
 from contextlib import contextmanager
-from dataclasses import asdict
-from datetime import date, datetime
+from dataclasses import asdict, dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import cast
 from uuid import UUID, uuid4
@@ -18,8 +18,8 @@ from uuid import UUID, uuid4
 from psycopg.types.json import Jsonb
 
 from nima.ingestion.archive import Archive
-from nima.ingestion.config import Limits, Query, Summary
-from nima.sources.base import SourceAdapter
+from nima.ingestion.config import Limits, Summary
+from nima.sources.base import PayloadSource, SourceAdapter
 from nima.storage.postgres import CheckpointError, Connection, PageStore, _connect, check_schema
 
 
@@ -65,7 +65,7 @@ class RunStore(PageStore):
             raise CheckpointError("An active run lease is required")
         return self._lease_connection
 
-    def takeover(self, query: Query) -> None:
+    def takeover(self, query: PayloadSource) -> None:
         # Claim on the exact connection holding the lock, so a dead lease cannot
         # reacquire ownership through a different, healthy connection.
         connection = self._require_lease()
@@ -114,7 +114,7 @@ class RunStore(PageStore):
             ).fetchone()
         return cast(tuple[str, datetime] | None, row)
 
-    def begin(self, query: Query) -> None:
+    def begin(self, query: PayloadSource) -> None:
         connection = self._require_lease()
         with connection.transaction():
             connection.execute(
@@ -229,23 +229,38 @@ def inspect_run(dsn: str, run_id: UUID) -> dict[str, object]:
     return cast(dict[str, object], row[0])
 
 
-def load_options(dsn: str, run_id: UUID) -> tuple[Query, Limits, Path]:
-    """Validate saved JSON options before using them for another invocation."""
+@dataclass(frozen=True)
+class RunOptions:
+    """What a managed run was created with, as plain data."""
+
+    payload: dict[str, object]  # the adapter's query, as saved
+    connector_version: str  # identifies the adapter the run belongs to
+    limits: Limits
+    archive_root: Path
+
+
+def load_run_options(dsn: str, run_id: UUID) -> RunOptions:
+    """Validate saved JSON options before using them for another invocation.
+
+    Nothing source-specific is rebuilt here: the engine rebuilds the run's adapter from the
+    connector version and payload through the source registry.
+    """
     check_schema(dsn)
     with _connect(dsn) as connection:
         row = connection.execute(
-            """SELECT query, settings, archive_root FROM nima.ingest_runs
+            """SELECT query, settings, archive_root, connector_version FROM nima.ingest_runs
             WHERE run_id = %s AND settings IS NOT NULL""",
             (run_id,),
         ).fetchone()
-    if row is None or not isinstance(row[0], dict) or not isinstance(row[1], dict):
+    if (
+        row is None
+        or not isinstance(row[0], dict)
+        or not isinstance(row[1], dict)
+        or not isinstance(row[2], str)
+        or not isinstance(row[3], str)
+    ):
         raise CheckpointError("Managed run not found")
     query, settings = cast(dict[str, object], row[0]), cast(dict[str, object], row[1])
-
-    def text(value: object) -> str:
-        if not isinstance(value, str):
-            raise CheckpointError("Invalid saved text option")
-        return value
 
     def integer(key: str) -> int:
         value = settings.get(key)
@@ -259,15 +274,9 @@ def load_options(dsn: str, run_id: UUID) -> tuple[Query, Limits, Path]:
             raise CheckpointError("Invalid saved numeric limit")
         return float(cast(int | float, value))
 
-    buyers = query.get("organizations", [])
-    if not isinstance(buyers, list):
-        raise CheckpointError("Invalid saved buyer filter")
-    return (
-        Query(
-            date.fromisoformat(text(query.get("dateFrom"))),
-            date.fromisoformat(text(query.get("dateTo"))),
-            tuple(text(b) for b in buyers),
-        ),
+    return RunOptions(
+        query,
+        row[3],
         Limits(
             integer("max_pages"),
             integer("max_attempts"),
@@ -277,5 +286,5 @@ def load_options(dsn: str, run_id: UUID) -> tuple[Query, Limits, Path]:
             number("run_timeout"),
             number("max_retry_delay"),
         ),
-        Path(text(row[2])),
+        Path(row[2]),
     )

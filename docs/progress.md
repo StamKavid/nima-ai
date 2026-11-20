@@ -2,8 +2,8 @@
 
 ## Current project and chapter position
 
-Merged main is `0945918` after #157 (V1-04 S4 two synthetic sources), including exact
-`645f75f`.
+Merged main is `535a16e` after #158 (V1-04 N1 source-neutral requests and provenance),
+including exact `d4aec07`.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
 recovery evolution, contract history and diagnostics earned four points). It has
@@ -97,12 +97,14 @@ pass unchanged for KIMDIS and both, with no engine change. **Correction (2026-11
 collection side is not yet source-neutral. The archive manifest records KIMDIS provenance and
 every request goes to the KIMDIS endpoint for any adapter, and run options are stored and
 reloaded as a KIMDIS `Query`, so resume was only exercised with a KIMDIS-shaped query. These are
-specified in `SPEC-source-neutral-collection.md` (approved 2026-11-20). Slice N1 (request and
-provenance) is a candidate with local proof only: adapters now declare their origin and build
+specified in `SPEC-source-neutral-collection.md` (approved 2026-11-20). Slice N1 (#158, merged at
+`535a16e`, hosted run 44702178868) delivered request and provenance: adapters now declare their origin and build
 their own requests, a guard refuses unsafe or mismatched ones before any network call, and the
-KIMDIS wire requests and manifest are byte-identical to `main`. N2 (run options and resume)
-follows. S5, a real second dataset, stays gated until the owner names one. Candidate code earns
-no progress credit until reviewed and delivered.
+KIMDIS wire requests and manifest are byte-identical to `main`. Slice N2 (run options and
+resume) is a candidate with local proof only: a run's query now comes from its adapter, resume
+rebuilds the adapter from the saved connector version through the registry, and an unregistered
+source stops before any request. Candidate code earns no progress credit until reviewed and
+delivered. S5, a real second dataset, stays gated until the owner names one.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 

@@ -5,7 +5,8 @@ engine (storage, ingestion, replay, projection) depends on ``nima.sources.base``
 registry, so adding a source means adding an adapter and one line here, not changing the engine.
 """
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 
 from nima.sources.base import PayloadSource, SourceAdapter
 from nima.sources.kimdis import KimdisAdapter
@@ -14,8 +15,18 @@ DEFAULT_SOURCE = "kimdis"
 # The default source's processing identity, exported for the many modules that store or check it.
 DEFAULT_NORMALIZER_VERSION = KimdisAdapter.normalizer_version
 
-_ADAPTERS: dict[str, Callable[[PayloadSource | None], SourceAdapter]] = {
-    KimdisAdapter.name: KimdisAdapter,
+
+@dataclass(frozen=True)
+class RegisteredSource:
+    connector_version: str  # identifies the adapter a saved run belongs to
+    create: Callable[[PayloadSource | None], SourceAdapter]
+    from_payload: Callable[[Mapping[str, object]], SourceAdapter]
+
+
+_SOURCES: dict[str, RegisteredSource] = {
+    KimdisAdapter.name: RegisteredSource(
+        KimdisAdapter.connector_version, KimdisAdapter, KimdisAdapter.from_payload
+    ),
 }
 
 
@@ -24,14 +35,26 @@ class UnknownSourceError(ValueError):
 
 
 def known_sources() -> tuple[str, ...]:
-    return tuple(sorted(_ADAPTERS))
+    return tuple(sorted(_SOURCES))
 
 
 def adapter_for(name: str, query: PayloadSource | None = None) -> SourceAdapter:
-    factory = _ADAPTERS.get(name)
-    if factory is None:
+    source = _SOURCES.get(name)
+    if source is None:
         raise UnknownSourceError("unknown source adapter")
-    return factory(query)
+    return source.create(query)
+
+
+def adapter_from_run(connector_version: str, payload: Mapping[str, object]) -> SourceAdapter:
+    """The adapter a saved run was created with, rebuilt from its connector version and query.
+
+    An unregistered connector version raises ``UnknownSourceError``; a payload the source cannot
+    read raises ``ValueError``. Both are raised before any request is made.
+    """
+    for source in _SOURCES.values():
+        if source.connector_version == connector_version:
+            return source.from_payload(payload)
+    raise UnknownSourceError("unknown source adapter")
 
 
 def default_adapter(query: PayloadSource | None = None) -> SourceAdapter:

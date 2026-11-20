@@ -12,7 +12,7 @@ from nima.ingestion.resume import resume
 from nima.ingestion.transport import Clock, SystemClock
 from nima.orchestration.events import StageEvents, workflow_stage
 from nima.projections.worker import PROJECTION_VERSION, ProjectionFailure, drain
-from nima.storage.runs import RunStore, inspect_run, load_options
+from nima.storage.runs import RunStore, inspect_run, load_run_options
 from nima.storage.workflows import RequestStore, WorkflowError, _db
 
 
@@ -34,7 +34,12 @@ def prepare_request(dsn: str, request: UUID) -> dict[str, object]:
             existing = status["run_id"]
             if isinstance(existing, str):
                 run = UUID(existing)
-                if load_options(dsn, run) != (query, limits, root):
+                saved = load_run_options(dsn, run)
+                if (saved.payload, saved.limits, saved.archive_root) != (
+                    query.payload(),
+                    limits,
+                    root,
+                ):
                     raise WorkflowError("request_conflict")
             else:
                 try:

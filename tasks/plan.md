@@ -3,7 +3,7 @@
 ## Active V1-04: source boundaries for a second feed
 
 Owner approved the [spec](../SPEC-source-boundaries.md) on 2026-11-19. S1-S4 are delivered (#154,
-#155, #156, #157); N1-N2 (source-neutral collection, draft spec) then S5, which is gated. Dependency order, each a
+#155, #156, #157); N1 (#158) is delivered; N2 (adapter-owned run options) is next, then S5, which is gated. Dependency order, each a
 separate review-ready PR with full gates and hosted exact-head jobs: S1 freeze the import graph
 with a shrink-only baseline (no behavior change); S2 the neutral `SourceAdapter` protocol and a
 `KimdisAdapter` wrapper; S3 move the page store, collector and replay onto the protocol with

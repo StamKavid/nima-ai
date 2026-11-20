@@ -13,8 +13,7 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 from nima.ingestion.archive import Archive
-from nima.ingestion.config import Query
-from nima.sources.base import SourceAdapter
+from nima.sources.base import PayloadSource, SourceAdapter
 from nima.sources.registry import DEFAULT_NORMALIZER_VERSION, default_adapter
 from nima.storage.connection import Connection as Connection
 from nima.storage.connection import connect
@@ -101,7 +100,7 @@ class PageStore:
             str(self.archive.root),
         )
 
-    def start_run(self, run_id: UUID, query: Query) -> None:
+    def start_run(self, run_id: UUID, query: PayloadSource) -> None:
         with _connect(self._dsn) as connection, connection.transaction():
             connection.execute(
                 """INSERT INTO nima.ingest_runs

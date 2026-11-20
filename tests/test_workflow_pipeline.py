@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 import httpx
 import psycopg
 import pytest
+from psycopg.types.json import Jsonb
 
 from nima.orchestration.pipeline import (
     collect_request,
@@ -116,3 +117,29 @@ def test_resume_verification_also_reserves_persistent_attempts(pg_dsn: str, tmp_
         collect_request(pg_dsn, request, client=client, clock=Clock())
     assert calls == [0]  # Verification consumes the last reservation; page 1 cannot be fetched.
     assert requests.show(request)["attempts"] == 300
+
+
+@pytest.mark.parametrize(
+    ("assignment", "value"),
+    [
+        ("query = %s", Jsonb({"dateFrom": "2020-01-01", "dateTo": "2020-01-01"})),
+        ("settings = jsonb_set(settings, '{max_pages}', %s)", Jsonb(1)),
+        ("archive_root = %s", "/somewhere/else"),
+    ],
+    ids=["query", "one-limit", "archive-root"],
+)
+def test_a_prepared_run_that_no_longer_matches_its_request_is_a_conflict(
+    pg_dsn: str, tmp_path: Path, assignment: str, value: object
+) -> None:
+    migrate(pg_dsn)
+    requests = RequestStore(pg_dsn)
+    request = uuid4()
+    requests.submit(request, QUERY, tmp_path / "raw")
+    run = prepare_request(pg_dsn, request)["run_id"]
+    with psycopg.connect(pg_dsn) as connection:
+        connection.execute(
+            f"UPDATE nima.ingest_runs SET {assignment} WHERE run_id = %s",
+            (value, UUID(str(run))),
+        )
+    with pytest.raises(WorkflowError, match="request_conflict"):
+        prepare_request(pg_dsn, request)
