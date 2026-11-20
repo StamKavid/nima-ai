@@ -1,7 +1,8 @@
 """Source adapter conformance: every adapter must satisfy the same parser-level guarantees.
 
-The suite is parametrized over adapter cases. KIMDIS is the first; later slices add more cases
-and every one of them must pass every test here without changing the engine.
+The suite is parametrized over adapter cases: the real KIMDIS parser and two invented sources of
+different shape (``tests/synthetic_sources.py``). Each case passes every test here with no
+change to the engine. A future adapter is added as one more case.
 """
 
 import hashlib
@@ -17,6 +18,13 @@ from nima.sources import base
 from nima.sources.base import NormalizedPage, SourceAdapter, SourcePageError
 from nima.sources.kimdis import InvalidRecord, KimdisAdapter
 from scripts import dependency_graph as dg
+from tests.synthetic_sources import (
+    EventsAdapter,
+    LedgerAdapter,
+    event,
+    events_page,
+    ledger_page,
+)
 from tests.test_collection import QUERY, body
 from tests.test_kimdis_pages import page_body
 from tests.test_participation import joint_record
@@ -42,7 +50,33 @@ KIMDIS = AdapterCase(
     quarantine_page=body(total=1, title=42),
     broken_envelope=b'{"content": 1}',
 )
-CASES = [pytest.param(KIMDIS, id="kimdis")]
+LEDGER = AdapterCase(
+    name="ledger",
+    make=LedgerAdapter,
+    pages=(
+        ledger_page(0, 2, 2, [("L-0001", "1,00", "first")]),
+        ledger_page(1, 2, 2, [("L-0002", "2,00", "second")]),
+    ),
+    money_page=ledger_page(0, 1, 1, [("L-0003", "123.456.789.012.345.678,90", "large")]),
+    quarantine_page=ledger_page(0, 1, 1, [("L-0004", "not money", "bad")]),
+    broken_envelope=b"#ledger",
+)
+EVENTS = AdapterCase(
+    name="events",
+    make=EventsAdapter,
+    pages=(
+        events_page(0, 2, 2, [event("acme", 1, 100)]),
+        events_page(1, 2, 2, [event("acme", 2, 200)]),
+    ),
+    money_page=events_page(0, 1, 1, [event("acme", 3, 12345678901234567890)]),
+    quarantine_page=events_page(0, 1, 1, [event("acme", 4, "not money")]),
+    broken_envelope=b'{"content": 1}',
+)
+CASES = [
+    pytest.param(KIMDIS, id="kimdis"),
+    pytest.param(LEDGER, id="ledger"),
+    pytest.param(EVENTS, id="events"),
+]
 
 
 def floats_in(value: object) -> list[object]:
