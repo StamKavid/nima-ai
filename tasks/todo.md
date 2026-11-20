@@ -110,6 +110,11 @@
   explicit proof today (0% of chains) and that references shared by many acts are not chain links.
   Next: run the two read-only counts in the dossier's "Measure first" on the pilot database. The
   arXiv corpus is Diavgeia-only and the iMEdD article is commentary. Unread leads are listed.
+- [x] Diavgeia link census (`scripts/diavgeia_link_census.py`): a read-only command that counts how
+  many of our own KIMDIS records cite a Diavgeia decision (`diavgeiaADA`) and how many records share
+  each cited decision, reporting counts and public ADA identifiers only. 13 tests, 100% line and
+  branch, nine mutations caught. To be run by the owner on the pilot database before any Diavgeia
+  request; the result decides whether the explicit-key pilot is worth running.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
   Candidate: fetch exactly the ADAs a small KIMDIS cohort cites in `diavgeiaADA` (one by one, with
   their version logs); fallback Δ.2.2 κατακύρωση for one organisation and one window of at most
