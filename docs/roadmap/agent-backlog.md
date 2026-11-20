@@ -3,7 +3,7 @@
 Status: proposed work, **not automatically assigned or implemented**. Read the
 [handoff](agent-handoff.md) before choosing a card. Milestone versions are in the
 [product roadmap](v1.0.md); R/U references refer to the
-[release contract](../../SPEC-release-v1.0.md). Existing approved work takes
+[release contract](../specs/SPEC-release-v1.0.md). Existing approved work takes
 precedence; first verify main and open PRs to avoid duplicate implementation.
 
 Each card starts with a small scoped spec/plan and a failing acceptance test where
@@ -28,9 +28,9 @@ listed packages or bypass existing APIs. Source activation is a separate operati
 | V1-13 | v0.9 / release reliability engineer | V1-02/03/08/10/11; approved host/source budgets | R4/R8/R9 observed operations and scale |
 | V1-14 | v1.0 / release coordinator | V1-01–13 accepted, all R1–R9 passed | R10 reproducible release and owner go/no-go |
 
-## V1-01 — durable validation history (next implementation candidate)
+## V1-01 — durable validation history (delivered, #141-#143)
 
-Read `SPEC-data-contracts.md`, `docs/semantics/data-contracts.md`, ingestion
+Read `docs/specs/SPEC-data-contracts.md`, `docs/semantics/data-contracts.md`, ingestion
 contracts, current contract schema and DataOps health code. Keep historical Git
 comparison separate from runtime dataset check history; GitHub CI logs are not a
 per-dataset validation registry.
@@ -69,7 +69,7 @@ Area: orchestration/refresh and its storage adapter; keep schema changes isolate
 
 Current-profile implementation checkpoint: R1 (#144) bounded same-request recovery;
 R2 (#145) immutable retirement; R3 explicit paused-successor/new-budget authority
-([contract](../../SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint)).
+([contract](../specs/SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint)).
 R3 ends this code checkpoint at verified review-ready delivery; owner merge and
 live migration/activation remain distinct. After acceptance, advance to V1-03
 rather than inventing another recovery increment. Future formats/correction
@@ -77,12 +77,12 @@ sweeps remain separately gated by actual source/version evidence.
 
 ## V1-03 — operating controls
 
-First bounded increment: [O1 workflow stage diagnostics](../../SPEC-operating-controls.md).
+First bounded increment: [O1 workflow stage diagnostics](../specs/SPEC-operating-controls.md).
 V1-02 recovery code is owner-merged through #146 (`476f9be`). O1 stops at a
 verified review-ready PR; the operational acceptance below remains separate.
 O1 (#147), O2 selected-policy health (#148) and the O3 runtime-role audit (#149,
 `fa4d772`) are owner-merged. In progress:
-[O3e worker role profiles](../../SPEC-operating-controls.md#o3e-worker-role-profiles)
+[O3e worker role profiles](../specs/SPEC-operating-controls.md#o3e-worker-role-profiles)
 (`projector` delivered in #150, `collector` in #152; further duties paused until they go live). Migration 0013 (#151) added TRUNCATE
 triggers to the 15 older evidence tables; applying it to a private database is an owner action. Runtime provisioning and off-host
 operations stay separate.
@@ -102,11 +102,11 @@ infrastructure purchase or schedule is implied by the code PRs.
 
 ## V1-04 — source boundaries that support a second feed
 
-Spec approved 2026-11-19: [SPEC-source-boundaries.md](../../SPEC-source-boundaries.md). S1 (import
+Spec approved 2026-11-19: [SPEC-source-boundaries.md](../specs/SPEC-source-boundaries.md). S1 (import
 graph check with a shrink-only baseline) is delivered in #154 and S2 (protocol and KIMDIS adapter) in #155,
 S3 (engine on the protocol) in #156 and S4 (two synthetic adapters) in #157; S5 is gated
 and needs source-neutral collection first: request, provenance and run options
-([approved spec](../../SPEC-source-neutral-collection.md); N1 delivered in #158, N2 run options and
+([approved spec](../specs/SPEC-source-neutral-collection.md); N1 delivered in #158, N2 run options and
 resume in #159). S5 now waits only on the owner naming a dataset and the deferred items
 that dataset needs.
 

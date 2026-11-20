@@ -1,16 +1,16 @@
 # Spec: cited supplier–buyer readout
 
 Module ID: `market-analytics`. Status: **bounded CLI readout implemented;
-human product validation remains open**. See [current delivery](docs/progress.md).
+human product validation remains open**. See [current delivery](../progress.md).
 This original slice contract remains authoritative; broader insights/serving
 are proposed in the [v1.0 release contract](SPEC-release-v1.0.md).
-Follows the owner-approved [capability map](CAPABILITIES.md), merged in
+Follows the owner-approved [capability map](../../CAPABILITIES.md), merged in
 [#108](https://github.com/StamKavid/nima-ai/pull/108). Depends on the provider
 contract in [SPEC-semantic-layer.md](SPEC-semantic-layer.md); that module owns
 metric meaning. These two narrow specifications form one data-to-readout slice.
 The owner merged [#109](https://github.com/StamKavid/nima-ai/pull/109) at `70e06d6`
 on 2026-11-16 and requested continuation. The subsequent
-[implementation plan](tasks/plan.md) subsequently delivered this bounded readout.
+[implementation plan](../../tasks/plan.md) subsequently delivered this bounded readout.
 Original proposal wording below describes its scope, not current delivery state.
 
 ## Objective and scope

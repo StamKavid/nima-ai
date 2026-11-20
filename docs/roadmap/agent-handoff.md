@@ -7,7 +7,7 @@ plan on 2026-11-18. No agent delegation has been performed by creating this file
 ## Read in order
 
 1. Repository `AGENTS.md`, `CONSTRAINTS.md` and relevant pinned `.agents/skills/`.
-2. [Release acceptance](../../SPEC-release-v1.0.md),
+2. [Release acceptance](../specs/SPEC-release-v1.0.md),
    [version roadmap](v1.0.md) and [capability map](../../CAPABILITIES.md).
 3. [Delivered state](../progress.md), current [plan](../../tasks/plan.md),
    [tasks](../../tasks/todo.md), selected card and its referenced source/metric spec.

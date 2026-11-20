@@ -1,6 +1,6 @@
 # Runtime-role and evidence-protection audit
 
-[O3](../../SPEC-operating-controls.md#o3-runtime-role-and-evidence-protection-audit)
+[O3](../specs/SPEC-operating-controls.md#o3-runtime-role-and-evidence-protection-audit)
 adds two commands driven by one packaged access contract (`access-contract-v1`):
 
 - `dataops access-audit` reads PostgreSQL catalogue facts for one named role and

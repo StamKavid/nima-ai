@@ -8,7 +8,7 @@ buyer key. It is descriptive evidence about a bounded capture. The definition is
 The pure provider is `nima.semantics.participation`; its packaged
 `participation.sql` is the reference SQL calculation. The private readout uses
 both, checks their complete results agree and verifies originals before
-publication. See the [scope](../../SPEC-semantic-layer.md) and
+publication. See the [scope](../specs/SPEC-semantic-layer.md) and
 [operator runbook](../analytics/supplier-buyers.md).
 
 ## Vocabulary and grains

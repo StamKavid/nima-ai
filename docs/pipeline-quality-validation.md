@@ -69,8 +69,8 @@ evidence archive. Matching ordinals do not multiply a contract-publication count
 Hard failures include missing originals, digest/content disagreement, incomplete
 projections, duplicate grains, unsupported versions and exceeded bounds. Missing
 buyer keys, ambiguous revisions and unassessed supplier identifiers remain visible
-outcomes under the [provider](../SPEC-semantic-layer.md) and
-[consumer](../SPEC-market-analytics.md) contracts. They cannot become legal identity
+outcomes under the [provider](specs/SPEC-semantic-layer.md) and
+[consumer](specs/SPEC-market-analytics.md) contracts. They cannot become legal identity
 or verified absence. All captured rows must reconcile as accepted plus quarantined;
 eligible buyer counts plus unassigned records must reconcile to the metric total.
 

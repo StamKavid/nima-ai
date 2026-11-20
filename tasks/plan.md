@@ -2,7 +2,7 @@
 
 ## Active V1-04: source boundaries for a second feed
 
-Owner approved the [spec](../SPEC-source-boundaries.md) on 2026-11-19. S1-S4 are delivered (#154,
+Owner approved the [spec](../docs/specs/SPEC-source-boundaries.md) on 2026-11-19. S1-S4 are delivered (#154,
 #155, #156, #157); N1 (#158) and N2 (#159) are delivered; S5 is gated on the owner naming a dataset. Dependency order, each a
 separate review-ready PR with full gates and hosted exact-head jobs: S1 freeze the import graph
 with a shrink-only baseline (no behavior change); S2 the neutral `SourceAdapter` protocol and a
@@ -17,7 +17,7 @@ Preserve all earlier tasks.
 
 ## Active V1-03 O3f: evidence TRUNCATE guards
 
-Owner approved the [O3f spec](../SPEC-operating-controls.md#o3f-evidence-truncate-guards)
+Owner approved the [O3f spec](../docs/specs/SPEC-operating-controls.md#o3f-evidence-truncate-guards)
 on 2026-11-19. One additive migration 0013 adds statement-level TRUNCATE guards to the
 15 older evidence tables, reusing `nima.reject_mutation`. Order: tests that fail first
 (guard, upgrade-from-12 preservation, history/checksums, audit with an empty
@@ -31,12 +31,12 @@ Preserve all earlier tasks. O3e-2 `collector` follows after this merges.
 
 Owner merged #153 at `e2ab1a5` (exact `a73aadf`). `push` runs for main and dev only, and the
 `quality` timeout is 20 minutes; evidence in
-[O3g](../SPEC-operating-controls.md#o3g-ci-trigger-scope-and-quality-time-budget). A feature
+[O3g](../docs/specs/SPEC-operating-controls.md#o3g-ci-trigger-scope-and-quality-time-budget). A feature
 branch without a pull request needs `workflow_dispatch`. Preserve all earlier tasks.
 
 ## Active V1-03 O3e: worker role profiles
 
-Owner approved the [O3e spec](../SPEC-operating-controls.md#o3e-worker-role-profiles)
+Owner approved the [O3e spec](../docs/specs/SPEC-operating-controls.md#o3e-worker-role-profiles)
 on 2026-11-19: per-duty profiles, sequence grants only when execution proves them
 necessary, and the TRUNCATE-trigger migration as a separate later increment. O3e-1
 adds the `projector` profile: sufficiency (real `drain` completes under exactly the
@@ -48,7 +48,7 @@ deployment, source call or grant execution. Preserve all earlier tasks.
 
 ## Previous V1-03 O3: runtime-role and evidence-protection audit
 
-Owner approved the [O3 spec](../SPEC-operating-controls.md#o3-runtime-role-and-evidence-protection-audit)
+Owner approved the [O3 spec](../docs/specs/SPEC-operating-controls.md#o3-runtime-role-and-evidence-protection-audit)
 on 2026-11-19: named access profiles, a print-only grant script and a restore-check
 use. One packaged contract feeds both `access-audit` and `access-grants`.
 Dependency order: O3a pure contract and assessment, then O3b grant renderer from
@@ -61,7 +61,7 @@ dependency, CI edit, live connection or grant execution. Preserve all older work
 ## Active V1-03 O2: selected-policy health
 
 Owner-merged #147 is on main `6f706f1`, including exact reviewed `f230ea0` and
-identical files. O1 is delivered. Follow [O2](../SPEC-operating-controls.md#o2-selected-refresh-policy-health):
+identical files. O1 is delivered. Follow [O2](../docs/specs/SPEC-operating-controls.md#o2-selected-refresh-policy-health):
 typed pure attention rules; bounded single-snapshot SQL and real role/isolation/
 cardinality proof; CLI/private artifact/operator guidance; guard mutation,
 installed wheel, complete local gates/audit and exact-head hosted checks. Preserve
@@ -73,7 +73,7 @@ credit candidate O2 code or invent an overall-v1.0 completion percentage.
 
 Owner-merged #146 reaches main `476f9be`, including exact reviewed `ded3478`
 and identical files. V1-02 current-profile code checkpoint is complete. Follow
-[O1](../SPEC-operating-controls.md): bounded opt-in events and failing tests,
+[O1](../docs/specs/SPEC-operating-controls.md): bounded opt-in events and failing tests,
 existing four-stage integration, real SQL/fixture failure and process proof,
 private operator runbook, mutation/wheel/full gates/audit and exact-head hosted
 results. No migrations, dependencies, CI changes or live operations. Preserve all
@@ -83,7 +83,7 @@ operations acceptance is separate and must not be called complete.
 ## Active V1-02 R3: final workflow-recovery code checkpoint
 
 Owner merged #145 at `3626314`, including exact reviewed `0bbdbf6` and identical
-files. Follow [R3](../SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint):
+files. Follow [R3](../docs/specs/SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint):
 additive 0012/atomic paused-successor authorization, then bounded lineage/CLI and
 expired-child fresh-observation proof, process failures, mutation/wheel/full gates
 and final-head hosted results. Preserve all earlier tasks and original budgets/
@@ -94,7 +94,7 @@ The next planned module after owner acceptance is V1-03, not another R4 expansio
 ## Active V1-02 R2: audited policy retirement
 
 Verify owner-merged #144 at `82ded43`, including exact `5e90a32` and identical
-tree. Follow [R2](../SPEC-refresh-recovery.md#r2-permanent-audited-policy-retirement):
+tree. Follow [R2](../docs/specs/SPEC-refresh-recovery.md#r2-permanent-audited-policy-retirement):
 additive 0011/control decision API and shared policy lock; SQL/Python reservation
 fences; snapshot inspection and SQL-only CLI; then process death, mutation, wheel,
 full gates/audit and exact-head hosted evidence. Preserve all prior pending work.
@@ -105,7 +105,7 @@ acknowledgement. Successor linking and explicit new-budget authorization stay la
 
 Owner-merged #143 reaches main `435326a`, including exact `e29e1cd` and identical
 files. Saved-intent/default/version handling already exists; retain and test it.
-Follow [R1](../SPEC-refresh-recovery.md): pure budgets/source-lock reuse and atomic
+Follow [R1](../docs/specs/SPEC-refresh-recovery.md): pure budgets/source-lock reuse and atomic
 dispatch reservation, then policy-scoped control/CLI, real SQL/process/engine
 failure proof, mutation, installed wheel, full local gates/audit and exact-head
 hosted checks. Preserve all earlier pending work. No live operation, migration,
@@ -115,7 +115,7 @@ supersession remain separately scoped; never reset identity, deadline or counter
 ## Active V1-01 checkpoint VH1: journal health
 
 Verify owner-merged #142 at `ef657aa`, including exact `2c9cbf6` source reachability.
-Continue the [selected-artifact health contract](../SPEC-validation-history.md#vh1-selected-artifact-validation-health):
+Continue the [selected-artifact health contract](../docs/specs/SPEC-validation-history.md#vh1-selected-artifact-validation-health):
 typed shared records/bounded SQL, pure freshness/current-policy rules, CLI and
 operator documentation, then mutation/wheel/full gates and hosted evidence.
 No new schema, dependency, source connection, validation attempt or private
@@ -126,7 +126,7 @@ work. Existing health/readout/validation commands retain their semantics.
 
 Owner merged #139/#140 at `73f8aa4`; exact reviewed code/roadmap reachability is
 verified. The owner requested continuation on 2026-11-19. Implement
-[the bounded history contract](../SPEC-validation-history.md) in sequential H1–H5
+[the bounded history contract](../docs/specs/SPEC-validation-history.md) in sequential H1–H5
 slices: contract; policy/schema/journal; shared preparation; explicit verifier and
 inspection; failure/recovery/full gates. Preserve all older pending work. Two
 append-only journal tables are an explicit new schema proposal for PR review;
@@ -136,7 +136,7 @@ Post-publication verification preserves read-only publication and artifact bytes
 ## Active checkpoint C10: historical contract comparison
 
 Owner merged #138 at `9d29845`; exact `4716e4b` reachability/files are verified on
-main. Continue [C10](../SPEC-data-contracts.md#checkpoint-c10-committed-historical-compatibility-gate).
+main. Continue [C10](../docs/specs/SPEC-data-contracts.md#checkpoint-c10-committed-historical-compatibility-gate).
 C10a freezes the committed-catalogue/CI baseline rules. C10b builds a read-only
 Git snapshot reader and identity comparison with real-history tests. C10c adds
 CLI/CI baseline selection, including actual subprocess tests. C10d wires the
@@ -149,7 +149,7 @@ pending work; durable check history remains a separately scoped increment.
 ## Active checkpoint C9: KIMDIS input and normalized contracts
 
 Owner merged #137 at `9cd4c8a`; `2311539` and its exact files are verified on
-main. Continue the [approved contract extension](../SPEC-data-contracts.md#checkpoint-c9-source-acceptance-and-normalized-kimdis-records).
+main. Continue the [approved contract extension](../docs/specs/SPEC-data-contracts.md#checkpoint-c9-source-acceptance-and-normalized-kimdis-records).
 C9a freezes this scope. C9b extracts neutral schema support, preserving C8 APIs
 and assertions. C9c adds explicit opaque-array/present-nullable profile flags with
 failure tests. C9d adds source-owned policies/two ODCS documents and cached offline
@@ -170,7 +170,7 @@ and validation-history storage remain separately scoped follow-ups.
 ## Active checkpoint C8: first ODCS analytics contract
 
 Owner continued the explicit data-contract proposal on 2026-11-18. Implement the
-[bounded contract](../SPEC-data-contracts.md) through existing semantic/analytics
+[bounded contract](../docs/specs/SPEC-data-contracts.md) through existing semantic/analytics
 interfaces. #136 is merged on main at `772c321`; the subsequent authorized private
 health activation passed permission/data preservation checks, with stale-capture
 and low-capacity attention. This does not activate collection or schedules.
@@ -330,7 +330,7 @@ Next after C2: reviewed SQL metadata serving contract, then isolated Greek model
 
 Owner requests auto-build through a checkpoint after merging #127 at `ef2b438`.
 The corrected head `f2eb17b` passed all three jobs in PR run 44168550280 and push
-run 44168539451. Use the [C1 contract](../SPEC-source-ingestion.md#checkpoint-c1-operational-replay-and-saved-intent-compatibility)
+run 44168539451. Use the [C1 contract](../docs/specs/SPEC-source-ingestion.md#checkpoint-c1-operational-replay-and-saved-intent-compatibility)
 and continue the same DataOps plan. Existing PG17 cluster was restarted from its
 retained data directory without initialization; maintenance began at migration 7
 with no running collection or enabled refresh policy. Keep the HTTP guards intact.
@@ -411,7 +411,7 @@ quality/audit and the corrected exact-head hosted run are recorded with the PR.
 
 Owner merged #126 at `ecb5a85`; all three exact-head jobs passed in run
 44154596290. Continue the authorized SQL promotion follow-up under the
-[source contract](../SPEC-source-ingestion.md#dataops-increment-explicit-sql-replay-promotion).
+[source contract](../docs/specs/SPEC-source-ingestion.md#dataops-increment-explicit-sql-replay-promotion).
 No source access/dependency/CI change. Keep human PV10, request/refresh version
 policies and metadata/model work open. This is an extension of the same plan.
 
@@ -459,7 +459,7 @@ not itself certify a metric, choose a new model or constitute human validation.
 
 Owner merged #125 at `d98a971`; all three exact-head jobs passed in run
 44146760312. Continue the approved replay/version work with the
-[source-ingestion replay contract](../SPEC-source-ingestion.md#dataops-increment-offline-kimdis-normalization-replay).
+[source-ingestion replay contract](../docs/specs/SPEC-source-ingestion.md#dataops-increment-offline-kimdis-normalization-replay).
 Assume one local operator, PostgreSQL 17, existing private originals and no source
 requests. Retain PV10 and all pending metadata/model/SQL-promotion work.
 
@@ -603,7 +603,7 @@ The owner merged #122 at `7cabec0`; its three exact-head jobs passed in run
 technical pass with commercial/user limits, and authorized the next batch on
 2026-11-17. The private agent assessment does not count as human review; PV10 and
 metric certification remain open. Continue the existing source-ingestion foundation
-with the [committed-page verifier](../SPEC-source-ingestion.md#dataops-increment-committed-page-archive-verification).
+with the [committed-page verifier](../docs/specs/SPEC-source-ingestion.md#dataops-increment-committed-page-archive-verification).
 This extends the same delivery plan without closing or replacing pending work.
 
 Assumptions: one trusted operator, PostgreSQL 17, explicit existing local archives,
@@ -648,8 +648,8 @@ normalizer-version replay, each with its own refined contract and tests.
 
 The owner approved the capability map through #108 at `9ff2eff`, reviewed the
 subsequent conceptual quality/deduplication architecture and requested continuation
-on 2026-11-16. The [semantic provider](../SPEC-semantic-layer.md) and
-[analytics consumer](../SPEC-market-analytics.md) scopes are approved through
+on 2026-11-16. The [semantic provider](../docs/specs/SPEC-semantic-layer.md) and
+[analytics consumer](../docs/specs/SPEC-market-analytics.md) scopes are approved through
 owner-merged #109 at `70e06d6`; all three exact-head jobs on `eb34535` passed in
 run 43838968903. The owner approved this plan and merged #110 at `c964f4f` on
 2026-11-16; its exact-head CI passed in run 43857399789. The owner reviewed/merged
@@ -2561,7 +2561,7 @@ model, and insights roadmap. Stage completion requires its acceptance tests.
 
 The owner requested a complete versioned release plan on 2026-11-18 while the
 separate contract-evolution PR #139 is being verified. The proposed
-[release contract](../SPEC-release-v1.0.md),
+[release contract](../docs/specs/SPEC-release-v1.0.md),
 [version roadmap](../docs/roadmap/v1.0.md) and
 [agent backlog/handoff](../docs/roadmap/agent-handoff.md) define acceptance and
 dependencies through analytics-ready data, shared semantics, insights, serving

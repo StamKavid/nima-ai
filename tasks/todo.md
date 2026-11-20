@@ -2,7 +2,7 @@
 
 ## V1-04 — source boundaries for a second feed
 
-- [x] Spec approved 2026-11-19 (`SPEC-source-boundaries.md`): test both second-adapter kinds,
+- [x] Spec approved 2026-11-19 (`docs/specs/SPEC-source-boundaries.md`): test both second-adapter kinds,
   shrink-only baseline for existing cycles, per-adapter versions.
 - [x] S1 freeze: owner merged #154 at `d3b0e90`; exact `d2febce` verified on main. Hosted run
   44606219260 was the only run on that head and passed all three jobs (`quality` 12 min 46 s).
@@ -47,7 +47,7 @@
   synthetic run used a KIMDIS-shaped `Query`; `load_options` rebuilds a KIMDIS `Query`, so a
   real non-KIMDIS run could not be resumed, and every request still goes to the KIMDIS
   endpoint. Fixed by N1 (#158: request, provenance) and N2 (#159: run options, resume).
-- [x] Spec `SPEC-source-neutral-collection.md` approved 2026-11-20: two PRs, no migration, five
+- [x] Spec `docs/specs/SPEC-source-neutral-collection.md` approved 2026-11-20: two PRs, no migration, five
   deferred items with triggers.
 - [x] N1 source-neutral request and provenance: owner merged #158 at `535a16e`; exact `d4aec07`
   verified on main (tree identical). Hosted run 44702178868 was the only run on that head and
@@ -614,7 +614,7 @@ See the [runbook](../docs/operations/backup-restore.md) and [plan](plan.md).
 
 Owner-authorized on 2026-11-17 after #122 merged and delegated technical validation.
 This continues source-ingestion/DataOps; PV10 human evidence/task checks remain open.
-See the [contract](../SPEC-source-ingestion.md#dataops-increment-committed-page-archive-verification)
+See the [contract](../docs/specs/SPEC-source-ingestion.md#dataops-increment-committed-page-archive-verification)
 and [plan](plan.md). No new source requests or sector inference.
 
 ### AV1: Freeze the verifier contract
@@ -624,7 +624,7 @@ and [plan](plan.md). No new source requests or sector inference.
 - Acceptance: one explicit run/root, no source/repair/write path, separate
   restore/replay follow-ups; pending pilot tasks retained.
 - Verify: review against existing SQL/page/archive and CLI contracts.
-- Files: `SPEC-source-ingestion.md`, `tasks/plan.md`, this file (three files).
+- Files: `docs/specs/SPEC-source-ingestion.md`, `tasks/plan.md`, this file (three files).
 
 ### AV2: Deliver the offline command
 
@@ -664,8 +664,8 @@ and [plan](plan.md). No new source requests or sector inference.
   (runs 43820296909 and 43822156321). This completes offline R-A only.
 - [x] Owner approved the revised [capability map](../CAPABILITIES.md) through
   merged #108 at `9ff2eff` and the subsequent instruction to continue.
-- [x] Draft the first [semantic-layer](../SPEC-semantic-layer.md) and
-  [market-analytics](../SPEC-market-analytics.md) scopes: one metric definition and
+- [x] Draft the first [semantic-layer](../docs/specs/SPEC-semantic-layer.md) and
+  [market-analytics](../docs/specs/SPEC-market-analytics.md) scopes: one metric definition and
   one private cited supplier–buyer readout, with hand-calculated acceptance data.
 - [x] Owner merged provider/consumer scope #109 at `70e06d6` and requested
   continuation after the conceptual quality/pipeline review. All three exact-head

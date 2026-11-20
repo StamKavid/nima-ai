@@ -51,7 +51,7 @@ refusal, 2 configuration, 130 interruption. Operational errors contain fixed rea
 without DSNs, archive paths or arbitrary engine exception text. Argument parsing
 retains the shared CLI diagnostics; keep credentials in environment settings.
 No SQL/engine
-atomic commit or automatic retry is claimed. See the [R1 contract](../../SPEC-refresh-recovery.md)
+atomic commit or automatic retry is claimed. See the [R1 contract](../specs/SPEC-refresh-recovery.md)
 for synthetic process/SQL/control verification and the remaining V1-02 scope.
 
 ## Permanently retire a policy
@@ -132,7 +132,7 @@ request or activation. Live use is separate from code approval and requires the
 existing backup/migration and protected-worker procedures.
 
 The required flag authorizes **fresh budgets**, not a reset of old work. The fixed
-[`nima-refresh-budgets-v1` profile](../../SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint)
+[`nima-refresh-budgets-v1` profile](../specs/SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint)
 retains existing request/cycle ceilings, including 300 reserved attempts per
 request and at most 14 children per cycle. These are not one lifetime allowance
 for an enabled policy. A successor reobserves the inherited range and starts its

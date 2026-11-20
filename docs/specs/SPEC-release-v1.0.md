@@ -4,8 +4,8 @@ Status: **proposed release scope**, prepared at the owner's request on 2026-11-1
 This is a product acceptance contract, not a claim that v1.0 exists. Existing
 approved increments continue. New interfaces, metric meanings, sources, migrations
 and operational activation receive their own bounded specifications and review.
-The [roadmap](docs/roadmap/v1.0.md) orders delivery; the
-[agent backlog](docs/roadmap/agent-backlog.md) defines implementable work packages.
+The [roadmap](../roadmap/v1.0.md) orders delivery; the
+[agent backlog](../roadmap/agent-backlog.md) defines implementable work packages.
 
 ## Product and scope
 

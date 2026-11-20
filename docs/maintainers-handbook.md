@@ -29,7 +29,7 @@ source (HTTPS)  ->  engine (transport, archive, checkpoint)  ->  adapter (parse)
 ```
 
 **The adapter boundary** ([ADR-0007](decisions/0007-source-adapter-boundary.md),
-`SPEC-source-boundaries.md`, `SPEC-source-neutral-collection.md`):
+`docs/specs/SPEC-source-boundaries.md`, `docs/specs/SPEC-source-neutral-collection.md`):
 
 - `nima/sources/base.py` is the neutral contract: `SourceAdapter` (`name`,
   `connector_version`, `normalizer_version`, `provenance`, `query_payload()`,

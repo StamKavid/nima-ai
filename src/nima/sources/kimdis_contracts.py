@@ -55,7 +55,7 @@ def _compiled(boundary: Boundary) -> Draft202012Validator:
     metadata = {entry["property"]: entry["value"] for entry in document["customProperties"]}
     if (
         document["id"] != f"nima.kimdis-{boundary}"
-        or document["version"] != "1.0.0"
+        or document["version"] != "1.0.1"
         or canonical(metadata["nima.semanticDefinition"]) != canonical(policy(boundary))
     ):
         raise ContractError("ingestion_contract")

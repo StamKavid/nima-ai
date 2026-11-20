@@ -4,7 +4,7 @@ This is the first V1-01 boundary: verify a private, already-published
 `nima-supplier-buyers-v1` report and record an immutable outcome in PostgreSQL.
 It does not change publication, certify the draft metric, activate a source or
 establish publisher accuracy. Other dataset checks and scheduled health
-aggregation remain later work. See the [contract](../../SPEC-validation-history.md).
+aggregation remain later work. See the [contract](../specs/SPEC-validation-history.md).
 
 ## Setup and access
 

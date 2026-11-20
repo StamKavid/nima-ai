@@ -2,7 +2,7 @@
 
 Status: scoped implementation under the owner's 2026-11-19 instruction to proceed
 after merged #139/#140, main `73f8aa4`. Follow the accepted
-[work package](docs/roadmap/agent-backlog.md#v1-01--durable-validation-history-next-implementation-candidate).
+[work package](../roadmap/agent-backlog.md#v1-01--durable-validation-history-delivered-141-143).
 This first vertical slice verifies an already-published supplier–buyer artifact.
 It does not change the read-only publication command, activate collection or
 automatically migrate the private pilot.

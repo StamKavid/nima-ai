@@ -41,7 +41,7 @@ claimed. See the [version roadmap](roadmap/v1.0.md) and fixed rubric for details
 
 ## Delivered V1-03 O2 (#148): selected-policy health
 
-[O2](../SPEC-operating-controls.md#o2-selected-refresh-policy-health) adds one
+[O2](specs/SPEC-operating-controls.md#o2-selected-refresh-policy-health) adds one
 bounded read-only snapshot for recorded policy gaps, observation/tick ages and
 open-cycle child/budget attention. Native restricted-role/isolation/interleaved
 commit tests pass; the actual CLI privately publishes both attention and a passing
@@ -56,7 +56,7 @@ reassessment is pending and must keep the unchanged weights.
 
 ## Delivered V1-03 O3f (#151): evidence TRUNCATE guards
 
-[O3f](../SPEC-operating-controls.md#o3f-evidence-truncate-guards) adds additive migration
+[O3f](specs/SPEC-operating-controls.md#o3f-evidence-truncate-guards) adds additive migration
 0013: a statement-level TRUNCATE guard on the 15 older evidence tables, reusing the
 existing reject function. Verified on a real catalogue: twelve tables were open to a
 `TRUNCATE ... CASCADE` wipe and are now closed; three (`raw_objects`, `run_pages`,
@@ -78,7 +78,7 @@ about 4.6 minutes, so parallel tests are the next option if a run passes about 1
 
 ## V1-04: source boundaries for a second feed (S1-S4 delivered, S5 gated)
 
-The owner approved [the spec](../SPEC-source-boundaries.md). Slice S1 (#154, merged at
+The owner approved [the spec](specs/SPEC-source-boundaries.md). Slice S1 (#154, merged at
 `d3b0e90`, hosted run 44606219260) added an import-graph check with a committed shrink-only
 baseline: six engine modules import a concrete source (three KIMDIS, three GEMI), one
 five-package import cycle group and two module cycles exist, and the check fails on any new one.
@@ -97,7 +97,7 @@ pass unchanged for KIMDIS and both, with no engine change. **Correction (2026-11
 collection side is not yet source-neutral. The archive manifest records KIMDIS provenance and
 every request goes to the KIMDIS endpoint for any adapter, and run options are stored and
 reloaded as a KIMDIS `Query`, so resume was only exercised with a KIMDIS-shaped query. These are
-specified in `SPEC-source-neutral-collection.md` (approved 2026-11-20). Slice N1 (#158, merged at
+specified in `docs/specs/SPEC-source-neutral-collection.md` (approved 2026-11-20). Slice N1 (#158, merged at
 `535a16e`, hosted run 44702178868) delivered request and provenance: adapters now declare their origin and build
 their own requests, a guard refuses unsafe or mismatched ones before any network call, and the
 KIMDIS wire requests and manifest are byte-identical to `main`. Slice N2 (#159, merged at
@@ -130,7 +130,7 @@ finished green afterwards. No live role was provisioned.
 
 ## Delivered V1-03 O3 (#149): runtime-role and evidence-protection audit
 
-[O3](../SPEC-operating-controls.md#o3-runtime-role-and-evidence-protection-audit)
+[O3](specs/SPEC-operating-controls.md#o3-runtime-role-and-evidence-protection-audit)
 adds `dataops access-audit` (read-only) and `dataops access-grants` (print-only),
 both driven by one packaged contract of seven documented role profiles and a
 33-table classification (22 evidence, 11 control). The audit checks effective
@@ -156,7 +156,7 @@ No private worker/log configuration or source/schedule enablement followed.
 
 Owner merged #146 at `476f9be`; exact reviewed `ded3478` and files are verified
 on main. V1-02's current-profile recovery code checkpoint is complete. The next
-bounded [diagnostic contract](../SPEC-operating-controls.md) adds opt-in stderr
+bounded [diagnostic contract](specs/SPEC-operating-controls.md) adds opt-in stderr
 events around the existing four application stages, with request/run/invocation
 IDs, processing time and fixed failure codes. Default behavior and SQL/source
 budgets remain unchanged; no additional SQL or HTTP request is made for events.
@@ -249,7 +249,7 @@ remain separate work.
 ## Delivered V1-01 first boundary (#141/#142)
 
 Owner merged #139/#140 at `73f8aa4` and requested continuation. The
-[first history contract](../SPEC-validation-history.md) adds a separate append-only
+[first history contract](specs/SPEC-validation-history.md) adds a separate append-only
 journal and an explicit post-publication verifier/inspection command. Existing
 publication remains read-only and byte-compatible; no source is acquired or
 private pilot migrated. Invalid, blocked and cached attestations remain explicit.
@@ -298,7 +298,7 @@ Contract validity is not publisher accuracy, national coverage or certification.
 
 ## Current checkpoint C8 candidate: ODCS output contract
 
-The owner continued the [data-contract extension](../SPEC-data-contracts.md).
+The owner continued the [data-contract extension](specs/SPEC-data-contracts.md).
 The first [ODCS output contract](semantics/data-contracts.md) binds the existing
 draft captured-record metric to a pinned official 3.2.0 schema, supported output
 shape and reviewed semantic/SQL definition. Original reconciliation still precedes
@@ -337,7 +337,7 @@ Exact-head hosted jobs are the handoff gate; owner review remains pending.
 
 Owner merged C2 through [#129](https://github.com/StamKavid/nima-ai/pull/129)
 (`6051d41`); all three jobs passed on `0709027` in runs 44267217179 and
-44267160859. The [C3 contract](../SPEC-source-ingestion.md#checkpoint-c3-explicitly-selected-sql-metadata-snapshots)
+44267160859. The [C3 contract](specs/SPEC-source-ingestion.md#checkpoint-c3-explicitly-selected-sql-metadata-snapshots)
 continues SQL metadata serving in two reviewable parts.
 
 The first adds canonical preparation without file publication and additive 0009:
@@ -363,7 +363,7 @@ Git; human pilot validation remains open.
 Owner merged C1 through [#128](https://github.com/StamKavid/nima-ai/pull/128)
 (`bd7fec4`); all three exact-head jobs pass in PR run 44258789845 and branch run
 44258739500. Continue the same structured metadata roadmap under the
-[C2 contract](../SPEC-source-ingestion.md#checkpoint-c2-structured-market-metadata).
+[C2 contract](specs/SPEC-source-ingestion.md#checkpoint-c2-structured-market-metadata).
 
 The merged increment adds [reported market metadata](semantics/market-metadata.md):
 buyer function/legal classification/type and procurement CPV from verified KIMDIS
@@ -392,7 +392,7 @@ then isolated Greek-model evaluation; no capability percentage is reweighted.
 The owner-approved direction is company and market intelligence, following
 [ADR-0005](decisions/0005-market-intelligence-foundation.md). The trusted data and
 analytics foundation precedes persona workflows, sector inference and models.
-The [C1 contract](../SPEC-source-ingestion.md#checkpoint-c1-operational-replay-and-saved-intent-compatibility)
+The [C1 contract](specs/SPEC-source-ingestion.md#checkpoint-c1-operational-replay-and-saved-intent-compatibility)
 continues owner-merged #127 (`ef2b438`) through a bounded build/review checkpoint.
 
 The private pilot now runs reviewed migration 8. A fresh native snapshot backup,
@@ -645,7 +645,7 @@ outside this baseline.
 ## Release planning, not release delivery
 
 The owner requested a [versioned v1.0 roadmap](roadmap/v1.0.md),
-[release contract](../SPEC-release-v1.0.md) and
+[release contract](specs/SPEC-release-v1.0.md) and
 [agent handoff](roadmap/agent-handoff.md). These proposed gates add no source,
 metric, insight or operating capability. Baseline main is `9d29845` (#138);
 contract-evolution PR #139 is separately in progress. Package version stays

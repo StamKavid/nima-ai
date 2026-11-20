@@ -2,7 +2,7 @@
 
 ## O1: workflow stage diagnostics
 
-Continue the approved [V1-03 roadmap](docs/roadmap/agent-backlog.md#v1-03--operating-controls)
+Continue the approved [V1-03 roadmap](../roadmap/agent-backlog.md#v1-03--operating-controls)
 after owner-merged #146 (`476f9be`, reviewed `ded3478`). V1-02's current-profile
 workflow-recovery code checkpoint is complete. This increment lets a local
 operator correlate a failed application stage with its durable request and run.
@@ -296,7 +296,7 @@ and focused `tests/test_access_*.py` files. Commands:
 
 ## O3e: worker role profiles
 
-Status: **approved by the owner on 2026-11-19; O3e-1 `projector` delivered (#150); O3e-2 `collector` in review.** Decisions:
+Status: **approved by the owner on 2026-11-19; O3e-1 `projector` delivered (#150); O3e-2 `collector` delivered (#152).** Decisions:
 per-duty profiles (recommended option), a sequence grant only where execution proves
 it necessary, and the optional TRUNCATE-trigger migration approved as a **separate**
 increment (its own branch, spec section and PR) after O3e-1. Follows
