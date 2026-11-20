@@ -1,5 +1,43 @@
 # Delivery plan
 
+## Active V1-05 S2: time model, measured before it is written
+
+Owner approved the [semantic model spec](../docs/specs/SPEC-semantic-model.md) on 2026-11-20 with decisions D1-D5 as
+recommended. S2 defines how `source_submitted_at` and `source_updated_at` become a calendar period. Their
+text format has never been measured on real data, so nothing is parsed from a guess. Two PRs, in order,
+with an owner step between them.
+
+**S2a, measurement (read-only, no behaviour change).** A new `scripts/semantic_census.py`, modelled on
+`scripts/diavgeia_link_census.py`: read-only session, every query written out in full, fixed exit codes, output
+of counts and shapes only. It reports, over `nima.record_versions` of KIMDIS records (distinct source IDs and
+stored versions both counted): for each of the two date fields the number present, absent (key missing), null
+and empty, and the top shapes with counts, where a shape is the text with each digit replaced by `9` and each
+letter by `A` (this exposes separators, a `T`, a zone suffix such as `+99:99` or `Z`, and length, but never a
+value); for supplier tax IDs the occurrence count and classes (nine ASCII digits, all zero, one repeated
+non-zero digit, `123456789`, leading zero, other length as a length histogram, non-ASCII digits, null/empty) and
+the supplier country-code counts. It prints no name, tax number, amount, date value or title. Tests on the
+`pg_dsn` fixture with synthetic rows: each class and each shape bucket, the empty database, and an assertion
+that no input value appears in the output; 100% line and branch; each query mutated once to see a test fail.
+Owner step: run it against the pilot database and paste the JSON back.
+
+    NIMA_DATABASE_URL="<read-only>" uv run python -m scripts.semantic_census --top 20
+
+**S2b, time model (after the owner's measurement).** `src/nima/semantics/timemodel.py`, pure, using the
+existing `zoneinfo` use in `orchestration/refresh.py` (`tzdata` is already locked; no new dependency).
+One parser per *observed* shape and no fallback guessing. Outcomes `parsed`, `absent` and `unparseable`, with the
+source text always retained; period is the calendar month in Europe/Athens (decision D2); a zone-bearing value is
+converted to Athens civil time, a zone-less value is taken as Athens civil time and says so in the result. Tests:
+one case per measured shape, month and year boundaries, a daylight-saving boundary, leap day, malformed and
+out-of-range text, and invariants (the same text always gives the same period). The measured shape table goes
+into `docs/semantics/` as numbers only. D4 follow-up: the measured tax-ID class frequencies are recorded and any
+further placeholder rule is proposed to the owner, not adopted.
+
+Main risks: a format mix larger than expected (mitigation: each shape is explicit and the rest is
+`unparseable`, counted, never dropped); a time-zone suffix or a date-only shape giving different months near
+midnight (mitigation: explicit boundary tests); the census itself leaking a value (mitigation: shape-only output
+and the no-value assertion). No migration, dependency, CI or source-request change. The D5 reference-sharing
+measurement belongs to S6. Preserve all earlier tasks.
+
 ## Active V1-04: source boundaries for a second feed
 
 Owner approved the [spec](../docs/specs/SPEC-source-boundaries.md) on 2026-11-19. S1-S4 are delivered (#154,

@@ -1,7 +1,7 @@
 # Spec: semantic model, party tier and metric catalogue (V1-05)
 
-Module ID: `semantic-model`. Status: **decisions D1-D5 recorded as recommended by the owner on 2026-11-20 ("do
-recommended for 1-5"); spec otherwise awaiting the owner's approval; no code until approved.** Backlog card: [V1-05](../roadmap/agent-backlog.md). Release gates served:
+Module ID: `semantic-model`. Status: **approved by the owner on 2026-11-20, with decisions D1-D5 recorded as recommended
+("do recommended for 1-5"). S2 is next; its plan is in [tasks/plan.md](../../tasks/plan.md).** Backlog card: [V1-05](../roadmap/agent-backlog.md). Release gates served:
 R5 (shared semantics, at least four internally certified metrics) and the acceptance
 scenarios U1-U4 of the [v1.0 release contract](SPEC-release-v1.0.md). It extends, and does
 not replace, the [first shared definition](SPEC-semantic-layer.md) (`semantic-layer`),
