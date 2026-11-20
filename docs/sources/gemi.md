@@ -65,8 +65,10 @@ production field population, compatibility or source freshness.
 Search reconciliation needs a tested adapter for that metadata declaration before
 discovery is enabled. Never invent missing leading zeros in a procurement tax ID,
 choose the first search result as the matching company, or interpret no result as
-proof of nonexistence. No numeric provider rate quota was verified; client limits
-below are operational choices, not statements of provider allowance.
+proof of nonexistence. The provider's access message to the owner (2026-11-20)
+states a personal-key limit of 8 requests/minute, answered with 429 when exceeded
+(401 for a wrong key, 5xx for temporary failures). The client default and ceiling
+follow that figure; other limits below remain operational choices.
 
 ## Profile normalization and evidence
 
@@ -138,7 +140,7 @@ URLs. Set `Accept-Encoding: identity`; reject unsupported compression and enforc
 the body bound while streaming. Archive complete error bodies as evidence too;
 incomplete bodies must not be presented as completed source objects.
 
-Client defaults: 20 requests/minute, at most 3 attempts per ID, 20-second HTTP
+Client defaults: 8 requests/minute (7.5 seconds between requests), at most 3 attempts per ID, 20-second HTTP
 inactivity timeout, 8 MiB per body, 300-second cooperative run budget and maximum
 60-second retry wait. Retry only transient transport failures, 429 and selected
 5xx statuses. Honor Retry-After; if it exceeds remaining/wait budgets, stop with

@@ -886,7 +886,7 @@ the active scope and approval status are recorded above.
 ## GEMI live pilot (waiting for access)
 
 - [x] Verify merged PR #18 and document official trial/access and offline pilot steps.
-- [ ] Configure a personal key after provider approval; the user has submitted the form.
+- [x] Configure a personal key after provider approval (received 2026-11-20; kept in untracked `.env`).
 - [ ] Select 1–3 registry numbers and reconcile a credentialed small pilot.
   - Evidence: documented public test-key request returned HTTP 401 on 2026-11-10;
     no accepted live profile or personal-key compatibility is established.
