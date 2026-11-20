@@ -25,16 +25,8 @@ from psycopg import Connection
 MAX_TOP = 100
 DEFAULT_TOP = 20
 
-# One row per cited decision: how many distinct KIMDIS records cite it.
-PER_DECISION = """
-SELECT r.ref ->> 'target_id' AS decision, count(DISTINCT v.source_id) AS records
-FROM nima.record_versions v
-CROSS JOIN LATERAL jsonb_array_elements(coalesce(v.normalized -> 'references', '[]'::jsonb))
-  AS r(ref)
-WHERE starts_with(v.source_id, 'kimdis:') AND r.ref ->> 'source_field' = 'diavgeiaADA'
-GROUP BY 1
-"""
-
+# Each query is written out in full (no string building). A "decision" is a cited ADA; "records"
+# counts distinct KIMDIS records, so a record with several stored versions counts once.
 RECORDS = """
 SELECT count(DISTINCT source_id) FROM nima.record_versions WHERE starts_with(source_id, 'kimdis:')
 """
@@ -47,17 +39,29 @@ CROSS JOIN LATERAL jsonb_array_elements(coalesce(v.normalized -> 'references', '
 WHERE starts_with(v.source_id, 'kimdis:') AND r.ref ->> 'source_field' = 'diavgeiaADA'
 """
 
-SUMMARY = (
-    "WITH per AS ("
-    + PER_DECISION
-    + ") SELECT count(*), count(*) FILTER (WHERE records > 1), coalesce(max(records), 0) FROM per"
+SUMMARY = """
+WITH per AS (
+  SELECT r.ref ->> 'target_id' AS decision, count(DISTINCT v.source_id) AS records
+  FROM nima.record_versions v
+  CROSS JOIN LATERAL jsonb_array_elements(coalesce(v.normalized -> 'references', '[]'::jsonb))
+    AS r(ref)
+  WHERE starts_with(v.source_id, 'kimdis:') AND r.ref ->> 'source_field' = 'diavgeiaADA'
+  GROUP BY 1
 )
+SELECT count(*), count(*) FILTER (WHERE records > 1), coalesce(max(records), 0) FROM per
+"""
 
-MOST_SHARED = (
-    "WITH per AS ("
-    + PER_DECISION
-    + ") SELECT decision, records FROM per ORDER BY records DESC, decision ASC LIMIT %s"
+MOST_SHARED = """
+WITH per AS (
+  SELECT r.ref ->> 'target_id' AS decision, count(DISTINCT v.source_id) AS records
+  FROM nima.record_versions v
+  CROSS JOIN LATERAL jsonb_array_elements(coalesce(v.normalized -> 'references', '[]'::jsonb))
+    AS r(ref)
+  WHERE starts_with(v.source_id, 'kimdis:') AND r.ref ->> 'source_field' = 'diavgeiaADA'
+  GROUP BY 1
 )
+SELECT decision, records FROM per ORDER BY records DESC, decision ASC LIMIT %s
+"""
 
 
 def open_read_only(dsn: str) -> Connection:
