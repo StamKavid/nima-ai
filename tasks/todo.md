@@ -23,9 +23,11 @@
   under the owner's dated waiver of the home-IP rule for that one capture. Result recorded in
   `docs/semantics/date-format-measurements.md`: one submission shape `9999-99-99A99:99:99.999`, update date missing,
   leading-zero tax IDs common.
-- [ ] Wider capture for variety (about 90 days of the same public buyer, plus any other buyers the owner names):
-  needs the owner's explicit approval beyond the one-capture waiver; then rerun the census and add a row to the
-  measurement log.
+- [x] Wider capture for variety (2026-11-20, run by the owner): about 90 days of the same public buyer, 199 more records,
+  complete, 0 quarantined; census over 203 records recorded in `docs/semantics/date-format-measurements.md`.
+  Findings: submission date has two observed shapes (fraction of two or three digits, no zone); update date is
+  date-only and mostly absent; no placeholder tax IDs; leading zeros common; 3 irregular-length IDs.
+- [ ] Optional: more buyers for variety (the owner names them and approves the capture).
 - [ ] S2b: from the measured shapes, write failing tests then `src/nima/semantics/timemodel.py` (one parser per
   observed shape, `parsed`/`absent`/`unparseable`, Europe/Athens month, boundary and daylight-saving cases).
 - [ ] S2b: record the measured shape table (numbers only) in `docs/semantics/`; propose any extra placeholder tax-ID
