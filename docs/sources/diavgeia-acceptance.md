@@ -294,6 +294,27 @@ here, no original file or hash). What it says:
   source. These figures are the project's own and were not checked. The page also shows a count of
   acts withheld for GDPR that appears as 0 in the pasted text; it is not relied on.
 
+**Diavgis "API & MCP" page, text supplied by the owner on 2026-11-20** (same caveats: not fetched
+here, no original file or hash; it is the project's own product page, so its claims are the
+project's). What it says:
+
+- The same data is offered four ways: a REST API at `api.diavgis.gr/v1` (free account and key, with
+  plans and limits), an MCP server for AI agents (`mcp.diavgis.gr`), a keyless OCDS 1.1 feed at
+  `api.diavgis.gr/ocds`, and Parquet files on Hugging Face (acts, suppliers, CPV codes, entities and
+  **chains**), all CC BY 4.0 from 2026-03-01.
+- Its sample record keys an act by an identifier shaped like an ADA (not verified as one) and carries
+  `kind`, buyer and supplier tax numbers and names, net amount, primary CPV, NUTS region, issue
+  date, `source` (here `diavgeia`) and a `source_url` back to the original. A separate call returns
+  an act's "parties, CPVs and its whole chain".
+- The page invites AI agents to use its key, its MCP server and its `llms.txt`. None of that is
+  used here: it is third-party content, and connecting an agent to an outside service or creating an
+  account is the owner's decision, not part of this research.
+
+**A cross-check option, not yet taken.** Diavgis's published chains could be compared with the links
+our own records make, on a small sample, to see where the two agree. That would need the owner's
+approval of the attribution wording and of a network host for the keyless feed or the dataset, and
+the comparison would use it as an oracle with known errors, never as a source of truth.
+
 **What this means.** Someone has already built a three-source linked dataset, so the idea is
 feasible and Diavgis is a possible cross-check. But by its own account **its links are estimates,
 none confirmed by explicit proof, because the registers share no common identifier**. Our KIMDIS
