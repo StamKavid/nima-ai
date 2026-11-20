@@ -183,6 +183,42 @@ into it through `diavgeiaADA`. Matching that field to a Diavgeia type (Β.1.3 co
 obligation, "ΑΝΑΛΗΨΗ ΥΠΟΧΡΕΩΣΗΣ") is an inference from the names and must be confirmed on real
 records.
 
+**Caution on what a citation proves.** Diavgis's methodology warns that an umbrella reference (an
+annual expenditure approval cited by thousands of acts) is not a link between stages of one
+procurement. Our typed references must keep that distinction: an ADA citation records a reference,
+never by itself a merge. If many KIMDIS records cite one `diavgeiaADA`, that is an umbrella, not a
+one-to-one link, and must not be turned into a single chain.
+
+## Measure first
+
+Before any Diavgeia request, count what our own KIMDIS data already contains. Run these on the pilot
+database with a read-only connection. They return counts and ADA identifiers only (no names, tax
+numbers or amounts). The normalized JSON of each KIMDIS record holds its typed references in
+`references`, each with `source_field` and `target_id` (`diavgeia:<ADA>` for `diavgeiaADA`).
+
+```sql
+-- 1. How many KIMDIS records cite a Diavgeia decision at all?
+SELECT count(DISTINCT v.source_id) AS kimdis_records,
+       count(DISTINCT v.source_id) FILTER (WHERE r.ref ->> 'source_field' = 'diavgeiaADA')
+         AS cite_a_diavgeia_ada
+FROM nima.record_versions v
+LEFT JOIN LATERAL jsonb_array_elements(v.normalized -> 'references') AS r(ref) ON true
+WHERE v.source_id LIKE 'kimdis:%';
+
+-- 2. How many records share each cited ADA? (a high count means an umbrella, not a 1:1 link)
+SELECT r.ref ->> 'target_id' AS cited_decision,
+       count(DISTINCT v.source_id) AS kimdis_records
+FROM nima.record_versions v
+CROSS JOIN LATERAL jsonb_array_elements(v.normalized -> 'references') AS r(ref)
+WHERE v.source_id LIKE 'kimdis:%' AND r.ref ->> 'source_field' = 'diavgeiaADA'
+GROUP BY 1 ORDER BY 2 DESC LIMIT 20;
+```
+
+How to read the result: if few records cite an ADA, the explicit key is too sparse for the pilot
+and the fallback in decision 4 applies. If most cited ADAs are shared by many records, the key
+points at umbrella decisions and cannot identify a single procurement. If a healthy share cite a
+distinct ADA each, the explicit-key pilot is worth running.
+
 ## Prior art: who else links these sources
 
 Read on 2026-11-20 from the original pages (raw HTML archived outside Git; SHA-256 of each below).
@@ -232,12 +268,44 @@ hash for it. What it says (Greek, with a gloss):
   so source errors in amounts or dates can appear here too. Licence CC BY 4.0, credit "Diavgis,
   https://diavgis.gr".
 
+**Diavgis methodology page, text supplied by the owner on 2026-11-20** (same caveats: not fetched
+here, no original file or hash). What it says:
+
+- The headline figure reads "0% αλυσίδες με ρητή απόδειξη" (0% of chains with explicit proof), and
+  the text: "Σήμερα 0% των αλυσίδων στηρίζονται σε επιβεβαιωμένη αντιστοίχιση, όχι σε εκτίμηση"
+  (today 0% of chains rest on a confirmed match, not on an estimate). The stages of one procurement
+  are published "σε διαφορετικά μητρώα και χωρίς κοινό αναγνωριστικό" (in different registers and
+  without a common identifier). Each link carries a degree of certainty shown on the chain page.
+  **The text supplied does not describe how the estimate is made.**
+- What it does **not** join: administrative umbrellas such as an annual "Έγκριση Δαπάνης"
+  (expenditure approval) that thousands of acts of one body can cite. "μια αναφορά που τη μοιράζονται
+  πολλές πράξεις δεν δημιουργεί αλυσίδα" (a reference shared by many acts does not create a chain);
+  it stays visible as a directly linked act.
+- Spend is counted once per chain, and tender budgets are estimates, not spend. Amounts pass an
+  automatic plausibility check because sources contain typing errors (a figure a thousand times too
+  large); extreme ones are checked on the original document.
+- Indicators are neutral published facts (single-bidder awards, awards just under the Law 4412
+  thresholds, repeated identical amounts, direct awards, cancellations), with a minimum volume. The
+  near-threshold ones use KIMDIS only, "γιατί μόνο εκεί δημοσιεύεται το καθαρό ποσό χωριστά από το
+  ποσό με ΦΠΑ" (because only there is the net amount published separately from the amount with VAT).
+- Stated limits: natural persons appear only as contractors and their tax number is never
+  published. Diavgeia names a contractor in 62% of assignments and KIMDIS in 99%; "Το κενό είναι της
+  δημοσίευσης, όχι της ανάλυσης" (the gap is in publication, not in analysis): the field is empty at
+  source. These figures are the project's own and were not checked. The page also shows a count of
+  acts withheld for GDPR that appears as 0 in the pasted text; it is not relied on.
+
 **What this means.** Someone has already built a three-source linked dataset, so the idea is
-feasible and Diavgis is a possible cross-check. But we cannot yet say which keys it uses (the
-methodology page is the next thing to read), its non-unique party identifiers support our rule that a tax number is a grouping key and not an
-identity, and its "all active" status shows why we must track revocation ourselves (see the
-version log above) instead of inheriting someone else's status. It is a derived product with its own
-errors: it should be compared with, never used as a source of truth.
+feasible and Diavgis is a possible cross-check. But by its own account **its links are estimates,
+none confirmed by explicit proof, because the registers share no common identifier**. Our KIMDIS
+parser reads an explicit `diavgeiaADA` field. Either that field is rarely filled or unreliable
+(which would explain why Diavgis does not treat it as proof), or Diavgis does not use it. This is
+the most important thing to measure before building anything (next section). Three further lessons:
+a reference shared by many records is not a link between stages of one procurement; a contractor's
+tax number is missing in a large share of Diavgeia assignments, so joins on it will miss many; and
+Diavgis's non-unique party identifiers and its "all active" status support our rules that a tax
+number is a grouping key and not an identity, and that we track revocation ourselves (see the
+version log above). It is a derived product with its own errors: it should be compared with, never
+used as a source of truth.
 
 **Others, read 2026-11-20 (not linking projects):**
 
@@ -266,8 +334,8 @@ report on KIMDIS 2017-2025.
 5. Whether revoked decisions keep their documents available.
 6. Whether any decision type links explicitly to a KIMDIS identifier, in metadata or in PDF text.
 7. Real response shapes: this dossier read documentation and sample JSON, not live responses.
-8. By which keys Diavgis links Diavgeia, KIMDIS and TED: its policy text (supplied by the owner) says only that records of one procurement share an `ocid`; its methodology page has not been seen. The leads listed as unread remain unread.
-9. What KIMDIS officially says `diavgeiaADA` refers to, and how often it is filled.
+8. How Diavgis estimates its links: its policy and methodology texts (both supplied by the owner) say that records of one procurement share an `ocid` and that 0% of links are confirmed by explicit proof, but they do not describe the matching method. Its 62% and 99% contractor-named figures were not checked. The leads listed as unread remain unread.
+9. What KIMDIS officially says `diavgeiaADA` refers to, how often it is filled and whether its ADAs are shared by many records (the counts in "Measure first" answer the last two).
 
 ## Decisions for the owner
 
@@ -286,6 +354,10 @@ report on KIMDIS 2017-2025.
    explicit KIMDIS-to-Diavgeia key end to end, avoids search paging and window rules, keeps the
    run small enough to review by hand, and touches only decisions we already have a reason to
    read. Δ.2.2 by organisation and window remains the fallback if too few records carry the field.
+   Because Diavgis reports that none of its own links is confirmed by explicit proof, **run the two
+   counts in "Measure first" before choosing**: if the field is sparse, or its ADAs are shared by
+   many records, the explicit-key pilot loses most of its value and this choice is revisited
+   before anything is fetched.
 5. **Network.** A pilot needs `diavgeia.gov.gr` on the source worker's egress allowlist and a rate
    limit the owner chooses. Nothing is fetched until you approve both.
 

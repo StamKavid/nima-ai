@@ -106,7 +106,9 @@
 - [x] Prior art on linking these sources (docs only, follow-up to the dossier): Diavgis (Open
   Contracting registry) links Diavgeia, KIMDIS and TED, and says records of one procurement share
   an `ocid`, but names no keys. Its policy page blocks automated clients, so the owner pasted its
-  text (no hash); the methodology page, where the keys likely are, is still unseen. The
+  text and its methodology page (no hash). The methodology says none of its links is confirmed by
+  explicit proof today (0% of chains) and that references shared by many acts are not chain links.
+  Next: run the two read-only counts in the dossier's "Measure first" on the pilot database. The
   arXiv corpus is Diavgeia-only and the iMEdD article is commentary. Unread leads are listed.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
   Candidate: fetch exactly the ADAs a small KIMDIS cohort cites in `diavgeiaADA` (one by one, with
