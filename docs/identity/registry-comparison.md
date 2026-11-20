@@ -3,7 +3,7 @@
 Status: **approved**, 2026-11-14, by user merge of #65 and continuation.
 Module: `entity-resolution`
 in [CAPABILITIES.md](../../CAPABILITIES.md). Supplements the approved
-[identity specification](../../SPEC-entity-resolution.md),
+[identity specification](../specs/SPEC-entity-resolution.md),
 [GEMI persistence contract](../sources/gemi-persistence.md) and
 [GEMI profile contract](../sources/gemi.md). Base: main `127b3b8`, after the
 fixture-worker delivery in PR #64. This replaces the unpublished 2026-11-12 draft.

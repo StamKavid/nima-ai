@@ -9,8 +9,8 @@ The revised [capability map](../../CAPABILITIES.md) was owner-approved through
 merged [#108](https://github.com/StamKavid/nima-ai/pull/108) and the subsequent
 instruction to continue on 2026-11-16. Individual module scopes/plans and
 implementation are not approved by that map review alone. The first
-[semantic provider](../../SPEC-semantic-layer.md) and
-[analytics consumer](../../SPEC-market-analytics.md) scopes have advanced into
+[semantic provider](../specs/SPEC-semantic-layer.md) and
+[analytics consumer](../specs/SPEC-market-analytics.md) scopes have advanced into
 planning after the owner's subsequent conceptual quality/pipeline review and
 instruction to continue. See the current [plan](../../tasks/plan.md) and
 [validation contract](../pipeline-quality-validation.md); implementation is pending.

@@ -149,7 +149,7 @@ uv run --frozen mypy && just check && just audit
    change that S4 forbids and the characterization pins protect. **Correction (2026-11-20):**
    the engine suite exercised resume only with a KIMDIS-shaped `Query`; run options are still
    stored and reloaded as a KIMDIS `Query` (`storage.runs.load_options`), which is a third gap.
-   All three are specified in `SPEC-source-neutral-collection.md` and fixed by N1 (#158) and N2
+   All three are specified in `docs/specs/SPEC-source-neutral-collection.md` and fixed by N1 (#158) and N2
    (#159).
 5. **S5 real dataset (gated, optional):** a recorded sample of one small public dataset
    behind the same suite. It starts only when the owner names the dataset, its reuse terms

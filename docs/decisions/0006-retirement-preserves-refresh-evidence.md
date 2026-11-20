@@ -27,10 +27,10 @@ Unfinished windows stay gaps. Pending schedule pause acknowledgement stays visib
 an engine outage does not reopen the SQL gate. Operators cannot unretire a policy.
 This adds one control table and lock/trigger checks, with no new service/package.
 It does not provide cancellation, successful coverage or a replacement budget.
-See the [R2 contract](../../SPEC-refresh-recovery.md#r2-permanent-audited-policy-retirement).
+See the [R2 contract](../specs/SPEC-refresh-recovery.md#r2-permanent-audited-policy-retirement).
 
 R2 is owner-accepted through #145, main `3626314`. The R3 extension proposes one
 atomic, explicit new-budget authorization to a fresh paused successor. It retains
 the cohort, binds the successor configuration and budget-profile ID, and copies
 no coverage. This keeps renewed authority distinguishable from bounded retries.
-See the [final checkpoint contract](../../SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint).
+See the [final checkpoint contract](../specs/SPEC-refresh-recovery.md#r3-explicit-successor-authorization--final-code-checkpoint).

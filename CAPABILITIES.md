@@ -1,7 +1,7 @@
 # Nima capability map
 
 The [versioned product roadmap](docs/roadmap/v1.0.md),
-[v1.0 release contract](SPEC-release-v1.0.md) and
+[v1.0 release contract](docs/specs/SPEC-release-v1.0.md) and
 [agent work packages](docs/roadmap/agent-backlog.md) turn this dependency map into
 proposed release gates. They do not change delivery state or authorize activation.
 
@@ -86,8 +86,8 @@ Start with this one metric and an evidence-linked readout. Current module scopes
 
 | Module | First bounded specification | Scope status |
 |---|---|---|
-| semantic-layer | [Metric, keys, revisions and lineage](SPEC-semantic-layer.md) | PV1 owner-reviewed provider; draft definition |
-| market-analytics | [Private supplier–buyer readout](SPEC-market-analytics.md) | Owner-reviewed CLI; real readout/automated checks complete; human pilot pending |
+| semantic-layer | [Metric, keys, revisions and lineage](docs/specs/SPEC-semantic-layer.md) | PV1 owner-reviewed provider; draft definition |
+| market-analytics | [Private supplier–buyer readout](docs/specs/SPEC-market-analytics.md) | Owner-reviewed CLI; real readout/automated checks complete; human pilot pending |
 
 The semantic layer is versioned code/SQL definitions plus a small glossary, not
 an ontology generator, LLM dependency or separate metrics server. The two specifications share one
@@ -112,7 +112,7 @@ The owner merged #117/#118, completing V-C with all hosted checks passing.
 `analytics supplier-buyers --request ... --output-dir ...` uses environment-only
 database configuration and fixed private-safe summaries, with actual interruption/
 replay tests and [operator instructions](docs/analytics/supplier-buyers.md).
-The isolated [dbt comparison](docs/verification/pipeline-dbt.md) now passes fifteen
+The isolated [dbt comparison](docs/history/experiments/pipeline-dbt.md) now passes fifteen
 semantic/evidence scenarios and rejects five injected data defects. The report
 recommends retaining packaged SQL/Prefect for the present metric. The owner merged
 #119/#120, completing V-D review; dbt remains isolated. The protected
@@ -149,12 +149,12 @@ certification remain open.
 The notes below describe previously delivered source, identity and graph work.
 They do not claim the new semantic/analytics/activation capabilities exist.
 
-`SPEC-source-ingestion.md` is the first application specification. Later modules
+`docs/specs/SPEC-source-ingestion.md` is the first application specification. Later modules
 receive their own specs when their evidence and interface requirements are clear.
 The model strategy, graph boundaries, and per-stage validation gates are in
 `docs/architecture.md`. The election-accountability idea is outside this project.
 
-`SPEC-entity-resolution.md` was approved through PR #15. Its first release implements
+`docs/specs/SPEC-entity-resolution.md` was approved through PR #15. Its first release implements
 offline identifier assessment and source-scoped review reports. The merged
 [offline registry comparison](docs/verification/registry-comparison.md) adds bounded,
 evidence-linked reported-AFM agreements with zero automatic identity links.

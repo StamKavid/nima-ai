@@ -7,8 +7,8 @@ foundation, shared semantic definitions and analytics before persona workflows a
 AI activation. [ADR-0005](decisions/0005-market-intelligence-foundation.md) records
 the accepted direction. The owner approved the revised
 [capability map](../CAPABILITIES.md) through merged #108 and the instruction to
-continue. The first [semantic provider](../SPEC-semantic-layer.md) and
-[analytics consumer](../SPEC-market-analytics.md) scopes now feed the proposed
+continue. The first [semantic provider](specs/SPEC-semantic-layer.md) and
+[analytics consumer](specs/SPEC-market-analytics.md) scopes now feed the proposed
 [implementation plan](../tasks/plan.md) and
 [pipeline quality validation](pipeline-quality-validation.md), following the
 owner's continuation after the conceptual pipeline review. The bounded semantic
@@ -20,7 +20,7 @@ candidate is one cited captured-contract readout, not a general rewrite.
 The original investigation mission and delivered-state notes below remain
 historical context. Journalist workflows become one use of the shared foundation.
 The [v1.0 roadmap](roadmap/v1.0.md) and
-[release contract](../SPEC-release-v1.0.md) propose broader shared semantics,
+[release contract](specs/SPEC-release-v1.0.md) propose broader shared semantics,
 two-source analytics, deterministic insights and a read-only product. General
 serving, national market coverage and AI are not claimed implemented.
 
@@ -65,7 +65,7 @@ flowchart TD
 
 PostgreSQL is authoritative for record history and work state; original evidence
 is archived separately. The implemented bounded graph is a rebuildable private
-JSON view of selected reviewed records. The [database assessment](graph/database-candidates.md)
+JSON view of selected reviewed records. The [database assessment](history/graph/database-candidates.md)
 compares Memgraph/FalkorDB as prototype candidates, Neo4j as a tooling baseline and
 AGE/HydraDB alternatives across technical, operating/support and licensing factors.
 No store or adapter has been adopted or benchmarked.
@@ -107,7 +107,7 @@ Primary source contracts:
 
 Keep source observations, resolved identity, and analytical inference distinct.
 
-The implemented [bounded pilot contract](graph/investigation-pilot.md) uses exact
+The implemented [bounded pilot contract](history/graph/investigation-pilot.md) uses exact
 contract versions, selected party occurrences, unclassified reviewed handles,
 registry anchor observations and raw-evidence references. Active-only reviewed
 links retain their acceptance event/candidate/current revision; unresolved/history

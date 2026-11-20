@@ -6,7 +6,7 @@ reported supplier identifier. It does not collect sources, start Prefect work,
 migrate/project/repair SQL, contact GEMI or recover missing originals from a site.
 
 The [metric contract](../semantics/participation.md) defines counts and exclusions.
-The owner-approved [consumer scope](../../SPEC-market-analytics.md) defines bounds.
+The owner-approved [consumer scope](../specs/SPEC-market-analytics.md) defines bounds.
 Delivery evidence and the current review checkpoint are in
 [tasks](../../tasks/todo.md). This runbook does not establish real-market coverage
 or an observed analyst-task benefit; that pilot remains separate.

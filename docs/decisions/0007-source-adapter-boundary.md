@@ -29,5 +29,5 @@ A new source needs an adapter, a registry entry, synthetic fixtures and conforma
 engine changes. Downstream code still enumerates `kimdis` and `gemi`; a third source ingests and
 replays but does not flow onward until a spec names a dataset. Cursor-paged requests, a
 per-source CLI and machine-comparable licences are deferred with triggers in
-`SPEC-source-neutral-collection.md`. Alternative rejected: a `source` column on runs, which
+`docs/specs/SPEC-source-neutral-collection.md`. Alternative rejected: a `source` column on runs, which
 needs a migration and gains nothing while `connector_version` identifies the adapter.

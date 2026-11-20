@@ -3,7 +3,7 @@
 Module: `source-ingestion` in `CAPABILITIES.md`.
 
 The database-backed source in this specification is KIMDIS. The approved source-specific
-[GEMI registry evidence contract](docs/sources/gemi.md) supplements this provider
+[GEMI registry evidence contract](../sources/gemi.md) supplements this provider
 module with a bounded archive-only collector; live compatibility remains unverified.
 
 Status: staged direction reaffirmed by the user on 2026-11-08 through the supplied
@@ -909,8 +909,8 @@ feature base. Owner subsequently merged #134 at `ad62fb3`; the exact reviewed
 command files are now verified reachable from main. Keep the previously tested
 tree and the successful integration runs distinct.
 
-This increment records a capability-weighted [foundation assessment](docs/roadmap/analytics-readiness.md)
-and [KAD source acceptance](docs/sources/kad-reference.md). The roughly 60% estimate
+This increment records a capability-weighted [foundation assessment](../roadmap/analytics-readiness.md)
+and [KAD source acceptance](../sources/kad-reference.md). The roughly 60% estimate
 uses an explicit 100-point single-operator analytics-core denominator; it is not
 Greek data coverage, test coverage or an update to the historical investigator
 product percentage. Source code, tested-but-unpromoted work and live validation

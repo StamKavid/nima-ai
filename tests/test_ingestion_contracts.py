@@ -20,7 +20,7 @@ from tests.test_kimdis_contracts import source_page
 def test_owned_metadata_is_draft_odcs_with_explicit_policy(boundary: gates.Boundary) -> None:
     name = f"kimdis-{boundary}-v1.odcs.json"
     value = validate_contract(json.loads(files("nima.contracts").joinpath(name).read_bytes()))
-    assert value["status"] == "draft" and value["version"] == "1.0.0"
+    assert value["status"] == "draft" and value["version"] == "1.0.1"
     assert value["id"] == f"nima.kimdis-{boundary}"
     assert value["customProperties"][0]["value"] == gates.policy(boundary)
     assert not value.get("slaProperties")

@@ -152,7 +152,7 @@ tree/blob objects, never the working tree, old Python code or contract links.
   precedes the complete existing gate. Event values enter through environment
   arguments, never interpolation in shell code. Keep all jobs, permissions,
   assertions, audit, pins and the approved quality time bound (fifteen minutes when this was
-  written; raised to twenty by the owner on 2026-11-19, see O3g in `SPEC-operating-controls.md`).
+  written; raised to twenty by the owner on 2026-11-19, see O3g in `docs/specs/SPEC-operating-controls.md`).
 
 Implement in `scripts/check_contracts.py`, real disposable Git tests in
 `tests/test_contract_baselines.py`, and the narrow workflow/justfile additions.

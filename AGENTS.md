@@ -65,3 +65,10 @@ No LLM or embedding dependency is required for structured-record ingestion.
 Source freshness is measured per source; KIMDIS documentation describes daily refresh.
 Read `docs/architecture.md` before graph, ML, AI, or insights work. Candidate models
 must be evaluated on versioned Greek-data tasks before production selection.
+
+## Layout
+
+Specs live in `docs/specs/` (index: `docs/specs/README.md`). This overrides the pinned
+spec-driven-development skill's root convention. `CAPABILITIES.md` stays at the root.
+Delivered work history is archived under `docs/history/`; `tasks/` and `docs/progress.md`
+keep only active work and the current position.

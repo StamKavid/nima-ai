@@ -7,11 +7,11 @@ protocol. No application dependency, runtime requirement, CI job, source schedul
 migration or authoritative serving path changed. The owner merged #119/#120 into
 main at `3cd4f77` and requested continuation on 2026-11-17, completing V-D review.
 Retain SQL/Prefect and the isolated experiment; the
-[real-data pilot](market-readout.md) remains a separate input/task gate.
+[real-data pilot](../../verification/market-readout.md) remains a separate input/task gate.
 
 Tested: Core **1.11.17**, Postgres adapter **1.11.0**, Python **3.12.14**,
 PostgreSQL **17.11**, Linux x86-64. This implements PV8–PV9 of the approved
-[plan](../../tasks/plan.md), after owner-merged #117/#118 completed V-C.
+[plan](../../../tasks/plan.md), after owner-merged #117/#118 completed V-C.
 
 ## Inputs and prerequisites
 
@@ -32,9 +32,9 @@ HTTP, nonlocal DNS and nonlocal socket calls; no refused runtime call occurred.
 The native Postgres driver used configured loopback. This is not a deployed
 network-isolation attestation. Package/advisory/document downloads were setup;
 no source acquisition occurred during this experiment. The later separately
-authorized real pilot is recorded in [market-readout.md](market-readout.md).
+authorized real pilot is recorded in [market-readout.md](../../verification/market-readout.md).
 
-The [isolated lock](../../experiments/pipeline_dbt/uv.lock) resolves 55 external
+The [isolated lock](pipeline_dbt/uv.lock) resolves 55 external
 distributions, 54 applicable on tested Linux. All 55 compatible wheels were
 hash-checked; license metadata and packaged texts were reviewed. The applicable
 54-package Python advisory audit reports zero known vulnerabilities. Bundled
@@ -163,7 +163,7 @@ they do not install/rerun this isolated experiment. Per-head status is in PRs.
 At experiment completion no protected real-company task had run: project
 `data`/`work` locations contained no managed raw-body cohort for the pilot and no
 analyst task was observed. The later owner-requested setup/capture and automated
-real-data checks are recorded in [market-readout.md](market-readout.md); they do
+real-data checks are recorded in [market-readout.md](../../verification/market-readout.md); they do
 not turn this synthetic dbt comparison into a real-data experiment. PV10 remains
 open for human review/task observation; no further source activation or external
 contact is implied.

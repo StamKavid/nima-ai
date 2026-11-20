@@ -2,7 +2,7 @@
 
 Assessment date: 2026-11-17. Current state: **real capture and automated checks
 complete; human review and task observation pending**. This records PV10 in the
-approved [plan](../../tasks/plan.md) and [consumer scope](../../SPEC-market-analytics.md).
+approved [plan](../../tasks/plan.md) and [consumer scope](../specs/SPEC-market-analytics.md).
 The earlier `blocked_inputs` inventory below is historical. A successful command
 and automated audit do not complete the product-usefulness gate.
 
@@ -71,7 +71,7 @@ in the checked environment. This described the
 checked locations/environment, not every possible owner-managed host or archive.
 
 The retained dbt capture is explicitly synthetic and cannot fill this gate. The
-historical source feasibility sample described in `SPEC-source-ingestion.md`
+historical source feasibility sample described in `docs/specs/SPEC-source-ingestion.md`
 does not supply the complete managed SQL/original cohort required here.
 
 | Requirement | Initial status before owner-requested setup |

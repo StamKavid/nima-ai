@@ -5,7 +5,7 @@ requested continuation after reviewing acquisition-to-semantics quality,
 deduplication and the proposed SQL/dbt comparison. The owner approved the plan,
 merged the offline readout through #118 and requested continuation on 2026-11-17.
 The isolated comparison is now executed: see the
-[measured report](verification/pipeline-dbt.md) for versions, quality failures,
+[measured report](history/experiments/pipeline-dbt.md) for versions, quality failures,
 license/security evidence, timings and the recommendation to defer adoption.
 This document retains the architecture/acceptance contract; current delivery is
 tracked in the [plan](../tasks/plan.md) and [tasks](../tasks/todo.md). No source is activated.
@@ -69,8 +69,8 @@ evidence archive. Matching ordinals do not multiply a contract-publication count
 Hard failures include missing originals, digest/content disagreement, incomplete
 projections, duplicate grains, unsupported versions and exceeded bounds. Missing
 buyer keys, ambiguous revisions and unassessed supplier identifiers remain visible
-outcomes under the [provider](../SPEC-semantic-layer.md) and
-[consumer](../SPEC-market-analytics.md) contracts. They cannot become legal identity
+outcomes under the [provider](specs/SPEC-semantic-layer.md) and
+[consumer](specs/SPEC-market-analytics.md) contracts. They cannot become legal identity
 or verified absence. All captured rows must reconcile as accepted plus quarantined;
 eligible buyer counts plus unassigned records must reconcile to the metric total.
 
@@ -120,7 +120,7 @@ isolated install, actual PG17 execution and synthetic comparison; the report
 records limitations. Metadata compatibility alone was not treated as proof.
 
 The isolated experiment has its own lock/environment under
-`experiments/pipeline_dbt/`; never edit the application lock, runtime image, CI or
+`docs/history/experiments/pipeline_dbt/`; never edit the application lock, runtime image, CI or
 default gate to install it. Pin transitive dependencies before execution, review
 telemetry/network behavior, disable optional telemetry and do not use cloud
 accounts or real company data. Setup may download packages; the actual data test

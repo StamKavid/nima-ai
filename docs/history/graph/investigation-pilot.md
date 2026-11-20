@@ -2,7 +2,7 @@
 
 Status: **contract approved; G1–G5 implementation owner-merged through #95**,
 2026-11-15, main `4a33a3e`. Scope #87 (`eb3d2e0`) and implementation plan #90 were
-approved; checkpoints A–C are complete. The [measured operator runbook](../verification/investigation-graph.md)
+approved; checkpoints A–C are complete. The [measured operator runbook](../../verification/investigation-graph.md)
 records implemented commands, exact candidates/checks, recovery evidence and
 remaining empirical gates. The contract below retains its approved scope and limits.
 The requested [database candidate assessment](database-candidates.md) adopts no store.
@@ -17,8 +17,8 @@ detectors and AI research are later capabilities requiring their own scope.
 
 This is a technical precursor to a real-company investigation pilot. Fixture
 correctness does not prove company identity accuracy or investigator usefulness.
-The [architecture](../architecture.md) retains the wider product/model roadmap;
-the [reviewed-decision contract](../identity/reviewed-decisions.md) remains authoritative
+The [architecture](../../architecture.md) retains the wider product/model roadmap;
+the [reviewed-decision contract](../../identity/reviewed-decisions.md) remains authoritative
 for accept/reject/revoke and unclassified handles. No inference or source coverage
 is added merely by displaying stored data as a graph.
 

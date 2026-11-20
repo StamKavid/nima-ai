@@ -37,7 +37,7 @@ A failed metadata request or rejected lease stops the sweep visibly. CI skips
 branch-deletion push events. CI runs on pull requests to main and dev, on pushes to main
 and dev, and on manual dispatch, and each run retains every quality gate. A feature-branch
 push is covered by its pull request run; a branch without a pull request needs a manual
-dispatch (see [O3g](../SPEC-operating-controls.md#o3g-ci-trigger-scope-and-quality-time-budget)).
+dispatch (see [O3g](specs/SPEC-operating-controls.md#o3g-ci-trigger-scope-and-quality-time-budget)).
 
 ## Main/dev protection: prepared, not enforced
 

@@ -3,7 +3,7 @@
 This is the HTTP probe slice of E8 in `tasks/plan.md`. It adds no live source
 access and does not establish deployed investigator IP protection. The bounded
 host runner and private stage reports are now described in
-[the runner runbook](source-worker-runner.md). The full receipt validator
+[the runner runbook](../../verification/source-worker-runner.md). The full receipt validator
 still requires all 28 HTTP/browser cases and actual browser runtime evidence.
 
 ## What is exercised

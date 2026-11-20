@@ -7,8 +7,8 @@ and sector researchers, procurement analysts and journalists share the same
 trusted data and metric definitions.
 
 Start with the [versioned product roadmap](docs/roadmap/v1.0.md),
-[v1.0 acceptance contract](SPEC-release-v1.0.md) and
-[agent handoff](docs/roadmap/agent-handoff.md). They distinguish implemented
+[v1.0 acceptance contract](docs/specs/SPEC-release-v1.0.md) and
+[maintainers' handbook](docs/maintainers-handbook.md#4-how-change-is-delivered). They distinguish implemented
 capabilities from proposed release work; the package is currently `0.0.1`.
 
 The planned product combines a temporal relationship graph, sector comparisons,
@@ -198,7 +198,7 @@ The function performs no network call, database write, graph inference, or ML
 prediction. It does not allocate a joint contract's full value to each supplier.
 `normalize_page` decodes once, validates pagination, and quarantines malformed
 rows with original evidence locations. The full ingestion milestone is specified in
-[SPEC-source-ingestion.md](SPEC-source-ingestion.md).
+[SPEC-source-ingestion.md](docs/specs/SPEC-source-ingestion.md).
 
 ## PostgreSQL page persistence
 
@@ -404,7 +404,7 @@ Directories/files are private (0700/0600), symlinks and Git internals are reject
 and an atomic `.gitignore` protects outputs even inside a checkout. Publication is
 atomic on the supported Linux/POSIX filesystem. Killed workers can leave private
 temporary files; these are not completed reports. Hashes do not anonymize tax IDs.
-See [policy](SPEC-entity-resolution.md) and
+See [policy](docs/specs/SPEC-entity-resolution.md) and
 [verification](docs/verification/identity-assessment.md).
 
 ## Compare stored procurement and registry evidence

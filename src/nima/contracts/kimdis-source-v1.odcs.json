@@ -2,7 +2,7 @@
   "apiVersion": "v3.2.0",
   "kind": "DataContract",
   "id": "nima.kimdis-source",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "KIMDIS contract source boundary",
   "status": "draft",
   "domain": "company-market-intelligence",
@@ -85,7 +85,7 @@
     },
     {
       "type": "businessDefinition",
-      "url": "https://github.com/StamKavid/nima-ai/blob/main/SPEC-source-ingestion.md"
+      "url": "https://github.com/StamKavid/nima-ai/blob/main/docs/specs/SPEC-source-ingestion.md"
     }
   ],
   "customProperties": [

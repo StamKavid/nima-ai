@@ -252,7 +252,7 @@ a changed/revoked link against the manual workflow. Record task completion, crit
 errors, time, familiarity and failures. A thin dossier/explorer is a candidate for
 a separate product scope. No observed task-time improvement is claimed here.
 
-The [database assessment](../graph/database-candidates.md) compares Memgraph/FalkorDB
+The [database assessment](../history/graph/database-candidates.md) compares Memgraph/FalkorDB
 as prototype candidates, Neo4j as a tooling baseline and AGE/HydraDB alternatives.
 No adapter, store or benchmark has been adopted. Broader temporal relationships,
 sector eligibility, graph analytics/ML, cited AI, public authentication, browser

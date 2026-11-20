@@ -4,7 +4,7 @@ Status: **implemented through RI9 / owner-reviewed checkpoint D**, #84 at
 `50b43be`, 2026-11-15. Scope #74 and plan #75 were approved; RI1–RI9 are merged.
 The [measured operator runbook](../verification/reviewed-decisions.md) records actual
 commands, tests, trust limits and recovery. Module: `entity-resolution` in [CAPABILITIES.md](../../CAPABILITIES.md).
-Supplements the [approved identity specification](../../SPEC-entity-resolution.md)
+Supplements the [approved identity specification](../specs/SPEC-entity-resolution.md)
 and [implemented comparison contract](registry-comparison.md). Base: main
 `d6c1552`, after human merge of #73. Specification/PR/test counts alone earn no completion credit.
 
