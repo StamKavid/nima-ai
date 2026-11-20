@@ -1,5 +1,20 @@
 # Tasks
 
+## V1-05 S2 — time model, measured first
+
+- [x] Spec approved 2026-11-20 (`docs/specs/SPEC-semantic-model.md`), decisions D1-D5 as recommended.
+- [ ] S2a: write failing tests for `scripts/semantic_census.py` (shapes of both date fields, supplier tax-ID
+  classes, country counts, empty database, no input value in the output).
+- [ ] S2a: implement the read-only census with full queries; mutate each query once and restore; 100% line and
+  branch; `just check` and `just audit` on the exact head; draft PR to main.
+- [ ] Owner: run `NIMA_DATABASE_URL="<read-only>" uv run python -m scripts.semantic_census --top 20` on the pilot
+  database and share the JSON (counts and shapes only; I cannot: there is no pilot database in the agent
+  environment).
+- [ ] S2b: from the measured shapes, write failing tests then `src/nima/semantics/timemodel.py` (one parser per
+  observed shape, `parsed`/`absent`/`unparseable`, Europe/Athens month, boundary and daylight-saving cases).
+- [ ] S2b: record the measured shape table (numbers only) in `docs/semantics/`; propose any extra placeholder tax-ID
+  rule to the owner for decision D4; mark S2 delivered after the owner merges and `origin/main` is verified.
+
 ## V1-04 — source boundaries for a second feed
 
 - [x] Spec approved 2026-11-19 (`docs/specs/SPEC-source-boundaries.md`): test both second-adapter kinds,
