@@ -112,7 +112,7 @@ The owner merged #117/#118, completing V-C with all hosted checks passing.
 `analytics supplier-buyers --request ... --output-dir ...` uses environment-only
 database configuration and fixed private-safe summaries, with actual interruption/
 replay tests and [operator instructions](docs/analytics/supplier-buyers.md).
-The isolated [dbt comparison](docs/verification/pipeline-dbt.md) now passes fifteen
+The isolated [dbt comparison](docs/history/experiments/pipeline-dbt.md) now passes fifteen
 semantic/evidence scenarios and rejects five injected data defects. The report
 recommends retaining packaged SQL/Prefect for the present metric. The owner merged
 #119/#120, completing V-D review; dbt remains isolated. The protected
