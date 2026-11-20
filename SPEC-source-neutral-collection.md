@@ -1,6 +1,6 @@
 # Spec: source-neutral collection — V1-04 follow-up (N1, N2)
 
-Status: **draft, awaiting owner approval.** Extends `SPEC-source-boundaries.md` (S1-S4 delivered
+Status: **approved by the owner on 2026-11-20.** Extends `SPEC-source-boundaries.md` (S1-S4 delivered
 in #154-#157). It closes the gaps that stop a real second source (S5) from running through the
 acquisition engine. It does not add a source, fetch anything or touch the downstream graph,
 metadata or analytics code.
@@ -143,11 +143,8 @@ Nothing below is hidden debt; each item has a named trigger.
 | Licence is recorded as the publisher's own string (KIMDIS "CC BY 4.0", GEMI "ODC-BY-1.0"). | KIMDIS bytes must not change. | Evidence export needs machine-comparable licences. |
 | GEMI keeps its own transport and manifest. | Separate flow, already tracked in the dependency baseline. | GEMI is moved onto the protocol. |
 
-## Open questions
+## Decisions (owner, 2026-11-20)
 
-1. **Two PRs or one?** Recommended: N1 then N2, each reviewable on its own. N1 is small and
-   removes the false-provenance and wrong-host risks; N2 is the wider change.
-2. **Resume identity without a migration** (assumption 1) or a new `ingest_runs.source` column?
-   Recommended: no migration. `connector_version` already uniquely identifies the adapter, and a
-   column would need an owner-applied migration on the pilot database for no behavioural gain.
-3. **Accept the five deferred items above** with their triggers?
+1. Two PRs: N1 (request and provenance), then N2 (run options and resume).
+2. No migration: resume identifies the adapter from the stored `connector_version`.
+3. The five deferred items stand, each with its trigger.

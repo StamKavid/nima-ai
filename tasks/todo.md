@@ -47,8 +47,20 @@
   synthetic run used a KIMDIS-shaped `Query`; `load_options` rebuilds a KIMDIS `Query`, so a
   real non-KIMDIS run could not be resumed, and every request still goes to the KIMDIS
   endpoint. Specified below; not yet fixed.
-- [ ] N1 source-neutral request and provenance (spec `SPEC-source-neutral-collection.md`
-  drafted; awaiting owner approval). Pins from unmodified `main` first.
+- [x] Spec `SPEC-source-neutral-collection.md` approved 2026-11-20: two PRs, no migration, five
+  deferred items with triggers.
+- [ ] N1 source-neutral request and provenance. Tasks, each test-first:
+  - [x] N1.1 pins recorded from unmodified `main` `0945918`: KIMDIS wire request (method, URL,
+    headers, body, three pages) and manifest minus volatile fields; stable across three runs;
+    each fails when the `Accept` header or the licence string is changed, then restored.
+  - [ ] N1.2 protocol: `SourceProvenance`, `SourceRequest`, `provenance`, `request_for`, and the
+    pre-network guard (https, URL equals endpoint). Conformance tests red first, then
+    `KimdisAdapter`, the seam stub and both synthetic adapters.
+  - [ ] N1.3 engine: `Session.request` takes a `SourceRequest`; the collector builds requests
+    from the adapter and writes the manifest from `provenance`; `ENDPOINT` and `SOURCE` move to
+    the KIMDIS module. Pins unchanged.
+  - [ ] N1.4 engine suite on all three sources: requests only to the source's own endpoint,
+    manifest records its own provenance. Mutation checks; full gates; draft PR; hosted proof.
 - [ ] N2 adapter-owned run options and resume through the registry (same spec; after N1).
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
 
