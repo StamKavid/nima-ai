@@ -121,6 +121,9 @@ package/CLI rewrite before a second small dataset can be tested.
 
 ## V1-05 — semantic model, party tier and metric catalogue
 
+Spec drafted 2026-11-20: [SPEC-semantic-model.md](../specs/SPEC-semantic-model.md), awaiting owner
+review of decisions D1-D5; no code until approved.
+
 Extend `semantics/`, existing SQL metadata/projections and the glossary. Specify
 current-as-observed record selection, typed date eligibility, contract lifecycle
 references and party occurrences. A stable reported `(country, tax_id)` grouping
