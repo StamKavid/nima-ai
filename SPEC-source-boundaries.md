@@ -1,6 +1,6 @@
 # Spec: source boundaries for a second feed — V1-04
 
-Status: **approved by the owner on 2026-11-19; S1 (#154) and S2 (#155) delivered; S3 in review.** Decisions below. Follows
+Status: **approved by the owner on 2026-11-19; S1 (#154), S2 (#155) and S3 (#156) delivered; S4 in review.** Decisions below. Follows
 #152 (`7dfc7b1`). This is backlog package V1-04 (`docs/roadmap/agent-backlog.md`), the first
 step of v0.2. It prepares a second source (Diavgeia decisions, V1-06) without copying the
 KIMDIS stack, and does not fetch, parse or activate any new source.
@@ -135,6 +135,18 @@ uv run --frozen mypy && just check && just audit
 4. **S4 second adapters:** two synthetic adapters of deliberately different shape (for
    example different pagination, ID scheme and money format) and the full conformance suite on
    all three. Two shapes show the protocol is general, not fitted to KIMDIS.
+   Built as test-only code (`tests/synthetic_sources.py`), not registered, so the product has no
+   dead source code. `ledger` is semicolon-separated text with a comment-line page header,
+   decimal-comma money with dot grouping, `L-0001` identifiers and line-number evidence;
+   `events` is nested JSON paged by a cursor sequence with integer minor-unit money and
+   per-currency exponents and composite identifiers. The parser conformance suite and a new
+   engine-level suite (collect, resume, replay, quarantine, repeated identifiers, three sources
+   in one database) run on KIMDIS and both. **Found in S4, not fixed (S5 prerequisites):** the
+   archive manifest hardcodes the KIMDIS endpoint, source URL and licence for every adapter, so a
+   real second source would archive wrong provenance; and the HTTP transport is a KIMDIS POST
+   with a `page` parameter, so a cursor-paged real source needs the page number mapped to its
+   cursor inside the transport. S4 deliberately leaves both, because fixing either is an engine
+   change that S4 forbids and the characterization pins protect.
 5. **S5 real dataset (gated, optional):** a recorded sample of one small public dataset
    behind the same suite. It starts only when the owner names the dataset, its reuse terms
    are checked from the official source, and a network host is allowed; otherwise it stays
