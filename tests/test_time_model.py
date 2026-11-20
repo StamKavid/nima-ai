@@ -1,9 +1,9 @@
 """The reported-date parser accepts only the shapes measured on real KIMDIS records.
 
-Measured on 2026-11-20 (203 records): the submission date is a zone-less ISO date-time with a
-fraction of one to three digits (owner decision), the update date is date-only, and no value
-carries a zone. Anything else is `unparseable`, counted and never guessed; a missing value is
-`absent`. The source text is always kept as given.
+Measured on 2026-11-20 (1,317 records): the submission date is a zone-less ISO date-time with a
+fraction of one to six digits (one to three digits chosen by the owner, six seen on 4 records and
+added), the update date is date-only, and no value carries a zone. Anything else is `unparseable`,
+counted and never guessed; a missing value is `absent`. The source text is always kept as given.
 """
 
 from collections.abc import Callable
@@ -23,8 +23,8 @@ ATHENS_ASSUMED: Final = "zone_less_read_as_athens_civil"
 Parse = Callable[[object], ReportedDate]
 
 
-@pytest.mark.parametrize("fraction", ["1", "12", "123"])
-def test_the_measured_submission_shape_is_parsed_with_a_fraction_of_one_to_three_digits(
+@pytest.mark.parametrize("fraction", ["1", "12", "123", "1234", "12345", "123456"])
+def test_the_measured_submission_shape_is_parsed_with_a_fraction_of_one_to_six_digits(
     fraction: str,
 ) -> None:
     text = f"2026-03-10T08:15:30.{fraction}"
@@ -63,7 +63,7 @@ def test_a_missing_value_is_absent_not_unparseable(parse: Parse) -> None:
         "2026-03-10T08:15:30.123\n",
         "2026-03-10T08:15:30",
         "2026-03-10T08:15:30.",
-        "2026-03-10T08:15:30.1234",
+        "2026-03-10T08:15:30.1234567",
         "2026-03-10 08:15:30.123",
         "2026-03-10t08:15:30.123",
         "2026-03-10T08:15:30.123Z",

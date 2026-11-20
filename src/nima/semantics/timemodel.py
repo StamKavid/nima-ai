@@ -1,8 +1,9 @@
 """Reported KIMDIS dates as typed values, from the shapes actually measured on real records.
 
-Measured on 2026-11-20 over 203 records (see ``docs/semantics/date-format-measurements.md``):
+Measured on 2026-11-20 over 1,317 records (see ``docs/semantics/date-format-measurements.md``):
 the submission date is a zone-less ISO date-time whose fraction has one to three digits (owner
-decision), the update date is date-only, and no value carries a zone. Only those shapes are parsed.
+decision) or, on 4 records, six digits (added), the update date is date-only, and no value carries
+a zone. Only those shapes are parsed.
 Everything else is ``unparseable`` and counted by the caller, never guessed, and a missing value is
 ``absent``. The source text is always kept exactly as given.
 
@@ -23,7 +24,7 @@ type Shape = Literal["datetime_fraction", "date_only"]
 type Basis = Literal["zone_less_read_as_athens_civil"]
 
 _DATETIME = re.compile(
-    r"([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\.[0-9]{1,3}"
+    r"([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\.[0-9]{1,6}"
 )
 _DATE = re.compile(r"([0-9]{4})-([0-9]{2})-([0-9]{2})")
 
@@ -51,7 +52,7 @@ def _parsed(text: str, shape: Shape, day: date, basis: Basis | None) -> Reported
 
 
 def parse_reported_submission(value: object) -> ReportedDate:
-    """``source_submitted_at``: zone-less ``YYYY-MM-DDTHH:MM:SS.f``, 1-3 fraction digits."""
+    """``source_submitted_at``: zone-less ``YYYY-MM-DDTHH:MM:SS.f``, 1-6 fraction digits."""
     if value is None:
         return _absent()
     if not isinstance(value, str):
