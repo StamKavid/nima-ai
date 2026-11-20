@@ -101,15 +101,24 @@
   with mandatory attribution; no stated rate limit; decisions carry personal data; Diavgeia
   documents no link back to KIMDIS, but KIMDIS records carry `diavgeiaADA` (already parsed here), so
   the explicit key sits on the KIMDIS side, and Diavgeia types chain by ADA. Owner decision 1
-  (accept for a bounded pilot): **yes**, 2026-11-20. Open: attribution wording, personal-data
-  policy, first decision class, egress allowlist and rate limit. No code until then.
-- [x] Prior art on linking these sources (docs only, follow-up to the dossier): Diavgis (Open
+  (accept for a bounded pilot): **yes**, 2026-11-20. Decisions 2 to 5 recorded as decided on the
+  owner's explicit instruction, 2026-11-20: attribution wording, personal-data rule, "measure first"
+  (the census), and the default request rate with a pilot-only egress entry added in the adapter
+  change. No Diavgeia request and no adapter code until the census has been run and reviewed.
+- [x] Prior art on linking these sources (docs only, follow-up to the dossier; owner merged #161 at
+  `4c6d41f`, exact `5f74cc4` verified on main, hosted run 44742139156 green, `quality` 13 min 10 s):
+  Diavgis (Open
   Contracting registry) links Diavgeia, KIMDIS and TED, and says records of one procurement share
   an `ocid`, but names no keys. Its policy page blocks automated clients, so the owner pasted its
   text and its methodology page (no hash). The methodology says none of its links is confirmed by
   explicit proof today (0% of chains) and that references shared by many acts are not chain links.
   Next: run the two read-only counts in the dossier's "Measure first" on the pilot database. The
   arXiv corpus is Diavgeia-only and the iMEdD article is commentary. Unread leads are listed.
+- [x] Diavgeia link census (`scripts/diavgeia_link_census.py`): a read-only command that counts how
+  many of our own KIMDIS records cite a Diavgeia decision (`diavgeiaADA`) and how many records share
+  each cited decision, reporting counts and public ADA identifiers only. 13 tests, 100% line and
+  branch, nine mutations caught. To be run by the owner on the pilot database before any Diavgeia
+  request; the result decides whether the explicit-key pilot is worth running.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
   Candidate: fetch exactly the ADAs a small KIMDIS cohort cites in `diavgeiaADA` (one by one, with
   their version logs); fallback Δ.2.2 κατακύρωση for one organisation and one window of at most

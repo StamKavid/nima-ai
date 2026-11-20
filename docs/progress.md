@@ -2,8 +2,8 @@
 
 ## Current project and chapter position
 
-Merged main is `8285b24` after #160 (V1-06 step 1, Diavgeia acceptance dossier, docs only),
-including exact `f71435d`. V1-04 is delivered through #159.
+Merged main is `4c6d41f` after #161 (Diavgis prior art and the measurement to run first, docs only),
+including exact `5f74cc4`. The Diavgeia dossier itself is #160; V1-04 is delivered through #159.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
 recovery evolution, contract history and diagnostics earned four points). It has
