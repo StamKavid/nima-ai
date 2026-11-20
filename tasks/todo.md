@@ -18,9 +18,14 @@
   (`quality`, `orchestration-compose`, `source-worker-egress`). 14 tests on PostgreSQL 17 (Linux), 100% line and branch for the
   module, 24 query mutations all caught. Both PRs were merged while their own `quality` jobs were still pending and the
   intermediate main runs were cancelled; the green run above covers their combined head. The census has not been run on real data.
-- [ ] Owner: run `NIMA_DATABASE_URL="<read-only>" uv run python -m scripts.semantic_census --top 20` on the pilot
-  database and share the JSON (counts and shapes only; I cannot: there is no pilot database in the agent
-  environment).
+- [x] Census on real data, first sample (2026-11-20): the earlier pilot database lived in an unreachable ChatGPT
+  sandbox, so a local PostgreSQL was rebuilt from one small bounded KIMDIS capture (4 records, one day, one buyer),
+  under the owner's dated waiver of the home-IP rule for that one capture. Result recorded in
+  `docs/semantics/date-format-measurements.md`: one submission shape `9999-99-99A99:99:99.999`, update date missing,
+  leading-zero tax IDs common.
+- [ ] Wider capture for variety (about 90 days of the same public buyer, plus any other buyers the owner names):
+  needs the owner's explicit approval beyond the one-capture waiver; then rerun the census and add a row to the
+  measurement log.
 - [ ] S2b: from the measured shapes, write failing tests then `src/nima/semantics/timemodel.py` (one parser per
   observed shape, `parsed`/`absent`/`unparseable`, Europe/Athens month, boundary and daylight-saving cases).
 - [ ] S2b: record the measured shape table (numbers only) in `docs/semantics/`; propose any extra placeholder tax-ID

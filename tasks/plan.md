@@ -30,7 +30,8 @@ non-zero digit, `123456789`, leading zero, other length as a length histogram, n
 the supplier country-code counts. It prints no name, tax number, amount, date value or title. Tests on the
 `pg_dsn` fixture with synthetic rows: each class and each shape bucket, the empty database, and an assertion
 that no input value appears in the output; 100% line and branch; each query mutated once to see a test fail.
-Owner step: run it against the pilot database and paste the JSON back.
+Owner step (replaced 2026-11-20): the pilot database is unreachable, so the census ran on a local database rebuilt from
+one small bounded capture; see `docs/semantics/date-format-measurements.md`. A wider capture needs approval.
 
     NIMA_DATABASE_URL="<read-only>" uv run python -m scripts.semantic_census --top 20
 
