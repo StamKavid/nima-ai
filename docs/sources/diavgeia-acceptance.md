@@ -183,24 +183,168 @@ into it through `diavgeiaADA`. Matching that field to a Diavgeia type (Β.1.3 co
 obligation, "ΑΝΑΛΗΨΗ ΥΠΟΧΡΕΩΣΗΣ") is an inference from the names and must be confirmed on real
 records.
 
-## Prior art: who else links these sources (leads only, not yet read)
+**Caution on what a citation proves.** Diavgis's methodology warns that an umbrella reference (an
+annual expenditure approval cited by thousands of acts) is not a link between stages of one
+procurement. Our typed references must keep that distinction: an ADA citation records a reference,
+never by itself a merge. If many KIMDIS records cite one `diavgeiaADA`, that is an umbrella, not a
+one-to-one link, and must not be turned into a single chain.
 
-A web search on 2026-11-20 found the projects below. **Everything here comes from search-result
-snippets and summaries, which are not sources, and none of the pages could be read** because their
-hosts are not on this environment's allowlist. Treat each as a lead to verify.
+## Measure first
 
-| Lead | What it reportedly is | Why it matters |
-|---|---|---|
-| "Greece: Diavgis", <https://data.open-contracting.org/en/publication/161> | An independent project listed in the Open Contracting registry, reported to aggregate Diavgeia, KIMDIS and TED, with natural persons redacted and coverage described as a sample | Closest prior art. Its methodology would show which keys it joins on; the page and its linked documentation are the thing to read |
-| iMEdD Lab, <https://lab.imedd.org/en/?p=9919> | Appeared with Diavgis in results; content unknown | Unread |
-| arXiv 2512.05647, <https://arxiv.org/abs/2512.05647> | A corpus of roughly a million Diavgeia decisions with text extracted from PDFs, linking a GitHub repository | Diavgeia side only; useful for field shapes and scale, not for linking to KIMDIS |
-| "Public spending as LOD: the case of Greece", <https://semantic-web-journal.net/node/464> | An older linked-data effort on Greek public spending | Prior art for a typed-reference model |
-| ΚΥΑ 4968/22-01-2026, new article 6α "Ανοικτά δεδομένα ΚΗΜΔΗΣ", and a later amendment 87338/14-10-2026 (ΦΕΚ Β΄ 6275/16-10-2026) | Reported legal basis for KIMDIS open data | Bears on KIMDIS reuse terms, which this project currently records as CC BY 4.0. The primary FEK text must be read; the search hits were tax-news sites |
-| Vouliwatch and Solomon, "Consultocracy" report (2026) | Reported analysis of KIMDIS contracts 2017-2025 | Evidence that others use KIMDIS at scale; method unread |
+Before any Diavgeia request, count what our own KIMDIS data already contains. Run these on the pilot
+database with a read-only connection. They return counts and ADA identifiers only (no names, tax
+numbers or amounts). The normalized JSON of each KIMDIS record holds its typed references in
+`references`, each with `source_field` and `target_id` (`diavgeia:<ADA>` for `diavgeiaADA`).
 
-What the search did **not** find: any page documenting the keys or field mappings used to join
-KIMDIS, Diavgeia, GEMI and TED. Search summaries described ADA as Diavgeia's identifier and ADAM as
-KIMDIS's; that is a summary's wording, not a verified statement, and it is not used above.
+```sql
+-- 1. How many KIMDIS records cite a Diavgeia decision at all?
+SELECT count(DISTINCT v.source_id) AS kimdis_records,
+       count(DISTINCT v.source_id) FILTER (WHERE r.ref ->> 'source_field' = 'diavgeiaADA')
+         AS cite_a_diavgeia_ada
+FROM nima.record_versions v
+LEFT JOIN LATERAL jsonb_array_elements(v.normalized -> 'references') AS r(ref) ON true
+WHERE v.source_id LIKE 'kimdis:%';
+
+-- 2. How many records share each cited ADA? (a high count means an umbrella, not a 1:1 link)
+SELECT r.ref ->> 'target_id' AS cited_decision,
+       count(DISTINCT v.source_id) AS kimdis_records
+FROM nima.record_versions v
+CROSS JOIN LATERAL jsonb_array_elements(v.normalized -> 'references') AS r(ref)
+WHERE v.source_id LIKE 'kimdis:%' AND r.ref ->> 'source_field' = 'diavgeiaADA'
+GROUP BY 1 ORDER BY 2 DESC LIMIT 20;
+```
+
+How to read the result: if few records cite an ADA, the explicit key is too sparse for the pilot
+and the fallback in decision 4 applies. If most cited ADAs are shared by many records, the key
+points at umbrella decisions and cannot identify a single procurement. If a healthy share cite a
+distinct ADA each, the explicit-key pilot is worth running.
+
+## Prior art: who else links these sources
+
+Read on 2026-11-20 from the original pages (raw HTML archived outside Git; SHA-256 of each below).
+A first web search also produced leads; summaries in search results are not sources and are used
+only to find pages.
+
+**Diavgis**, <https://data.open-contracting.org/en/publication/161> (Open Contracting Partnership
+data registry entry; SHA-256 `d4d1f6b8e801ce719fecb961c6207259e0444e54ac2a50845d88316143ef2009`,
+retrieved by the registry 2026-11-03, read here 2026-11-20). What the page says:
+
+- "an independent project that publishes public procurement data aggregated from three official
+  sources": Diavgeia, KIMDIS and TED, covering planning, tender, award, contract and
+  implementation, as OCDS (the Open Contracting Data Standard), with the OCID prefix `ocds-r3r7e7`.
+- "Records across these sources that belong to the same contracting process are identified and
+  linked together." **That page does not say by which keys or fields.** It points to the project's
+  own publication policy, <https://diavgis.gr/ocds-policy>, described next.
+- Licence CC BY 4.0. Data starts 2026-03-01; coverage is "a large sample rather than a full census";
+  "The details of natural persons are redacted"; four OCDS fields are withheld for a paid service.
+  Counts shown: about 2.56 million parties, 381 thousand tenders, 1.41 million awards, 1.25 million
+  contracts, daily updates.
+- Its own data-quality notes, which are relevant to us: some `parties/id` values are not unique, so
+  organisations cannot always be told apart; all awards and contracts carry status `active`; many
+  releases share one release date; some releases have incoherent dates (for example an award dated
+  after a related contract's signature); and amounts contain extreme outliers.
+
+**Diavgis publication policy, text supplied by the owner on 2026-11-20.** The page answers
+automated clients with a bot challenge (HTTP 403, "Just a moment..."), so it was not fetched here and
+no workaround was attempted; the owner copied its text from a browser. There is no original file or
+hash for it. What it says (Greek, with a gloss):
+
+- Format OCDS 1.1 release packages, OCID prefix `ocds-r3r7e7`, Greece from 2026-03-01, with the
+  pagination extension. It publishes procurement processes from "τα επίσημα ανοικτά δεδομένα της
+  Διαύγειας, του ΚΗΜΔΗΣ και του EU TED" (the official open data of Diavgeia, KIMDIS and EU TED).
+- **"Οι εγγραφές της ίδιας προμήθειας μοιράζονται ένα ocid"**: records of the same procurement
+  share one `ocid`. This is the link, but the page **does not name the keys or fields used to
+  decide that records belong together**. It refers to a "Μεθοδολογία" (methodology) page, not yet
+  seen.
+- Access is free without a key or account, with a request limit per IP address. New records daily;
+  when a source corrects or completes records after publication, "οι αλλαγές δημοσιεύονται ως νέες
+  εγγραφές" (the changes are published as new releases).
+- Personal data: "Δεν δημοσιεύεται ποτέ ΑΦΜ φυσικού προσώπου. Φυσικό πρόσωπο που είναι ανάδοχος
+  εμφανίζεται με όνομα και ψευδώνυμο αναγνωριστικό· τα υπόλοιπα προσωπικά δεδομένα παραλείπονται"
+  (a natural person's tax number is never published; a natural person who is a contractor appears
+  with a name and a pseudonymous identifier; other personal data is omitted). This is a useful
+  precedent for our own personal-data policy.
+- "Τα δεδομένα αποδίδουν τις πηγές όπως δημοσιεύονται": the data reproduces sources as published,
+  so source errors in amounts or dates can appear here too. Licence CC BY 4.0, credit "Diavgis,
+  https://diavgis.gr".
+
+**Diavgis methodology page, text supplied by the owner on 2026-11-20** (same caveats: not fetched
+here, no original file or hash). What it says:
+
+- The headline figure reads "0% αλυσίδες με ρητή απόδειξη" (0% of chains with explicit proof), and
+  the text: "Σήμερα 0% των αλυσίδων στηρίζονται σε επιβεβαιωμένη αντιστοίχιση, όχι σε εκτίμηση"
+  (today 0% of chains rest on a confirmed match, not on an estimate). The stages of one procurement
+  are published "σε διαφορετικά μητρώα και χωρίς κοινό αναγνωριστικό" (in different registers and
+  without a common identifier). Each link carries a degree of certainty shown on the chain page.
+  **The text supplied does not describe how the estimate is made.**
+- What it does **not** join: administrative umbrellas such as an annual "Έγκριση Δαπάνης"
+  (expenditure approval) that thousands of acts of one body can cite. "μια αναφορά που τη μοιράζονται
+  πολλές πράξεις δεν δημιουργεί αλυσίδα" (a reference shared by many acts does not create a chain);
+  it stays visible as a directly linked act.
+- Spend is counted once per chain, and tender budgets are estimates, not spend. Amounts pass an
+  automatic plausibility check because sources contain typing errors (a figure a thousand times too
+  large); extreme ones are checked on the original document.
+- Indicators are neutral published facts (single-bidder awards, awards just under the Law 4412
+  thresholds, repeated identical amounts, direct awards, cancellations), with a minimum volume. The
+  near-threshold ones use KIMDIS only, "γιατί μόνο εκεί δημοσιεύεται το καθαρό ποσό χωριστά από το
+  ποσό με ΦΠΑ" (because only there is the net amount published separately from the amount with VAT).
+- Stated limits: natural persons appear only as contractors and their tax number is never
+  published. Diavgeia names a contractor in 62% of assignments and KIMDIS in 99%; "Το κενό είναι της
+  δημοσίευσης, όχι της ανάλυσης" (the gap is in publication, not in analysis): the field is empty at
+  source. These figures are the project's own and were not checked. The page also shows a count of
+  acts withheld for GDPR that appears as 0 in the pasted text; it is not relied on.
+
+**Diavgis "API & MCP" page, text supplied by the owner on 2026-11-20** (same caveats: not fetched
+here, no original file or hash; it is the project's own product page, so its claims are the
+project's). What it says:
+
+- The same data is offered four ways: a REST API at `api.diavgis.gr/v1` (free account and key, with
+  plans and limits), an MCP server for AI agents (`mcp.diavgis.gr`), a keyless OCDS 1.1 feed at
+  `api.diavgis.gr/ocds`, and Parquet files on Hugging Face (acts, suppliers, CPV codes, entities and
+  **chains**), all CC BY 4.0 from 2026-03-01.
+- Its sample record keys an act by an identifier shaped like an ADA (not verified as one) and carries
+  `kind`, buyer and supplier tax numbers and names, net amount, primary CPV, NUTS region, issue
+  date, `source` (here `diavgeia`) and a `source_url` back to the original. A separate call returns
+  an act's "parties, CPVs and its whole chain".
+- The page invites AI agents to use its key, its MCP server and its `llms.txt`. None of that is
+  used here: it is third-party content, and connecting an agent to an outside service or creating an
+  account is the owner's decision, not part of this research.
+
+**A cross-check option, not yet taken.** Diavgis's published chains could be compared with the links
+our own records make, on a small sample, to see where the two agree. That would need the owner's
+approval of the attribution wording and of a network host for the keyless feed or the dataset, and
+the comparison would use it as an oracle with known errors, never as a source of truth.
+
+**What this means.** Someone has already built a three-source linked dataset, so the idea is
+feasible and Diavgis is a possible cross-check. But by its own account **its links are estimates,
+none confirmed by explicit proof, because the registers share no common identifier**. Our KIMDIS
+parser reads an explicit `diavgeiaADA` field. Either that field is rarely filled or unreliable
+(which would explain why Diavgis does not treat it as proof), or Diavgis does not use it. This is
+the most important thing to measure before building anything (next section). Three further lessons:
+a reference shared by many records is not a link between stages of one procurement; a contractor's
+tax number is missing in a large share of Diavgeia assignments, so joins on it will miss many; and
+Diavgis's non-unique party identifiers and its "all active" status support our rules that a tax
+number is a grouping key and not an identity, and that we track revocation ourselves (see the
+version log above). It is a derived product with its own errors: it should be compared with, never
+used as a source of truth.
+
+**Others, read 2026-11-20 (not linking projects):**
+
+- arXiv 2512.05647, <https://arxiv.org/abs/2512.05647> (SHA-256
+  `6530296f3559b4ab309e63005fd8ff6bfd05de9f555fdfdb964e49923d77a73a`): a corpus of one million
+  Diavgeia decisions with text extracted from PDFs and an extraction pipeline. The abstract mentions
+  no KIMDIS link. Whether it names a code repository is unverified (none was found in the page).
+- iMEdD Lab, "The slow death of open data in Greece", <https://lab.imedd.org/en/the-slow-death-of-open-data-in-greece/>
+  (SHA-256 `c744b9db76a6483230ee62469209dd7b11695461ac87dfee452d7da0598bf5c9`): policy commentary
+  on open data. It quotes a ministry statement that KIMDIS then had no API; that is older context
+  and says nothing about linking.
+
+**Still unread leads (found by search, pages not opened):** the Open Contracting entry's linked
+tutorials; "Public spending as LOD: the case of Greece" (<https://semantic-web-journal.net/node/464>);
+the joint decision ΚΥΑ 4968/22-01-2026 adding article 6α "Ανοικτά δεδομένα ΚΗΜΔΗΣ", and a later
+amendment 87338/14-10-2026 (ΦΕΚ Β΄ 6275/16-10-2026), which bear on KIMDIS reuse terms (this project
+records CC BY 4.0) and need the primary gazette text; the Vouliwatch and Solomon "Consultocracy"
+report on KIMDIS 2017-2025.
 
 ## Not verified (explicitly)
 
@@ -211,8 +355,8 @@ KIMDIS's; that is a summary's wording, not a verified statement, and it is not u
 5. Whether revoked decisions keep their documents available.
 6. Whether any decision type links explicitly to a KIMDIS identifier, in metadata or in PDF text.
 7. Real response shapes: this dossier read documentation and sample JSON, not live responses.
-8. Anything in the prior-art table: none of those pages were read.
-9. What KIMDIS officially says `diavgeiaADA` refers to, and how often it is filled.
+8. How Diavgis estimates its links: its policy and methodology texts (both supplied by the owner) say that records of one procurement share an `ocid` and that 0% of links are confirmed by explicit proof, but they do not describe the matching method. Its 62% and 99% contractor-named figures were not checked. The leads listed as unread remain unread.
+9. What KIMDIS officially says `diavgeiaADA` refers to, how often it is filled and whether its ADAs are shared by many records (the counts in "Measure first" answer the last two).
 
 ## Decisions for the owner
 
@@ -222,13 +366,19 @@ KIMDIS's; that is a summary's wording, not a verified statement, and it is not u
    and set its wording. Recommended: accept.
 3. **Personal data.** Choose what is retained about natural persons (names, tax numbers, document
    text), how long, and who may see it. Recommended: archive originals privately, keep fixtures
-   synthetic, and project supplier tax numbers only for legal entities until a policy exists.
+   synthetic, and project supplier tax numbers only for legal entities until a policy exists. This
+   matches the practice Diavgis states: no natural-person tax numbers, individual contractors by name
+   with a pseudonymous identifier.
 4. **First decision class and how it is found.** Revised recommendation: take the ADAs that KIMDIS
    records already cite in `diavgeiaADA` for one small KIMDIS cohort, and fetch exactly those
    decisions one by one with `GET /decisions/:ada` (and their `versionlog`). That tests the
    explicit KIMDIS-to-Diavgeia key end to end, avoids search paging and window rules, keeps the
    run small enough to review by hand, and touches only decisions we already have a reason to
    read. Δ.2.2 by organisation and window remains the fallback if too few records carry the field.
+   Because Diavgis reports that none of its own links is confirmed by explicit proof, **run the two
+   counts in "Measure first" before choosing**: if the field is sparse, or its ADAs are shared by
+   many records, the explicit-key pilot loses most of its value and this choice is revisited
+   before anything is fetched.
 5. **Network.** A pilot needs `diavgeia.gov.gr` on the source worker's egress allowlist and a rate
    limit the owner chooses. Nothing is fetched until you approve both.
 
