@@ -93,15 +93,24 @@
     run with its request, which had no test before N2 for query, limits or archive root). One
     `text()` helper became unreachable and was removed. Full gates, draft PR and hosted proof
     follow.
-- [x] V1-06 step 1, Diavgeia acceptance dossier (`docs/sources/diavgeia-acceptance.md`): read the
-  official API documentation and terms of use on 2026-11-20 (originals archived outside Git with
-  hashes), nothing from memory, no search or data endpoint called. Findings: CC BY 4.0 plus Law
-  3448/2006 with mandatory attribution; no stated rate limit; no documented link to any KIMDIS
-  identifier (cross-source joins stay signals); decisions carry personal data. Seven items are
-  listed as unverified. Awaiting owner decisions on acceptance, attribution, personal data, the
-  first decision class and the egress allowlist. No code until then.
+- [x] V1-06 step 1, Diavgeia acceptance dossier (`docs/sources/diavgeia-acceptance.md`): owner
+  merged #160 at `8285b24`; exact `f71435d` verified on main (tree identical). Hosted run
+  44723790870 passed all three jobs (`quality` 9 min 35 s). Read from the official API
+  documentation and terms of use on 2026-11-20 (originals archived outside Git with hashes),
+  nothing from memory, no search or data endpoint called. Findings: CC BY 4.0 plus Law 3448/2006
+  with mandatory attribution; no stated rate limit; decisions carry personal data; Diavgeia
+  documents no link back to KIMDIS, but KIMDIS records carry `diavgeiaADA` (already parsed here), so
+  the explicit key sits on the KIMDIS side, and Diavgeia types chain by ADA. Owner decision 1
+  (accept for a bounded pilot): **yes**, 2026-11-20. Open: attribution wording, personal-data
+  policy, first decision class, egress allowlist and rate limit. No code until then.
+- [x] Prior art on linking these sources (docs only, follow-up to the dossier): Diavgis (Open
+  Contracting registry) links Diavgeia, KIMDIS and TED, but its page names no keys and its policy
+  page is behind a bot challenge, so its method is unread and no workaround was attempted. The
+  arXiv corpus is Diavgeia-only and the iMEdD article is commentary. Unread leads are listed.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
-  Candidate: Diavgeia Δ.2.2 κατακύρωση for one organisation and one window of at most 180 days.
+  Candidate: fetch exactly the ADAs a small KIMDIS cohort cites in `diavgeiaADA` (one by one, with
+  their version logs); fallback Δ.2.2 κατακύρωση for one organisation and one window of at most
+  180 days. First measure how many KIMDIS records carry `diavgeiaADA`.
 
 ## V1-03 O3f — evidence TRUNCATE guards
 
