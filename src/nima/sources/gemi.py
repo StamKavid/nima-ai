@@ -97,6 +97,13 @@ def _integer(value: object) -> int | None:
     return value
 
 
+def _registry_id(value: object) -> int | None:
+    """The schema declares an integer; the live API sends a canonical decimal string."""
+    if isinstance(value, str) and value.isascii() and value.isdecimal() and value[0] != "0":
+        return int(value)
+    return _integer(value)
+
+
 def _boolean(value: object) -> bool | None:
     if value is not None and not isinstance(value, bool):
         raise ValueError
@@ -151,13 +158,16 @@ def normalize_profile(raw: bytes, expected_id: str) -> RegistryCompany:
         )
     except (ValueError, RecursionError, DecimalException):
         raise InvalidProfile("json") from None
-    number = obj.get("arGemi")
-    if type(number) is not int or number <= 0 or str(number) != expected:
+    try:
+        number = _registry_id(obj.get("arGemi"))
+    except ValueError:
+        raise InvalidProfile("/arGemi") from None
+    if number is None or number <= 0 or str(number) != expected:
         raise InvalidProfile("/arGemi")
     fields = {
         name: _field(obj, source, "", converter)
         for name, source, converter in (
-            ("registry_number", "arGemi", _integer),
+            ("registry_number", "arGemi", _registry_id),
             ("reported_afm", "afm", _text),
             ("name_el", "coNameEl", _text),
             ("names_en", "coNamesEn", _aliases),

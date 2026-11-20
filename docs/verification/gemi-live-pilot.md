@@ -1,14 +1,42 @@
 # GEMI access and pilot runbook
 
-Update, 2026-11-20: a personal key now exists (kept in the owner's untracked `.env`,
-never recorded here). From the owner's Windows shell, `GET /health` returned HTTP 200
-and `GET /companies?name=COSMOTE&resultsSize=1` returned HTTP 200 with a
-`searchResults` list; this confirms the `api_key` header form. The first response
-without the key returned 401 `No API key found in request`. No collector run has
-happened yet: the archive code needs Linux and Docker was not running. Observed
-profile traits to handle: activities repeat per KAD revision (`kad_2008`, `kad_2026`)
-with date ranges, profiles carry `persons` (personal data) and `branch` registry
-numbers. The first collector pilot ID is `1037501000`.
+Update, 2026-11-20: first authenticated collector pilot, run on Linux (Docker, since the
+archive code does not run on Windows). Registry number `1037501000` (OTE, chosen because it is the
+number the earlier public-key attempt used and a large, well-known listed company). The key is kept
+in the owner's untracked `.env` and is never recorded here.
+
+| Item | Result |
+|---|---|
+| Smoke checks | `GET /health` HTTP 200; `GET /companies?name=COSMOTE&resultsSize=1` HTTP 200 |
+| Run `fe6b918a98d14655937d5462808cce64` | complete; requested 1, found 1, not found 0, quarantined 0, attempts 1; exit 0 |
+| Limits recorded | 8 requests/minute, 60 s request timeout, 300 s run budget, 3 attempts |
+| Versions | connector `gemi-profile-v1`, normalizer `gemi-company-v1`; licence ODC-BY-1.0 |
+| Body | HTTP 200, 95,040 bytes, complete; SHA-256 recorded in the private manifest |
+| Archive check | `verify_run` passed: original bytes re-parsed, 1 response, 1 observation |
+| Normalized record | 14 scalar fields, each with a JSON pointer, plus 166 activity rows |
+| KAD coverage | 88 rows `kad_2026`, 78 rows `kad_2008`; 88 open-ended; 149 distinct codes |
+| Personal data | `persons`, `capital`, `stocks` and `branch` are not kept in the normalized record |
+
+Findings from this pilot, each fixed or recorded:
+
+1. **Timeout.** The first run failed `retry_exhausted`: all three attempts hit the 20 s client
+   timeout with a transport error. A direct request showed the server needed about 29 s to the
+   first byte and 33 s in total for this profile. The default and ceiling are now 60 s.
+2. **Registry number type.** The second run was quarantined at `/arGemi`: the live API sends
+   `"arGemi": "1037501000"` as a string, although the published Swagger schema declares an
+   integer. The parser now accepts an integer or a canonical decimal string (ASCII digits, no
+   leading zero, equal to the requested number). The original quarantined body was kept as
+   evidence and its stored SHA-256 matched the received bytes.
+3. **Rate limit.** The provider allows 8 requests/minute; the client now defaults to and is
+   capped at 8.
+4. **Duplicate KAD rows.** Activities repeat per KAD revision with date ranges. Any KAD logic must
+   key on code and version together.
+5. **Not covered by this pilot.** One company only; no 404 or 429 live case; no import into
+   PostgreSQL; no KIMDIS comparison. Profile-path compatibility is established for one large
+   company, not for the registry.
+
+Raw responses, manifest and normalized rows stay in the private archive outside Git
+(`data/` is ignored). They include named individuals and must not be copied into issues or PRs.
 
 Status, 2026-11-10: PR #18 is merged (`2fc4f40`). The personal-key collector pilot
 is pending. The user submitted the application; no NIMA_GEMI_API_KEY is configured.

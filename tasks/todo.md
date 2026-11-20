@@ -888,6 +888,7 @@ the active scope and approval status are recorded above.
 - [x] Verify merged PR #18 and document official trial/access and offline pilot steps.
 - [x] Configure a personal key after provider approval (received 2026-11-20; kept in untracked `.env`).
 - [ ] Select 1–3 registry numbers and reconcile a credentialed small pilot.
+  - 2026-11-20: first live profile (`1037501000`) collected, verified and normalized; see the pilot doc. Still open: more IDs, 404/429 cases, PostgreSQL import and the KIMDIS comparison.
   - Evidence: documented public test-key request returned HTTP 401 on 2026-11-10;
     no accepted live profile or personal-key compatibility is established.
   - Runbook: docs/verification/gemi-live-pilot.md; no key is needed for offline export checks.

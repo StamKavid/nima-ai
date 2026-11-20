@@ -28,7 +28,7 @@ class GemiLimits:
     max_attempts: int = 3
     max_bytes: int = MAX_BODY
     requests_per_minute: float = 8
-    request_timeout: float = 20
+    request_timeout: float = 60
     run_timeout: float = 300
     max_retry_delay: float = 60
 
@@ -38,7 +38,7 @@ class GemiLimits:
                 raise ValueError("Invalid GEMI count/byte budget")
         for duration, time_ceiling in (
             (self.requests_per_minute, 8),
-            (self.request_timeout, 20),
+            (self.request_timeout, 60),
             (self.run_timeout, 300),
             (self.max_retry_delay, 60),
         ):

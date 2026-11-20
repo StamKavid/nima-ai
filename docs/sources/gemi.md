@@ -140,7 +140,7 @@ URLs. Set `Accept-Encoding: identity`; reject unsupported compression and enforc
 the body bound while streaming. Archive complete error bodies as evidence too;
 incomplete bodies must not be presented as completed source objects.
 
-Client defaults: 8 requests/minute (7.5 seconds between requests), at most 3 attempts per ID, 20-second HTTP
+Client defaults: 8 requests/minute (7.5 seconds between requests), at most 3 attempts per ID, 60-second HTTP
 inactivity timeout, 8 MiB per body, 300-second cooperative run budget and maximum
 60-second retry wait. Retry only transient transport failures, 429 and selected
 5xx statuses. Honor Retry-After; if it exceeds remaining/wait budgets, stop with

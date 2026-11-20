@@ -72,7 +72,12 @@ def test_unknowns_empty_lists_and_raw_only_properties_stay_distinct() -> None:
     [
         {"arGemi": True},
         {"arGemi": 0},
-        {"arGemi": "1"},
+        {"arGemi": "01"},
+        {"arGemi": " 1"},
+        {"arGemi": "+1"},
+        {"arGemi": "١"},
+        {"arGemi": "2"},
+        {"arGemi": ""},
         {"arGemi": 2},
         {"afm": 1234567},
         {"coNamesEn": [3]},
@@ -126,3 +131,12 @@ def test_body_budget_and_alias_limit_do_not_silently_truncate(
     monkeypatch.setattr("nima.sources.gemi.MAX_BODY", 1)
     with pytest.raises(InvalidProfile, match="body_size"):
         normalize_profile(profile(), "1")
+
+
+def test_live_profile_reports_the_registry_number_as_a_decimal_string() -> None:
+    # Observed on 2026-11-20: the live API sends "arGemi": "1037501000", although the
+    # published Swagger schema declares an integer. Both forms are accepted.
+    as_string = normalize_profile(profile(**{"arGemi": "1037501000"}), "1037501000")
+    as_integer = normalize_profile(profile(1037501000), "1037501000")
+    assert as_string.fields["registry_number"].value == 1037501000
+    assert as_string.fields["registry_number"].value == as_integer.fields["registry_number"].value
