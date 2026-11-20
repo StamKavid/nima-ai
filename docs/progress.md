@@ -2,8 +2,8 @@
 
 ## Current project and chapter position
 
-Merged main is `53b53ad` after #156 (V1-04 S3 engine on the adapter protocol), including exact
-`0548870`.
+Merged main is `0945918` after #157 (V1-04 S4 two synthetic sources), including exact
+`645f75f`.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
 recovery evolution, contract history and diagnostics earned four points). It has
@@ -76,7 +76,7 @@ main and dev and `quality` has 20 minutes. Its own hosted run 44600852305 was th
 that head and `quality` took 15 min 23 s, which would have exceeded the old limit. Headroom is
 about 4.6 minutes, so parallel tests are the next option if a run passes about 18 minutes.
 
-## V1-04: source boundaries for a second feed (S1-S3 delivered, S4 in review)
+## V1-04: source boundaries for a second feed (S1-S4 delivered, S5 gated)
 
 The owner approved [the spec](../SPEC-source-boundaries.md). Slice S1 (#154, merged at
 `d3b0e90`, hosted run 44606219260) added an import-graph check with a committed shrink-only
@@ -90,13 +90,12 @@ the adapter protocol, with KIMDIS the default via a small registry. Before the c
 collections were fingerprinted (every database row, the archive sidecar files and the replay
 artifact) and pinned; the same pins pass on the moved engine, so no stored or archived byte
 changed. The three KIMDIS engine-to-source imports are removed from the dependency baseline; the
-three GEMI ones remain. Slice S4 (candidate, local proof only) proves the protocol with two test-only synthetic
+three GEMI ones remain. Slice S4 (#157, merged at `0945918`, hosted run 44692930584) proves the protocol with two test-only synthetic
 sources of different shape (text with decimal-comma money and line evidence; cursor-paged
 nested JSON with minor-unit money). The real collect, resume, replay and quarantine paths pass
 unchanged for KIMDIS and both, with no engine change. It also found that the archive manifest
 records KIMDIS provenance for any adapter; that is recorded as a prerequisite for S5, a real
-second dataset, which stays gated until the owner names one. Candidate code earns no progress
-credit until reviewed and delivered.
+second dataset, which stays gated until the owner names one.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 

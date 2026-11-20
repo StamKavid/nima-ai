@@ -29,8 +29,11 @@
   page had one record, so a multi-record scenario was added and its pin recorded from the old
   engine in a separate worktree. Known limits: the HTTP transport is still KIMDIS-specific, replay still labels its archive
   layout `kimdis`, and the three GEMI imports stay in the baseline.
-- [x] S4 two synthetic adapters of different shape; conformance on all three (local; hosted
-  exact-head proof and review pending). Test-only `ledger` (semicolon text, decimal-comma money,
+- [x] S4 two synthetic adapters of different shape; conformance on all three: owner merged
+  #157 at `0945918`; exact `645f75f` verified on main (tree identical). Hosted run 44692930584
+  was the only run on that head and passed all three jobs (`quality` 16 min 27 s, the longest so
+  far; parallel tests become the next option if a run nears 18 minutes). Local suite 3017
+  passed, 59 failed (the unchanged PG16 environment baseline). Test-only `ledger` (semicolon text, decimal-comma money,
   `L-0001` ids, line-number evidence) and `events` (nested JSON, cursor paging, integer minor
   units with per-currency exponents, composite ids); neither is registered, so no product code
   or engine file changed. Parser conformance now runs 11 shared tests on all three adapters, and
