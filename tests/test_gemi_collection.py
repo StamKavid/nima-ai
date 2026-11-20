@@ -90,6 +90,7 @@ def test_invalid_inputs_precede_archive_or_http(
         lambda: GemiLimits(requests_per_minute=9),
         lambda: GemiLimits(run_timeout=float("nan")),
         lambda: GemiLimits(request_timeout=True),
+        lambda: GemiLimits(request_timeout=61),
         lambda: GemiLimits(max_retry_delay=-1),
     ],
 )
@@ -297,3 +298,13 @@ def test_small_stream_chunks_cannot_hide_elapsed_run_budget(tmp_path: Path) -> N
         )
     assert result.failure == "time_budget" and clock.elapsed == 6
     assert not list((tmp_path / "raw" / "objects").glob("*/*.body"))
+
+
+def test_default_timeout_covers_the_slowest_observed_live_profile() -> None:
+    # A live OTE profile took 29 s to first byte and 33 s in total (2026-11-20).
+    limits = GemiLimits()
+    assert limits.request_timeout == 60
+    assert (
+        limits.max_attempts * limits.request_timeout + 60 / limits.requests_per_minute
+        < limits.run_timeout
+    )
