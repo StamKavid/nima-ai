@@ -23,6 +23,7 @@ class SourcePageError(ValueError):
 @dataclass(frozen=True)
 class NormalizedRecord:
     index: int  # position of the record in the source page
+    evidence_pointer: str  # source-defined locator of the record inside the archived response
     source_id: str  # namespaced, for example "kimdis:<reference>"
     content_sha256: str  # hash of the parsed source content of this record only
     normalized: Mapping[str, object]  # JSON-ready; money as exact decimal text, never float
@@ -31,6 +32,7 @@ class NormalizedRecord:
 @dataclass(frozen=True)
 class PageIssue:
     index: int
+    evidence_pointer: str
     reason: str  # fixed text; never copies source content
 
 
@@ -42,9 +44,17 @@ class NormalizedPage:
     total_pages: int
     last: bool
     record_count: int
+    response_sha256: str  # hash of the archived response bytes the pointers refer to
     records: tuple[NormalizedRecord, ...]
     issues: tuple[PageIssue, ...]
     source_ids: tuple[str, ...]  # identifiers seen on the page, including quarantined records
+    record_hashes: tuple[str, ...]  # content hash of every record on the page, by index
+
+
+class PayloadSource(Protocol):
+    """Anything that can describe its request as a JSON payload (for example a run's query)."""
+
+    def payload(self) -> dict[str, object]: ...
 
 
 class SourceAdapter(Protocol):

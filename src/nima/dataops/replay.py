@@ -2,10 +2,10 @@
 
 import hashlib
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import cast
+from typing import Literal, cast
 from uuid import UUID
 
 import psycopg
@@ -21,12 +21,15 @@ from nima.graph.pilot_archive import (
 )
 from nima.identity import AssessmentError
 from nima.identity.artifacts import encode, publish
-from nima.ingestion.config import CONNECTOR_VERSION
-from nima.sources.kimdis import InvalidRecord, normalize_page
+from nima.sources.base import SourceAdapter, SourcePageError
+from nima.sources.registry import default_adapter
 from nima.storage.connection import connect
-from nima.storage.postgres import NORMALIZER_VERSION, MigrationError, validate_schema
+from nima.storage.postgres import MigrationError, validate_schema
 
 MAX_RECORDS = 5000
+# The pilot-archive recovery is typed by archive layout, not by source. Every adapter that
+# writes through the page store shares the layout it labels "kimdis"; widening it is later.
+PAGE_ARCHIVE: Literal["kimdis"] = "kimdis"
 
 
 class ReplayError(ValueError):
@@ -55,7 +58,9 @@ class CapturedPage:
     record_count: int
 
 
-def _snapshot(dsn: str, run_id: UUID) -> tuple[dict[str, object], tuple[CapturedPage, ...]]:
+def _snapshot(
+    dsn: str, run_id: UUID, adapter: SourceAdapter
+) -> tuple[dict[str, object], tuple[CapturedPage, ...]]:
     with connect(dsn) as connection, connection.transaction():
         connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
         connection.execute("SET LOCAL TIME ZONE 'UTC'")
@@ -67,7 +72,7 @@ def _snapshot(dsn: str, run_id: UUID) -> tuple[dict[str, object], tuple[Captured
         ).fetchone()
         if row is None:
             raise ReplayError("replay_scope")
-        if row[1] != CONNECTOR_VERSION:
+        if row[1] != adapter.connector_version:
             raise ReplayError("replay_source")
         if not isinstance(row[2], str) or not row[2].strip():
             raise ReplayError("replay_scope")
@@ -125,12 +130,15 @@ def _snapshot(dsn: str, run_id: UUID) -> tuple[dict[str, object], tuple[Captured
 
 
 def _dataset(
-    run: dict[str, object], pages: tuple[CapturedPage, ...], bodies: dict[str, bytes]
+    run: dict[str, object],
+    pages: tuple[CapturedPage, ...],
+    bodies: dict[str, bytes],
+    adapter: SourceAdapter,
 ) -> tuple[dict[str, object], int, int]:
     results = []
     normalized_count = quarantined_count = 0
     for stored in pages:
-        page = normalize_page(bodies[stored.raw_sha256])
+        page = adapter.normalize_page(bodies[stored.raw_sha256])
         if (
             page.number != stored.number
             or page.record_count != stored.record_count
@@ -139,34 +147,27 @@ def _dataset(
         ):
             raise ReplayError("replay_scope")
         records: list[dict[str, object]] = []
-        for contract in page.contracts:
-            value = asdict(contract)
-            del value["evidence"]
-            for field in ("net_amount", "gross_amount"):
-                if value[field] is not None:
-                    value[field] = str(value[field])
-            index = int(contract.evidence.json_pointer.rsplit("/", 1)[1])
+        for record in page.records:
             records.append(
                 {
-                    "record_index": index,
-                    "json_pointer": contract.evidence.json_pointer,
-                    "content_sha256": page.record_hashes[index],
+                    "record_index": record.index,
+                    "json_pointer": record.evidence_pointer,
+                    "content_sha256": page.record_hashes[record.index],
                     "status": "normalized",
-                    "normalized": value,
+                    "normalized": dict(record.normalized),
                 }
             )
         for issue in page.issues:
-            index = int(issue.evidence.json_pointer.rsplit("/", 1)[1])
             records.append(
                 {
-                    "record_index": index,
-                    "json_pointer": issue.evidence.json_pointer,
-                    "content_sha256": page.record_hashes[index],
+                    "record_index": issue.index,
+                    "json_pointer": issue.evidence_pointer,
+                    "content_sha256": page.record_hashes[issue.index],
                     "status": "quarantined",
                     "reason": issue.reason,
                 }
             )
-        normalized_count += len(page.contracts)
+        normalized_count += len(page.records)
         quarantined_count += len(page.issues)
         results.append(
             {
@@ -179,11 +180,11 @@ def _dataset(
         )
     return (
         {
-            "artifact_version": "kimdis-archive-replay-v1",
-            "source": "kimdis.contract",
+            "artifact_version": f"{adapter.name}-archive-replay-v1",
+            "source": f"{adapter.name}.contract",
             "scope": "committed_pages_only",
             "source_run": run,
-            "normalizer_version": NORMALIZER_VERSION,
+            "normalizer_version": adapter.normalizer_version,
             "pages": results,
         },
         normalized_count,
@@ -200,8 +201,11 @@ class CapturedSource:
     bodies: dict[str, bytes]
 
 
-def read_capture(dsn: str, run_id: UUID, archive_root: Path) -> CapturedSource:
+def read_capture(
+    dsn: str, run_id: UUID, archive_root: Path, adapter: SourceAdapter | None = None
+) -> CapturedSource:
     """Read one bounded committed capture for replay or independent projections."""
+    source = adapter if adapter is not None else default_adapter()
     if (
         not isinstance(dsn, str)
         or not dsn.strip()
@@ -213,12 +217,12 @@ def read_capture(dsn: str, run_id: UUID, archive_root: Path) -> CapturedSource:
     ):
         raise ReplayError("replay_input")
     try:
-        run, pages = _snapshot(dsn, run_id)
+        run, pages = _snapshot(dsn, run_id, source)
         if not pages:
             raise ReplayError("replay_empty")
         recovered = recover(
-            tuple(RawReference("kimdis", run_id, p.raw_sha256) for p in pages),
-            (ArchiveBinding("kimdis", run_id, archive_root),),
+            tuple(RawReference(PAGE_ARCHIVE, run_id, p.raw_sha256) for p in pages),
+            (ArchiveBinding(PAGE_ARCHIVE, run_id, archive_root),),
         )
         bodies = {obj.raw_sha256: obj.body for obj in recovered.objects}
         if {digest: len(raw) for digest, raw in bodies.items()} != {
@@ -234,20 +238,27 @@ def read_capture(dsn: str, run_id: UUID, archive_root: Path) -> CapturedSource:
         raise ReplayError(
             "replay_limit" if error.reason == "pilot_limit" else "replay_evidence"
         ) from None
-    except (OSError, InvalidRecord):
+    except (OSError, SourcePageError):
         raise ReplayError("replay_evidence") from None
 
 
 def prepare_replay(
-    dsn: str, run_id: UUID, archive_root: Path, normalizer_version: str
+    dsn: str,
+    run_id: UUID,
+    archive_root: Path,
+    normalizer_version: str,
+    adapter: SourceAdapter | None = None,
 ) -> tuple[bytes, Replay]:
     """Freeze and verify a canonical replay without publishing or writing SQL."""
-    if not isinstance(normalizer_version, str) or normalizer_version != NORMALIZER_VERSION:
+    source = adapter if adapter is not None else default_adapter()
+    if not isinstance(normalizer_version, str) or normalizer_version != source.normalizer_version:
         raise ReplayError("replay_version")
-    capture = read_capture(dsn, run_id, archive_root)
+    capture = read_capture(dsn, run_id, archive_root, source)
     try:
-        value, normalized, quarantined = _dataset(capture.run, capture.pages, capture.bodies)
-    except InvalidRecord:
+        value, normalized, quarantined = _dataset(
+            capture.run, capture.pages, capture.bodies, source
+        )
+    except SourcePageError:
         raise ReplayError("replay_evidence") from None
     pages = capture.pages
     try:

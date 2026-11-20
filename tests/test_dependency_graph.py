@@ -252,3 +252,28 @@ def test_module_entry_point_exits_with_the_check_result(
     with pytest.raises(SystemExit) as checked:
         runpy.run_module("scripts.dependency_graph", run_name="__main__")
     assert checked.value.code == 0
+
+
+def test_engine_modules_no_longer_import_the_kimdis_source() -> None:
+    """S3 moved the page store, collector and replay onto the adapter protocol. Only the GEMI
+    edges (a separate flow) may remain in the baseline."""
+    baseline = json.loads(BASELINE.read_text())
+    targets = {edge[1] for edge in baseline["forbidden_edges"]}
+    assert targets <= {"nima.sources.gemi"}, sorted(targets)
+    graph = dg.build_graph(REPO / "src")
+    importers = {m for m, deps in graph.items() if "nima.sources.kimdis" in deps}
+    engine = ("nima.storage", "nima.ingestion", "nima.dataops.replay", "nima.projections")
+    assert not [m for m in importers if m.startswith(engine)], sorted(importers)
+
+
+def test_the_registry_and_base_are_the_only_source_modules_an_engine_module_may_import() -> None:
+    graph = {
+        "nima.storage.postgres": frozenset(
+            {"nima.sources.base", "nima.sources.registry", "nima.sources.gemi"}
+        ),
+        "nima.projections.worker": frozenset({"nima.sources.kimdis_contracts"}),
+    }
+    assert dg.forbidden_edges(graph) == [
+        ("nima.projections.worker", "nima.sources.kimdis_contracts"),
+        ("nima.storage.postgres", "nima.sources.gemi"),
+    ]

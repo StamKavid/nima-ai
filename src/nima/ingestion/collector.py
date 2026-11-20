@@ -10,9 +10,16 @@ import httpx
 import psycopg
 
 from nima.ingestion.archive import Archive, ArchiveError
-from nima.ingestion.config import CONNECTOR_VERSION, ENDPOINT, SOURCE, Limits, Query, Summary
+from nima.ingestion.config import ENDPOINT, SOURCE, Limits, Query, Summary
 from nima.ingestion.transport import Clock, CollectionStopped, Session, SystemClock, retry_delay
-from nima.sources.kimdis import InvalidRecord, Page, normalize_page
+from nima.sources.base import (
+    NormalizedPage,
+    NormalizedRecord,
+    PageIssue,
+    SourceAdapter,
+    SourcePageError,
+)
+from nima.sources.registry import default_adapter
 from nima.storage.postgres import CheckpointError, check_schema
 from nima.storage.runs import RunBusy, RunStore
 
@@ -39,6 +46,19 @@ def _run_boundary(run_id: str) -> Iterator[None]:
         raise RunError(run_id, "database") from None
 
 
+def _evidence(page: NormalizedPage, pointer: str) -> dict[str, str]:
+    return {"response_sha256": page.response_sha256, "json_pointer": pointer}
+
+
+def _normalized_row(page: NormalizedPage, record: NormalizedRecord) -> dict[str, object]:
+    """The archive's normalized.jsonl row: the stored record followed by its evidence."""
+    return {**record.normalized, "evidence": _evidence(page, record.evidence_pointer)}
+
+
+def _issue_row(page: NormalizedPage, issue: PageIssue) -> dict[str, object]:
+    return {"reason": issue.reason, "evidence": _evidence(page, issue.evidence_pointer)}
+
+
 def collect(
     query: Query,
     limits: Limits,
@@ -49,6 +69,7 @@ def collect(
     database_dsn: str | None = None,
     resume_id: UUID | None = None,
     attempt_guard: Callable[[], None] | None = None,
+    adapter: SourceAdapter | None = None,
 ) -> Summary:
     """Archive before parsing; never claim a snapshot or automatic crash recovery.
 
@@ -60,12 +81,13 @@ def collect(
         raise ValueError("Resume requires PostgreSQL")
     if database_dsn is not None:
         check_schema(database_dsn)
+    source = adapter if adapter is not None else default_adapter(query)
     session = Session(client, archive, limits, clock if clock is not None else SystemClock())
     session.attempt_guard = attempt_guard
     summary = Summary()
     manifest: dict[str, object] = {
         "format_version": 1,
-        "connector_version": CONNECTOR_VERSION,
+        "connector_version": source.connector_version,
         "endpoint": ENDPOINT,
         "query": query.payload(),
         "limits": asdict(limits),
@@ -82,7 +104,7 @@ def collect(
         run = None
         summary.run_id = resume_id.hex
     journal = (
-        RunStore(database_dsn, archive, UUID(summary.run_id), limits)
+        RunStore(database_dsn, archive, UUID(summary.run_id), limits, source)
         if database_dsn is not None
         else None
     )
@@ -130,13 +152,13 @@ def collect(
         seen: set[str] = set()
         expected_shape: tuple[int, int, int] | None = None
 
-        def decode(raw: bytes) -> Page:
+        def decode(raw: bytes) -> NormalizedPage:
             try:
-                return normalize_page(raw, max_bytes=limits.max_bytes)
-            except InvalidRecord as exc:
+                return source.normalize_page(raw, max_bytes=limits.max_bytes)
+            except SourcePageError as exc:
                 raise CollectionStopped("invalid_page") from exc
 
-        def accept(raw: bytes, number: int) -> Page:
+        def accept(raw: bytes, number: int) -> NormalizedPage:
             nonlocal expected_shape
             page = decode(raw)
             shape = (page.total_records, page.total_pages, page.size)
@@ -152,13 +174,13 @@ def collect(
                 raise CollectionStopped("identity_coverage")
             return page
 
-        def count(page: Page) -> None:
+        def count(page: NormalizedPage) -> None:
             summary.pages += 1
             summary.records += page.record_count
-            summary.normalized += len(page.contracts)
+            summary.normalized += len(page.records)
             summary.quarantined += len(page.issues)
 
-        def complete(page: Page) -> bool:
+        def complete(page: NormalizedPage) -> bool:
             if not page.last:
                 return False
             if (
@@ -173,7 +195,7 @@ def collect(
             summary.status = "complete" if summary.normalization_complete else "quarantined"
             return True
 
-        def signature(page: Page) -> tuple[object, ...]:
+        def signature(page: NormalizedPage) -> tuple[object, ...]:
             return (
                 page.number,
                 page.size,
@@ -236,15 +258,12 @@ def collect(
                             max_bytes=limits.max_bytes,
                         )
                     if run is not None:
-                        normalized = []
-                        for contract in page.contracts:
-                            row = asdict(contract)
-                            for field in ("net_amount", "gross_amount"):
-                                if row[field] is not None:
-                                    row[field] = str(row[field])
-                            normalized.append(row)
-                        archive.append(run, "normalized", normalized)
-                        archive.append(run, "quarantine", [asdict(issue) for issue in page.issues])
+                        archive.append(
+                            run, "normalized", [_normalized_row(page, r) for r in page.records]
+                        )
+                        archive.append(
+                            run, "quarantine", [_issue_row(page, i) for i in page.issues]
+                        )
                     count(page)
                     session.remaining()
                     save()

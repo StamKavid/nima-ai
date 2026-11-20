@@ -1,14 +1,6 @@
 {
   "forbidden_edges": [
     [
-      "nima.dataops.replay",
-      "nima.sources.kimdis"
-    ],
-    [
-      "nima.ingestion.collector",
-      "nima.sources.kimdis"
-    ],
-    [
       "nima.ingestion.gemi",
       "nima.sources.gemi"
     ],
@@ -19,10 +11,6 @@
     [
       "nima.storage.gemi_archive",
       "nima.sources.gemi"
-    ],
-    [
-      "nima.storage.postgres",
-      "nima.sources.kimdis"
     ]
   ],
   "module_cycles": [

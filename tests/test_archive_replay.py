@@ -68,18 +68,19 @@ def test_limited_reader_replays_exact_money_and_original_capture_without_writes(
 
 
 def test_historical_normalizer_identity_is_retained_not_a_target_requirement(
-    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    pg_dsn: str, tmp_path: Path
 ) -> None:
-    from nima.storage import postgres
+    from nima.sources.kimdis import KimdisAdapter
+
+    class Historic(KimdisAdapter):
+        normalizer_version = "historic-test-version"
 
     root, output = tmp_path / "archive", tmp_path / "replays"
     migrate(pg_dsn)
     run = uuid4()
-    with monkeypatch.context() as old:
-        old.setattr(postgres, "NORMALIZER_VERSION", "historic-test-version")
-        store = PageStore(pg_dsn, Archive(root))
-        store.start_run(run, QUERY)
-        store.commit_page(run, body(total=1), observed_at=datetime(2025, 1, 1, tzinfo=UTC))
+    store = PageStore(pg_dsn, Archive(root), Historic())
+    store.start_run(run, QUERY)
+    store.commit_page(run, body(total=1), observed_at=datetime(2025, 1, 1, tzinfo=UTC))
     before = state(pg_dsn)
     with reader(pg_dsn) as (dsn, _):
         result = replay.replay_run(dsn, run, root, output, NORMALIZER_VERSION)
@@ -377,29 +378,30 @@ def test_unsafe_output_or_conflict_cannot_overwrite_a_result(
 
 
 def test_old_quarantine_is_reprocessed_from_raw_not_copied_from_sql(
-    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    pg_dsn: str, tmp_path: Path
 ) -> None:
     from dataclasses import replace
 
-    from nima.sources.kimdis import RecordIssue, normalize_page
-    from nima.storage import postgres
+    from nima.sources.base import DEFAULT_MAX_BYTES, NormalizedPage, PageIssue
+    from nima.sources.kimdis import KimdisAdapter
+
+    class HistoricQuarantine(KimdisAdapter):
+        normalizer_version = "historic-quarantine-test"
+
+        def normalize_page(
+            self, raw: bytes, *, max_bytes: int = DEFAULT_MAX_BYTES
+        ) -> NormalizedPage:
+            page = super().normalize_page(raw, max_bytes=max_bytes)
+            record = page.records[0]
+            issue = PageIssue(record.index, record.evidence_pointer, "historic rule")
+            return replace(page, records=(), issues=(issue,))
 
     root = tmp_path / "archive"
     migrate(pg_dsn)
     run = uuid4()
-
-    def historic(raw: bytes, *, max_bytes: int) -> object:
-        page = normalize_page(raw, max_bytes=max_bytes)
-        return replace(
-            page, contracts=(), issues=(RecordIssue("historic rule", page.contracts[0].evidence),)
-        )
-
-    with monkeypatch.context() as old:
-        old.setattr(postgres, "NORMALIZER_VERSION", "historic-quarantine-test")
-        old.setattr(postgres, "normalize_page", historic)
-        store = PageStore(pg_dsn, Archive(root))
-        store.start_run(run, QUERY)
-        store.commit_page(run, body(total=1), observed_at=datetime(2026, 1, 1, tzinfo=UTC))
+    store = PageStore(pg_dsn, Archive(root), HistoricQuarantine())
+    store.start_run(run, QUERY)
+    store.commit_page(run, body(total=1), observed_at=datetime(2026, 1, 1, tzinfo=UTC))
     before = state(pg_dsn)
     with reader(pg_dsn) as (dsn, _):
         result = replay.replay_run(dsn, run, root, tmp_path / "out", NORMALIZER_VERSION)
