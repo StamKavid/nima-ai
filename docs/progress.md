@@ -104,9 +104,9 @@ KIMDIS wire requests and manifest are byte-identical to `main`. Slice N2 (#159, 
 `384a446`, hosted run 44709623301) delivered run options and resume: a run's query now comes from
 its adapter, resume rebuilds the adapter from the saved connector version through the registry,
 and an unregistered source stops before any request. The engine can now collect, resume and
-replay any registered source; the S4 correction above is resolved. S5, a real second dataset, stays gated: the owner has named Diavgeia as the next source, and its
-acceptance dossier (`docs/sources/diavgeia-acceptance.md`, read from the official documentation on
-2026-11-20) awaits the owner's decisions before any adapter work.
+replay any registered source; the S4 correction above is resolved. S5, a real second dataset, stays gated until the owner names it. The owner agreed to start with a
+Diavgeia acceptance dossier. It is written (`docs/sources/diavgeia-acceptance.md`, from the official
+documentation read on 2026-11-20) and awaits the owner's decisions before any adapter work.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 
