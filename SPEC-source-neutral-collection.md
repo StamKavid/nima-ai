@@ -1,6 +1,6 @@
 # Spec: source-neutral collection — V1-04 follow-up (N1, N2)
 
-Status: **approved by the owner on 2026-11-20.** Extends `SPEC-source-boundaries.md` (S1-S4 delivered
+Status: **approved by the owner on 2026-11-20; N1 (#158) and N2 (#159) delivered.** Extends `SPEC-source-boundaries.md` (S1-S4 delivered
 in #154-#157). It closes the gaps that stop a real second source (S5) from running through the
 acquisition engine. It does not add a source, fetch anything or touch the downstream graph,
 metadata or analytics code.

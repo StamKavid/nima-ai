@@ -2,8 +2,8 @@
 
 ## Current project and chapter position
 
-Merged main is `535a16e` after #158 (V1-04 N1 source-neutral requests and provenance),
-including exact `d4aec07`.
+Merged main is `384a446` after #159 (V1-04 N2 adapter-owned run options and resume),
+including exact `db389a2`.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
 recovery evolution, contract history and diagnostics earned four points). It has
@@ -100,11 +100,13 @@ reloaded as a KIMDIS `Query`, so resume was only exercised with a KIMDIS-shaped 
 specified in `SPEC-source-neutral-collection.md` (approved 2026-11-20). Slice N1 (#158, merged at
 `535a16e`, hosted run 44702178868) delivered request and provenance: adapters now declare their origin and build
 their own requests, a guard refuses unsafe or mismatched ones before any network call, and the
-KIMDIS wire requests and manifest are byte-identical to `main`. Slice N2 (run options and
-resume) is a candidate with local proof only: a run's query now comes from its adapter, resume
-rebuilds the adapter from the saved connector version through the registry, and an unregistered
-source stops before any request. Candidate code earns no progress credit until reviewed and
-delivered. S5, a real second dataset, stays gated until the owner names one.
+KIMDIS wire requests and manifest are byte-identical to `main`. Slice N2 (#159, merged at
+`384a446`, hosted run 44709623301) delivered run options and resume: a run's query now comes from
+its adapter, resume rebuilds the adapter from the saved connector version through the registry,
+and an unregistered source stops before any request. The engine can now collect, resume and
+replay any registered source; the S4 correction above is resolved. S5, a real second dataset, stays gated until the owner names it. The owner agreed to start with a
+Diavgeia acceptance dossier. It is written (`docs/sources/diavgeia-acceptance.md`, from the official
+documentation read on 2026-11-20) and awaits the owner's decisions before any adapter work.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 

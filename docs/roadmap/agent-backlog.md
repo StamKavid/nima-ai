@@ -107,7 +107,8 @@ graph check with a shrink-only baseline) is delivered in #154 and S2 (protocol a
 S3 (engine on the protocol) in #156 and S4 (two synthetic adapters) in #157; S5 is gated
 and needs source-neutral collection first: request, provenance and run options
 ([approved spec](../../SPEC-source-neutral-collection.md); N1 delivered in #158, N2 run options and
-resume next).
+resume in #159). S5 now waits only on the owner naming a dataset and the deferred items
+that dataset needs.
 
 Measure current imports/coupling before a narrow extraction. Separate pure source
 normalization/types from transport/storage and publish necessary APIs. Preserve
@@ -135,6 +136,10 @@ parsed dates; unsupported source dates remain unknown. No arbitrary SQL or
 generated ontology. Internal metric certification needs recorded review.
 
 ## V1-06 — Diavgeia source acceptance and connector
+
+Status 2026-11-20: step 1 (acceptance dossier) is drafted in
+[`docs/sources/diavgeia-acceptance.md`](../sources/diavgeia-acceptance.md) and awaits the owner's
+decisions; no connector code until they are made.
 
 Inspect current official API/schema/access/reuse/rate documentation before code;
 no dated API assumptions are authoritative. Freeze namespace/ADA identity,
