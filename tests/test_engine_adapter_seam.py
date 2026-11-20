@@ -26,6 +26,8 @@ from nima.sources.base import (
     PageIssue,
     SourceAdapter,
     SourcePageError,
+    SourceProvenance,
+    SourceRequest,
 )
 from nima.storage.postgres import PageStore, migrate
 from tests.test_collection import QUERY, Clock
@@ -38,9 +40,17 @@ class StubAdapter:
     name = "stub"
     connector_version = "stub-connector-v7"
     normalizer_version = "stub-normalized-v3"
+    provenance = SourceProvenance(
+        endpoint="https://stub.example.invalid/rows",
+        documentation_url="https://stub.example.invalid/docs",
+        license="Synthetic test data, no real licence",
+    )
 
     def query_payload(self) -> dict[str, object]:
         return {"stub": True}
+
+    def request_for(self, page: int) -> SourceRequest:
+        return SourceRequest("GET", self.provenance.endpoint, {"page": page}, None, "text/plain")
 
     def normalize_page(self, raw: bytes, *, max_bytes: int = DEFAULT_MAX_BYTES) -> NormalizedPage:
         if len(raw) > max_bytes:

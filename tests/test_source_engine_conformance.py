@@ -22,7 +22,14 @@ from nima.ingestion.archive import Archive
 from nima.ingestion.collector import collect
 from nima.ingestion.config import Limits, Summary
 from nima.ingestion.resume import resume
-from nima.sources.base import SourceAdapter
+from nima.sources.base import (
+    DEFAULT_MAX_BYTES,
+    NormalizedPage,
+    SourceAdapter,
+    SourceProvenance,
+    SourceRequest,
+    SourceRequestError,
+)
 from nima.sources.kimdis import KimdisAdapter
 from nima.storage.postgres import CheckpointError, PageStore, migrate
 from nima.storage.runs import RunStore
@@ -43,6 +50,7 @@ class EngineCase:
     bad_pointer: str  # where that quarantined record sits in the second page
     first_pointer: str  # where the first record of the first page sits
     repeated_id_pages: tuple[bytes, ...]  # two pages whose records share one source identifier
+    page_param: str  # the query parameter this source's requests carry the page number in
 
 
 KIMDIS = EngineCase(
@@ -51,6 +59,7 @@ KIMDIS = EngineCase(
     bad_pointer="/content/0",
     first_pointer="/content/0",
     repeated_id_pages=(body(0, 2), body(1, 2, referenceNumber="TEST-0")),
+    page_param="page",
 )
 LEDGER = EngineCase(
     make=LedgerAdapter,
@@ -65,6 +74,7 @@ LEDGER = EngineCase(
         ledger_page(0, 2, 2, [("L-0001", "1,00", "a")]),
         ledger_page(1, 2, 2, [("L-0001", "2,00", "b")]),
     ),
+    page_param="p",
 )
 EVENTS = EngineCase(
     make=EventsAdapter,
@@ -79,6 +89,7 @@ EVENTS = EngineCase(
         events_page(0, 2, 2, [event("acme", 1, 100)]),
         events_page(1, 2, 2, [event("acme", 1, 200)]),
     ),
+    page_param="seq",
 )
 CASES = [
     pytest.param(KIMDIS, id="kimdis"),
@@ -87,20 +98,34 @@ CASES = [
 ]
 
 
-def serve(pages: tuple[bytes, ...], requests: list[int] | None = None) -> httpx.Client:
+def serve(
+    case: EngineCase,
+    pages: tuple[bytes, ...] | None = None,
+    requests: list[int] | None = None,
+    sent: list[httpx.Request] | None = None,
+) -> httpx.Client:
+    """A mock of the source: it answers by the page number in the parameter the source uses."""
+    served = case.pages if pages is None else pages
+
     def handle(request: httpx.Request) -> httpx.Response:
-        number = int(request.url.params["page"])
+        number = int(request.url.params[case.page_param])
         if requests is not None:
             requests.append(number)
-        return httpx.Response(200, content=pages[number])
+        if sent is not None:
+            sent.append(request)
+        return httpx.Response(200, content=served[number])
 
     return httpx.Client(transport=httpx.MockTransport(handle))
 
 
 def run_collect(
-    case: EngineCase, dsn: str, root: Path, requests: list[int] | None = None
+    case: EngineCase,
+    dsn: str,
+    root: Path,
+    requests: list[int] | None = None,
+    sent: list[httpx.Request] | None = None,
 ) -> Summary:
-    with serve(case.pages, requests) as client:
+    with serve(case, requests=requests, sent=sent) as client:
         return collect(
             QUERY,
             Limits(),
@@ -192,7 +217,7 @@ def test_resume_continues_from_the_committed_prefix_and_is_idempotent(
         writer.begin(QUERY)
         writer.commit_page(run, case.pages[0], observed_at=datetime.now(UTC), owner=writer.owner)
     requests: list[int] = []
-    with serve(case.pages, requests) as client:
+    with serve(case, requests=requests) as client:
         result = resume(pg_dsn, run, client=client, clock=Clock(), adapter=adapter)
         assert result.status == "quarantined" and result.collection_complete
         assert requests == [0, 1, 2]
@@ -234,7 +259,7 @@ def test_a_repeated_source_identifier_stops_the_run_before_it_claims_completenes
     case: EngineCase, pg_dsn: str, tmp_path: Path
 ) -> None:
     migrate(pg_dsn)
-    with serve(case.repeated_id_pages) as client:
+    with serve(case, case.repeated_id_pages) as client:
         summary = collect(
             QUERY,
             Limits(),
@@ -280,3 +305,152 @@ def test_a_store_for_one_source_refuses_a_run_started_by_another(
     PageStore(pg_dsn, Archive(tmp_path / "raw"), KimdisAdapter(QUERY)).start_run(run, QUERY)
     with pytest.raises(CheckpointError):
         PageStore(pg_dsn, Archive(tmp_path / "raw"), other.make()).start_run(run, QUERY)
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_every_request_goes_to_the_sources_own_endpoint_in_its_own_shape(
+    case: EngineCase, pg_dsn: str, tmp_path: Path
+) -> None:
+    adapter = case.make()
+    migrate(pg_dsn)
+    sent: list[httpx.Request] = []
+    run_collect(case, pg_dsn, tmp_path / "raw", sent=sent)
+    assert len(sent) == 3
+    for number, request in enumerate(sent):
+        expected = adapter.request_for(number)
+        assert request.method == expected.method
+        assert str(request.url.copy_with(query=None)) == adapter.provenance.endpoint
+        assert request.url.params[case.page_param] == str(number)
+        assert request.headers["accept"] == expected.accept
+        assert request.headers["accept-encoding"] == "identity"
+        assert request.headers["user-agent"].startswith("Nima/")
+        assert (json.loads(request.content) if request.content else None) == expected.json
+    assert len({str(r.url.copy_with(query=None)) for r in sent}) == 1
+
+
+def test_the_three_sources_use_different_methods_bodies_and_media_types() -> None:
+    shapes = {case.page_param: case.make().request_for(0) for case in (KIMDIS, LEDGER, EVENTS)}
+    assert {k: (v.method, v.json is None, v.accept) for k, v in shapes.items()} == {
+        "page": ("POST", False, "application/json"),
+        "p": ("GET", True, "text/csv"),
+        "seq": ("POST", False, "application/json"),
+    }
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_the_manifest_records_the_sources_own_provenance(
+    case: EngineCase, pg_dsn: str, tmp_path: Path
+) -> None:
+    adapter = case.make()
+    migrate(pg_dsn)
+    summary = run_collect(case, pg_dsn, tmp_path / "raw")
+    manifest = json.loads(
+        (tmp_path / "raw" / "runs" / summary.run_id / "manifest.json").read_bytes()
+    )
+    assert manifest["endpoint"] == adapter.provenance.endpoint
+    assert manifest["source"] == adapter.provenance.documentation_url
+    assert manifest["license"] == adapter.provenance.license
+    assert manifest["connector_version"] == adapter.connector_version
+
+
+def test_no_source_borrows_anothers_provenance_in_its_manifest(pg_dsn: str, tmp_path: Path) -> None:
+    migrate(pg_dsn)
+    seen: set[tuple[object, object, object]] = set()
+    for name, case in {"kimdis": KIMDIS, "ledger": LEDGER, "events": EVENTS}.items():
+        summary = run_collect(case, pg_dsn, tmp_path / f"raw-{name}")
+        manifest = json.loads(
+            (tmp_path / f"raw-{name}" / "runs" / summary.run_id / "manifest.json").read_bytes()
+        )
+        seen.add((manifest["endpoint"], manifest["source"], manifest["license"]))
+    assert len({endpoint for endpoint, _, _ in seen}) == 3
+
+
+class MiswiredAdapter:
+    """Delegates to a real adapter but changes one thing the guard must catch."""
+
+    def __init__(
+        self,
+        inner: SourceAdapter,
+        *,
+        endpoint: str | None = None,
+        request_url: str | None = None,
+        from_page: int = 0,
+    ) -> None:
+        self._inner, self._endpoint, self._request_url = inner, endpoint, request_url
+        self._from_page = from_page
+        self.name = inner.name
+        self.connector_version = inner.connector_version
+        self.normalizer_version = inner.normalizer_version
+
+    @property
+    def provenance(self) -> SourceProvenance:
+        base = self._inner.provenance
+        return SourceProvenance(
+            self._endpoint or base.endpoint, base.documentation_url, base.license
+        )
+
+    def query_payload(self) -> dict[str, object]:
+        return self._inner.query_payload()
+
+    def request_for(self, page: int) -> SourceRequest:
+        request = self._inner.request_for(page)
+        misrouted = self._request_url is not None and page >= self._from_page
+        url = self._request_url if misrouted and self._request_url else request.url
+        return SourceRequest(request.method, url, request.params, request.json, request.accept)
+
+    def normalize_page(self, raw: bytes, *, max_bytes: int = DEFAULT_MAX_BYTES) -> NormalizedPage:
+        return self._inner.normalize_page(raw, max_bytes=max_bytes)
+
+
+@pytest.mark.parametrize(
+    ("endpoint", "request_url"),
+    [
+        ("https://declared.example.invalid/api", "https://other.example.invalid/steal"),
+        ("http://plain.example.invalid/api", "http://plain.example.invalid/api"),
+    ],
+    ids=["request-leaves-declared-endpoint", "insecure-endpoint"],
+)
+@pytest.mark.parametrize("case", CASES)
+def test_a_miswired_adapter_is_refused_before_any_run_file_or_request_exists(
+    case: EngineCase, endpoint: str, request_url: str, pg_dsn: str, tmp_path: Path
+) -> None:
+    migrate(pg_dsn)
+    sent: list[httpx.Request] = []
+    root = tmp_path / "raw"
+    adapter = MiswiredAdapter(case.make(), endpoint=endpoint, request_url=request_url)
+    with serve(case, sent=sent) as client, pytest.raises(SourceRequestError):
+        collect(
+            QUERY,
+            Limits(),
+            Archive(root),
+            client=client,
+            clock=Clock(),
+            database_dsn=pg_dsn,
+            adapter=adapter,
+        )
+    assert sent == []
+    assert not (root / "runs").exists() or not list((root / "runs").iterdir())
+    with psycopg.connect(pg_dsn) as c:
+        assert c.execute("SELECT count(*) FROM nima.ingest_runs").fetchone() == (0,)
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_a_request_that_goes_wrong_on_a_later_page_is_refused_before_it_is_sent(
+    case: EngineCase, pg_dsn: str, tmp_path: Path
+) -> None:
+    migrate(pg_dsn)
+    served: list[int] = []
+    adapter = MiswiredAdapter(
+        case.make(), request_url="https://other.example.invalid/steal", from_page=2
+    )
+    with serve(case, requests=served) as client, pytest.raises(SourceRequestError):
+        collect(
+            QUERY,
+            Limits(),
+            Archive(tmp_path / "raw"),
+            client=client,
+            clock=Clock(),
+            database_dsn=pg_dsn,
+            adapter=adapter,
+        )
+    assert served == [0, 1]

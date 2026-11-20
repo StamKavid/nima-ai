@@ -29,8 +29,11 @@
   page had one record, so a multi-record scenario was added and its pin recorded from the old
   engine in a separate worktree. Known limits: the HTTP transport is still KIMDIS-specific, replay still labels its archive
   layout `kimdis`, and the three GEMI imports stay in the baseline.
-- [x] S4 two synthetic adapters of different shape; conformance on all three (local; hosted
-  exact-head proof and review pending). Test-only `ledger` (semicolon text, decimal-comma money,
+- [x] S4 two synthetic adapters of different shape; conformance on all three: owner merged
+  #157 at `0945918`; exact `645f75f` verified on main (tree identical). Hosted run 44692930584
+  was the only run on that head and passed all three jobs (`quality` 16 min 27 s, the longest so
+  far; parallel tests become the next option if a run nears 18 minutes). Local suite 3017
+  passed, 59 failed (the unchanged PG16 environment baseline). Test-only `ledger` (semicolon text, decimal-comma money,
   `L-0001` ids, line-number evidence) and `events` (nested JSON, cursor paging, integer minor
   units with per-currency exponents, composite ids); neither is registered, so no product code
   or engine file changed. Parser conformance now runs 11 shared tests on all three adapters, and
@@ -40,6 +43,34 @@
   version, and five adapter bugs) fail the new tests and are restored. Found, not fixed (needs an
   engine change): a ledger run's archive manifest records the KIMDIS endpoint, source URL and
   CC BY 4.0 licence because the collector hardcodes them; this is an S5 prerequisite.
+  **Correction (2026-11-20):** "resume passes for the synthetic sources" held only because every
+  synthetic run used a KIMDIS-shaped `Query`; `load_options` rebuilds a KIMDIS `Query`, so a
+  real non-KIMDIS run could not be resumed, and every request still goes to the KIMDIS
+  endpoint. Specified below; not yet fixed.
+- [x] Spec `SPEC-source-neutral-collection.md` approved 2026-11-20: two PRs, no migration, five
+  deferred items with triggers.
+- [ ] N1 source-neutral request and provenance. Tasks, each test-first:
+  - [x] N1.1 pins recorded from unmodified `main` `0945918`: KIMDIS wire request (method, URL,
+    headers, body, three pages) and manifest minus volatile fields; stable across three runs;
+    each fails when the `Accept` header or the licence string is changed, then restored.
+  - [x] N1.2 protocol: `SourceProvenance`, `SourceRequest`, `provenance`, `request_for`, and the
+    pre-network guard `checked_provenance` / `checked_request` (https, no credentials, query
+    string or fragment, URL equals the declared endpoint, GET carries no body, clean single-line
+    text). Tests written first and failing at import; 100% line and branch on `sources/base.py`.
+  - [x] N1.3 engine: `Session.request` takes a `SourceRequest`; the collector checks the adapter
+    before any run, archive file or request exists, builds every request through the guard and
+    writes the manifest from `provenance`; `ENDPOINT` and `SOURCE` moved into the KIMDIS module.
+    The N1.1 pins pass unchanged, so KIMDIS wire requests and manifests are byte-identical.
+  - [x] N1.4 engine suite on all three sources (local): every request goes to the source's own
+    endpoint in its own shape (KIMDIS POST with a body, `ledger` GET with none and `text/csv`,
+    `events` POST with its own page parameter); each manifest records its own provenance; a
+    mis-wired adapter is refused before any run, file or request, and one that goes wrong only on
+    a later page is refused before that request. Twenty mutations across transport, collector and
+    guard fail the tests and are restored. One survived and one was misleading, both fixed: the
+    credentials check was only tested with a user and a password together, and the password check
+    was dead logic (any userinfo already makes the username non-null), so it was removed.
+  - [ ] N1.5 full gates, draft PR and hosted exact-head proof.
+- [ ] N2 adapter-owned run options and resume through the registry (same spec; after N1).
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
 
 ## V1-03 O3f — evidence TRUNCATE guards

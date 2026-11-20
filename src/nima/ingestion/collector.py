@@ -10,7 +10,7 @@ import httpx
 import psycopg
 
 from nima.ingestion.archive import Archive, ArchiveError
-from nima.ingestion.config import ENDPOINT, SOURCE, Limits, Query, Summary
+from nima.ingestion.config import Limits, Query, Summary
 from nima.ingestion.transport import Clock, CollectionStopped, Session, SystemClock, retry_delay
 from nima.sources.base import (
     NormalizedPage,
@@ -18,6 +18,8 @@ from nima.sources.base import (
     PageIssue,
     SourceAdapter,
     SourcePageError,
+    checked_provenance,
+    checked_request,
 )
 from nima.sources.registry import default_adapter
 from nima.storage.postgres import CheckpointError, check_schema
@@ -82,17 +84,20 @@ def collect(
     if database_dsn is not None:
         check_schema(database_dsn)
     source = adapter if adapter is not None else default_adapter(query)
+    # Refuse an unsafe or inconsistent adapter before a run, an archive file or a request exists.
+    provenance = checked_provenance(source)
+    checked_request(source, 0)
     session = Session(client, archive, limits, clock if clock is not None else SystemClock())
     session.attempt_guard = attempt_guard
     summary = Summary()
     manifest: dict[str, object] = {
         "format_version": 1,
         "connector_version": source.connector_version,
-        "endpoint": ENDPOINT,
+        "endpoint": provenance.endpoint,
         "query": query.payload(),
         "limits": asdict(limits),
-        "source": SOURCE,
-        "license": "CC BY 4.0",
+        "source": provenance.documentation_url,
+        "license": provenance.license,
         "started_at": datetime.now(UTC).isoformat(),
         "responses": session.responses,
         "summary": asdict(summary),
@@ -124,11 +129,12 @@ def collect(
                 archive.write_manifest(run, manifest)
 
         def fetch(page: int) -> bytes:
+            request = checked_request(source, page)
             for attempt in range(1, limits.max_attempts + 1):
                 retry_after = None
                 status = None
                 try:
-                    raw, status, retry_after = session.request(query, page, attempt)
+                    raw, status, retry_after = session.request(request, page, attempt)
                 except CollectionStopped as exc:
                     if str(exc) != "transport":
                         raise

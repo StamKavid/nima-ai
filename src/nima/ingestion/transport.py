@@ -1,4 +1,4 @@
-"""Bounded HTTP attempts against the fixed official source endpoint."""
+"""Bounded HTTP attempts for the request a source adapter describes."""
 
 import time
 from collections.abc import Callable
@@ -9,7 +9,8 @@ from typing import Protocol
 import httpx
 
 from nima.ingestion.archive import Archive, ArchiveError
-from nima.ingestion.config import ENDPOINT, Limits, Query
+from nima.ingestion.config import Limits
+from nima.sources.base import SourceRequest
 
 
 class Clock(Protocol):
@@ -67,7 +68,9 @@ class Session:
         if seconds > 0:
             self.clock.sleep(seconds)
 
-    def request(self, query: Query, page: int, attempt: int) -> tuple[bytes, int, str | None]:
+    def request(
+        self, request: SourceRequest, page: int, attempt: int
+    ) -> tuple[bytes, int, str | None]:
         if self.previous is not None:
             self.wait(
                 max(
@@ -92,12 +95,12 @@ class Session:
             timeout = min(self.limits.request_timeout, self.remaining())
             self.previous = self.clock.monotonic()
             with self.client.stream(
-                "POST",
-                ENDPOINT,
-                params={"page": page},
-                json=query.payload(),
+                request.method,
+                request.url,
+                params=dict(request.params),
+                json=dict(request.json) if request.json is not None else None,
                 headers={
-                    "Accept": "application/json",
+                    "Accept": request.accept,
                     "Accept-Encoding": "identity",
                     "User-Agent": "Nima/0.0.1 (public-source evidence collector)",
                 },

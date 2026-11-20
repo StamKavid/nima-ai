@@ -18,9 +18,16 @@ from nima.sources.base import (
     PageIssue,
     PayloadSource,
     SourcePageError,
+    SourceProvenance,
+    SourceRequest,
 )
 from nima.sources.kimdis_contracts import NORMALIZER_VERSION as NORMALIZER_VERSION
 from nima.sources.kimdis_contracts import validate_record, validate_source
+
+# Where KIMDIS data comes from; the collector records these in every KIMDIS archive manifest.
+ENDPOINT = "https://cerpp.eprocurement.gov.gr/khmdhs-opendata/contract"
+DOCUMENTATION_URL = "https://cerpp.eprocurement.gov.gr/khmdhs-opendata/help"
+LICENSE = "CC BY 4.0"
 
 type Relation = Literal["award", "previous_record", "commitment_decision", "payment_order"]
 
@@ -391,6 +398,9 @@ class KimdisAdapter:
     name = "kimdis"
     connector_version = "kimdis-contract-v1"
     normalizer_version = NORMALIZER_VERSION
+    provenance = SourceProvenance(
+        endpoint=ENDPOINT, documentation_url=DOCUMENTATION_URL, license=LICENSE
+    )
 
     def __init__(self, query: PayloadSource | None = None) -> None:
         self._query = query
@@ -399,6 +409,16 @@ class KimdisAdapter:
         if self._query is None:
             raise ValueError("this adapter was created without a query")
         return self._query.payload()
+
+    def request_for(self, page: int) -> SourceRequest:
+        """The KIMDIS search: a POST of the query as JSON, with the page number as a parameter."""
+        return SourceRequest(
+            method="POST",
+            url=ENDPOINT,
+            params={"page": page},
+            json=self.query_payload(),
+            accept="application/json",
+        )
 
     def normalize_page(self, raw: bytes, *, max_bytes: int = DEFAULT_MAX_BYTES) -> NormalizedPage:
         page = normalize_page(raw, max_bytes=max_bytes)
