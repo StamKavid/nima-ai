@@ -1,6 +1,6 @@
 # Spec: source boundaries for a second feed — V1-04
 
-Status: **approved by the owner on 2026-11-19; S1 (#154) and S2 (#155) delivered; S3 in review.** Decisions below. Follows
+Status: **approved by the owner on 2026-11-19; S1 (#154), S2 (#155) and S3 (#156) delivered; S4 next.** Decisions below. Follows
 #152 (`7dfc7b1`). This is backlog package V1-04 (`docs/roadmap/agent-backlog.md`), the first
 step of v0.2. It prepares a second source (Diavgeia decisions, V1-06) without copying the
 KIMDIS stack, and does not fetch, parse or activate any new source.

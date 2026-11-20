@@ -14,7 +14,11 @@
   44609972812 was the only run on that head and passed all three jobs (`quality` 12 min 55 s).
   Neutral `nima/sources/base.py` and a `KimdisAdapter` wrapping the unchanged parser; 12 parser
   conformance cases and 4 database equivalence cases.
-- [x] S3 engine on the protocol (local): characterization pins recorded from the unmodified
+- [x] S3 engine on the protocol: owner merged #156 at `53b53ad`; exact `0548870` verified on
+  main (tree identical). Hosted run 44629025079 was the only run on that head and passed all
+  three jobs (`quality` 10 min 4 s). Local suite 2932 passed, 59 failed (the unchanged PG16
+  environment baseline). Two replay tests now simulate history by injecting a historical
+  adapter instead of patching module globals; their assertions are unchanged. Characterization pins recorded from the unmodified
   engine (four scenarios; all database rows, the archive sidecar files and the replay artifact,
   stable across independent databases) and committed before the change. The page store, run
   store, collector, resume and replay now take an adapter (default KIMDIS through a registry);
@@ -23,7 +27,8 @@
   remain; cycles unchanged). Mutations (sidecar key order, wrong record hash, engine re-importing
   KIMDIS) fail and are restored. An initial pin set missed the wrong-hash mutation because every
   page had one record, so a multi-record scenario was added and its pin recorded from the old
-  engine in a separate worktree. Remaining: full suite and hosted exact-head proof, then review.
+  engine in a separate worktree. Known limits: the HTTP transport is still KIMDIS-specific, replay still labels its archive
+  layout `kimdis`, and the three GEMI imports stay in the baseline.
 - [ ] S4 two synthetic adapters of different shape; conformance on all three.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
 

@@ -2,7 +2,8 @@
 
 ## Current project and chapter position
 
-Merged main is `bb99485` after #155 (V1-04 S2 adapter protocol), including exact `cf62969`.
+Merged main is `53b53ad` after #156 (V1-04 S3 engine on the adapter protocol), including exact
+`0548870`.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
 recovery evolution, contract history and diagnostics earned four points). It has
@@ -75,7 +76,7 @@ main and dev and `quality` has 20 minutes. Its own hosted run 44600852305 was th
 that head and `quality` took 15 min 23 s, which would have exceeded the old limit. Headroom is
 about 4.6 minutes, so parallel tests are the next option if a run passes about 18 minutes.
 
-## V1-04: source boundaries for a second feed (S1-S2 delivered, S3 candidate)
+## V1-04: source boundaries for a second feed (S1-S3 delivered, S4 next)
 
 The owner approved [the spec](../SPEC-source-boundaries.md). Slice S1 (#154, merged at
 `d3b0e90`, hosted run 44606219260) added an import-graph check with a committed shrink-only
@@ -84,14 +85,13 @@ five-package import cycle group and two module cycles exist, and the check fails
 Slice S2 (#155, merged at `bb99485`, hosted run 44609972812) added a neutral
 `nima/sources/base.py` (page types, `SourceAdapter` protocol, `SourcePageError`) and a
 `KimdisAdapter` that wraps the unchanged parser, proven equal to what the page store persists.
-Slice S3 is a candidate: the page store, run store, collector, resume and replay now work through
+Slice S3 (#156, merged at `53b53ad`, hosted run 44629025079): the page store, run store, collector, resume and replay now work through
 the adapter protocol, with KIMDIS the default via a small registry. Before the change, four real
 collections were fingerprinted (every database row, the archive sidecar files and the replay
 artifact) and pinned; the same pins pass on the moved engine, so no stored or archived byte
 changed. The three KIMDIS engine-to-source imports are removed from the dependency baseline; the
-three GEMI ones remain. Later slices prove the protocol with two synthetic adapters. A real
-second dataset is a gated, optional step. Candidate code earns no progress credit until reviewed
-and delivered.
+three GEMI ones remain. Slice S4 proves the protocol with two synthetic adapters of different shape. A real second
+dataset (S5) is a gated, optional step that starts only when the owner names one.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 
