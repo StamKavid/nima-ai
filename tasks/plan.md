@@ -30,16 +30,18 @@ non-zero digit, `123456789`, leading zero, other length as a length histogram, n
 the supplier country-code counts. It prints no name, tax number, amount, date value or title. Tests on the
 `pg_dsn` fixture with synthetic rows: each class and each shape bucket, the empty database, and an assertion
 that no input value appears in the output; 100% line and branch; each query mutated once to see a test fail.
-Owner step: run it against the pilot database and paste the JSON back.
+Owner step (replaced 2026-11-20): the pilot database is unreachable, so the census ran on a local database rebuilt from
+one small bounded capture; see `docs/semantics/date-format-measurements.md`. A wider capture needs approval.
 
     NIMA_DATABASE_URL="<read-only>" uv run python -m scripts.semantic_census --top 20
 
-**S2b, time model (after the owner's measurement).** `src/nima/semantics/timemodel.py`, pure, using the
-existing `zoneinfo` use in `orchestration/refresh.py` (`tzdata` is already locked; no new dependency).
+**S2b, time model (after the owner's measurement).** `src/nima/semantics/timemodel.py`, pure, stdlib only. Measured on 203 real records (2026-11-20): the submission date is a zone-less ISO date-time with a
+fraction of one to three digits (owner decision), the update date is date-only, and nothing carries a zone, so
+there is no zone conversion and no time zone database.
 One parser per *observed* shape and no fallback guessing. Outcomes `parsed`, `absent` and `unparseable`, with the
-source text always retained; period is the calendar month in Europe/Athens (decision D2); a zone-bearing value is
-converted to Athens civil time, a zone-less value is taken as Athens civil time and says so in the result. Tests:
-one case per measured shape, month and year boundaries, a daylight-saving boundary, leap day, malformed and
+source text always retained; period is the calendar month in Europe/Athens (decision D2); a zone-less value is taken
+as Athens civil time and says so in the result, and a value with a zone suffix or offset is unparseable until a
+measured shape justifies a rule. Tests: one case per measured shape, month and year boundaries, leap day, malformed and
 out-of-range text, and invariants (the same text always gives the same period). The measured shape table goes
 into `docs/semantics/` as numbers only. D4 follow-up: the measured tax-ID class frequencies are recorded and any
 further placeholder rule is proposed to the owner, not adopted.
