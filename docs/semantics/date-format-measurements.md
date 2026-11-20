@@ -45,9 +45,13 @@ leading-zero IDs and the CY supplier.
 - The submission date is an ISO local date-time without a zone. Under decision D2 a zone-less value
   is read as Europe/Athens civil time and the result says so; nothing else is inferred about the
   instant it denotes.
-- The fraction of a second has two or three digits in the sample. S2b must choose between accepting
-  exactly those two lengths or one to three digits; either way anything else stays `unparseable`
-  and counted, never guessed.
+- The fraction of a second has two or three digits in the sample. **Decision, 2026-11-20 (owner:
+  "recommended"):** S2b accepts a fraction of one to three digits; anything else, including no
+  fraction and four or more digits, stays `unparseable`, counted and never guessed.
+- No value in the sample carries a zone suffix or offset, so S2b has no zone conversion: a
+  zone-less value is read as Europe/Athens civil time and says so, and a value with a zone suffix
+  or offset is `unparseable` until a measured shape justifies a rule. No time zone database and no
+  daylight-saving logic are needed for the observed shapes.
 - The update date is a different, date-only shape and is absent in most records. It is never an
   ordering key.
 - A leading zero is common in real tax numbers (86 of 221), so it is a valid identifier shape and
