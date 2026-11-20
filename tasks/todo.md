@@ -2,8 +2,7 @@
 
 ## GEMI AFM lookup (spec drafted 2026-11-20)
 
-- [ ] L1: owner reviews `docs/specs/SPEC-gemi-afm-lookup.md` and decides D1-D6 (input, hits, hit as profile evidence, run
-  budget, personal data, storage migration).
+- [x] L1: spec reviewed and decisions D1-D6 recorded as recommended by the owner on 2026-11-20.
 - [ ] L2: write failing tests, then the pure search-response parser and outcome rules (all five outcomes, string `arGemi`).
 - [ ] L3: collector `ingest gemi-afm` on the shared GEMI transport, archive-first; crash, retry and budget tests.
 - [ ] L4: read-only archive verification for search runs.

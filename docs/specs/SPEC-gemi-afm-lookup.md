@@ -1,7 +1,7 @@
 # Spec: GEMI lookup by reported tax number (AFM)
 
-Module ID: `gemi-afm-lookup`. Status: **draft for owner review, 2026-11-20; no code until
-approved.** Depends on the delivered [GEMI profile contract](../sources/gemi.md), the
+Module ID: `gemi-afm-lookup`. Status: **decisions D1-D6 recorded as recommended by the owner on
+2026-11-20 ("recommended for D1 to D6"); L2 may start, L5 still needs its own migration approval.** Depends on the delivered [GEMI profile contract](../sources/gemi.md), the
 [GEMI persistence contract](../sources/gemi-persistence.md) and the approved
 [registry comparison](../identity/registry-comparison.md). It extends, and does not replace,
 `GET /companies/{arGemi}` collection (`nima ingest gemi`).
@@ -84,6 +84,13 @@ Connector version `gemi-afm-search-v1`; normalizer reuses `gemi-company-v1` for 
 
 A hit is never selected for the investigator: with several hits all are kept side by side.
 `hit_multiple` and branches are reported, not resolved.
+
+**Precedence.** One response gets one outcome, chosen in this order: `quarantined`, then
+`afm_mismatch` (any returned company with a different or missing `afm`), then `truncated`, then
+`hit_multiple`, then `hit_single`. Each hit also carries `afm_matches`, so matching hits stay
+eligible when another hit of the same response mismatches, and `truncated` is also kept as a
+separate flag. An HTTP 200 with an empty `searchResults` contradicts the documented 404 and is
+`quarantined` (`empty_results`) so the real behaviour is seen, not guessed.
 
 ### Registry number type
 
@@ -183,22 +190,17 @@ table from original bytes; the existing comparison produces identical results fo
 contain no search evidence; no hit is ever selected automatically; the live pilot records the
 equivalence and latency findings honestly, including a failure if there is one.
 
-## Decisions needed from the owner
+## Decisions (recorded 2026-11-20)
 
-- **D1 Input.** AFMs given explicitly, one to 25 per run, from flags or a private file. Later, an
-  offline export of the eligible supplier AFMs of one selected KIMDIS cohort feeds that file.
-  Recommended: explicit AFMs only in this module.
-- **D2 Hits.** Request up to 20 hits and keep all of them, with `truncated` visible when more
-  exist. Recommended: yes.
-- **D3 Hits as profile evidence.** Use a search hit directly as profile evidence if the L6
-  equivalence check passes, saving one request per company; otherwise follow each AFM hit with a
-  `GET /companies/{arGemi}`. Recommended: use the hit, gated on L6.
-- **D4 Run budget.** A profile can take 30 s or more, so 25 sequential lookups can exceed the
-  current 300 s run limit. Recommended: keep 25 AFMs as the cap, measure latency in L6, then set
-  the run limit in a spec amendment instead of guessing now.
-- **D5 Personal data.** Sole traders have AFMs and registry profiles that name an individual.
-  Recommended: all archives and AFM lists stay private; normalized records keep the existing
-  projection (no persons, capital or addresses); anything published excludes registry records of
-  natural-person legal forms and lists no individual's AFM.
-- **D6 Storage.** One small migration in L5 for search observations (queried AFM, outcome, hit
-  registry numbers), with its own approval. Recommended: yes, as a separate PR after L2-L4.
+The owner answered "recommended for D1 to D6". Recorded as follows.
+
+- **D1 Input:** AFMs given explicitly, one to 25 per run, from flags or a private file. No cohort
+  export in this module.
+- **D2 Hits:** request up to 20 hits and keep all of them; `truncated` is visible.
+- **D3 Hits as profile evidence:** use a hit directly if the L6 equivalence check passes; otherwise
+  follow each hit with `GET /companies/{arGemi}`.
+- **D4 Run budget:** cap 25 AFMs; set the run limit in a spec amendment after L6 measures latency.
+- **D5 Personal data:** archives and AFM lists stay private; normalized records keep the existing
+  projection; anything published excludes natural-person legal forms and lists no individual's AFM.
+- **D6 Storage:** one small migration in L5 for search observations, as a separate PR with its own
+  approval.
