@@ -1,7 +1,7 @@
 # v1.0 agent work packages
 
 Status: proposed work, **not automatically assigned or implemented**. Read the
-[handoff](agent-handoff.md) before choosing a card. Milestone versions are in the
+[handbook delivery process](../maintainers-handbook.md#4-how-change-is-delivered) before choosing a card. Milestone versions are in the
 [product roadmap](v1.0.md); R/U references refer to the
 [release contract](../specs/SPEC-release-v1.0.md). Existing approved work takes
 precedence; first verify main and open PRs to avoid duplicate implementation.

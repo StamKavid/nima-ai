@@ -8,7 +8,7 @@ trusted data and metric definitions.
 
 Start with the [versioned product roadmap](docs/roadmap/v1.0.md),
 [v1.0 acceptance contract](docs/specs/SPEC-release-v1.0.md) and
-[agent handoff](docs/roadmap/agent-handoff.md). They distinguish implemented
+[maintainers' handbook](docs/maintainers-handbook.md#4-how-change-is-delivered). They distinguish implemented
 capabilities from proposed release work; the package is currently `0.0.1`.
 
 The planned product combines a temporal relationship graph, sector comparisons,

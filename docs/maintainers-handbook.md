@@ -6,7 +6,7 @@ deliberately unfinished and when each gap must be closed. It links to the author
 documents instead of copying them. When this file and `CONSTRAINTS.md`, `AGENTS.md` or an
 accepted ADR disagree, those win and this file is the bug.
 
-Related: [agent handoff](roadmap/agent-handoff.md) (execution protocol per card),
+Related: [archived agent handoff](history/roadmap/agent-handoff.md) (superseded by section 4),
 [architecture](architecture.md), [decisions](decisions/), [CONTRIBUTING](../CONTRIBUTING.md),
 [repository settings](repository-settings.md).
 
@@ -102,7 +102,7 @@ The sequence that worked for every slice in #154-#162, and the one to keep:
 8. **The owner merges. I never do.** After "merged", verify the change is reachable from
    `origin/main` and the tree is identical before marking anything delivered; the PR branch is
    usually deleted, so re-base follow-ups on new main.
-9. **Record delivery honestly** in `tasks/todo.md`, `tasks/plan.md` and `docs/progress.md`.
+9. **Record delivery honestly** in `tasks/todo.md`, `tasks/plan.md` and `docs/progress.md` (delivered history moves to `docs/history/`).
    Say what was and was not run; correct overclaims in the same change that finds them.
 
 Commit identity: `StamKavid` with the noreply address, repository-local. Check
@@ -151,7 +151,7 @@ roadmap card and after every merged series.
 | Licence stored as the publisher's own string | KIMDIS bytes must not change | Evidence export needs comparable licences |
 | GEMI has its own transport and manifest | Separate flow, tracked in the dependency baseline | GEMI moves onto the protocol |
 | `CONNECTOR_VERSION` duplicated in `ingestion/config.py` and `sources/kimdis.py` | A test pins them equal; removing one touches the baseline | The next change that edits either |
-| `tasks/plan.md` (~2.6k lines), `tasks/todo.md` (~2.3k), `docs/progress.md` (~650) are too large to read whole | History is useful but the working view is buried | Before the next roadmap card: archive delivered history under `docs/history/`, keep an active page |
+| Delivered history was archived under `docs/history/` on 2026-11-20 | `tasks/plan.md`, `tasks/todo.md` and `docs/progress.md` now hold only active work | At each milestone exit, archive sections with no open item (see `docs/history/README.md`) |
 | ~29 remote branches, many merged or stale | Deleting is outward-facing | Owner says "delete" (list first) |
 | `quality` CI job creeping toward its 20 min timeout | Parallel tests are a CI change needing a go-ahead | A run exceeds ~18 min |
 | Local Postgres 16 plus an uncommitted version shim | Environment only | Never commit the shim; rely on hosted 17 |

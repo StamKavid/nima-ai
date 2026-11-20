@@ -7,10 +7,10 @@ plan on 2026-11-18. No agent delegation has been performed by creating this file
 ## Read in order
 
 1. Repository `AGENTS.md`, `CONSTRAINTS.md` and relevant pinned `.agents/skills/`.
-2. [Release acceptance](../specs/SPEC-release-v1.0.md),
-   [version roadmap](v1.0.md) and [capability map](../../CAPABILITIES.md).
-3. [Delivered state](../progress.md), current [plan](../../tasks/plan.md),
-   [tasks](../../tasks/todo.md), selected card and its referenced source/metric spec.
+2. [Release acceptance](../../specs/SPEC-release-v1.0.md),
+   [version roadmap](../../roadmap/v1.0.md) and [capability map](../../../CAPABILITIES.md).
+3. [Delivered state](../../progress.md), current [plan](../../../tasks/plan.md),
+   [tasks](../../../tasks/todo.md), selected card and its referenced source/metric spec.
 4. Applicable public operator/runbook documents; private inputs only when the
    current session grants access. Do not assume this agent's environment persists.
 
@@ -61,7 +61,7 @@ main delivery. The roadmap PR changes documentation, not source state or version
 
 ## Execution and evidence protocol
 
-Select one unblocked [card](agent-backlog.md). Record its ID, base SHA, scope,
+Select one unblocked [card](../../roadmap/agent-backlog.md). Record its ID, base SHA, scope,
 dependencies, affected interfaces, proposed files and acceptance in the active
 plan/tasks without deleting older pending work. Prepare only that bounded spec
 and implementation. Resolve routine choices from existing approval; consequential

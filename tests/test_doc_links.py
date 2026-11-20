@@ -13,7 +13,9 @@ def _documents() -> list[Path]:
     listed = subprocess.run(
         ["git", "ls-files", "*.md"], cwd=ROOT, capture_output=True, text=True, check=True
     ).stdout.splitlines()
-    return [ROOT / name for name in listed if not name.startswith(SKIPPED) and (ROOT / name).exists()]
+    return [
+        ROOT / name for name in listed if not name.startswith(SKIPPED) and (ROOT / name).exists()
+    ]
 
 
 def _broken(document: Path) -> list[str]:

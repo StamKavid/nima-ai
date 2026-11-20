@@ -65,7 +65,7 @@ flowchart TD
 
 PostgreSQL is authoritative for record history and work state; original evidence
 is archived separately. The implemented bounded graph is a rebuildable private
-JSON view of selected reviewed records. The [database assessment](graph/database-candidates.md)
+JSON view of selected reviewed records. The [database assessment](history/graph/database-candidates.md)
 compares Memgraph/FalkorDB as prototype candidates, Neo4j as a tooling baseline and
 AGE/HydraDB alternatives across technical, operating/support and licensing factors.
 No store or adapter has been adopted or benchmarked.
@@ -107,7 +107,7 @@ Primary source contracts:
 
 Keep source observations, resolved identity, and analytical inference distinct.
 
-The implemented [bounded pilot contract](graph/investigation-pilot.md) uses exact
+The implemented [bounded pilot contract](history/graph/investigation-pilot.md) uses exact
 contract versions, selected party occurrences, unclassified reviewed handles,
 registry anchor observations and raw-evidence references. Active-only reviewed
 links retain their acceptance event/candidate/current revision; unresolved/history
