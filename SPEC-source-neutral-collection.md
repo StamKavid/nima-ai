@@ -57,19 +57,21 @@ Three KIMDIS constants or types are hardwired into engine modules:
 ```python
 @dataclass(frozen=True)
 class SourceProvenance:
-    endpoint: str            # base URL every request goes to; https only
-    documentation_url: str   # recorded in the manifest as "source"
-    license: str             # as the publisher states it; KIMDIS keeps "CC BY 4.0"
+    endpoint: str  # base URL every request goes to; https only
+    documentation_url: str  # recorded in the manifest as "source"
+    license: str  # as the publisher states it; KIMDIS keeps "CC BY 4.0"
+
 
 @dataclass(frozen=True)
 class SourceRequest:
     method: Literal["GET", "POST"]
-    url: str                 # must equal the adapter's provenance.endpoint
+    url: str  # must equal the adapter's provenance.endpoint
     params: Mapping[str, str | int]
     json: Mapping[str, object] | None
-    accept: str              # e.g. "application/json" or "text/csv"
+    accept: str  # e.g. "application/json" or "text/csv"
 
-class SourceAdapter(Protocol):   # existing members unchanged
+
+class SourceAdapter(Protocol):  # existing members unchanged
     @property
     def provenance(self) -> SourceProvenance: ...
     def request_for(self, page: int) -> SourceRequest: ...
