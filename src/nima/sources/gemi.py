@@ -142,12 +142,12 @@ def _field(
         raise InvalidProfile(path) from None
 
 
-def normalize_profile(raw: bytes, expected_id: str) -> RegistryCompany:
-    expected = registry_number(expected_id)
+def decode_body(raw: bytes) -> dict[str, object]:
+    """Strict JSON object decoding shared by single profiles and search responses."""
     if len(raw) > MAX_BODY:
         raise InvalidProfile("body_size")
     try:
-        obj = _object(
+        return _object(
             json.loads(
                 raw.decode("utf-8"),
                 parse_float=Decimal,
@@ -158,14 +158,29 @@ def normalize_profile(raw: bytes, expected_id: str) -> RegistryCompany:
         )
     except (ValueError, RecursionError, DecimalException):
         raise InvalidProfile("json") from None
+
+
+def normalize_profile(raw: bytes, expected_id: str) -> RegistryCompany:
+    expected = registry_number(expected_id)
+    return normalize_company(decode_body(raw), hashlib.sha256(raw).hexdigest(), expected=expected)
+
+
+def normalize_company(
+    obj: dict[str, object], response_sha256: str, *, expected: str | None, prefix: str = ""
+) -> RegistryCompany:
+    """Normalize one Company object; ``prefix`` locates it inside the original response body.
+
+    A single profile has an empty prefix and an expected registry number. A search hit has the
+    pointer of its array element and takes its registry number from the object itself.
+    """
     try:
         number = _registry_id(obj.get("arGemi"))
     except ValueError:
-        raise InvalidProfile("/arGemi") from None
-    if number is None or number <= 0 or str(number) != expected:
-        raise InvalidProfile("/arGemi")
+        raise InvalidProfile(f"{prefix}/arGemi") from None
+    if number is None or number <= 0 or (expected is not None and str(number) != expected):
+        raise InvalidProfile(f"{prefix}/arGemi")
     fields = {
-        name: _field(obj, source, "", converter)
+        name: _field(obj, source, prefix, converter)
         for name, source, converter in (
             ("registry_number", "arGemi", _registry_id),
             ("reported_afm", "afm", _text),
@@ -180,16 +195,16 @@ def normalize_profile(raw: bytes, expected_id: str) -> RegistryCompany:
         )
     }
     for source, name in (("legalType", "legal_type"), ("status", "status")):
-        nested = _object(obj.get(source), f"/{source}", optional=True)
-        fields[f"{name}_id"] = _field(nested, "id", f"/{source}", _integer)
-        fields[f"{name}_label"] = _field(nested, "descr", f"/{source}", _text)
+        nested = _object(obj.get(source), f"{prefix}/{source}", optional=True)
+        fields[f"{name}_id"] = _field(nested, "id", f"{prefix}/{source}", _integer)
+        fields[f"{name}_label"] = _field(nested, "descr", f"{prefix}/{source}", _text)
     try:
         activities = _array(obj.get("activities"))
     except ValueError:
-        raise InvalidProfile("/activities") from None
+        raise InvalidProfile(f"{prefix}/activities") from None
     rows = []
     for index, value in enumerate(activities or []):
-        path = f"/activities/{index}"
+        path = f"{prefix}/activities/{index}"
         row = _object(value, path)
         activity = _object(row.get("activity"), f"{path}/activity", optional=True)
         rows.append(
@@ -206,8 +221,8 @@ def normalize_profile(raw: bytes, expected_id: str) -> RegistryCompany:
         )
     return RegistryCompany(
         f"gemi:{number}",
-        hashlib.sha256(raw).hexdigest(),
+        response_sha256,
         MappingProxyType(fields),
         None if activities is None else tuple(rows),
-        "/activities" if "activities" in obj else None,
+        f"{prefix}/activities" if "activities" in obj else None,
     )
