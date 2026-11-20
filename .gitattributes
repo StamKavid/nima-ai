@@ -1,0 +1,10 @@
+# Keep line endings identical on every machine. The repository stores LF; without this, a Windows
+# checkout with core.autocrlf=true writes CRLF into the working tree, which changes the bytes of
+# packaged contracts and fixtures and makes tests that compare or hash them fail locally.
+* text=auto eol=lf
+
+# Shell scripts run in Linux containers and CI.
+*.sh text eol=lf
+
+# Upstream licence text shipped verbatim in the source-worker image: never rewrite its bytes.
+infra/source-worker/LICENSE.seccomp -text
