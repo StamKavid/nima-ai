@@ -10,6 +10,7 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | [SPEC-source-boundaries](SPEC-source-boundaries.md) | `SourceAdapter` protocol (V1-04) | Approved; S1-S4 delivered, S5 gated |
 | [SPEC-entity-resolution](SPEC-entity-resolution.md) | Evidence-backed party identity | Approved |
 | [SPEC-semantic-model](SPEC-semantic-model.md) | Shared selection, time, party tier and metrics U1-U4 (V1-05) | Draft for owner review |
+| [SPEC-gemi-afm-lookup](SPEC-gemi-afm-lookup.md) | GEMI search by reported tax number | Draft for owner review |
 | [SPEC-semantic-layer](SPEC-semantic-layer.md) | First shared metric definition | Provider implemented; metric draft |
 | [SPEC-market-analytics](SPEC-market-analytics.md) | Cited supplier-buyer readout | CLI implemented; human validation open |
 | [SPEC-source-neutral-collection](SPEC-source-neutral-collection.md) | Source-neutral request, provenance, run options | Approved; N1, N2 delivered |

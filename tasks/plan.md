@@ -1,5 +1,17 @@
 # Delivery plan
 
+## Active GEMI AFM lookup: spec drafted, no code
+
+[SPEC-gemi-afm-lookup.md](../docs/specs/SPEC-gemi-afm-lookup.md) (2026-11-20) proposes `GET /companies?afm=` so a KIMDIS
+reported tax number can be looked up in GEMI without finding the registry number by hand. Evidence and candidates only: every
+response archived before parsing, a fixed outcome vocabulary per AFM, no hit chosen for the investigator, no identity link.
+Slices L1 spec, L2 pure parser, L3 collector, L4 archive verification, L5 import plus the comparison outcome
+`queried_not_found_at_observation` (migration, owner approval first), L6 live pilot on the owner's machine with an
+equivalence check against `GET /companies/{arGemi}` and a latency measurement. Nothing is implemented until the owner approves
+the spec and decisions D1-D6. Main risks: a search hit not equal to a profile (checked in L6), profile latency of 30 s or more
+against the 300 s run limit (measured, then amended in the spec), personal data of sole traders (private archives, redacted
+publication). No dependency, CI or source-schedule change. Preserve all earlier tasks.
+
 ## Active V1-05 S2: time model, measured before it is written
 
 Owner approved the [semantic model spec](../docs/specs/SPEC-semantic-model.md) on 2026-11-20 with decisions D1-D5 as

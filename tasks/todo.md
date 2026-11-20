@@ -1,5 +1,15 @@
 # Tasks
 
+## GEMI AFM lookup (spec drafted 2026-11-20)
+
+- [ ] L1: owner reviews `docs/specs/SPEC-gemi-afm-lookup.md` and decides D1-D6 (input, hits, hit as profile evidence, run
+  budget, personal data, storage migration).
+- [ ] L2: write failing tests, then the pure search-response parser and outcome rules (all five outcomes, string `arGemi`).
+- [ ] L3: collector `ingest gemi-afm` on the shared GEMI transport, archive-first; crash, retry and budget tests.
+- [ ] L4: read-only archive verification for search runs.
+- [ ] L5: import of hits and `queried_not_found_at_observation` (migration; ask the owner first).
+- [ ] L6: live pilot on the owner's machine (three existing AFMs, one 404, equivalence and latency); amend the spec.
+
 ## V1-05 S2 — time model, measured first
 
 - [x] Spec approved 2026-11-20 (`docs/specs/SPEC-semantic-model.md`), decisions D1-D5 as recommended.
