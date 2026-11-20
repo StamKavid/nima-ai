@@ -29,7 +29,17 @@
   page had one record, so a multi-record scenario was added and its pin recorded from the old
   engine in a separate worktree. Known limits: the HTTP transport is still KIMDIS-specific, replay still labels its archive
   layout `kimdis`, and the three GEMI imports stay in the baseline.
-- [ ] S4 two synthetic adapters of different shape; conformance on all three.
+- [x] S4 two synthetic adapters of different shape; conformance on all three (local; hosted
+  exact-head proof and review pending). Test-only `ledger` (semicolon text, decimal-comma money,
+  `L-0001` ids, line-number evidence) and `events` (nested JSON, cursor paging, integer minor
+  units with per-currency exponents, composite ids); neither is registered, so no product code
+  or engine file changed. Parser conformance now runs 11 shared tests on all three adapters, and
+  a new engine suite runs the real collect, resume, replay, quarantine and identity-coverage
+  paths on all three plus a shared-database isolation test. Nine mutations (engine evidence
+  pointer, identity check, replay and resume dropping the adapter, store ignoring the adapter's
+  version, and five adapter bugs) fail the new tests and are restored. Found, not fixed (needs an
+  engine change): a ledger run's archive manifest records the KIMDIS endpoint, source URL and
+  CC BY 4.0 licence because the collector hardcodes them; this is an S5 prerequisite.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
 
 ## V1-03 O3f — evidence TRUNCATE guards

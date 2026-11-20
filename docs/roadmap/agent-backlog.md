@@ -104,7 +104,8 @@ infrastructure purchase or schedule is implied by the code PRs.
 
 Spec approved 2026-11-19: [SPEC-source-boundaries.md](../../SPEC-source-boundaries.md). S1 (import
 graph check with a shrink-only baseline) is delivered in #154 and S2 (protocol and KIMDIS adapter) in #155,
-and S3 (engine on the protocol) in #156; S4 is next, S5 is gated.
+and S3 (engine on the protocol) in #156; S4 (two synthetic adapters) is in review, S5 is gated
+and needs a source-neutral manifest and transport first.
 
 Measure current imports/coupling before a narrow extraction. Separate pure source
 normalization/types from transport/storage and publish necessary APIs. Preserve

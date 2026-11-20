@@ -76,7 +76,7 @@ main and dev and `quality` has 20 minutes. Its own hosted run 44600852305 was th
 that head and `quality` took 15 min 23 s, which would have exceeded the old limit. Headroom is
 about 4.6 minutes, so parallel tests are the next option if a run passes about 18 minutes.
 
-## V1-04: source boundaries for a second feed (S1-S3 delivered, S4 next)
+## V1-04: source boundaries for a second feed (S1-S3 delivered, S4 in review)
 
 The owner approved [the spec](../SPEC-source-boundaries.md). Slice S1 (#154, merged at
 `d3b0e90`, hosted run 44606219260) added an import-graph check with a committed shrink-only
@@ -90,8 +90,13 @@ the adapter protocol, with KIMDIS the default via a small registry. Before the c
 collections were fingerprinted (every database row, the archive sidecar files and the replay
 artifact) and pinned; the same pins pass on the moved engine, so no stored or archived byte
 changed. The three KIMDIS engine-to-source imports are removed from the dependency baseline; the
-three GEMI ones remain. Slice S4 proves the protocol with two synthetic adapters of different shape. A real second
-dataset (S5) is a gated, optional step that starts only when the owner names one.
+three GEMI ones remain. Slice S4 (candidate, local proof only) proves the protocol with two test-only synthetic
+sources of different shape (text with decimal-comma money and line evidence; cursor-paged
+nested JSON with minor-unit money). The real collect, resume, replay and quarantine paths pass
+unchanged for KIMDIS and both, with no engine change. It also found that the archive manifest
+records KIMDIS provenance for any adapter; that is recorded as a prerequisite for S5, a real
+second dataset, which stays gated until the owner names one. Candidate code earns no progress
+credit until reviewed and delivered.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 
