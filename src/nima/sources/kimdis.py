@@ -6,7 +6,9 @@ The response hash identifies the archived decoded HTTP response body.
 
 import hashlib
 import json
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
+from datetime import date
 from decimal import Decimal, InvalidOperation
 from typing import Literal, Never, cast
 
@@ -17,6 +19,7 @@ from nima.sources.base import (
     NormalizedRecord,
     PageIssue,
     PayloadSource,
+    QueryPayload,
     SourcePageError,
     SourceProvenance,
     SourceRequest,
@@ -392,6 +395,18 @@ def _normalized(contract: Contract) -> dict[str, object]:
     return value
 
 
+def _saved_date(value: object) -> str:
+    if not isinstance(value, str):
+        raise ValueError("Invalid saved text option")
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError:
+        raise ValueError("Invalid saved date") from None
+    if parsed.isoformat() != value:
+        raise ValueError("Invalid saved date")
+    return value
+
+
 class KimdisAdapter:
     """KIMDIS contracts as a source adapter; the parsing above is unchanged."""
 
@@ -404,6 +419,27 @@ class KimdisAdapter:
 
     def __init__(self, query: PayloadSource | None = None) -> None:
         self._query = query
+
+    @classmethod
+    def from_payload(cls, payload: Mapping[str, object]) -> "KimdisAdapter":
+        """Rebuild the adapter for a saved run from the payload ``Query.payload()`` wrote.
+
+        The payload must be exactly in that form, so a stored run cannot be resumed against a
+        reshaped query. (This module cannot import ``Query``: that would make the engine package
+        and the sources package import each other.)
+        """
+        canonical: dict[str, object] = {
+            "dateFrom": _saved_date(payload.get("dateFrom")),
+            "dateTo": _saved_date(payload.get("dateTo")),
+        }
+        buyers = payload.get("organizations", [])
+        if not isinstance(buyers, list) or not all(isinstance(b, str) for b in buyers):
+            raise ValueError("Invalid saved buyer filter")
+        if buyers:
+            canonical["organizations"] = list(buyers)
+        if canonical != dict(payload):
+            raise ValueError("Saved query is not in canonical form")
+        return cls(QueryPayload(canonical))
 
     def query_payload(self) -> dict[str, object]:
         if self._query is None:

@@ -131,6 +131,29 @@ Tests first, red before green, mutation-checked, as in S3.
 - The pinned KIMDIS wire request, manifest, rows and sidecars are byte-identical to `main`.
 - Existing crash, resume, replay and access tests pass unchanged.
 
+## N2 as built
+
+- `collect(query, ...)` takes its query from the adapter. A query that is also passed must equal
+  the adapter's payload or the call fails closed before a run, file or request exists; with
+  neither a query nor an adapter it refuses. KIMDIS callers are unchanged.
+- `QueryPayload` (neutral, in `sources.base`) carries a saved payload as a query-like object, so
+  `start_run`, `begin` and `takeover` widened from `Query` to `PayloadSource` with no change to
+  their callers.
+- `storage.runs.load_options` is now `load_run_options` and returns plain data (payload,
+  connector version, limits, archive root); storage no longer builds a `Query`.
+- Resume rebuilds the adapter through `registry.adapter_from_run(connector_version, payload)`. An
+  unregistered source, or a saved query its source cannot read, raises `CheckpointError` before the
+  run is claimed and before any request, which the CLI already reports as `run_unavailable`: no
+  new failure code, no migration.
+- **Design constraint found while building.** The KIMDIS adapter cannot import `Query` to rebuild
+  itself: `Query` lives in `ingestion.config`, and the engine package already imports the sources
+  package, so the import would add a package cycle and the dependency baseline would grow. The
+  adapter instead accepts a saved payload only if it is exactly what `Query.payload()` writes
+  (the same canonical-form check the old code got by rebuilding a `Query` and comparing). A test
+  ties the two together. The orchestration pipeline, which is KIMDIS-specific, now compares the
+  saved payload, limits and archive root with its request directly.
+- The S4 engine tests no longer give every source a KIMDIS `Query`.
+
 ## What this does not fix, and when it must be revisited
 
 Nothing below is hidden debt; each item has a named trigger.

@@ -8,8 +8,9 @@ to one feed.
 
 import hashlib
 import json
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -19,18 +20,21 @@ import pytest
 
 from nima.dataops.replay import prepare_replay
 from nima.ingestion.archive import Archive
-from nima.ingestion.collector import collect
+from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits, Summary
 from nima.ingestion.resume import resume
+from nima.sources import registry
 from nima.sources.base import (
     DEFAULT_MAX_BYTES,
     NormalizedPage,
+    QueryPayload,
     SourceAdapter,
     SourceProvenance,
     SourceRequest,
     SourceRequestError,
 )
 from nima.sources.kimdis import KimdisAdapter
+from nima.sources.registry import RegisteredSource
 from nima.storage.postgres import CheckpointError, PageStore, migrate
 from nima.storage.runs import RunStore
 from tests.synthetic_sources import (
@@ -127,7 +131,7 @@ def run_collect(
 ) -> Summary:
     with serve(case, requests=requests, sent=sent) as client:
         return collect(
-            QUERY,
+            None,
             Limits(),
             Archive(root),
             client=client,
@@ -214,7 +218,7 @@ def test_resume_continues_from_the_committed_prefix_and_is_idempotent(
     run = uuid4()
     writer = RunStore(pg_dsn, archive, run, Limits(), adapter)
     with writer.lease():
-        writer.begin(QUERY)
+        writer.begin(QueryPayload(adapter.query_payload()))
         writer.commit_page(run, case.pages[0], observed_at=datetime.now(UTC), owner=writer.owner)
     requests: list[int] = []
     with serve(case, requests=requests) as client:
@@ -261,7 +265,7 @@ def test_a_repeated_source_identifier_stops_the_run_before_it_claims_completenes
     migrate(pg_dsn)
     with serve(case, case.repeated_id_pages) as client:
         summary = collect(
-            QUERY,
+            None,
             Limits(),
             Archive(tmp_path / "raw"),
             client=client,
@@ -302,9 +306,12 @@ def test_a_store_for_one_source_refuses_a_run_started_by_another(
 ) -> None:
     migrate(pg_dsn)
     run = uuid4()
-    PageStore(pg_dsn, Archive(tmp_path / "raw"), KimdisAdapter(QUERY)).start_run(run, QUERY)
+    kimdis = KimdisAdapter(QUERY)
+    PageStore(pg_dsn, Archive(tmp_path / "raw"), kimdis).start_run(run, QUERY)
     with pytest.raises(CheckpointError):
-        PageStore(pg_dsn, Archive(tmp_path / "raw"), other.make()).start_run(run, QUERY)
+        PageStore(pg_dsn, Archive(tmp_path / "raw"), other.make()).start_run(
+            run, QueryPayload(other.make().query_payload())
+        )
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -375,9 +382,10 @@ class MiswiredAdapter:
         endpoint: str | None = None,
         request_url: str | None = None,
         from_page: int = 0,
+        query: dict[str, object] | None = None,
     ) -> None:
         self._inner, self._endpoint, self._request_url = inner, endpoint, request_url
-        self._from_page = from_page
+        self._from_page, self._query = from_page, query
         self.name = inner.name
         self.connector_version = inner.connector_version
         self.normalizer_version = inner.normalizer_version
@@ -390,7 +398,7 @@ class MiswiredAdapter:
         )
 
     def query_payload(self) -> dict[str, object]:
-        return self._inner.query_payload()
+        return self._inner.query_payload() if self._query is None else self._query
 
     def request_for(self, page: int) -> SourceRequest:
         request = self._inner.request_for(page)
@@ -420,7 +428,7 @@ def test_a_miswired_adapter_is_refused_before_any_run_file_or_request_exists(
     adapter = MiswiredAdapter(case.make(), endpoint=endpoint, request_url=request_url)
     with serve(case, sent=sent) as client, pytest.raises(SourceRequestError):
         collect(
-            QUERY,
+            None,
             Limits(),
             Archive(root),
             client=client,
@@ -445,7 +453,7 @@ def test_a_request_that_goes_wrong_on_a_later_page_is_refused_before_it_is_sent(
     )
     with serve(case, requests=served) as client, pytest.raises(SourceRequestError):
         collect(
-            QUERY,
+            None,
             Limits(),
             Archive(tmp_path / "raw"),
             client=client,
@@ -454,3 +462,150 @@ def test_a_request_that_goes_wrong_on_a_later_page_is_refused_before_it_is_sent(
             adapter=adapter,
         )
     assert served == [0, 1]
+
+
+def register(monkeypatch: pytest.MonkeyPatch, case: EngineCase) -> None:
+    """Make a synthetic source known to the registry for one test, as if it shipped."""
+    adapter = case.make()
+    if adapter.name in registry.known_sources():
+        return
+
+    def from_payload(payload: Mapping[str, object]) -> SourceAdapter:
+        if dict(payload) != adapter.query_payload():
+            raise ValueError("Invalid saved query")
+        return case.make()
+
+    monkeypatch.setitem(
+        registry._SOURCES,
+        adapter.name,
+        RegisteredSource(adapter.connector_version, lambda query: case.make(), from_payload),
+    )
+
+
+def start_run_with_first_page(case: EngineCase, dsn: str, root: Path) -> UUID:
+    adapter = case.make()
+    run = uuid4()
+    writer = RunStore(dsn, Archive(root), run, Limits(), adapter)
+    with writer.lease():
+        writer.begin(QueryPayload(adapter.query_payload()))
+        writer.commit_page(run, case.pages[0], observed_at=datetime.now(UTC), owner=writer.owner)
+    return run
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_the_run_query_is_the_adapters_own_in_the_database_and_the_manifest(
+    case: EngineCase, pg_dsn: str, tmp_path: Path
+) -> None:
+    adapter = case.make()
+    migrate(pg_dsn)
+    summary = run_collect(case, pg_dsn, tmp_path / "raw")
+    manifest = json.loads(
+        (tmp_path / "raw" / "runs" / summary.run_id / "manifest.json").read_bytes()
+    )
+    assert manifest["query"] == adapter.query_payload()
+    with psycopg.connect(pg_dsn) as c:
+        assert c.execute("SELECT query FROM nima.ingest_runs").fetchall() == [
+            (adapter.query_payload(),)
+        ]
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_a_query_that_disagrees_with_the_adapter_is_refused_before_anything_exists(
+    case: EngineCase, pg_dsn: str, tmp_path: Path
+) -> None:
+    migrate(pg_dsn)
+    sent: list[httpx.Request] = []
+    with serve(case, sent=sent) as client, pytest.raises(ValueError, match="disagree"):
+        collect(
+            QueryPayload({"somethingElse": True}),
+            Limits(),
+            Archive(tmp_path / "raw"),
+            client=client,
+            clock=Clock(),
+            database_dsn=pg_dsn,
+            adapter=case.make(),
+        )
+    assert sent == []
+    assert list((tmp_path / "raw" / "runs").iterdir()) == []
+    with psycopg.connect(pg_dsn) as c:
+        assert c.execute("SELECT count(*) FROM nima.ingest_runs").fetchone() == (0,)
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_an_equal_query_and_adapter_are_accepted_and_neither_alone_is_required(
+    case: EngineCase, pg_dsn: str, tmp_path: Path
+) -> None:
+    adapter = case.make()
+    migrate(pg_dsn)
+    with serve(case) as client:
+        summary = collect(
+            QueryPayload(adapter.query_payload()),
+            Limits(),
+            Archive(tmp_path / "raw"),
+            client=client,
+            clock=Clock(),
+            database_dsn=pg_dsn,
+            adapter=adapter,
+        )
+    assert summary.status == "quarantined"
+
+
+def test_collect_needs_a_query_or_an_adapter() -> None:
+    with pytest.raises(ValueError, match="query or an adapter"):
+        collect(None, Limits(), Archive(Path("unused")), client=httpx.Client())
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_resume_rebuilds_the_adapter_from_the_saved_run_through_the_registry(
+    case: EngineCase, pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    register(monkeypatch, case)
+    migrate(pg_dsn)
+    run = start_run_with_first_page(case, pg_dsn, tmp_path / "raw")
+    requests: list[int] = []
+    with serve(case, requests=requests) as client:
+        result = resume(pg_dsn, run, client=client, clock=Clock())
+    assert result.status == "quarantined" and result.collection_complete
+    assert requests == [0, 1, 2]
+    assert (result.records, result.normalized, result.quarantined) == (3, 2, 1)
+
+
+@pytest.mark.parametrize("case", [LEDGER, EVENTS], ids=["ledger", "events"])
+def test_resuming_a_run_whose_source_is_not_registered_stops_before_any_request(
+    case: EngineCase, pg_dsn: str, tmp_path: Path
+) -> None:
+    migrate(pg_dsn)
+    run = start_run_with_first_page(case, pg_dsn, tmp_path / "raw")
+    sent: list[httpx.Request] = []
+    with serve(case, sent=sent) as client, pytest.raises(CheckpointError):
+        resume(pg_dsn, run, client=client, clock=Clock())
+    assert sent == []
+
+
+def test_resuming_a_kimdis_run_with_a_reshaped_saved_query_stops_before_any_request(
+    pg_dsn: str, tmp_path: Path
+) -> None:
+    migrate(pg_dsn)
+    run = uuid4()
+    bad = QueryPayload({"dateFrom": "2026-11-06", "dateTo": "2026-11-06", "organizations": []})
+    writer = RunStore(pg_dsn, Archive(tmp_path / "raw"), run, Limits(), KimdisAdapter(bad))
+    with writer.lease():
+        writer.begin(bad)
+    sent: list[httpx.Request] = []
+    with serve(KIMDIS, sent=sent) as client, pytest.raises(CheckpointError):
+        resume(pg_dsn, run, client=client, clock=Clock())
+    assert sent == []
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_resuming_with_an_adapter_whose_query_differs_from_the_saved_one_is_refused(
+    case: EngineCase, pg_dsn: str, tmp_path: Path
+) -> None:
+    migrate(pg_dsn)
+    run = start_run_with_first_page(case, pg_dsn, tmp_path / "raw")
+    other = MiswiredAdapter(case.make(), query={"another": "query"})
+    sent: list[httpx.Request] = []
+    with serve(case, sent=sent) as client, pytest.raises(RunError) as refused:
+        resume(pg_dsn, run, client=client, clock=Clock(), adapter=other)
+    assert refused.value.reason == "database"
+    assert sent == []

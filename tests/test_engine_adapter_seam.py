@@ -24,6 +24,7 @@ from nima.sources.base import (
     NormalizedPage,
     NormalizedRecord,
     PageIssue,
+    QueryPayload,
     SourceAdapter,
     SourcePageError,
     SourceProvenance,
@@ -111,7 +112,7 @@ def test_page_store_persists_the_adapters_identity_records_and_issues(
     migrate(pg_dsn)
     run = uuid4()
     database = PageStore(pg_dsn, Archive(tmp_path / "raw"), adapter)
-    database.start_run(run, QUERY)
+    database.start_run(run, QueryPayload(adapter.query_payload()))
     assert database.commit_page(run, PAGE, observed_at=datetime.now(UTC))
     with psycopg.connect(pg_dsn) as c:
         assert c.execute(
@@ -144,7 +145,9 @@ def test_a_store_for_one_source_refuses_a_run_started_by_another(
 
     migrate(pg_dsn)
     run = uuid4()
-    PageStore(pg_dsn, Archive(tmp_path / "raw"), adapter).start_run(run, QUERY)
+    PageStore(pg_dsn, Archive(tmp_path / "raw"), adapter).start_run(
+        run, QueryPayload(adapter.query_payload())
+    )
     with pytest.raises(CheckpointError):
         default_store(pg_dsn, tmp_path).start_run(run, QUERY)
 
@@ -154,7 +157,7 @@ def test_collector_runs_a_stand_in_source_end_to_end(pg_dsn: str, tmp_path: Path
     transport = httpx.MockTransport(lambda request: httpx.Response(200, content=PAGE))
     with httpx.Client(transport=transport) as client:
         summary = collect(
-            QUERY,
+            None,
             Limits(),
             Archive(tmp_path / "raw"),
             client=client,
@@ -184,7 +187,7 @@ def test_replay_uses_the_adapters_name_versions_and_pointers(pg_dsn: str, tmp_pa
     transport = httpx.MockTransport(lambda request: httpx.Response(200, content=PAGE))
     with httpx.Client(transport=transport) as client:
         summary = collect(
-            QUERY,
+            None,
             Limits(),
             Archive(tmp_path / "raw"),
             client=client,

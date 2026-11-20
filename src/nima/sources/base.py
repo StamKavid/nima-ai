@@ -7,6 +7,7 @@ fields. This module imports nothing from the rest of the project so either side 
 
 import re
 from collections.abc import Mapping
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Literal, Protocol
 from urllib.parse import urlsplit
@@ -88,6 +89,19 @@ class PayloadSource(Protocol):
     """Anything that can describe its request as a JSON payload (for example a run's query)."""
 
     def payload(self) -> dict[str, object]: ...
+
+
+class QueryPayload:
+    """A run's saved query as plain JSON, for code that holds the payload but no query object.
+
+    The payload is copied on the way in and on the way out, so neither side can change it.
+    """
+
+    def __init__(self, value: Mapping[str, object]) -> None:
+        self._value: dict[str, object] = deepcopy(dict(value))
+
+    def payload(self) -> dict[str, object]:
+        return deepcopy(self._value)
 
 
 class SourceAdapter(Protocol):

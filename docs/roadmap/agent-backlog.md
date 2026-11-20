@@ -106,7 +106,8 @@ Spec approved 2026-11-19: [SPEC-source-boundaries.md](../../SPEC-source-boundari
 graph check with a shrink-only baseline) is delivered in #154 and S2 (protocol and KIMDIS adapter) in #155,
 S3 (engine on the protocol) in #156 and S4 (two synthetic adapters) in #157; S5 is gated
 and needs source-neutral collection first: request, provenance and run options
-([draft spec](../../SPEC-source-neutral-collection.md), N1 and N2, awaiting owner approval).
+([approved spec](../../SPEC-source-neutral-collection.md); N1 delivered in #158, N2 run options and
+resume next).
 
 Measure current imports/coupling before a narrow extraction. Separate pure source
 normalization/types from transport/storage and publish necessary APIs. Preserve

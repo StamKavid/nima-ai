@@ -10,12 +10,14 @@ import httpx
 import psycopg
 
 from nima.ingestion.archive import Archive, ArchiveError
-from nima.ingestion.config import Limits, Query, Summary
+from nima.ingestion.config import Limits, Summary
 from nima.ingestion.transport import Clock, CollectionStopped, Session, SystemClock, retry_delay
 from nima.sources.base import (
     NormalizedPage,
     NormalizedRecord,
     PageIssue,
+    PayloadSource,
+    QueryPayload,
     SourceAdapter,
     SourcePageError,
     checked_provenance,
@@ -62,7 +64,7 @@ def _issue_row(page: NormalizedPage, issue: PageIssue) -> dict[str, object]:
 
 
 def collect(
-    query: Query,
+    query: PayloadSource | None,
     limits: Limits,
     archive: Archive,
     *,
@@ -83,7 +85,16 @@ def collect(
         raise ValueError("Resume requires PostgreSQL")
     if database_dsn is not None:
         check_schema(database_dsn)
-    source = adapter if adapter is not None else default_adapter(query)
+    if adapter is not None:
+        source = adapter
+        if query is not None and query.payload() != source.query_payload():
+            raise ValueError("The query and the adapter disagree")
+    elif query is not None:
+        source = default_adapter(query)
+    else:
+        raise ValueError("collect needs a query or an adapter")
+    # The adapter is the single owner of the run's query: it is what is stored and archived.
+    run_query = QueryPayload(source.query_payload())
     # Refuse an unsafe or inconsistent adapter before a run, an archive file or a request exists.
     provenance = checked_provenance(source)
     checked_request(source, 0)
@@ -94,7 +105,7 @@ def collect(
         "format_version": 1,
         "connector_version": source.connector_version,
         "endpoint": provenance.endpoint,
-        "query": query.payload(),
+        "query": run_query.payload(),
         "limits": asdict(limits),
         "source": provenance.documentation_url,
         "license": provenance.license,
@@ -116,9 +127,9 @@ def collect(
     with _run_boundary(summary.run_id), journal.lease() if journal else nullcontext():
         if journal is not None:
             if resume_id is None:
-                journal.begin(query)
+                journal.begin(run_query)
             else:
-                journal.takeover(query)
+                journal.takeover(run_query)
             session.journal = journal
         attempt_offset = 0
 

@@ -29,3 +29,21 @@ def test_an_adapter_without_a_query_refuses_to_describe_one() -> None:
 def test_an_unknown_source_is_an_error_not_a_default(name: str) -> None:
     with pytest.raises(registry.UnknownSourceError):
         registry.adapter_for(name)
+
+
+def test_a_run_is_rebuilt_into_its_adapter_from_its_saved_connector_and_payload() -> None:
+    adapter = registry.adapter_from_run(KimdisAdapter.connector_version, QUERY.payload())
+    assert isinstance(adapter, KimdisAdapter)
+    assert adapter.query_payload() == QUERY.payload()
+    assert adapter.request_for(0).json == QUERY.payload()
+
+
+@pytest.mark.parametrize("version", ["", "ledger-connector-v2", "kimdis-contract-v2", "KIMDIS"])
+def test_a_run_of_an_unregistered_connector_is_refused(version: str) -> None:
+    with pytest.raises(registry.UnknownSourceError):
+        registry.adapter_from_run(version, QUERY.payload())
+
+
+def test_a_registered_source_that_cannot_read_the_payload_refuses_it() -> None:
+    with pytest.raises(ValueError, match="Invalid saved"):
+        registry.adapter_from_run(KimdisAdapter.connector_version, {})

@@ -49,7 +49,10 @@
   endpoint. Specified below; not yet fixed.
 - [x] Spec `SPEC-source-neutral-collection.md` approved 2026-11-20: two PRs, no migration, five
   deferred items with triggers.
-- [ ] N1 source-neutral request and provenance. Tasks, each test-first:
+- [x] N1 source-neutral request and provenance: owner merged #158 at `535a16e`; exact `d4aec07`
+  verified on main (tree identical). Hosted run 44702178868 was the only run on that head and
+  passed all three jobs (`quality` 13 min 18 s). Local suite 3084 passed, 59 failed (the
+  unchanged PG16 environment baseline). Tasks, each test-first:
   - [x] N1.1 pins recorded from unmodified `main` `0945918`: KIMDIS wire request (method, URL,
     headers, body, three pages) and manifest minus volatile fields; stable across three runs;
     each fails when the `Accept` header or the licence string is changed, then restored.
@@ -69,8 +72,25 @@
     guard fail the tests and are restored. One survived and one was misleading, both fixed: the
     credentials check was only tested with a user and a password together, and the password check
     was dead logic (any userinfo already makes the username non-null), so it was removed.
-  - [ ] N1.5 full gates, draft PR and hosted exact-head proof.
-- [ ] N2 adapter-owned run options and resume through the registry (same spec; after N1).
+  - [x] N1.5 full gates, draft PR and hosted exact-head proof.
+- [ ] N2 adapter-owned run options and resume through the registry (same spec). Tasks, each
+  test-first:
+  - [x] N2.1 tests first, failing: generic `load_run_options` (payload, connector version,
+    limits, root); KIMDIS `Query` parsing in the KIMDIS module with the old error messages;
+    `registry.adapter_from_run`; `collect` takes its query from the adapter and refuses a
+    disagreeing one; resume of a run whose stored query is not KIMDIS-shaped; an unregistered
+    source stops before any request. The S4 engine tests stop handing every source a KIMDIS
+    `Query`.
+  - [x] N2.2 implementation: `QueryPayload`, widen `start_run`/`begin`/`takeover` to
+    `PayloadSource`, generic `load_run_options` in storage (no `Query`), KIMDIS parsing and
+    `from_payload` in the KIMDIS module, registry lookup by connector version, `collect` and
+    `resume` use them; the orchestration pipeline keeps its own KIMDIS helper.
+  - [x] N2.3 (local) mutations: twenty across `collect`, `resume`, the registry, the KIMDIS
+    rebuild, `QueryPayload`, `load_run_options` and the pipeline; three survived and were closed
+    with tests (a shallow copy of the saved payload, and the pipeline's comparison of a prepared
+    run with its request, which had no test before N2 for query, limits or archive root). One
+    `text()` helper became unreachable and was removed. Full gates, draft PR and hosted proof
+    follow.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
 
 ## V1-03 O3f — evidence TRUNCATE guards

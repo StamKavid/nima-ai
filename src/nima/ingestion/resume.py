@@ -10,7 +10,9 @@ from nima.ingestion.collector import _run_boundary, collect
 from nima.ingestion.config import Summary
 from nima.ingestion.transport import Clock
 from nima.sources.base import SourceAdapter
-from nima.storage.runs import load_options
+from nima.sources.registry import adapter_from_run
+from nima.storage.postgres import CheckpointError
+from nima.storage.runs import load_run_options
 
 
 def resume(
@@ -22,14 +24,21 @@ def resume(
     attempt_guard: Callable[[], None] | None = None,
     adapter: SourceAdapter | None = None,
 ) -> Summary:
-    query, limits, root = load_options(dsn, run_id)
+    options = load_run_options(dsn, run_id)
+    if adapter is None:
+        # An unregistered source, or a saved query its source cannot read, stops here: before the
+        # run is claimed and before any request. It is reported as an unusable saved run.
+        try:
+            adapter = adapter_from_run(options.connector_version, options.payload)
+        except ValueError:
+            raise CheckpointError("The saved run's source is unavailable") from None
     with _run_boundary(run_id.hex):
-        if not root.is_dir():
+        if not options.archive_root.is_dir():
             raise ArchiveError("The original run archive is unavailable")
         return collect(
-            query,
-            limits,
-            Archive(root),
+            None,
+            options.limits,
+            Archive(options.archive_root),
             client=client,
             clock=clock,
             database_dsn=dsn,
