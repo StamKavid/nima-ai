@@ -1,6 +1,7 @@
 # Diavgeia source acceptance dossier (V1-06, step 1)
 
-Status: **draft for the owner's decision.** No Diavgeia code exists and no Diavgeia data or search
+Status: **draft; decision 1 taken, decisions 2-5 open.** The owner answered "yes to pilot" on 2026-11-20
+(decision 1 below); nothing else has been decided. No Diavgeia code exists and no Diavgeia data or search
 endpoint has been called. This dossier is built only from the two official documentation pages
 below, read on 2026-11-20. Nothing here is from memory: every claim names where it was found, and
 what was not found is listed as **unverified**. Quotes are short, in the original Greek with an
@@ -149,16 +150,57 @@ The documentation specifies the special fields of six procurement and spending t
 | Type | Special fields (documented) | Note |
 |---|---|---|
 | **Δ.2.2 ΚΑΤΑΚΥΡΩΣΗ** (award) | `person` (list: `afm`, `afmType`, `afmCountry`, `name`, `noVATOrg`), `awardAmount` (`amount`, `currency`), `textRelatedADA` (ADA of the related expenditure approval) | Smallest field set. All three fields are `required: false` in the documented specification, so completeness cannot be assumed |
+| **Β.1.3 ΑΝΑΛΗΨΗ ΥΠΟΧΡΕΩΣΗΣ** (commitment) | `financialYear`, `budgettype`, `partialead` and `kae` (required), `entryNumber`, `recalledExpenseDecision`, `amountWithVAT`, `amountWithKae` (list: `sponsorAFMName` with `afm`/`name`, `kae`, `amountWithVAT`, remainders), `partialead`, `relatedPartialADA` | The type KIMDIS's `diavgeiaADA` plausibly points at. Larger than Δ.2.2 and carries supplier names and tax numbers |
 | Δ.1 ΑΝΑΘΕΣΗ (assignment) | the above plus `assignmentType`, `cpv` | Adds CPV, which the project already holds as a reference |
 | Δ.2.1 ΠΕΡΙΛΗΨΗ ΔΙΑΚΗΡΥΞΗΣ (tender summary) | `cpv`, procedure, selection criterion, contract type, `estimatedAmount`, `textRelatedADA` | Estimated value, not an awarded value |
 
-**No documented field refers to a KIMDIS contract identifier.** A keyword search of the whole
+**No Diavgeia field refers to a KIMDIS contract identifier, but KIMDIS records cite Diavgeia.** A keyword search of the whole
 documentation text (every decision type) for ΑΔΑΜ, ΚΗΜΔΗΣ, ΕΣΗΔΗΣ, ADAM and ΠΡΟΜΗΘΕΥΣ found
 nothing. The field lists of Δ.1, Δ.2.1 and Δ.2.2 were read in full; those of Β.1.3, Β.2.1 and
-Β.2.2 were covered by that search only. Joining Diavgeia to KIMDIS
-would therefore have to rest on supplier tax number, amount, dates or CPV, which are inferred
-links. They must stay investigative signals, not recorded facts, in line with the rule against
-invented identities. Whether PDF text carries an explicit KIMDIS reference is unverified.
+Β.2.2 were covered by that search only. The explicit key sits on the
+KIMDIS side (next section). Any join beyond those explicit keys, on supplier tax number, amount,
+dates or CPV, is an inferred link and must stay an investigative signal, not a recorded fact, in
+line with the rule against invented identities. Whether PDF text carries an explicit KIMDIS
+reference is unverified.
+
+### Linking keys that already exist
+
+Checked in this repository's own KIMDIS parsing (`src/nima/sources/kimdis.py`, `_references`) and
+in the Diavgeia documentation read above. These are documented or coded keys, not inferences.
+
+| From | Field | Points to | Status |
+|---|---|---|---|
+| KIMDIS record | `diavgeiaADA` | a Diavgeia decision's `ada`, parsed here as relation `commitment_decision`, namespace `diavgeia:` | In our code and test fixture. What KIMDIS means by it was taken from earlier project work and **not re-read in KIMDIS's own documentation today**: unverified |
+| KIMDIS record | `auctionRefNo`, `prevReferenceNo`, `paymentRefNo` | other KIMDIS records (award, previous record, payment orders) | In our code |
+| Diavgeia Δ.2.1 | `textRelatedADA` | the related commitment decision | Documented |
+| Diavgeia Δ.1, Δ.2.2 | `textRelatedADA` | the related expenditure approval | Documented |
+| Diavgeia Β.1.3 | `relatedPartialADA` | the initial partial commitment | Documented |
+| Diavgeia, types shown in the samples (Γ.3.5, Ε.3) | `relatedDecisions[].relatedDecisionsADA` | other decisions | Documented in sample responses; whether every type has it is unverified |
+| Both | `afm` (Diavgeia, with `afmType`, `afmCountry`) and the reported tax identifier (KIMDIS) | a party | Grouping key only, never a legal-identity finding; Diavgeia covers natural persons too |
+
+So the chain of a spend is already expressed by ADA references inside Diavgeia, and KIMDIS reaches
+into it through `diavgeiaADA`. Matching that field to a Diavgeia type (Β.1.3 commitment of
+obligation, "ΑΝΑΛΗΨΗ ΥΠΟΧΡΕΩΣΗΣ") is an inference from the names and must be confirmed on real
+records.
+
+## Prior art: who else links these sources (leads only, not yet read)
+
+A web search on 2026-11-20 found the projects below. **Everything here comes from search-result
+snippets and summaries, which are not sources, and none of the pages could be read** because their
+hosts are not on this environment's allowlist. Treat each as a lead to verify.
+
+| Lead | What it reportedly is | Why it matters |
+|---|---|---|
+| "Greece: Diavgis", <https://data.open-contracting.org/en/publication/161> | An independent project listed in the Open Contracting registry, reported to aggregate Diavgeia, KIMDIS and TED, with natural persons redacted and coverage described as a sample | Closest prior art. Its methodology would show which keys it joins on; the page and its linked documentation are the thing to read |
+| iMEdD Lab, <https://lab.imedd.org/en/?p=9919> | Appeared with Diavgis in results; content unknown | Unread |
+| arXiv 2512.05647, <https://arxiv.org/abs/2512.05647> | A corpus of roughly a million Diavgeia decisions with text extracted from PDFs, linking a GitHub repository | Diavgeia side only; useful for field shapes and scale, not for linking to KIMDIS |
+| "Public spending as LOD: the case of Greece", <https://semantic-web-journal.net/node/464> | An older linked-data effort on Greek public spending | Prior art for a typed-reference model |
+| ΚΥΑ 4968/22-01-2026, new article 6α "Ανοικτά δεδομένα ΚΗΜΔΗΣ", and a later amendment 87338/14-10-2026 (ΦΕΚ Β΄ 6275/16-10-2026) | Reported legal basis for KIMDIS open data | Bears on KIMDIS reuse terms, which this project currently records as CC BY 4.0. The primary FEK text must be read; the search hits were tax-news sites |
+| Vouliwatch and Solomon, "Consultocracy" report (2026) | Reported analysis of KIMDIS contracts 2017-2025 | Evidence that others use KIMDIS at scale; method unread |
+
+What the search did **not** find: any page documenting the keys or field mappings used to join
+KIMDIS, Diavgeia, GEMI and TED. Search summaries described ADA as Diavgeia's identifier and ADAM as
+KIMDIS's; that is a summary's wording, not a verified statement, and it is not used above.
 
 ## Not verified (explicitly)
 
@@ -169,17 +211,24 @@ invented identities. Whether PDF text carries an explicit KIMDIS reference is un
 5. Whether revoked decisions keep their documents available.
 6. Whether any decision type links explicitly to a KIMDIS identifier, in metadata or in PDF text.
 7. Real response shapes: this dossier read documentation and sample JSON, not live responses.
+8. Anything in the prior-art table: none of those pages were read.
+9. What KIMDIS officially says `diavgeiaADA` refers to, and how often it is filled.
 
 ## Decisions for the owner
 
-1. **Accept Diavgeia as the second source for a bounded pilot?** Recommended: yes, subject to 2-5.
+1. **Accept Diavgeia as the second source for a bounded pilot?** **Decided: yes** (owner,
+   2026-11-20), subject to 2-5.
 2. **Reuse and attribution.** Accept CC BY 4.0 plus Law 3448/2006 with a fixed source statement,
    and set its wording. Recommended: accept.
 3. **Personal data.** Choose what is retained about natural persons (names, tax numbers, document
    text), how long, and who may see it. Recommended: archive originals privately, keep fixtures
    synthetic, and project supplier tax numbers only for legal entities until a policy exists.
-4. **First decision class.** Recommended: Δ.2.2 κατακύρωση for one organisation and one window of
-   at most 180 days, so a real run is small enough to reconstruct and review by hand.
+4. **First decision class and how it is found.** Revised recommendation: take the ADAs that KIMDIS
+   records already cite in `diavgeiaADA` for one small KIMDIS cohort, and fetch exactly those
+   decisions one by one with `GET /decisions/:ada` (and their `versionlog`). That tests the
+   explicit KIMDIS-to-Diavgeia key end to end, avoids search paging and window rules, keeps the
+   run small enough to review by hand, and touches only decisions we already have a reason to
+   read. Δ.2.2 by organisation and window remains the fallback if too few records carry the field.
 5. **Network.** A pilot needs `diavgeia.gov.gr` on the source worker's egress allowlist and a rate
    limit the owner chooses. Nothing is fetched until you approve both.
 
