@@ -15,7 +15,14 @@ from pathlib import Path
 import pytest
 
 from nima.sources import base
-from nima.sources.base import NormalizedPage, SourceAdapter, SourcePageError
+from nima.sources.base import (
+    NormalizedPage,
+    SourceAdapter,
+    SourcePageError,
+    SourceProvenance,
+    checked_provenance,
+    checked_request,
+)
 from nima.sources.kimdis import InvalidRecord, KimdisAdapter
 from scripts import dependency_graph as dg
 from tests.synthetic_sources import (
@@ -72,11 +79,8 @@ EVENTS = AdapterCase(
     quarantine_page=events_page(0, 1, 1, [event("acme", 4, "not money")]),
     broken_envelope=b'{"content": 1}',
 )
-CASES = [
-    pytest.param(KIMDIS, id="kimdis"),
-    pytest.param(LEDGER, id="ledger"),
-    pytest.param(EVENTS, id="events"),
-]
+ALL_CASES = (KIMDIS, LEDGER, EVENTS)
+CASES = [pytest.param(case, id=case.name) for case in ALL_CASES]
 
 
 def floats_in(value: object) -> list[object]:
@@ -211,3 +215,27 @@ def test_pages_expose_response_hash_record_hashes_and_unique_evidence_pointers(
         assert all(pointers) and len(pointers) == len(set(pointers)) == page.record_count
         for record in page.records:
             assert page.record_hashes[record.index] == record.content_sha256
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_provenance_is_a_clean_https_statement_of_origin(case: AdapterCase) -> None:
+    provenance = checked_provenance(case.make())
+    assert isinstance(provenance, SourceProvenance)
+    assert provenance.endpoint.startswith("https://")
+    assert provenance.documentation_url.startswith("https://")
+    assert provenance.license
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_requests_go_to_the_declared_endpoint_and_differ_by_page(case: AdapterCase) -> None:
+    adapter = case.make()
+    first, second = checked_request(adapter, 0), checked_request(adapter, 1)
+    assert first.url == second.url == adapter.provenance.endpoint
+    assert first != second
+    assert checked_request(adapter, 0) == first == adapter.request_for(0)
+
+
+def test_each_source_declares_its_own_origin_and_none_borrows_another() -> None:
+    origins = {case.name: checked_provenance(case.make()) for case in ALL_CASES}
+    assert len({p.endpoint for p in origins.values()}) == 3
+    assert len({p.documentation_url for p in origins.values()}) == 3

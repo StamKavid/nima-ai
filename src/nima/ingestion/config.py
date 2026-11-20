@@ -4,8 +4,6 @@ import math
 from dataclasses import dataclass
 from datetime import date
 
-ENDPOINT = "https://cerpp.eprocurement.gov.gr/khmdhs-opendata/contract"
-SOURCE = "https://cerpp.eprocurement.gov.gr/khmdhs-opendata/help"
 CONNECTOR_VERSION = "kimdis-contract-v1"
 
 

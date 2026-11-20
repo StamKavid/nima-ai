@@ -1,4 +1,4 @@
-"""Pins what the collector sends and what it archives as provenance, before it is made source-neutral.
+"""Pins what the collector sends and archives as provenance, before it becomes source-neutral.
 
 A real three-page KIMDIS collection runs through the real collector against a mock transport (no
 network, no database). Two things are fingerprinted:

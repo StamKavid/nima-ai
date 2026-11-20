@@ -27,6 +27,8 @@ from nima.sources.base import (
     NormalizedRecord,
     PageIssue,
     SourcePageError,
+    SourceProvenance,
+    SourceRequest,
 )
 
 LEDGER_HEADER = re.compile(r"^#ledger page=(\d+) pages=(\d+) total=(\d+)$")
@@ -45,9 +47,17 @@ class LedgerAdapter:
     name = "ledger"
     connector_version = "ledger-connector-v2"
     normalizer_version = "ledger-normalized-v5"
+    provenance = SourceProvenance(
+        endpoint="https://ledger.example.invalid/api/entries",
+        documentation_url="https://ledger.example.invalid/docs",
+        license="Synthetic test data, no real licence",
+    )
 
     def query_payload(self) -> dict[str, object]:
         return {"feed": "ledger", "account": "synthetic"}
+
+    def request_for(self, page: int) -> SourceRequest:
+        return SourceRequest("GET", self.provenance.endpoint, {"p": page}, None, "text/csv")
 
     def normalize_page(self, raw: bytes, *, max_bytes: int = DEFAULT_MAX_BYTES) -> NormalizedPage:
         if len(raw) > max_bytes:
@@ -123,9 +133,23 @@ class EventsAdapter:
     name = "events"
     connector_version = "events-connector-v1"
     normalizer_version = "events-normalized-v9"
+    provenance = SourceProvenance(
+        endpoint="https://events.example.invalid/v1/stream",
+        documentation_url="https://events.example.invalid/docs",
+        license="Synthetic test data, no real licence",
+    )
 
     def query_payload(self) -> dict[str, object]:
         return {"stream": "events", "since": "2026-11-06"}
+
+    def request_for(self, page: int) -> SourceRequest:
+        return SourceRequest(
+            "POST",
+            self.provenance.endpoint,
+            {"seq": page},
+            self.query_payload(),
+            "application/json",
+        )
 
     def normalize_page(self, raw: bytes, *, max_bytes: int = DEFAULT_MAX_BYTES) -> NormalizedPage:
         if len(raw) > max_bytes:

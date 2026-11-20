@@ -53,14 +53,23 @@
   - [x] N1.1 pins recorded from unmodified `main` `0945918`: KIMDIS wire request (method, URL,
     headers, body, three pages) and manifest minus volatile fields; stable across three runs;
     each fails when the `Accept` header or the licence string is changed, then restored.
-  - [ ] N1.2 protocol: `SourceProvenance`, `SourceRequest`, `provenance`, `request_for`, and the
-    pre-network guard (https, URL equals endpoint). Conformance tests red first, then
-    `KimdisAdapter`, the seam stub and both synthetic adapters.
-  - [ ] N1.3 engine: `Session.request` takes a `SourceRequest`; the collector builds requests
-    from the adapter and writes the manifest from `provenance`; `ENDPOINT` and `SOURCE` move to
-    the KIMDIS module. Pins unchanged.
-  - [ ] N1.4 engine suite on all three sources: requests only to the source's own endpoint,
-    manifest records its own provenance. Mutation checks; full gates; draft PR; hosted proof.
+  - [x] N1.2 protocol: `SourceProvenance`, `SourceRequest`, `provenance`, `request_for`, and the
+    pre-network guard `checked_provenance` / `checked_request` (https, no credentials, query
+    string or fragment, URL equals the declared endpoint, GET carries no body, clean single-line
+    text). Tests written first and failing at import; 100% line and branch on `sources/base.py`.
+  - [x] N1.3 engine: `Session.request` takes a `SourceRequest`; the collector checks the adapter
+    before any run, archive file or request exists, builds every request through the guard and
+    writes the manifest from `provenance`; `ENDPOINT` and `SOURCE` moved into the KIMDIS module.
+    The N1.1 pins pass unchanged, so KIMDIS wire requests and manifests are byte-identical.
+  - [x] N1.4 engine suite on all three sources (local): every request goes to the source's own
+    endpoint in its own shape (KIMDIS POST with a body, `ledger` GET with none and `text/csv`,
+    `events` POST with its own page parameter); each manifest records its own provenance; a
+    mis-wired adapter is refused before any run, file or request, and one that goes wrong only on
+    a later page is refused before that request. Twenty mutations across transport, collector and
+    guard fail the tests and are restored. One survived and one was misleading, both fixed: the
+    credentials check was only tested with a user and a password together, and the password check
+    was dead logic (any userinfo already makes the username non-null), so it was removed.
+  - [ ] N1.5 full gates, draft PR and hosted exact-head proof.
 - [ ] N2 adapter-owned run options and resume through the registry (same spec; after N1).
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
 

@@ -97,8 +97,12 @@ pass unchanged for KIMDIS and both, with no engine change. **Correction (2026-11
 collection side is not yet source-neutral. The archive manifest records KIMDIS provenance and
 every request goes to the KIMDIS endpoint for any adapter, and run options are stored and
 reloaded as a KIMDIS `Query`, so resume was only exercised with a KIMDIS-shaped query. These are
-specified in `SPEC-source-neutral-collection.md` (draft, awaiting owner approval). S5, a real
-second dataset, stays gated until the owner names one.
+specified in `SPEC-source-neutral-collection.md` (approved 2026-11-20). Slice N1 (request and
+provenance) is a candidate with local proof only: adapters now declare their origin and build
+their own requests, a guard refuses unsafe or mismatched ones before any network call, and the
+KIMDIS wire requests and manifest are byte-identical to `main`. N2 (run options and resume)
+follows. S5, a real second dataset, stays gated until the owner names one. Candidate code earns
+no progress credit until reviewed and delivered.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 
