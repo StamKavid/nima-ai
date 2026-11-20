@@ -43,6 +43,13 @@
   version, and five adapter bugs) fail the new tests and are restored. Found, not fixed (needs an
   engine change): a ledger run's archive manifest records the KIMDIS endpoint, source URL and
   CC BY 4.0 licence because the collector hardcodes them; this is an S5 prerequisite.
+  **Correction (2026-11-20):** "resume passes for the synthetic sources" held only because every
+  synthetic run used a KIMDIS-shaped `Query`; `load_options` rebuilds a KIMDIS `Query`, so a
+  real non-KIMDIS run could not be resumed, and every request still goes to the KIMDIS
+  endpoint. Specified below; not yet fixed.
+- [ ] N1 source-neutral request and provenance (spec `SPEC-source-neutral-collection.md`
+  drafted; awaiting owner approval). Pins from unmodified `main` first.
+- [ ] N2 adapter-owned run options and resume through the registry (same spec; after N1).
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
 
 ## V1-03 O3f — evidence TRUNCATE guards

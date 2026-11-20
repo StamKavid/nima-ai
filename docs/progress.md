@@ -92,10 +92,13 @@ artifact) and pinned; the same pins pass on the moved engine, so no stored or ar
 changed. The three KIMDIS engine-to-source imports are removed from the dependency baseline; the
 three GEMI ones remain. Slice S4 (#157, merged at `0945918`, hosted run 44692930584) proves the protocol with two test-only synthetic
 sources of different shape (text with decimal-comma money and line evidence; cursor-paged
-nested JSON with minor-unit money). The real collect, resume, replay and quarantine paths pass
-unchanged for KIMDIS and both, with no engine change. It also found that the archive manifest
-records KIMDIS provenance for any adapter; that is recorded as a prerequisite for S5, a real
-second dataset, which stays gated until the owner names one.
+nested JSON with minor-unit money). Parsing, storage, replay, quarantine and identity checks
+pass unchanged for KIMDIS and both, with no engine change. **Correction (2026-11-20):** the
+collection side is not yet source-neutral. The archive manifest records KIMDIS provenance and
+every request goes to the KIMDIS endpoint for any adapter, and run options are stored and
+reloaded as a KIMDIS `Query`, so resume was only exercised with a KIMDIS-shaped query. These are
+specified in `SPEC-source-neutral-collection.md` (draft, awaiting owner approval). S5, a real
+second dataset, stays gated until the owner names one.
 
 ## Delivered V1-03 O3e-2 (#152): collector access profile
 

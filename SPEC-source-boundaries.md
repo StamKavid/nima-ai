@@ -146,7 +146,10 @@ uv run --frozen mypy && just check && just audit
    real second source would archive wrong provenance; and the HTTP transport is a KIMDIS POST
    with a `page` parameter, so a cursor-paged real source needs the page number mapped to its
    cursor inside the transport. S4 deliberately leaves both, because fixing either is an engine
-   change that S4 forbids and the characterization pins protect.
+   change that S4 forbids and the characterization pins protect. **Correction (2026-11-20):**
+   the engine suite exercised resume only with a KIMDIS-shaped `Query`; run options are still
+   stored and reloaded as a KIMDIS `Query` (`storage.runs.load_options`), which is a third gap.
+   All three are specified in `SPEC-source-neutral-collection.md` (N1, N2), which S5 depends on.
 5. **S5 real dataset (gated, optional):** a recorded sample of one small public dataset
    behind the same suite. It starts only when the owner names the dataset, its reuse terms
    are checked from the official source, and a network host is allowed; otherwise it stays
@@ -158,7 +161,8 @@ Each slice ends in one review-ready PR with full gates and hosted exact-head job
 
 - Zero engine imports of the KIMDIS source module (done in S3; before: three engine modules).
   The three GEMI imports are recorded in the baseline and tracked, not removed here.
-- The synthetic adapter runs collect, resume, replay and quarantine with **no engine change**.
+- The synthetic adapter runs parse, store, replay and quarantine with **no engine change**.
+  Collection (request, provenance, run options) is completed by N1 and N2, not by S1-S4.
 - Existing crash, resume, replay and access tests pass unchanged; evidence bytes identical.
 - The dependency test rejects a new cycle and a new forbidden edge.
 
