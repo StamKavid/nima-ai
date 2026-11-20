@@ -38,7 +38,7 @@ def test_lookup_archives_before_transform_and_accounts_for_404(tmp_path: Path) -
         result.status == "complete" and result.collection_complete and result.normalization_complete
     )
     assert (result.requested, result.found, result.not_found, result.attempts) == (2, 1, 1, 2)
-    assert clock.waits == [3.0]
+    assert clock.waits == [7.5]
     assert requests[0].method == "GET" and requests[0].headers["api_key"] == KEY
     assert (
         str(requests[0].url) == "https://opendata-api.businessportal.gr/api/opendata/v1/companies/1"
@@ -87,7 +87,7 @@ def test_invalid_inputs_precede_archive_or_http(
     [
         lambda: GemiLimits(max_attempts=4),
         lambda: GemiLimits(max_bytes=0),
-        lambda: GemiLimits(requests_per_minute=21),
+        lambda: GemiLimits(requests_per_minute=9),
         lambda: GemiLimits(run_timeout=float("nan")),
         lambda: GemiLimits(request_timeout=True),
         lambda: GemiLimits(max_retry_delay=-1),
