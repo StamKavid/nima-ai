@@ -248,6 +248,24 @@ def test_changed_file_between_metadata_and_read_is_refused(
         read_request(path)
 
 
+def test_a_body_longer_than_the_checked_file_is_refused_without_any_timestamp_change(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The file itself is never touched, so inode and ctime stay equal; only the size comparison
+    # between the metadata check and the bytes read can notice the difference.
+    from nima.evidence import artifacts
+
+    path = private_file(tmp_path / "private")
+    original = artifacts.read
+
+    def longer(parent: int, name: str, *, limit: int, private: bool = False) -> bytes:
+        return original(parent, name, limit=limit, private=private) + b" "
+
+    monkeypatch.setattr(artifacts, "read", longer)
+    with pytest.raises(RequestError, match="^analytics_input_file$"):
+        read_request(path)
+
+
 def test_fifo_and_symlinked_parent_are_refused(tmp_path: Path) -> None:
     path = private_file(tmp_path / "private")
     fifo = path.parent / "pipe"

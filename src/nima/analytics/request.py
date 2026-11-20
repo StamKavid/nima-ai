@@ -177,6 +177,10 @@ def read_request(path: Path) -> ReadoutRequest:
         if before.st_size > MAX_REQUEST_BYTES:
             raise RequestError("analytics_limit")
         body = artifacts.read(descriptor, absolute.name, limit=MAX_REQUEST_BYTES, private=True)
+        if len(body) != before.st_size:
+            # A write right after the first stat can keep the same coarse ctime tick; the size
+            # still differs, so the bytes read are not the file that was checked.
+            raise RequestError("analytics_input_file")
         after = os.stat(absolute.name, dir_fd=descriptor, follow_symlinks=False)
         if (before.st_dev, before.st_ino, before.st_ctime_ns) != (
             after.st_dev,
