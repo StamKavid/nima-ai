@@ -93,7 +93,15 @@
     run with its request, which had no test before N2 for query, limits or archive root). One
     `text()` helper became unreachable and was removed. Full gates, draft PR and hosted proof
     follow.
+- [x] V1-06 step 1, Diavgeia acceptance dossier (`docs/sources/diavgeia-acceptance.md`): read the
+  official API documentation and terms of use on 2026-11-20 (originals archived outside Git with
+  hashes), nothing from memory, no search or data endpoint called. Findings: CC BY 4.0 plus Law
+  3448/2006 with mandatory attribution; no stated rate limit; no documented link to any KIMDIS
+  identifier (cross-source joins stay signals); decisions carry personal data. Seven items are
+  listed as unverified. Awaiting owner decisions on acceptance, attribution, personal data, the
+  first decision class and the egress allowlist. No code until then.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
+  Candidate: Diavgeia Δ.2.2 κατακύρωση for one organisation and one window of at most 180 days.
 
 ## V1-03 O3f — evidence TRUNCATE guards
 

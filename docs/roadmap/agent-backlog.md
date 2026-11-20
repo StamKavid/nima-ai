@@ -137,6 +137,10 @@ generated ontology. Internal metric certification needs recorded review.
 
 ## V1-06 — Diavgeia source acceptance and connector
 
+Status 2026-11-20: step 1 (acceptance dossier) is drafted in
+[`docs/sources/diavgeia-acceptance.md`](../sources/diavgeia-acceptance.md) and awaits the owner's
+decisions; no connector code until they are made.
+
 Inspect current official API/schema/access/reuse/rate documentation before code;
 no dated API assumptions are authoritative. Freeze namespace/ADA identity,
 revision/correction/cancellation semantics, date meaning, paging and original
