@@ -23,9 +23,7 @@ from tests.test_cpv_readout import seed
 
 CUTOFF = "2026-06-01T00:00:00+00:00"
 S1, S2 = "012345678", "987654321"
-FAKE_SQL = (
-    "SELECT '{}'::jsonb FROM (SELECT %s::jsonb, %s::timestamptz, %s::text) x"
-)
+FAKE_SQL = "SELECT '{}'::jsonb FROM (SELECT %s::jsonb, %s::timestamptz, %s::text) x"
 
 
 def record(reference: str, buyer: str, suppliers: list[str] | None) -> dict[str, Any]:
@@ -180,9 +178,7 @@ def test_each_stored_observation_is_labelled_by_how_it_was_selected(
         root = tmp_path / f"archive{index}"
         runs.append((seed(pg_dsn, root, rows, observed), root))
     with reader(pg_dsn) as (dsn, _):
-        body, result = prepare_buyer_readout(
-            dsn, multi_request(runs, "2026-01-05T00:00:00+00:00")
-        )
+        body, result = prepare_buyer_readout(dsn, multi_request(runs, "2026-01-05T00:00:00+00:00"))
     labels = {(row["source_id"], row["selection"]) for row in json.loads(body)["evidence"]}
     assert labels == {
         ("kimdis:A", "earlier_observation"),
@@ -272,9 +268,7 @@ def test_export_publishes_one_content_addressed_private_artifact(
     assert read_buyer_request(request_file).buyer == "B1"
 
 
-def test_export_failures_are_fixed_reasons(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_export_failures_are_fixed_reasons(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     with pytest.raises(ReadoutError, match="^analytics_input_file$"):
         export_buyer_readout("x", tmp_path / "missing.json", tmp_path / "out")
     request = request_for(uuid4(), tmp_path / "archive")

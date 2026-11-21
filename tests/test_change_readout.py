@@ -157,7 +157,7 @@ def test_different_queries_make_the_metric_abstain(pg_dsn: str, tmp_path: Path) 
     request = two_captures(pg_dsn, tmp_path)
     admin(
         pg_dsn,
-        "UPDATE nima.ingest_runs SET query = query || '{\"dateTo\": \"2026-11-07\"}'::jsonb"
+        'UPDATE nima.ingest_runs SET query = query || \'{"dateTo": "2026-11-07"}\'::jsonb'
         " WHERE run_id=%s",
         request.later_run_ids[0],
     )

@@ -67,10 +67,7 @@ def collection_complete(run: StoredRun) -> bool:
 
 
 def normalization_complete(run: StoredRun) -> bool:
-    return (
-        run.total_records is not None
-        and run.observations + run.quarantined == run.total_records
-    )
+    return run.total_records is not None and run.observations + run.quarantined == run.total_records
 
 
 def query_sha256(query: object) -> str:

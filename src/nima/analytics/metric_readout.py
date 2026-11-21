@@ -48,9 +48,7 @@ def cohort_hash(document: dict[str, object]) -> str:
     return hashlib.sha256(body.encode()).hexdigest()
 
 
-def selection_label(
-    observation_id: int, decision: tuple[tuple[int, ...], bool] | None
-) -> str:
+def selection_label(observation_id: int, decision: tuple[tuple[int, ...], bool] | None) -> str:
     """How a stored observation relates to the metric's record selection."""
     if decision is None:
         return "after_cutoff"
