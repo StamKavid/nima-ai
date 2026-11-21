@@ -114,8 +114,9 @@ def definition_sha256() -> str:
     ).hexdigest()
 
 
-def validate_observations(observations: tuple[Observation, ...]) -> None:
-    if not isinstance(observations, tuple) or len(observations) > 500:
+def validate_observations(observations: tuple[Observation, ...], *, limit: int = 500) -> None:
+    """The default bound is this metric's; other metrics over the same rows pass their own."""
+    if not isinstance(observations, tuple) or len(observations) > limit:
         raise SemanticError("semantic_input")
     ids = set()
     versions: dict[tuple[str, str], tuple[object, ...]] = {}
@@ -160,8 +161,8 @@ def validate_observations(observations: tuple[Observation, ...]) -> None:
         versions[key] = facts
 
 
-def sql_rows(observations: tuple[Observation, ...]) -> list[dict[str, object]]:
-    validate_observations(observations)
+def sql_rows(observations: tuple[Observation, ...], *, limit: int = 500) -> list[dict[str, object]]:
+    validate_observations(observations, limit=limit)
     return [{**asdict(row), "observed_at": row.observed_at.isoformat()} for row in observations]
 
 
