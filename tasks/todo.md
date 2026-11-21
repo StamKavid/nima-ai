@@ -51,11 +51,17 @@
   `participation.validate_observations` and `sql_rows` gained a keyword `limit` (default unchanged; the nine U1 pins pass).
 - [ ] Preserve the original archives of future captures (mount an output folder and copy the archive out): the archives of runs 2 to 5 of
   the local sample were lost with their temporary containers, so metadata snapshots and real-data U2 cannot be rebuilt from them.
-- [ ] S6a: U4 `observed_change_between_captures.v1` (in review: 44 tests with PostgreSQL parity, 100% line and branch, 54 rule breaks caught,
-  two redundant SQL filters removed; abstains `incomparable` unless both captures are complete, share a query hash, have no quarantined
-  record and are strictly ordered).
-- [ ] S6b: lifecycle references (M4: explicit edges only, resolved or `reference_unresolved`, umbrella threshold measured on real data first).
-- [ ] S7 catalogue and promotion to `reviewed`.
+- [x] S6a: U4 `observed_change_between_captures.v1`: owner merged #180 at `689897e`; reachable from `origin/main`. 44 tests with PostgreSQL
+  parity, 100% line and branch, 54 rule breaks caught, two redundant SQL filters removed; abstains `incomparable` unless both captures are
+  complete, share a query hash, have no quarantined record and are strictly ordered. Hosted run 44915536361 on `689897e` (which also
+  holds the scorecard) passed all three jobs.
+- [ ] S6b: lifecycle references (M4) is open as #181: explicit edges only, five statuses, no default umbrella threshold (sharing measured on
+  1,317 real records). Record it here when the owner merges it and the hosted run is read.
+- [ ] S7 in review: the metric catalogue (`docs/semantics/metric-catalogue.md`, `nima.semantics.catalogue`) with the four definition hashes
+  published and checked against the code, tests that refuse a promotion without a dated review record (`reviewed`) or a recorded
+  reconciliation (`certified`), the review checklist and the certification plan. **No metric is promoted by this slice**: promotion to
+  `reviewed` is the owner's decision and certification needs the owner's real-data reconciliation. The lifecycle model joins the catalogue
+  after S6b merges.
 
 ## V1-04 — source boundaries for a second feed
 
