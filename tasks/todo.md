@@ -43,7 +43,7 @@
   (U1 result bytes, definition hash and reference SQL hash did not move); 47 new tests, 18 rule breaks caught. The provider import guard
   was narrowed to exactly the two new pure sibling modules and extended to them (merged by the owner, so accepted).
 - [ ] S4: owner merges the U2 PR (`captured_record_count_by_cpv_period.v1`: pure provider plus reference SQL, 57 tests with PostgreSQL
-  parity, 100% line and branch, 56 rule breaks across Python and SQL caught, three equivalent SQL constructs removed); verify on
+  parity, 100% line and branch, 52 rule breaks across Python and SQL caught, three equivalent SQL constructs removed); verify on
   `origin/main` and read the hosted run before marking delivered.
 - [ ] Preserve the original archives of future captures (mount an output folder and copy the archive out): the archives of runs 2 to 5 of
   the local sample were lost with their temporary containers, so metadata snapshots and real-data U2 cannot be rebuilt from them.
