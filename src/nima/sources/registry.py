@@ -9,6 +9,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 
 from nima.sources.base import PayloadSource, SourceAdapter
+from nima.sources.diavgeia import DiavgeiaAdapter
 from nima.sources.kimdis import KimdisAdapter
 
 DEFAULT_SOURCE = "kimdis"
@@ -26,6 +27,9 @@ class RegisteredSource:
 _SOURCES: dict[str, RegisteredSource] = {
     KimdisAdapter.name: RegisteredSource(
         KimdisAdapter.connector_version, KimdisAdapter, KimdisAdapter.from_payload
+    ),
+    DiavgeiaAdapter.name: RegisteredSource(
+        DiavgeiaAdapter.connector_version, DiavgeiaAdapter, DiavgeiaAdapter.from_payload
     ),
 }
 

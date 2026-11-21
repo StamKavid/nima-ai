@@ -1,8 +1,8 @@
 # Spec: Diavgeia second-source pilot (V1-06)
 
 Module ID: `diavgeia-pilot`. Status: **decisions P1 and P3 to P6 recorded as recommended by the owner on 2026-11-21 ("recommended
-for P1 and P3 to P6"); P2 (organisation and window) is open. D2 may start without P2; D3 needs it. No code, no
-request, no allowlist change yet.** Depends on [ADR-0008](../decisions/0008-diavgeia-second-source-measure-first.md), the
+for P1 and P3 to P6"); P2 (organisation and window) is open. D2 is implemented (adapter, registry, synthetic
+samples; no request); D3 needs P2.** Depends on [ADR-0008](../decisions/0008-diavgeia-second-source-measure-first.md), the
 [acceptance dossier](../sources/diavgeia-acceptance.md) (owner decisions 1 to 5), the
 [source boundary](SPEC-source-boundaries.md) and its [collection extension](SPEC-source-neutral-collection.md).
 Release gate served: R1 (two validated source adapters) and the join work of V1-07.
@@ -50,9 +50,9 @@ engine's existing `pagination_changed` stop is kept and its frequency is a pilot
 
 ### Identity, version and status
 
-- `source_id` = `diavgeia:<ADA>`, the ADA exactly as published (Greek letters and digits), trimmed of
-  ASCII space only. **No Unicode normalisation and no Latin/Greek look-alike folding**: a citation
-  resolves only on exact bytes, and mismatches are counted, not repaired.
+- `source_id` = `diavgeia:<ADA>`, the ADA exactly as published (Greek letters and digits). A value with
+  whitespace or an odd shape is quarantined, not trimmed. **No Unicode normalisation and no Latin/Greek
+  look-alike folding**: a citation resolves only on exact bytes, and mismatches are counted, not repaired.
 - A record's content hash covers its parsed metadata, so a changed `versionId` or `status` is a new
   version of the same `source_id`, observed at the page's capture time.
 - `PUBLISHED`, `PENDING_REVOCATION` and `REVOKED` are kept as observed statuses. A decision absent from
@@ -60,14 +60,18 @@ engine's existing `pagination_changed` stop is kept and its frequency is a pilot
 
 ### Normalised record (closed set, personal data excluded)
 
-`ada`, `decision_type`, `organization_id`, `issue_date_text` (source text kept; no effective-date claim),
-`submission_timestamp_ms`, `version_id`, `status`, `corrected_version_id` (when present),
-`private_data` flag, `related_ada` (`textRelatedADA`, as a typed reference never a merge), and for awards
-`award_amount` and `currency` as exact decimal text. Persons: for a legal entity in Greece, `afm`,
-`afm_country` and `name`; for a natural person, **only the count and a flag**, no `afm`, no name
-(dossier decision 3). A decision with `private_data` true is kept in the archive and its normalised
-record carries no person fields at all. Unknown stays unknown; the three award fields are optional in
-the documentation, so absence is data, not an error.
+`ada`, `decision_type`, `organization_id`, `issue_timestamp_ms` and `submission_timestamp_ms` (the
+documented millisecond timestamps; no effective-date claim), `version_id`, `status`,
+`corrected_version_id` (when present), `private_data` flag, `related_ada` (`textRelatedADA`, a typed
+reference never a merge), and for awards `award_amount` as exact decimal text with `award_currency`.
+**Persons: a count (`person_count`) and the distinct tax-number types (`person_types`) only; no
+tax number, country or name.** The documented main Greek type reads "natural or legal person in
+Greece", so a legal entity cannot be told from an individual by type; until a written policy says how,
+nothing person-level is projected (dossier decision 3, applied strictly). The cost is accepted for
+the pilot, whose goals are adapter conformance and citation overlap, not supplier joins. Unknown stays
+unknown; only `ada`, `status` and `versionId` are required, because the other fields are optional in
+the documentation and absence is data, not an error. An amount with an extreme exponent is quarantined
+rather than expanded.
 
 ### Provenance and attribution
 
@@ -85,9 +89,8 @@ organisations and the organisation list. Each is deferred with a trigger below.
 **Always:** archive the response before parsing; one organisation and one window per run; fixed error
 reasons with no source text; synthetic fixtures only; stop on any non-success status.
 
-**Ask first:** the first real run (organisation, window, date); adding `diavgeia.gov.gr` to the source
-worker allowlist (it goes in the adapter change and nowhere else); any second type, window or
-organisation; any PDF fetch.
+**Ask first:** the first real run (organisation, window, date); any second type, window or
+organisation; any PDF fetch; any change to the source worker's gateway allowlist.
 
 **Never:** a request before the adapter change is merged; natural-person tax numbers or names in a
 normalised record; fuzzy or normalised ADA matching; counting a decision and a KIMDIS record as one
@@ -98,8 +101,8 @@ economic event; real decisions or documents in Git.
 | Slice | Content | Done when |
 |---|---|---|
 | D1 | This spec approved with decisions P1 to P6 | P1, P3 to P6 decided 2026-11-21; P2 open |
-| D2 | Synthetic recorded samples (one page of mixed statuses, a revoked version, a natural person, a private-data decision, an empty page, a malformed record), the `diavgeia` adapter, registry entry and egress allowlist entry; **no network** | Full conformance suite passes on the new adapter; allowlist change reviewed and merged |
-| D3 | One owner-approved real run (P1 cohort) with the archive preserved | Run reconstructs from the archive; counts and status mix recorded in `docs/verification/`, no decision content |
+| D2 | Synthetic samples (statuses, versions, persons, private data, amounts, empty and malformed pages), the `diavgeia` adapter and its registry entry; **no network** | The shared parser and engine conformance suites pass on the new adapter; 100% line and branch; every rule break caught. **Done in review.** |
+| D3 | A collection command for the adapter (`nima ingest kimdis` is KIMDIS-specific), then one owner-approved real run (P1 cohort) with the archive preserved | Run reconstructs from the archive; counts and status mix recorded in `docs/verification/`, no decision content |
 | D4 | Measure how many of the four KIMDIS citations resolve to a collected decision, and how many collected ADAs any KIMDIS record cites | Counts recorded; V1-07 join spec can start |
 
 Each slice is one review-ready PR with the repository gates. D3 is the owner's live step.
@@ -116,6 +119,18 @@ P1 and P3 to P6 are decided as recommended (2026-11-21). P2 is open and blocks o
 | P4 | Natural persons: count and flag only; `private_data` decisions carry no person fields | Yes, as dossier decision 3 |
 | P5 | ADA matching on exact bytes only | Yes; measure mismatches before any rule |
 | P6 | Issue-date windows of at most 30 days, page size 100 | Yes; small enough to rerun and compare |
+
+## Found while building D2
+
+- **No allowlist file exists to edit.** The standalone collectors (KIMDIS, GEMI) are bound to the host
+  their adapter declares: `checked_request` refuses any request whose URL differs from the adapter's
+  `provenance.endpoint`. The gateway allowlist belongs to the separate remote-worker pilot. So the
+  adapter's endpoint is the allowlist for this pilot, and dossier decision 5 is met by that and by the
+  rule that no request is made before D3 is approved.
+- **The first run needs a command.** Registering the adapter does not give `nima` a way to run it; that
+  is the first part of D3.
+- **Contract descriptors** (the machine-readable contracts KIMDIS has) are not written: shapes stay
+  unverified until the first real response is recorded.
 
 ## Deferred, with triggers
 
