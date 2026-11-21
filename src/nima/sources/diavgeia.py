@@ -186,7 +186,9 @@ def _persons(extra: dict[str, object]) -> tuple[int, list[str]]:
     if not isinstance(persons, list) or not all(isinstance(p, dict) for p in persons):
         raise _BadRecord("invalid_persons")
     types = {
-        t for t in (cast(dict[str, object], p).get("afmType") for p in persons) if isinstance(t, str)
+        t
+        for t in (cast(dict[str, object], p).get("afmType") for p in persons)
+        if isinstance(t, str)
     }
     return len(persons), sorted(types)
 

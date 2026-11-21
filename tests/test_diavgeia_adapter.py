@@ -61,7 +61,9 @@ def test_a_valid_ada_of_a_quarantined_record_still_counts_as_seen() -> None:
 
 def test_the_exact_digits_of_an_amount_are_part_of_the_content_hash() -> None:
     hashes = {
-        ADAPTER.normalize_page(page(decision(extraFieldValues=award(text)))).records[0].content_sha256
+        ADAPTER.normalize_page(page(decision(extraFieldValues=award(text))))
+        .records[0]
+        .content_sha256
         for text in ("12.5", "12.50", "12.500")
     }
     assert len(hashes) == 3
