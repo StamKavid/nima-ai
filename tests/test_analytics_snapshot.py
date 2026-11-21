@@ -475,3 +475,44 @@ def test_offline_validator_enforces_its_byte_budget() -> None:
     )
     with pytest.raises(SnapshotError, match="^analytics_limit$"):
         validate_snapshot(snapshot, (uuid4(),), tax_id=TAX, cutoff=CUTOFF)
+
+
+def test_cohort_is_metric_agnostic_readonly_and_equals_the_u1_evidence(
+    pg_dsn: str, tmp_path: Path
+) -> None:
+    from nima.analytics.snapshot import read_cohort
+
+    run = seed(pg_dsn, tmp_path / "archive")
+    before = state(pg_dsn)
+    with reader(pg_dsn) as (dsn, _):
+        cohort = read_cohort(dsn, (run,))
+        snapshot = read_snapshot(dsn, (run,), tax_id=TAX, cutoff=CUTOFF)
+    assert state(pg_dsn) == before
+    assert cohort.observations == snapshot.observations
+    assert json.dumps(
+        cohort.document, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ) == (snapshot.document_json)
+    assert set(cohort.document) == {"runs", "pages", "records"}
+
+
+def test_cohort_refuses_bad_selections_and_missing_runs_with_fixed_reasons(
+    pg_dsn: str,
+) -> None:
+    from nima.analytics.snapshot import read_cohort
+
+    migrate(pg_dsn)
+    run = uuid4()
+    with reader(pg_dsn) as (dsn, _):
+        for selection in ((), (run, run), "wrong"):
+            with pytest.raises(SnapshotError, match="^analytics_input$"):
+                read_cohort(dsn, selection)  # type: ignore[arg-type]
+        with pytest.raises(SnapshotError, match="^analytics_coverage$"):
+            read_cohort(dsn, (run,))
+
+
+def test_cohort_needs_a_projected_run(pg_dsn: str, tmp_path: Path) -> None:
+    from nima.analytics.snapshot import read_cohort
+
+    run = seed(pg_dsn, tmp_path / "archive", project=False)
+    with reader(pg_dsn) as (dsn, _), pytest.raises(SnapshotError, match="^analytics_projection$"):
+        read_cohort(dsn, (run,))

@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
@@ -54,6 +55,14 @@ class ReadoutSnapshot:
     observations: tuple[Observation, ...]
     metric: MetricResult
     input_sha256: str
+
+
+@dataclass(frozen=True)
+class Cohort:
+    """Metric-agnostic frozen evidence: SQL facts validated for coverage and versions."""
+
+    document: dict[str, object]
+    observations: tuple[Observation, ...]
 
 
 @dataclass(frozen=True)
@@ -295,13 +304,9 @@ def _query(value: object) -> None:
         raise SnapshotError("analytics_coverage") from None
 
 
-def _load(
-    connection: Connection,
-    run_ids: tuple[UUID, ...],
-    tax_id: str,
-    cutoff: datetime,
-    calculation: _Calculation,
-) -> ReadoutSnapshot:
+def _read_cohort(
+    connection: Connection, run_ids: tuple[UUID, ...], calculation: _Calculation
+) -> Cohort:
     parameters: dict[str, object] = {
         "runs": list(run_ids),
         "projection": calculation.projection,
@@ -311,7 +316,18 @@ def _load(
     if row is None:
         raise SnapshotError("analytics_coverage")
     document = cast(dict[str, object], row[0])
-    observations = _validate_document(document, run_ids, calculation)
+    return Cohort(document, _validate_document(document, run_ids, calculation))
+
+
+def _load(
+    connection: Connection,
+    run_ids: tuple[UUID, ...],
+    tax_id: str,
+    cutoff: datetime,
+    calculation: _Calculation,
+) -> ReadoutSnapshot:
+    cohort = _read_cohort(connection, run_ids, calculation)
+    document, observations = cohort.document, cohort.observations
     metric = evaluate(observations, tax_id=tax_id, cutoff=cutoff)
     calculated = connection.execute(
         calculation.sql, (Jsonb(sql_rows(observations)), cutoff, tax_id)
@@ -419,7 +435,7 @@ def _role(connection: Connection) -> None:
         raise SnapshotError("analytics_role")
 
 
-def _selection(run_ids: tuple[UUID, ...], tax_id: str, cutoff: datetime) -> tuple[UUID, ...]:
+def _run_selection(run_ids: tuple[UUID, ...]) -> tuple[UUID, ...]:
     if (
         not isinstance(run_ids, tuple)
         or not 1 <= len(run_ids) <= 10
@@ -427,27 +443,24 @@ def _selection(run_ids: tuple[UUID, ...], tax_id: str, cutoff: datetime) -> tupl
         or len(set(run_ids)) != len(run_ids)
     ):
         raise SnapshotError("analytics_input")
-    evaluate((), tax_id=tax_id, cutoff=cutoff)
     return tuple(sorted(run_ids))
 
 
-def read_snapshot(
-    dsn: str,
-    run_ids: tuple[UUID, ...],
-    *,
-    tax_id: str,
-    cutoff: datetime,
-) -> ReadoutSnapshot:
-    """Return frozen SQL evidence; caller must reconcile archives before publication."""
+def _selection(run_ids: tuple[UUID, ...], tax_id: str, cutoff: datetime) -> tuple[UUID, ...]:
+    selected = _run_selection(run_ids)
+    evaluate((), tax_id=tax_id, cutoff=cutoff)
+    return selected
+
+
+def _connected[T](dsn: str, work: Callable[[Connection], T]) -> T:
+    """One SELECT-only, repeatable-read connection with schema and role checks."""
     try:
-        selected = _selection(run_ids, tax_id, cutoff)
-        calculation = _calculation()
         with connect(dsn) as connection, connection.transaction():
             connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
             connection.execute("SET LOCAL TIME ZONE 'UTC'")
             validate_schema(connection)
             _role(connection)
-            return _load(connection, selected, tax_id, cutoff, calculation)
+            return work(connection)
     except MigrationError:
         raise SnapshotError("analytics_schema") from None
     except SemanticError:
@@ -460,3 +473,28 @@ def read_snapshot(
         if isinstance(error, SnapshotError):
             raise
         raise SnapshotError("analytics_evidence") from None
+
+
+def read_cohort(dsn: str, run_ids: tuple[UUID, ...]) -> Cohort:
+    """Frozen, coverage-checked evidence of the selected runs for any metric."""
+    selected = _run_selection(run_ids)
+    calculation = _calculation()
+    return _connected(dsn, lambda connection: _read_cohort(connection, selected, calculation))
+
+
+def read_snapshot(
+    dsn: str,
+    run_ids: tuple[UUID, ...],
+    *,
+    tax_id: str,
+    cutoff: datetime,
+) -> ReadoutSnapshot:
+    """Return frozen SQL evidence; caller must reconcile archives before publication."""
+    try:
+        selected = _selection(run_ids, tax_id, cutoff)
+    except SemanticError:
+        raise SnapshotError("analytics_input") from None
+    calculation = _calculation()
+    return _connected(
+        dsn, lambda connection: _load(connection, selected, tax_id, cutoff, calculation)
+    )
