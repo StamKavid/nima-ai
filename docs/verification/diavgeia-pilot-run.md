@@ -33,6 +33,26 @@ tax numbers are recorded here, and the archive stays outside Git (`data/`).
   `awardAmount` with a currency and no amount (7 records) and an empty `textRelatedADA` meaning "none"
   (3 records). The adapter now reads both as unknown.
 
+## Reconstruction from the archive
+
+On 2026-11-22 the run was replayed offline from its preserved originals (private 0700 and 0600 copy, no
+request) with the replay function and the Diavgeia adapter:
+
+| Adapter | Pages | Records | Normalised | Quarantined | Second replay |
+|---|---|---|---|---|---|
+| As first run (strict) | 3 | 262 | 252 | 10 | identical digest |
+| With the fix in this change | 3 | 262 | 262 | 0 | identical digest |
+
+Both replays use the same 3 original pages as the database, and the fixed replay contains the content hash
+of every one of the 252 records stored from the first run. So the stored data can be rebuilt from the
+originals, and the first-run quarantine was reprocessed from the raw bytes, not copied from SQL.
+
+**Finding:** `nima archive replay` always normalises with the KIMDIS adapter, so it refuses a Diavgeia
+run with a version error. The replay above called the function with the adapter directly. Making the
+command choose the adapter from the run's stored connector version means resolving the run before the
+input checks, which today fail before any database access (11 existing tests pin that). It needs its own
+small design, and is recorded here, not done. Promotion of a replay into SQL is likewise KIMDIS-only.
+
 ## Overlap with KIMDIS (D4)
 
 | Measure | Result |
@@ -48,8 +68,8 @@ expectation that `diavgeiaADA` points at commitment decisions, not at award deci
 
 ## What this does and does not show
 
-It shows the adapter, the engine and the archive work on a real second feed and that the normalised
-records are usable. It does not show a link between the two sources, national coverage, or that other
-organisations or decision types look the same. The next questions, each for the owner, are whether to
-reconstruct the run from the archive with the replay command, whether to try one more body, and whether
-the commitment type (Β.1.3) is worth a second pilot, since that is what KIMDIS cites.
+It shows the adapter, the engine and the archive work on a real second feed, that the normalised
+records are usable and that the run reconstructs from its originals. It does not show a link between the two sources, national coverage, or that other
+organisations or decision types look the same. The next questions, each for the owner, are whether to try one more body, whether the commitment type
+(Β.1.3) is worth a second pilot, since that is what KIMDIS cites, and whether to make the replay command
+source-aware.
