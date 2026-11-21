@@ -18,10 +18,10 @@ from nima.analytics.result import ReadoutError
 from nima.identity import AssessmentError
 from nima.ingestion.archive import Archive
 from nima.ingestion.config import Limits, Summary
-from nima.sources import metadata_extract as extract
-from nima.sources.metadata_extract import MetadataError
 from nima.projections.worker import drain
 from nima.semantics.cpv_period import SemanticError
+from nima.sources import metadata_extract as extract
+from nima.sources.metadata_extract import MetadataError
 from nima.storage.postgres import migrate
 from nima.storage.runs import RunStore
 from tests.test_analytics_snapshot import reader, state

@@ -13,8 +13,8 @@ from nima.dataops.replay import ReplayError, read_capture
 from nima.identity import AssessmentError
 from nima.identity.artifacts import encode, publish
 from nima.sources import metadata_extract as extract
-from nima.sources.metadata_extract import Assertion, MetadataError, gemi_metadata, kimdis_metadata
 from nima.sources.kimdis import InvalidRecord, decode_response
+from nima.sources.metadata_extract import Assertion, MetadataError, gemi_metadata, kimdis_metadata
 from nima.storage.gemi_archive import ImportFailure, verify_run
 
 

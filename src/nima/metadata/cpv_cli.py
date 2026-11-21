@@ -12,8 +12,8 @@ from nima.identity import AssessmentError
 from nima.identity.artifacts import publish
 from nima.metadata.cpv import MAX_BYTES, CpvReference, prepare_reference
 from nima.metadata.cpv_match import match_metadata
-from nima.sources.metadata_extract import MetadataError
 from nima.metadata.store import query_metadata
+from nima.sources.metadata_extract import MetadataError
 
 
 class _Parser(argparse.ArgumentParser):

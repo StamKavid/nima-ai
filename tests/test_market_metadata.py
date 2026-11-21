@@ -4,8 +4,13 @@ import json
 
 import pytest
 
-from nima.sources.metadata_extract import MetadataError, gemi_metadata, kimdis_metadata, select_assertions
 from nima.sources.gemi import normalize_profile
+from nima.sources.metadata_extract import (
+    MetadataError,
+    gemi_metadata,
+    kimdis_metadata,
+    select_assertions,
+)
 from tests.test_collection import body
 
 
