@@ -9,15 +9,13 @@ from pathlib import Path
 from typing import cast
 from uuid import UUID
 
+from nima.analytics.cohort_request import cohort_fields
 from nima.analytics.request import (
     MAX_REQUEST_BYTES,
     RequestError,
     constant_hook,
-    cutoff_value,
     pairs_hook,
-    path_value,
     read_private_request,
-    uuid_value,
 )
 from nima.graph.pilot_archive import ArchiveBinding
 
@@ -89,34 +87,8 @@ def decode_cpv_request(body: bytes) -> CpvRequest:
         last = _optional(data["period_to"], _PERIOD)
         if first is not None and last is not None and first > last:
             raise RequestError("analytics_input")
-        raw_runs, raw_bindings = data["run_ids"], data["archive_bindings"]
-        if (
-            not isinstance(raw_runs, list)
-            or not 1 <= len(raw_runs) <= 10
-            or not isinstance(raw_bindings, list)
-            or len(raw_bindings) != len(raw_runs)
-        ):
-            raise RequestError("analytics_input")
-        runs = tuple(sorted(uuid_value(run) for run in raw_runs))
-        if len(set(runs)) != len(runs):
-            raise RequestError("analytics_input")
-        bindings = []
-        for binding in raw_bindings:
-            if not isinstance(binding, dict) or set(binding) != {"run_id", "root"}:
-                raise RequestError("analytics_input")
-            bindings.append(
-                ArchiveBinding("kimdis", uuid_value(binding["run_id"]), path_value(binding["root"]))
-            )
-        if sorted(binding.run_id for binding in bindings) != list(runs):
-            raise RequestError("analytics_input")
-        return CpvRequest(
-            runs,
-            cutoff_value(data["observation_cutoff"]),
-            tuple(sorted(bindings, key=lambda binding: binding.run_id)),
-            base,
-            first,
-            last,
-        )
+        runs, cutoff, bindings = cohort_fields(data)
+        return CpvRequest(runs, cutoff, bindings, base, first, last)
     except (ValueError, TypeError, RecursionError) as error:
         if isinstance(error, RequestError):
             raise
