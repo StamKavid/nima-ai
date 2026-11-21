@@ -199,9 +199,15 @@
   - [x] D1 spec (#196) and D2 adapter (#197): the `diavgeia` adapter for award decisions by organisation and window passes the
     shared parser and engine conformance suites on synthetic pages, with no engine change and no request; delivered, hosted run
     44952459635 on `97c21e1` passed all three jobs.
-  - [ ] D3 `nima ingest diavgeia` command (#198, in review), then one owner-approved real run: waits on P2 (organisation `uid`
-    and window) and your approval of the live request.
-  - [ ] D4 citation-overlap measurement after the real run.
+  - [x] D3 `nima ingest diavgeia` command (#198; hosted run 44954362707 on `5957feb` passed all three jobs) and the first real run,
+    owner-approved 2026-11-22: organisation 6, issue dates 2026-10-08 to 2026-11-06, 3 requests, 262 records, archive preserved.
+    The first run quarantined 10 records on two real shapes (an award with a currency and no amount, and an empty related ADA);
+    the adapter now reads both as unknown and all 262 normalise offline from the archive. Record:
+    `docs/verification/diavgeia-pilot-run.md`.
+  - [x] D4 overlap measurement: 0 of the 4 KIMDIS-cited ADAs are a collected award, 0 of 77 KIMDIS records of that buyer cite an ADA,
+    and 0 of the 11 related ADAs on the awards are cited by KIMDIS. Nothing here shows a link between the sources.
+  - [ ] Open for the owner: replay the run from its archive with the replay command, try one more body, and decide whether the
+    commitment type (Β.1.3), which KIMDIS cites, deserves a second pilot.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
   Candidate: fetch exactly the ADAs a small KIMDIS cohort cites in `diavgeiaADA` (one by one, with
   their version logs); fallback Δ.2.2 κατακύρωση for one organisation and one window of at most

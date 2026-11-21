@@ -6,8 +6,9 @@ shape here is **unverified** until the first approved real run; a response that 
 stops the page (envelope) or is quarantined (record) and never reaches a metric.
 
 Only a closed set of metadata is kept. A decision's persons are reduced to a count and the
-distinct tax-number types: Diavgeia's main Greek type covers natural and legal persons together,
-so no tax number or name is projected (``SPEC-diavgeia-pilot.md``).
+distinct tax-number types. The documented main Greek type covers natural and legal persons
+together, and the first real run showed short codes whose meaning is unverified, so no tax
+number or name is projected (``SPEC-diavgeia-pilot.md``).
 """
 
 import hashlib
@@ -171,6 +172,8 @@ def _amount(extra: dict[str, object]) -> tuple[str | None, str | None]:
     if not isinstance(award, dict):
         raise _BadRecord("invalid_award_amount")
     amount, currency = award.get("amount"), award.get("currency")
+    if amount is None:
+        return None, _optional_text(currency)
     if isinstance(amount, bool) or not isinstance(amount, (int, Decimal)):
         raise _BadRecord("invalid_award_amount")
     number = Decimal(amount)
@@ -223,7 +226,7 @@ def _record(value: object) -> tuple[str, dict[str, object]]:
         "status": status,
         "corrected_version_id": _optional_text(value.get("correctedVersionId")),
         "private_data": private,
-        "related_ada": None if related is None else _ada(related),
+        "related_ada": None if related in (None, "") else _ada(related),
         "award_amount": amount,
         "award_currency": currency,
         "person_count": person_count,
