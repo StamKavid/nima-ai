@@ -51,14 +51,20 @@
   `participation.validate_observations` and `sql_rows` gained a keyword `limit` (default unchanged; the nine U1 pins pass).
 - [ ] Preserve the original archives of future captures (mount an output folder and copy the archive out): the archives of runs 2 to 5 of
   the local sample were lost with their temporary containers, so metadata snapshots and real-data U2 cannot be rebuilt from them.
-- [ ] S6a: U4 `observed_change_between_captures.v1`: owner merged #180 at `689897e`; reachable from `origin/main`. 44 tests with PostgreSQL
+- [x] S6a: U4 `observed_change_between_captures.v1`: owner merged #180 at `689897e`; reachable from `origin/main`. 44 tests with PostgreSQL
   parity, 100% line and branch, 54 rule breaks caught, two redundant SQL filters removed; abstains `incomparable` unless both captures are
-  complete, share a query hash, have no quarantined record and are strictly ordered. Mark delivered after the hosted run on `689897e` is read.
-- [ ] S6b: lifecycle references (M4), in review: explicit edges only, five statuses (`resolved`, `unresolved`, `target_ambiguous`, `external`,
-  `self_reference`); sharing measured on 1,317 real records (most shared award target has nine citing records, no umbrella pattern), so **no
-  default threshold** is adopted and a flag is raised only when the caller passes one (the owner may choose a number from a larger sample);
-  50 tests, 100% line and branch, 35 rule breaks caught; no reference SQL until a metric consumes the edges (V1-07).
-- [ ] S7 catalogue and promotion to `reviewed`.
+  complete, share a query hash, have no quarantined record and are strictly ordered. Hosted run 44915536361 on `689897e` (which also
+  holds the scorecard) passed all three jobs.
+- [ ] S6b: lifecycle references (M4): owner merged #181 at `f41ac48`; reachable from `origin/main`. Explicit edges only, five statuses
+  (`resolved`, `unresolved`, `target_ambiguous`, `external`, `self_reference`); sharing measured on 1,317 real records (most shared award target
+  has nine citing records, no umbrella pattern), so **no default threshold** is adopted and a flag is raised only when the caller passes one
+  (the owner may choose a number from a larger sample); 50 tests, 100% line and branch, 35 rule breaks caught; no reference SQL until a metric
+  consumes the edges (V1-07). Mark delivered after the hosted run 44918502642 on `f41ac48` is read.
+- [ ] S7 in review: the metric catalogue (`docs/semantics/metric-catalogue.md`, `nima.semantics.catalogue`) with the four definition hashes
+  published and checked against the code, tests that refuse a promotion without a dated review record (`reviewed`) or a recorded
+  reconciliation (`certified`), the review checklist and the certification plan. **No metric is promoted by this slice**: promotion to
+  `reviewed` is the owner's decision and certification needs the owner's real-data reconciliation. The lifecycle model is a model and not a
+  metric, so it is not in the metric table.
 
 ## V1-04 — source boundaries for a second feed
 
