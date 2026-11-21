@@ -5,9 +5,9 @@ evidence for each claim. It exists so progress is checked against gates and proo
 count of merged pull requests; the contract itself says a percentage, a test count or a merged PR is
 not a substitute. Nothing here is a release claim.
 
-**Snapshot: 2026-11-21, main `6e1df74`.** Last fully green hosted run on main: run 44943399557
-(`6e1df74`, all three jobs; it contains the semantic model S1 to S7 and the readout commands for U1
-to U4). The
+**Snapshot: 2026-11-21, main `97c21e1`.** Last fully green hosted run on main: run 44952459635
+(`97c21e1`, all three jobs; it contains the semantic model S1 to S7, the readout commands for U1
+to U4 and the Diavgeia adapter). The
 package still declares `0.0.1`.
 
 ## How to read it
@@ -53,7 +53,7 @@ piece. A status moves only when a merged change adds evidence, and the row is up
 | Source | State |
 |---|---|
 | KIMDIS contracts | Live, bounded; 1,317 real records measured locally |
-| Diavgeia decisions | Dossier decided, link census run: 4 of 1,317 records cite a decision, so the explicit key is sparse; no adapter |
+| Diavgeia decisions | Dossier decided, link census run: 4 of 1,317 records cite a decision, so the explicit key is sparse; the `diavgeia` adapter (award decisions by organisation and window, #197) passes the shared conformance suites on synthetic pages; no live request yet |
 | GEMI profiles | One company proven live; search by tax number specified, parser merged, collector not built |
 | CPV 2008 | Reference reader merged; release selection waits for the hierarchy slice |
 | KAD, TED, data.gov.gr | Not started (KAD optional for v1.0; TED and data.gov.gr are v1.1 or later) |
@@ -62,7 +62,7 @@ piece. A status moves only when a merged change adds evidence, and the row is up
 
 1. Apply migration 0013 to the pilot database; run the off-host restore rehearsal (R2, R8).
 2. Enable branch protection; decide commit signing (R8).
-3. Choose the Diavgeia pilot shape (R1).
+3. Choose the Diavgeia organisation and window (decision P2), then approve the first live request (R1).
 4. Approve any further live captures; preserve the archive of the next one (R2, R5).
 
 ## Foundation rubric, re-scored
