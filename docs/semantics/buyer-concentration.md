@@ -54,8 +54,20 @@ reference SQL. Every test scenario runs both on PostgreSQL and requires the same
 definition hash binds the rules and the SQL hash. Observations are bounded at 5,000 (the first metric
 keeps its own bound of 500) and validated with fixed error reasons; no source value appears in an error.
 
+## Readout command (S8c)
+
+`nima analytics buyer-concentration --request <file> --output-dir <dir>` reads stored runs with SELECT only,
+recovers and verifies every selected original page, evaluates this metric on the cohort's verified
+records, requires the reference SQL to return the identical document, and publishes one content-addressed
+private artifact. It names the metric id, definition hash, request hash and cohort hash, and cites every
+stored observation of the buyer's records (and of ambiguous records, labelled `ambiguous_source`) with run,
+page, JSON pointer, the reported buyer key and suppliers, and how each was selected. The request format is
+`nima-buyer-concentration-request-v1`: run IDs, a cutoff, the reported buyer key (1 to 64 printable ASCII
+characters, no spaces) and archive roots. Failures return one fixed reason; the request hash ignores
+archive paths.
+
 ## Not part of this slice
 
-No readout command, no hierarchy roll-up (a ministry over its units is slice SH3, after the Diavgeia
+No hierarchy roll-up (a ministry over its units is slice SH3, after the Diavgeia
 feed), no company or group concentration and no real-data reconciliation. A concentration over
 captured records says nothing about the buyer's total procurement or its competition.

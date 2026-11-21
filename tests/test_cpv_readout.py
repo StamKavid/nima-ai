@@ -10,7 +10,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from nima.analytics import commands, cpv_readout
+from nima.analytics import commands, cpv_readout, metric_readout
 from nima.analytics.cpv_readout import export_cpv_readout, prepare_cpv_readout
 from nima.analytics.cpv_request import CpvRequest, decode_cpv_request, read_cpv_request
 from nima.analytics.request import RequestError
@@ -380,7 +380,7 @@ def test_output_limits_and_encoding_failures_have_fixed_reasons(
     run = seed(pg_dsn, tmp_path / "archive")
     request = request_for(run, tmp_path / "archive")
     with reader(pg_dsn) as (dsn, _):
-        monkeypatch.setattr(cpv_readout, "MAX_RESULT_BYTES", 10)
+        monkeypatch.setattr(metric_readout, "MAX_RESULT_BYTES", 10)
         with pytest.raises(ReadoutError, match="^analytics_limit$"):
             prepare_cpv_readout(dsn, request)
         monkeypatch.undo()
@@ -388,7 +388,7 @@ def test_output_limits_and_encoding_failures_have_fixed_reasons(
         def refuse(value: object) -> bytes:
             raise AssessmentError("assessment_limit")
 
-        monkeypatch.setattr(cpv_readout, "encode", refuse)
+        monkeypatch.setattr(metric_readout, "encode", refuse)
         with pytest.raises(ReadoutError, match="^analytics_limit$"):
             prepare_cpv_readout(dsn, request)
 
@@ -497,8 +497,8 @@ def test_the_result_size_limit_is_inclusive(
     request = request_for(run, tmp_path / "archive")
     with reader(pg_dsn) as (dsn, _):
         body, _ = prepare_cpv_readout(dsn, request)
-        monkeypatch.setattr(cpv_readout, "MAX_RESULT_BYTES", len(body))
+        monkeypatch.setattr(metric_readout, "MAX_RESULT_BYTES", len(body))
         assert prepare_cpv_readout(dsn, request)[0] == body
-        monkeypatch.setattr(cpv_readout, "MAX_RESULT_BYTES", len(body) - 1)
+        monkeypatch.setattr(metric_readout, "MAX_RESULT_BYTES", len(body) - 1)
         with pytest.raises(ReadoutError, match="^analytics_limit$"):
             prepare_cpv_readout(dsn, request)
