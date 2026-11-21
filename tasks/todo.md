@@ -73,7 +73,8 @@
   - [x] S8c U3 `nima analytics buyer-concentration` (#187, promoted by #188); shared helpers `metric_readout` and `cohort_request`.
     The extractor moved to `nima.sources.metadata_extract` (#188) to avoid a new package cycle.
   - [x] S8d U4 `nima analytics observed-change` (#189, promoted by #191); the run-completeness rule (R3) is in the U4 page.
-  - [ ] S8e catalogue prerequisite is updated; the certification runbook (#193) is awaiting merge.
+  - [x] S8e catalogue prerequisite updated and the certification runbook merged (#193); hosted run 44946451476 on `090820e`
+    passed all three jobs. Nothing is certified yet: that needs the owner's capture with its archive preserved and hand reconciliation.
 
 ## V1-04 — source boundaries for a second feed
 
