@@ -29,6 +29,7 @@ from nima.ingestion.gemi import GemiRunError, validate_inputs
 from nima.ingestion.gemi import collect as collect_gemi
 from nima.ingestion.resume import resume
 from nima.projections.worker import PROJECTION_VERSION, ProjectionFailure, drain
+from nima.sources.diavgeia import DiavgeiaAdapter, DiavgeiaQuery
 from nima.storage.gemi import IMPORT_VERSION
 from nima.storage.gemi import import_run as import_gemi
 from nima.storage.gemi_archive import ImportFailure
@@ -139,6 +140,15 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     gemi = sources.add_parser("gemi", help="Look up explicit GEMI numbers into a private archive")
     gemi.add_argument("--gemi-id", action="append", required=True)
     gemi.add_argument("--archive-dir", type=Path, required=True)
+    diavgeia = sources.add_parser(
+        "diavgeia",
+        help="Collect Diavgeia award decisions of one organisation and one window of 30 days",
+    )
+    diavgeia.add_argument("--database", action="store_true", help="Persist via NIMA_DATABASE_URL")
+    diavgeia.add_argument("--organization", required=True)
+    diavgeia.add_argument("--from-date", type=_date, required=True)
+    diavgeia.add_argument("--to-date", type=_date, required=True)
+    diavgeia.add_argument("--archive-dir", type=Path, required=True)
     kimdis = sources.add_parser(
         "kimdis",
         help="Collect one explicit KIMDIS date window; no automatic resume",
@@ -384,20 +394,33 @@ def main(argv: list[str] | None = None) -> int:
                 gemi_summary = collect_gemi(ids, args.archive_dir, api_key=key, client=client)
             print(json.dumps(asdict(gemi_summary), allow_nan=False))
             return {"complete": 0, "quarantined": 3, "interrupted": 130}.get(gemi_summary.status, 1)
-        query = Query(args.from_date, args.to_date, tuple(args.buyer_id))
-        limits = Limits(
-            args.max_pages,
-            args.max_attempts,
-            args.max_bytes,
-            args.requests_per_minute,
-            args.request_timeout,
-            args.run_timeout,
-            args.max_retry_delay,
-        )
+        query: Query | None
+        adapter: DiavgeiaAdapter | None
+        if args.source == "diavgeia":
+            query, limits = None, Limits()
+            adapter = DiavgeiaAdapter(
+                DiavgeiaQuery(
+                    args.organization, args.from_date.isoformat(), args.to_date.isoformat()
+                )
+            )
+        else:
+            adapter = None
+            query = Query(args.from_date, args.to_date, tuple(args.buyer_id))
+            limits = Limits(
+                args.max_pages,
+                args.max_attempts,
+                args.max_bytes,
+                args.requests_per_minute,
+                args.request_timeout,
+                args.run_timeout,
+                args.max_retry_delay,
+            )
         dsn = _database_url() if args.database else None
         archive = Archive(args.archive_dir)
         with httpx.Client() as client:
-            summary = collect(query, limits, archive, client=client, database_dsn=dsn)
+            summary = collect(
+                query, limits, archive, client=client, database_dsn=dsn, adapter=adapter
+            )
     except AssessmentError as exc:
         print(json.dumps({"status": "failed", "failure": exc.reason}))
         return 1
