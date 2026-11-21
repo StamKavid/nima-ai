@@ -10,8 +10,8 @@ import pytest
 from psycopg import sql
 
 from nima.metadata.export import prepare_metadata
-from nima.metadata.extract import MetadataError
 from nima.metadata.store import promote_metadata, query_metadata
+from nima.sources.metadata_extract import MetadataError
 from tests.test_analytics_snapshot import reader, state
 from tests.test_metadata_export import kimdis_run
 

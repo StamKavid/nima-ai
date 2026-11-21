@@ -16,7 +16,7 @@ from defusedxml.common import DefusedXmlException
 from defusedxml.ElementTree import ParseError, iterparse
 
 from nima.identity.artifacts import encode
-from nima.metadata.extract import MetadataError
+from nima.sources.metadata_extract import MetadataError
 
 VERSION = "cpv-reference-v1"
 SOURCE = "https://raw.githubusercontent.com/OP-TED/eForms-SDK/1.15.1/codelists/cpv.gc"

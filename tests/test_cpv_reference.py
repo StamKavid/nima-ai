@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 
 from nima.metadata import cpv
-from nima.metadata.extract import MetadataError
+from nima.sources.metadata_extract import MetadataError
 
 CAPTURED_AT = "2026-11-18T11:43:00+00:00"
 
