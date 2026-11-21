@@ -195,6 +195,13 @@
   each cited decision, reporting counts and public ADA identifiers only. 13 tests, 100% line and
   branch, nine mutations caught. To be run by the owner on the pilot database before any Diavgeia
   request; the result decides whether the explicit-key pilot is worth running.
+- [ ] V1-06 Diavgeia pilot ([spec](../docs/specs/SPEC-diavgeia-pilot.md)): decisions P1 and P3 to P6 recorded 2026-11-21.
+  - [x] D1 spec (#196) and D2 adapter (#197): the `diavgeia` adapter for award decisions by organisation and window passes the
+    shared parser and engine conformance suites on synthetic pages, with no engine change and no request; delivered, hosted run
+    44952459635 on `97c21e1` passed all three jobs.
+  - [ ] D3 `nima ingest diavgeia` command (#198, in review), then one owner-approved real run: waits on P2 (organisation `uid`
+    and window) and your approval of the live request.
+  - [ ] D4 citation-overlap measurement after the real run.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
   Candidate: fetch exactly the ADAs a small KIMDIS cohort cites in `diavgeiaADA` (one by one, with
   their version logs); fallback Δ.2.2 κατακύρωση for one organisation and one window of at most
