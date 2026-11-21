@@ -59,8 +59,20 @@ parsing is tested in the time model. The definition hash binds the rules, the ti
 the SQL hash. Inputs, cutoff and bounds (5,000 observations, 1,000 assertions each) are validated
 with fixed error reasons; no source value appears in an error.
 
+## Readout command (S8b)
+
+`nima analytics cpv-period --request <file> --output-dir <dir>` reads stored runs with SELECT only,
+recovers every selected original page from the preserved archive, re-extracts each record's CPV
+assertions from those bytes (never from stored metadata), evaluates this metric, requires the reference
+SQL to return the identical document, and publishes one content-addressed private artifact with the
+metric id, definition hash, request hash, cohort hash and a per-record citation (source id, content hash,
+run, page, JSON pointer, each CPV assertion's pointer, and how the record was selected). The request
+format is `nima-cpv-period-request-v1`: run IDs, an observation cutoff, optional CPV base code, optional
+first and last month, and archive roots. Failures are one fixed reason from a closed set; no source value,
+path or SQL text is echoed. The request hash ignores archive paths.
+
 ## Not part of this slice
 
-No readout command, no assembly of inputs from stored metadata snapshots, no CPV release or label,
+No assembly of inputs from stored metadata snapshots, no CPV release or label,
 no parent roll-up (SH1) and no real-data reconciliation. The only real CPV evidence so far is the
 archive of one capture; certification needs the owner's reconciliation (slice S7).

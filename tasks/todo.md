@@ -65,6 +65,13 @@
   reconciliation (`certified`), the review checklist and the certification plan. **No metric is promoted by this slice**: promotion to
   `reviewed` is the owner's decision and certification needs the owner's real-data reconciliation. The lifecycle model is a model and not a
   metric, so it is not in the metric table.
+- [ ] S8 readout commands for U2-U4 ([spec](../docs/specs/SPEC-metric-readouts.md), approved 2026-11-21, decisions R1-R4 as recommended):
+  - [ ] S8a shared frozen cohort (`read_cohort`), U1 unchanged: in review (#185).
+  - [ ] S8b U2 `nima analytics cpv-period`: in review; CPV re-extracted from verified original bytes, SQL parity required, 39 tests,
+    100% line and branch on the new modules, 15 of 15 rule breaks caught. Hosted CI not yet read.
+  - [ ] S8c U3 readout.
+  - [ ] S8d U4 readout and the completeness rule from stored run counters.
+  - [ ] S8e catalogue prerequisite and runbook lines.
 
 ## V1-04 — source boundaries for a second feed
 
