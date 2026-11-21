@@ -8,7 +8,7 @@ import pytest
 
 from nima.identity.artifacts import encode
 from nima.metadata.cpv_match import match_metadata
-from nima.metadata.extract import VERSION, MetadataError, kimdis_metadata
+from nima.sources.metadata_extract import VERSION, MetadataError, kimdis_metadata
 from tests.test_collection import body
 from tests.test_cpv_reference import genericode, prepare
 

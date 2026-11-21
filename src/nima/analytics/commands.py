@@ -5,10 +5,11 @@ import json
 import os
 from dataclasses import asdict
 from pathlib import Path
-from typing import NoReturn
+from typing import Any, NoReturn
 
 import psycopg
 
+from nima.analytics.buyer_readout import export_buyer_readout
 from nima.analytics.cpv_readout import export_cpv_readout
 from nima.analytics.export import export_readout
 from nima.analytics.result import ReadoutError
@@ -36,6 +37,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     cpv.add_argument("--request", type=Path, required=True, help="Private explicit selection")
     cpv.add_argument("--output-dir", type=Path, required=True, help="Private result directory")
+    buyer = operations.add_parser(
+        "buyer-concentration",
+        help="Publish a private cited buyer-to-supplier record concentration",
+        allow_abbrev=False,
+    )
+    buyer.add_argument("--request", type=Path, required=True, help="Private explicit selection")
+    buyer.add_argument("--output-dir", type=Path, required=True, help="Private result directory")
     return parser
 
 
@@ -52,8 +60,11 @@ def run(argv: list[str]) -> int:
         dsn = os.environ.get("NIMA_DATABASE_URL", "")
         if not dsn.strip():
             raise ValueError("analytics_configuration")
-        exporter = export_cpv_readout if args.operation == "cpv-period" else export_readout
-        result = exporter(dsn, args.request, args.output_dir)
+        exporter = {
+            "cpv-period": export_cpv_readout,
+            "buyer-concentration": export_buyer_readout,
+        }.get(args.operation, export_readout)
+        result: Any = exporter(dsn, args.request, args.output_dir)
     except ReadoutError as error:
         return _failure(error.reason)
     except psycopg.Error:

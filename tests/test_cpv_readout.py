@@ -10,18 +10,18 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from nima.analytics import commands, cpv_readout
+from nima.analytics import commands, cpv_readout, metric_readout
 from nima.analytics.cpv_readout import export_cpv_readout, prepare_cpv_readout
 from nima.analytics.cpv_request import CpvRequest, decode_cpv_request, read_cpv_request
 from nima.analytics.request import RequestError
 from nima.analytics.result import ReadoutError
+from nima.identity import AssessmentError
 from nima.ingestion.archive import Archive
 from nima.ingestion.config import Limits, Summary
-from nima.metadata import extract
-from nima.identity import AssessmentError
-from nima.metadata.extract import MetadataError
-from nima.semantics.cpv_period import SemanticError
 from nima.projections.worker import drain
+from nima.semantics.cpv_period import SemanticError
+from nima.sources import metadata_extract as extract
+from nima.sources.metadata_extract import MetadataError
 from nima.storage.postgres import migrate
 from nima.storage.runs import RunStore
 from tests.test_analytics_snapshot import reader, state
@@ -29,8 +29,7 @@ from tests.test_collection import QUERY
 
 CUTOFF = "2026-06-01T00:00:00+00:00"
 FAKE_SQL = (
-    "SELECT '{}'::jsonb FROM "
-    "(SELECT %s::jsonb, %s::timestamptz, %s::text, %s::text, %s::text) x"
+    "SELECT '{}'::jsonb FROM (SELECT %s::jsonb, %s::timestamptz, %s::text, %s::text, %s::text) x"
 )
 
 
@@ -80,9 +79,7 @@ def seed(
     ).encode()
     with store.lease():
         store.begin(QUERY)
-        store.commit_page(
-            run, raw, observed_at=observed, owner=store.owner
-        )
+        store.commit_page(run, raw, observed_at=observed, owner=store.owner)
         store.finish(Summary(status="complete"))
     drain(dsn, run_id=run)
     return run
@@ -361,9 +358,7 @@ def test_each_stored_observation_is_labelled_by_how_it_was_selected(
     request = multi_request(runs, "2026-01-05T00:00:00+00:00")
     with reader(pg_dsn) as (dsn, _):
         body, result = prepare_cpv_readout(dsn, request)
-    labels = {
-        (row["source_id"], row["selection"]) for row in json.loads(body)["evidence"]
-    }
+    labels = {(row["source_id"], row["selection"]) for row in json.loads(body)["evidence"]}
     assert labels == {
         ("kimdis:A", "earlier_observation"),
         ("kimdis:A", "selected"),
@@ -380,7 +375,7 @@ def test_output_limits_and_encoding_failures_have_fixed_reasons(
     run = seed(pg_dsn, tmp_path / "archive")
     request = request_for(run, tmp_path / "archive")
     with reader(pg_dsn) as (dsn, _):
-        monkeypatch.setattr(cpv_readout, "MAX_RESULT_BYTES", 10)
+        monkeypatch.setattr(metric_readout, "MAX_RESULT_BYTES", 10)
         with pytest.raises(ReadoutError, match="^analytics_limit$"):
             prepare_cpv_readout(dsn, request)
         monkeypatch.undo()
@@ -388,7 +383,7 @@ def test_output_limits_and_encoding_failures_have_fixed_reasons(
         def refuse(value: object) -> bytes:
             raise AssessmentError("assessment_limit")
 
-        monkeypatch.setattr(cpv_readout, "encode", refuse)
+        monkeypatch.setattr(metric_readout, "encode", refuse)
         with pytest.raises(ReadoutError, match="^analytics_limit$"):
             prepare_cpv_readout(dsn, request)
 
@@ -497,8 +492,8 @@ def test_the_result_size_limit_is_inclusive(
     request = request_for(run, tmp_path / "archive")
     with reader(pg_dsn) as (dsn, _):
         body, _ = prepare_cpv_readout(dsn, request)
-        monkeypatch.setattr(cpv_readout, "MAX_RESULT_BYTES", len(body))
+        monkeypatch.setattr(metric_readout, "MAX_RESULT_BYTES", len(body))
         assert prepare_cpv_readout(dsn, request)[0] == body
-        monkeypatch.setattr(cpv_readout, "MAX_RESULT_BYTES", len(body) - 1)
+        monkeypatch.setattr(metric_readout, "MAX_RESULT_BYTES", len(body) - 1)
         with pytest.raises(ReadoutError, match="^analytics_limit$"):
             prepare_cpv_readout(dsn, request)

@@ -26,7 +26,7 @@ request hash, run IDs and cutoff. No network, no SQL writes, no repair of origin
 2. U1's evidence layer (`nima.analytics.snapshot`, `reconcile`, `result`) is supplier-specific
    (it selects by one tax id). It is reused by **generalising its selection**, not by copying it.
 3. CPV is not in the normalized record. It is re-extracted from the original bytes with
-   `nima.metadata.extract.kimdis_metadata`, which the reconciliation step already re-reads.
+   `nima.sources.metadata_extract.kimdis_metadata`, which the reconciliation step already re-reads.
 4. Counts only. No money, identity, market share or misconduct claim in any result.
 5. Results stay private (outside Git), like U1's.
 

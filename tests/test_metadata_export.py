@@ -12,7 +12,7 @@ from nima.__main__ import main
 from nima.ingestion.archive import Archive
 from nima.ingestion.config import Limits, Summary
 from nima.metadata.export import export_metadata
-from nima.metadata.extract import MetadataError
+from nima.sources.metadata_extract import MetadataError
 from nima.storage.postgres import migrate
 from nima.storage.runs import RunStore
 from tests.test_analytics_snapshot import reader, state
@@ -167,7 +167,7 @@ def test_no_match_keeps_full_quality_scope(pg_dsn: str, tmp_path: Path) -> None:
 def test_global_limit_is_not_a_per_page_truncation(
     pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from nima.metadata import extract
+    from nima.sources import metadata_extract as extract
 
     root = tmp_path / "raw"
     migrate(pg_dsn)

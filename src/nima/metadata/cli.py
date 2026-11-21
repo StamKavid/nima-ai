@@ -9,7 +9,7 @@ from typing import NoReturn
 from uuid import UUID
 
 from nima.metadata.export import export_metadata
-from nima.metadata.extract import DIMENSIONS, MetadataError
+from nima.sources.metadata_extract import DIMENSIONS, MetadataError
 
 
 class _Parser(argparse.ArgumentParser):

@@ -69,7 +69,9 @@
   - [ ] S8a shared frozen cohort (`read_cohort`), U1 unchanged: in review (#185).
   - [ ] S8b U2 `nima analytics cpv-period`: in review; CPV re-extracted from verified original bytes, SQL parity required, 39 tests,
     100% line and branch on the new modules, 15 of 15 rule breaks caught. Hosted CI not yet read.
-  - [ ] S8c U3 readout.
+  - [ ] S8c U3 `nima analytics buyer-concentration`: in review; shared helpers (`metric_readout`, `cohort_request`) extracted and
+    the U2 readout moved onto them; 100% line and branch on the new modules, 22 of 22 hand-made rule breaks caught (3 survivors
+    fixed: bounds tested, one equivalent clause deleted). Hosted CI not yet read.
   - [ ] S8d U4 readout and the completeness rule from stored run counters.
   - [ ] S8e catalogue prerequisite and runbook lines.
 
