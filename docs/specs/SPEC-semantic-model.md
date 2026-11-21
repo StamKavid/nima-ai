@@ -104,6 +104,36 @@ Only explicit source references form edges: `award` (`auctionRefNo`), `previous_
   (threshold measured first, decision D5).
 - Stages stay distinct: commitment, award, contract and payment are never summed.
 
+### M5. Hierarchy dimensions (decision D6)
+
+A hierarchy is a **reference dimension**, not a graph database and not an inference: a set of
+*reported* parent-child edges, each with its source, release or observation time, validity where
+the source gives one, and a pointer to the original. It lets a metric be read at coarser levels (a
+CPV division instead of thousands of codes, a ministry instead of every unit) without changing what
+is counted. Graph analytics, when it comes, consumes these dimensions; it does not replace them.
+
+- Each record is counted once at its own node and aggregated to every ancestor. An ancestor's figure
+  is a roll-up of the same distinct records, never a sum of overlapping children; where a record sits
+  under several children (a record with several CPVs) the overlap is disclosed, as for U2.
+- Edges are source assertions. A hierarchy guessed from names, size or similarity is an investigative
+  signal and never a dimension. Ownership and control groups are out of scope.
+- A KIMDIS buyer is attached to a buyer hierarchy through a reported identifier (the VAT number),
+  exactly as the party tier groups keys. Buyers with no match stay in an explicit "no known parent"
+  bucket and are counted, not dropped.
+- The edge set in force for a cohort and cutoff is selected like M1 (as observed, with validity);
+  a reorganisation is a new edge, and earlier edges are kept.
+- Every roll-up discloses coverage: the share of selected records whose node has a known path to the
+  level shown. A share of a parent is a share of **captured records** with its denominator named; it
+  is not market share.
+- A cycle, or two parents for one node in a hierarchy that is declared a tree, quarantines that edge
+  set with a fixed reason; it never silently changes a metric.
+
+Candidate hierarchies, in order of availability: CPV (parent codes of the explicitly selected CPV
+2008 release; the reader already rejects invalid parent graphs), NUTS regions (the KIMDIS record
+carries NUTS codes; levels follow the standard's code structure with its release explicit), buyers
+(Diavgeia supervisor edges joined by VAT number; needs the second feed, V1-06), and KAD levels
+(when the reference work is accepted).
+
 ## Metric catalogue
 
 Every definition has an ID, a version, a grain, an inputs list, eligibility and exclusion
@@ -214,6 +244,13 @@ class CpvPeriodCount:
 | S5 | U3 metric and SQL reference | Same |
 | S6 | M4 lifecycle plus U4 metric | Same; `incomparable` abstention proven |
 | S7 | Catalogue page, definition hashes, promotion of U1-U4 to `reviewed`; real-data reconciliation plan for `certified` | Owner review; certification needs the owner's real-data check |
+| SH1 | CPV hierarchy levels (division, group, class) as a dimension of U2, with coverage and overlap disclosure | Parity and hand-calculated tests; a roll-up never exceeds the distinct records beneath it |
+| SH2 | NUTS levels for U2 and U3 | Same |
+| SH3 | Buyer hierarchy from Diavgeia supervisor edges, joined by VAT (after V1-06) | Same, plus the "no known parent" bucket proven |
+| SH4 | KAD levels (after the reference is accepted) | Same |
+
+The SH slices follow the metric they extend and each needs its own approval; they are not on the
+critical path of S4-S7.
 
 ## Success criteria
 
@@ -239,3 +276,14 @@ The owner answered "do recommended for 1-5". Recorded as follows.
 - **D5 Lifecycle:** amendments stay separate publications. The umbrella-reference threshold is
   measured on real data before it is set (Diavgis's 25 is a reference point, not adopted). No
   chain-collapsed second basis in V1-05; revisit when V1-07 cross-source joins are specified.
+
+### Decision D6 (recorded 2026-11-21)
+
+- **D6 Hierarchy dimensions:** the owner asked whether every large category should carry a hierarchy
+  so that things can be related, "if it makes sense and will add value". Judged yes, in the bounded form
+  of M5: hierarchies are reported reference dimensions stored and rolled up in SQL, not a graph store and
+  not an inference, with graph analytics deferred to consume them later. CPV first (no new source);
+  buyers wait for the Diavgeia feed. The owner also chose to **wait** on reading the remaining Diavgeia
+  organizations list for the defence bodies (the General Staff of the Army, the National Defence General
+  Staff); that is left to the Diavgeia source work (V1-06), where the original will be archived.
+
