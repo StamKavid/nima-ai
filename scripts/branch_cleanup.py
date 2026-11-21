@@ -31,7 +31,7 @@ def plan_cleanup(
         raise ValueError("repository_invalid")
     if not isinstance(default, str) or not default:
         raise ValueError("default_branch_unknown")
-    reserved = {"main", "dev", "master", "develop", default}
+    reserved = {"main", "dev", "stg", "master", "develop", default}
     delete: list[dict[str, object]] = []
     retained: list[dict[str, object]] = []
     for branch in branches:

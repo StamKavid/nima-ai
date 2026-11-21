@@ -28,7 +28,7 @@ def test_only_completed_unchanged_branch_is_selected() -> None:
     assert result["delete"] == [{"branch": "feature/finished", "sha": SHA, "pr_number": 1}]
 
 
-@pytest.mark.parametrize("name", ["main", "dev", "develop", "master"])
+@pytest.mark.parametrize("name", ["main", "dev", "stg", "develop", "master"])
 def test_long_lived_branches_are_retained_even_when_pr_merged(name: str) -> None:
     prs, branches = snapshot(name)
     assert not plan_cleanup(REPO, prs, branches, [])["delete"]
