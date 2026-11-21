@@ -22,11 +22,22 @@ from nima.semantics.participation import (
     evaluate,
     reference_sql,
     sql_rows,
-    valid_tax_id,
 )
+from nima.semantics.parties import valid_tax_id
 
 TAX = "012345678"
 CUTOFF = datetime(2026, 1, 3, tzinfo=UTC)
+
+
+def imported_modules(name: str) -> set[str]:
+    source = files("nima.semantics").joinpath(name).read_text()
+    modules: set[str] = set()
+    for node in ast.walk(ast.parse(source)):
+        if isinstance(node, ast.Import):
+            modules.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            modules.add(node.module or "")
+    return modules
 
 
 def fixture() -> tuple[Observation, ...]:
@@ -233,21 +244,20 @@ def test_provider_bounds_and_dependency_direction() -> None:
         evaluate(cast(tuple[Observation, ...], []), tax_id=TAX, cutoff=CUTOFF)
     with pytest.raises(SemanticError, match="^semantic_input$"):
         evaluate((row,) * 501, tax_id=TAX, cutoff=CUTOFF)
-    source = files("nima.semantics").joinpath("participation.py").read_text()
-    imports = [
-        node
-        for node in ast.walk(ast.parse(source))
-        if isinstance(node, (ast.Import, ast.ImportFrom))
-    ]
-    for node in imports:
-        modules = (
-            [alias.name for alias in node.names]
-            if isinstance(node, ast.Import)
-            else [node.module or ""]
-        )
-        assert all(
-            not module.startswith(("nima.", "psycopg", "prefect", "httpx")) for module in modules
-        )
+    # The provider may import exactly its two pure sibling modules and nothing else from nima.
+    siblings = {"nima.semantics.parties", "nima.semantics.selection"}
+    modules = imported_modules("participation.py")
+    assert modules & siblings == siblings
+    for module in modules - siblings:
+        assert not module.startswith(("nima.", "psycopg", "prefect", "httpx"))
+
+
+@pytest.mark.parametrize("name", ["parties.py", "selection.py"])
+def test_the_shared_semantic_modules_import_no_application_storage_or_network_code(
+    name: str,
+) -> None:
+    for module in imported_modules(name):
+        assert not module.startswith(("nima.", "psycopg", "prefect", "httpx"))
 
 
 def test_matching_and_unassessed_occurrences_can_coexist(pg_dsn: str) -> None:

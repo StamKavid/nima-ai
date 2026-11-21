@@ -8,20 +8,14 @@ from datetime import datetime, timedelta
 from importlib.resources import files
 from typing import cast
 
-ASCII_WHITESPACE = " \t\r\n\f\v"
+from nima.semantics.parties import ASCII_WHITESPACE, buyer_key, reported_supplier, valid_tax_id
+from nima.semantics.selection import Selected, select_latest
+
 NORMALIZER = "kimdis-normalized-v1"
 
 
 class SemanticError(ValueError):
     """Fixed reason only; source values never enter exception messages."""
-
-
-def valid_tax_id(value: object) -> bool:
-    return (
-        isinstance(value, str)
-        and re.fullmatch(r"[0-9]{9}", value) is not None
-        and value != "000000000"
-    )
 
 
 @dataclass(frozen=True)
@@ -171,34 +165,29 @@ def sql_rows(observations: tuple[Observation, ...]) -> list[dict[str, object]]:
     return [{**asdict(row), "observed_at": row.observed_at.isoformat()} for row in observations]
 
 
-def _decision(rows: list[Observation], tax_id: str) -> RecordDecision:
-    latest = max(row.observed_at for row in rows)
-    current = [row for row in rows if row.observed_at == latest]
-    versions = {row.content_sha256: row for row in current}
+def _decision(selected: Selected[Observation], tax_id: str) -> RecordDecision:
     matching = []
     unassessed, unknown, empty, candidate = False, False, False, False
     invalid = 0
-    for row in versions.values():
+    for row in selected.versions.values():
         unknown |= row.suppliers is None
         empty |= row.suppliers == ()
         for supplier in row.suppliers or ():
-            tax = (supplier.tax_id or "").strip(ASCII_WHITESPACE)
-            country = (supplier.country_code or "").strip(ASCII_WHITESPACE)
-            invalid += not valid_tax_id(tax)
-            if tax == tax_id:
+            reported = reported_supplier(supplier.tax_id, supplier.country_code)
+            invalid += not reported.eligible_tax_id
+            if reported.tax_id == tax_id:
                 candidate = True
-                if country in {"GR", "EL"}:
+                if reported.greek_country:
                     matching.append(supplier.ordinal)
                 else:
                     unassessed = True
-    ambiguous = len(versions) != 1
-    chosen = current[0]
-    buyer = (chosen.buyer_key or "").strip(ASCII_WHITESPACE)
+    ambiguous = selected.ambiguous
+    chosen = selected.chosen
     return RecordDecision(
         chosen.source_id,
-        tuple(sorted(versions)),
-        tuple(sorted(row.observation_id for row in current)),
-        None if ambiguous or not buyer else f"kimdis.buyer-key:{buyer}",
+        tuple(sorted(selected.versions)),
+        tuple(sorted(row.observation_id for row in selected.current)),
+        None if ambiguous else buyer_key(chosen.buyer_key),
         None if ambiguous else chosen.cancelled,
         () if ambiguous else tuple(sorted(matching)),
         unassessed,
@@ -222,11 +211,7 @@ def evaluate(
     ):
         raise SemanticError("semantic_selection")
     validate_observations(observations)
-    grouped: dict[str, list[Observation]] = {}
-    for row in observations:
-        if row.observed_at <= cutoff:
-            grouped.setdefault(row.source_id, []).append(row)
-    records = tuple(_decision(grouped[key], tax_id) for key in sorted(grouped))
+    records = tuple(_decision(selected, tax_id) for selected in select_latest(observations, cutoff))
     matched = [record for record in records if record.matching_ordinals]
     buyers = tuple(
         BuyerRecordCount(
