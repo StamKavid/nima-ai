@@ -55,13 +55,16 @@
   parity, 100% line and branch, 54 rule breaks caught, two redundant SQL filters removed; abstains `incomparable` unless both captures are
   complete, share a query hash, have no quarantined record and are strictly ordered. Hosted run 44915536361 on `689897e` (which also
   holds the scorecard) passed all three jobs.
-- [ ] S6b: lifecycle references (M4) is open as #181: explicit edges only, five statuses, no default umbrella threshold (sharing measured on
-  1,317 real records). Record it here when the owner merges it and the hosted run is read.
+- [ ] S6b: lifecycle references (M4): owner merged #181 at `f41ac48`; reachable from `origin/main`. Explicit edges only, five statuses
+  (`resolved`, `unresolved`, `target_ambiguous`, `external`, `self_reference`); sharing measured on 1,317 real records (most shared award target
+  has nine citing records, no umbrella pattern), so **no default threshold** is adopted and a flag is raised only when the caller passes one
+  (the owner may choose a number from a larger sample); 50 tests, 100% line and branch, 35 rule breaks caught; no reference SQL until a metric
+  consumes the edges (V1-07). Mark delivered after the hosted run 44918502642 on `f41ac48` is read.
 - [ ] S7 in review: the metric catalogue (`docs/semantics/metric-catalogue.md`, `nima.semantics.catalogue`) with the four definition hashes
   published and checked against the code, tests that refuse a promotion without a dated review record (`reviewed`) or a recorded
   reconciliation (`certified`), the review checklist and the certification plan. **No metric is promoted by this slice**: promotion to
-  `reviewed` is the owner's decision and certification needs the owner's real-data reconciliation. The lifecycle model joins the catalogue
-  after S6b merges.
+  `reviewed` is the owner's decision and certification needs the owner's real-data reconciliation. The lifecycle model is a model and not a
+  metric, so it is not in the metric table.
 
 ## V1-04 — source boundaries for a second feed
 
