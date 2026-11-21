@@ -1,6 +1,6 @@
 # Spec: readout commands for metrics U2, U3 and U4
 
-Module ID: `metric-readouts`. Status: **draft for owner review; no code until approved.** Serves the
+Module ID: `metric-readouts`. Status: **approved by the owner on 2026-11-21, decisions R1-R4 recorded as recommended ("Do recommendations"). S8a is next.** Serves the
 certification plan in [the metric catalogue](../semantics/metric-catalogue.md) (prerequisite 1) and
 release gate R5 of the [v1.0 contract](SPEC-release-v1.0.md). It extends the delivered U1 readout
 ([SPEC-market-analytics](SPEC-market-analytics.md), `nima analytics supplier-buyers`) and the
