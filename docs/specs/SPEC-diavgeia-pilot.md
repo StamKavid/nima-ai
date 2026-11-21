@@ -1,7 +1,8 @@
 # Spec: Diavgeia second-source pilot (V1-06)
 
-Module ID: `diavgeia-pilot`. Status: **draft for owner review; no code, no request, no allowlist change
-until approved.** Depends on [ADR-0008](../decisions/0008-diavgeia-second-source-measure-first.md), the
+Module ID: `diavgeia-pilot`. Status: **decisions P1 and P3 to P6 recorded as recommended by the owner on 2026-11-21 ("recommended
+for P1 and P3 to P6"); P2 (organisation and window) is open. D2 may start without P2; D3 needs it. No code, no
+request, no allowlist change yet.** Depends on [ADR-0008](../decisions/0008-diavgeia-second-source-measure-first.md), the
 [acceptance dossier](../sources/diavgeia-acceptance.md) (owner decisions 1 to 5), the
 [source boundary](SPEC-source-boundaries.md) and its [collection extension](SPEC-source-neutral-collection.md).
 Release gate served: R1 (two validated source adapters) and the join work of V1-07.
@@ -96,7 +97,7 @@ economic event; real decisions or documents in Git.
 
 | Slice | Content | Done when |
 |---|---|---|
-| D1 | This spec approved with decisions P1 to P6 | Owner decisions recorded |
+| D1 | This spec approved with decisions P1 to P6 | P1, P3 to P6 decided 2026-11-21; P2 open |
 | D2 | Synthetic recorded samples (one page of mixed statuses, a revoked version, a natural person, a private-data decision, an empty page, a malformed record), the `diavgeia` adapter, registry entry and egress allowlist entry; **no network** | Full conformance suite passes on the new adapter; allowlist change reviewed and merged |
 | D3 | One owner-approved real run (P1 cohort) with the archive preserved | Run reconstructs from the archive; counts and status mix recorded in `docs/verification/`, no decision content |
 | D4 | Measure how many of the four KIMDIS citations resolve to a collected decision, and how many collected ADAs any KIMDIS record cites | Counts recorded; V1-07 join spec can start |
@@ -104,6 +105,8 @@ economic event; real decisions or documents in Git.
 Each slice is one review-ready PR with the repository gates. D3 is the owner's live step.
 
 ## Decisions for the owner
+
+P1 and P3 to P6 are decided as recommended (2026-11-21). P2 is open and blocks only D3.
 
 | # | Decision | Recommendation |
 |---|---|---|
