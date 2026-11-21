@@ -1,5 +1,9 @@
 # Analytics foundation readiness
 
+> Re-scored on 2026-11-21 at about **70/100** with these same weights; see the
+> [release scorecard](release-scorecard.md#foundation-rubric-re-scored). The text below is the
+> assessment as it stood at #147.
+
 ## Current assessment — 2026-11-19: approximately 65/100
 
 Verified main `6f706f1` after owner-merged #147 includes reviewed `f230ea0`
