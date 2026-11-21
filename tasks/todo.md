@@ -65,16 +65,15 @@
   reconciliation (`certified`), the review checklist and the certification plan. **No metric is promoted by this slice**: promotion to
   `reviewed` is the owner's decision and certification needs the owner's real-data reconciliation. The lifecycle model is a model and not a
   metric, so it is not in the metric table.
-- [ ] S8 readout commands for U2-U4 ([spec](../docs/specs/SPEC-metric-readouts.md), approved 2026-11-21, decisions R1-R4 as recommended):
-  - [ ] S8a shared frozen cohort (`read_cohort`), U1 unchanged: in review (#185).
-  - [ ] S8b U2 `nima analytics cpv-period`: in review; CPV re-extracted from verified original bytes, SQL parity required, 39 tests,
-    100% line and branch on the new modules, 15 of 15 rule breaks caught. Hosted CI not yet read.
-  - [ ] S8c U3 `nima analytics buyer-concentration`: in review; shared helpers (`metric_readout`, `cohort_request`) extracted and
-    the U2 readout moved onto them; 100% line and branch on the new modules, 22 of 22 hand-made rule breaks caught (3 survivors
-    fixed: bounds tested, one equivalent clause deleted). Hosted CI not yet read.
-  - [ ] S8d U4 `nima analytics observed-change`: in review; completeness rule from stored counters documented in the U4 page (R3);
-    abstains without touching archives; 100% line and branch on the new modules. Hosted CI not yet read.
-  - [ ] S8e catalogue prerequisite and runbook lines.
+- [x] S8 readout commands for U2-U4 ([spec](../docs/specs/SPEC-metric-readouts.md), approved 2026-11-21, decisions R1-R4 as recommended):
+  delivered on main; hosted run 44943399557 on `6e1df74` passed quality, orchestration-compose and source-worker-egress. The readout
+  slices reached main through #185, #186, #188 and #191 (#187 and #189 merged into a feature base first, so #188 and #191 promoted them).
+  - [x] S8a shared frozen cohort (`read_cohort`), U1 unchanged (#185).
+  - [x] S8b U2 `nima analytics cpv-period` (#186); CPV re-extracted from verified original bytes, SQL parity required.
+  - [x] S8c U3 `nima analytics buyer-concentration` (#187, promoted by #188); shared helpers `metric_readout` and `cohort_request`.
+    The extractor moved to `nima.sources.metadata_extract` (#188) to avoid a new package cycle.
+  - [x] S8d U4 `nima analytics observed-change` (#189, promoted by #191); the run-completeness rule (R3) is in the U4 page.
+  - [ ] S8e catalogue prerequisite is updated; the certification runbook (#193) is awaiting merge.
 
 ## V1-04 — source boundaries for a second feed
 
