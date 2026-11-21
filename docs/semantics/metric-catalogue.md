@@ -71,6 +71,8 @@ No review record exists yet.
 
 ## Plan for certification (real-data reconciliation)
 
+The commands to run are in the [certification runbook](../verification/readout-certification.md).
+
 `certified` needs a recorded reconciliation on real data. It cannot be done from synthetic tests and is the
 owner's check. The plan, in order:
 
