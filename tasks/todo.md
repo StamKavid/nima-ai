@@ -42,12 +42,20 @@
   `selection.select_latest` and `parties` extracted from `participation`; the nine pins taken first from unmodified main pass unchanged
   (U1 result bytes, definition hash and reference SQL hash did not move); 47 new tests, 18 rule breaks caught. The provider import guard
   was narrowed to exactly the two new pure sibling modules and extended to them (merged by the owner, so accepted).
-- [ ] S4: owner merges the U2 PR (`captured_record_count_by_cpv_period.v1`: pure provider plus reference SQL, 57 tests with PostgreSQL
-  parity, 100% line and branch, 52 rule breaks across Python and SQL caught, three equivalent SQL constructs removed); verify on
-  `origin/main` and read the hosted run before marking delivered.
+- [x] S4: owner merged #176 at `b7a0b61`; reachable from `origin/main`. `captured_record_count_by_cpv_period.v1`: pure provider plus
+  reference SQL, 57 tests with PostgreSQL parity, 100% line and branch, 52 rule breaks across Python and SQL caught, three equivalent
+  SQL constructs removed. Hosted run 44913220474 on `c6b6272` (which also contains S5 and the hierarchy spec) passed all three jobs;
+  the runs on the two earlier merge heads were cancelled by the next merge.
+- [x] S5: owner merged #178 at `c6b6272`; same hosted run. `buyer_supplier_record_concentration.v1`: 34 tests with PostgreSQL parity,
+  100% line and branch, 50 rule breaks caught (two SQL tie-order breaks are equivalent in effect and the explicit `ORDER BY` stays).
+  `participation.validate_observations` and `sql_rows` gained a keyword `limit` (default unchanged; the nine U1 pins pass).
 - [ ] Preserve the original archives of future captures (mount an output folder and copy the archive out): the archives of runs 2 to 5 of
   the local sample were lost with their temporary containers, so metadata snapshots and real-data U2 cannot be rebuilt from them.
-- [ ] S5 U3 buyer record concentration, S6 lifecycle references plus U4 change between captures, S7 catalogue and promotion to `reviewed`.
+- [ ] S6a: U4 `observed_change_between_captures.v1` (in review: 44 tests with PostgreSQL parity, 100% line and branch, 54 rule breaks caught,
+  two redundant SQL filters removed; abstains `incomparable` unless both captures are complete, share a query hash, have no quarantined
+  record and are strictly ordered).
+- [ ] S6b: lifecycle references (M4: explicit edges only, resolved or `reference_unresolved`, umbrella threshold measured on real data first).
+- [ ] S7 catalogue and promotion to `reviewed`.
 
 ## V1-04 — source boundaries for a second feed
 
