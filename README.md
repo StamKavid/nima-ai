@@ -313,10 +313,8 @@ to merge or deploy.
 ## Installed skills
 
 All 25 skills from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)
-are installed project-locally in `.agents/skills/`. Shared references, supporting
-documents, and the MIT license are preserved. `.agents/skills.lock.json` records
-the upstream revision and file hashes. `just skills-check` detects local drift;
-it is an integrity check against the recorded snapshot, not signature verification.
+are installed locally in `.agents/skills/`, which is not tracked in Git and is excluded
+from lint. Install or update them from the upstream repository when you set up a machine.
 
 Codex discovers project-local skills when a session starts in this repository.
 In an existing session, read the relevant `SKILL.md` directly. Installation does

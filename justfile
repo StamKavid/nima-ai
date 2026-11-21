@@ -14,9 +14,6 @@ setup:
 setup-security:
     sh scripts/install-gitleaks.sh
 
-skills-check:
-    uv run --frozen python scripts/verify_skills.py
-
 lint:
     uv run --frozen ruff format --check .
     uv run --frozen ruff check .
@@ -67,4 +64,4 @@ source-worker-check receipt_dir="":
     NIMA_SOURCE_WORKER_RECEIPT_DIR="$task_receipt_dir" uv run --frozen pytest tests/source_worker_integration.py
     uv run --frozen python -m nima.egress.receipt_check verify "$task_receipt_dir"
 
-check: skills-check container-lock-check lint typecheck test build security
+check: container-lock-check lint typecheck test build security

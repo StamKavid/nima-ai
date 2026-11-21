@@ -16,6 +16,7 @@ build/
 *.pem
 *.key
 .tools/
+.agents/
 .cache/
 data/
 work/

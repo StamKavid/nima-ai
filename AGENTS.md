@@ -6,10 +6,10 @@ and existing session authorization take precedence over repository defaults.
 
 ## Skills
 
-Skills are installed at `.agents/skills/<name>/SKILL.md`. Read the relevant skill
-on demand; do not preload the entire collection. Shared references are preserved
-under `.agents/references/`. Do not edit the pinned skill snapshot during feature
-work. Updates need their own reviewed commit and regenerated lockfile.
+Skills are installed locally at `.agents/skills/<name>/SKILL.md`; the directory is
+not tracked in Git. Read the relevant skill on demand; do not preload the entire
+collection. Shared references are under `.agents/references/`. Do not edit the
+installed snapshot during feature work.
 
 For new application features, use spec-driven-development, planning-and-task-breakdown,
 incremental-implementation, test-driven-development, and code-review-and-quality.
