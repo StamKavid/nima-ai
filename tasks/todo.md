@@ -72,7 +72,8 @@
   - [ ] S8c U3 `nima analytics buyer-concentration`: in review; shared helpers (`metric_readout`, `cohort_request`) extracted and
     the U2 readout moved onto them; 100% line and branch on the new modules, 22 of 22 hand-made rule breaks caught (3 survivors
     fixed: bounds tested, one equivalent clause deleted). Hosted CI not yet read.
-  - [ ] S8d U4 readout and the completeness rule from stored run counters.
+  - [ ] S8d U4 `nima analytics observed-change`: in review; completeness rule from stored counters documented in the U4 page (R3);
+    abstains without touching archives; 100% line and branch on the new modules. Hosted CI not yet read.
   - [ ] S8e catalogue prerequisite and runbook lines.
 
 ## V1-04 — source boundaries for a second feed

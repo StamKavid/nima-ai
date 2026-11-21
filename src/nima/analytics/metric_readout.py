@@ -13,6 +13,17 @@ from nima.identity.artifacts import encode
 from nima.storage.connection import Connection
 
 
+def require_parity(dsn: str, sql: str, parameters: tuple[object, ...], payload: object) -> None:
+    """The reference SQL, run on the given inputs, must return exactly the provider's document."""
+
+    def calculated(connection: Connection) -> object:
+        row = connection.execute(sql, parameters).fetchone()
+        return None if row is None else row[0]
+
+    if connected(dsn, calculated) != payload:
+        raise ReadoutError("analytics_metric")
+
+
 def require_sql_parity(
     dsn: str,
     sql: str,
@@ -20,14 +31,8 @@ def require_sql_parity(
     parameters: tuple[object, ...],
     payload: object,
 ) -> None:
-    """The reference SQL, run on the same rows, must return exactly the provider's document."""
-
-    def calculated(connection: Connection) -> object:
-        row = connection.execute(sql, (Jsonb(rows), *parameters)).fetchone()
-        return None if row is None else row[0]
-
-    if connected(dsn, calculated) != payload:
-        raise ReadoutError("analytics_metric")
+    """Parity for a metric whose first input is one JSON list of observation rows."""
+    require_parity(dsn, sql, (Jsonb(rows), *parameters), payload)
 
 
 def definition_hash(policy: dict[str, object]) -> str:

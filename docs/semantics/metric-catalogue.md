@@ -47,7 +47,7 @@ misconduct claim.
 | U1 | the synthetic fixture (eight source IDs, eleven observations: B1=3, B2=1, unassigned=1, total 5) | `tests/test_semantics.py` on PostgreSQL | nine characterisation pins that held across the S3 refactor (`tests/test_semantic_pins.py`); a bounded readout command exists |
 | U2 | the spec example (March: A=2, B=1, unclassified=1; unknown period B=1) | `tests/test_cpv_period.py` | 57 tests, 100% line and branch, 52 rule breaks caught; a bounded readout command exists (`nima analytics cpv-period`, 39 tests, 100% line and branch on the new modules, 15 of 15 rule breaks caught) |
 | U3 | the spec example (buyer B1: S1=2, S2=2, overlap 4, one joint record, share 2/3, unresolved 2/5) | `tests/test_buyer_concentration.py` | 34 tests, 100% line and branch, 50 rule breaks caught; a bounded readout command exists (`nima analytics buyer-concentration`, 32 tests plus shared request tests, 100% line and branch on the new modules, 22 of 22 rule breaks caught) |
-| U4 | the spec example (X unchanged, Y changed, Z missing, W added; incomparable when incomplete) | `tests/test_observed_change.py` | 44 tests, 100% line and branch, 54 rule breaks caught |
+| U4 | the spec example (X unchanged, Y changed, Z missing, W added; incomparable when incomplete) | `tests/test_observed_change.py` | 44 tests, 100% line and branch, 54 rule breaks caught; a bounded readout command exists (`nima analytics observed-change`, 100% line and branch on the new modules, 20 of 20 rule breaks caught after fixes) |
 
 These establish that each definition does what it says on synthetic inputs. They establish nothing about
 publisher truth, national coverage or usefulness to an analyst.
@@ -74,8 +74,7 @@ No review record exists yet.
 `certified` needs a recorded reconciliation on real data. It cannot be done from synthetic tests and is the
 owner's check. The plan, in order:
 
-1. **Prerequisites that are not built yet.** Readout commands for U4 that reads stored runs (U1, U2 and U3
-   have one), and for U4 the step that decides each run's completeness from its stored counters. A real capture
+1. **Prerequisites.** The readout commands for U1 to U4 and U4's completeness rule are built. A real capture
    whose **original archive is preserved** (mount an output folder and copy the archive out); the archives of
    runs 2 to 5 of the local sample were lost with their temporary containers.
 2. **Choose the cohort** (for example one buyer over a bounded window, or the whole-day capture) and record

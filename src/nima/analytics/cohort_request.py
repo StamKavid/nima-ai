@@ -13,11 +13,10 @@ from nima.analytics.request import (
 from nima.graph.pilot_archive import ArchiveBinding
 
 
-def cohort_fields(
-    data: dict[str, object],
-) -> tuple[tuple[UUID, ...], datetime, tuple[ArchiveBinding, ...]]:
-    """Validate the run IDs, cutoff and archive bindings of a decoded request."""
-    raw_runs, raw_bindings = data["run_ids"], data["archive_bindings"]
+def run_fields(
+    raw_runs: object, raw_bindings: object
+) -> tuple[tuple[UUID, ...], tuple[ArchiveBinding, ...]]:
+    """Validate explicit run IDs and one archive binding per run."""
     if (
         not isinstance(raw_runs, list)
         or not 1 <= len(raw_runs) <= 10
@@ -37,8 +36,12 @@ def cohort_fields(
         )
     if sorted(binding.run_id for binding in bindings) != list(runs):
         raise RequestError("analytics_input")
-    return (
-        runs,
-        cutoff_value(data["observation_cutoff"]),
-        tuple(sorted(bindings, key=lambda binding: binding.run_id)),
-    )
+    return runs, tuple(sorted(bindings, key=lambda binding: binding.run_id))
+
+
+def cohort_fields(
+    data: dict[str, object],
+) -> tuple[tuple[UUID, ...], datetime, tuple[ArchiveBinding, ...]]:
+    """Validate the run IDs, cutoff and archive bindings of a decoded request."""
+    runs, bindings = run_fields(data["run_ids"], data["archive_bindings"])
+    return runs, cutoff_value(data["observation_cutoff"]), bindings
