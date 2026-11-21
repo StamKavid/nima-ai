@@ -3,7 +3,9 @@
 ## GEMI AFM lookup (spec drafted 2026-11-20)
 
 - [x] L1: spec reviewed and decisions D1-D6 recorded as recommended by the owner on 2026-11-20.
-- [ ] L2: write failing tests, then the pure search-response parser and outcome rules (all five outcomes, string `arGemi`).
+- [x] L2: owner merged #172 at `f574266` (pure parser, all outcomes, string `arGemi`; `normalize_profile` split into `decode_body` and
+  `normalize_company`); reachable from `origin/main`. Hosted run 44909801231 on `e6dd5ef` passed all three jobs. 53 tests, 100% line and
+  branch for `gemi_search.py`, 18 rule breaks all caught.
 - [ ] L3: collector `ingest gemi-afm` on the shared GEMI transport, archive-first; crash, retry and budget tests.
 - [ ] L4: read-only archive verification for search runs.
 - [ ] L5: import of hits and `queried_not_found_at_observation` (migration; ask the owner first).
@@ -27,10 +29,25 @@
   Findings: submission date has two observed shapes (fraction of two or three digits, no zone); update date is
   date-only and mostly absent; no placeholder tax IDs; leading zeros common; 3 irregular-length IDs.
 - [ ] Optional: more buyers for variety (the owner names them and approves the capture).
-- [ ] S2b: from the measured shapes, write failing tests then `src/nima/semantics/timemodel.py` (one parser per
-  observed shape, `parsed`/`absent`/`unparseable`, Europe/Athens month, boundary and daylight-saving cases).
-- [ ] S2b: record the measured shape table (numbers only) in `docs/semantics/`; propose any extra placeholder tax-ID
-  rule to the owner for decision D4; mark S2 delivered after the owner merges and `origin/main` is verified.
+- [x] S2b: `src/nima/semantics/timemodel.py` from the measured shapes: owner merged #174 at `4e6ea80`; reachable from `origin/main`.
+  Zone-less ISO submission date-time with a fraction of one to six digits (one to three chosen by the owner, six seen on 4 of 1,317
+  records and added), date-only update date, `parsed`/`absent`/`unparseable`, no zone conversion. 69 tests, 100% line and branch, 21
+  rule breaks caught. Measured shape table recorded in `docs/semantics/date-format-measurements.md` (#173, `09ab852`). Decision D4: no new
+  placeholder rule needed (none in 1,374 tax IDs); irregular-length IDs (about 1.2%) stay ineligible and disclosed.
+
+## V1-05 S3 and S4 — shared selection, then U2
+
+- [x] S3: owner merged #175 at `e6dd5ef`; reachable from `origin/main`. Hosted run 44909801231 passed all three jobs (`quality`,
+  `orchestration-compose`, `source-worker-egress`); the earlier intermediate main runs were cancelled by the quick succession of merges.
+  `selection.select_latest` and `parties` extracted from `participation`; the nine pins taken first from unmodified main pass unchanged
+  (U1 result bytes, definition hash and reference SQL hash did not move); 47 new tests, 18 rule breaks caught. The provider import guard
+  was narrowed to exactly the two new pure sibling modules and extended to them (merged by the owner, so accepted).
+- [ ] S4: owner merges the U2 PR (`captured_record_count_by_cpv_period.v1`: pure provider plus reference SQL, 57 tests with PostgreSQL
+  parity, 100% line and branch, 52 rule breaks across Python and SQL caught, three equivalent SQL constructs removed); verify on
+  `origin/main` and read the hosted run before marking delivered.
+- [ ] Preserve the original archives of future captures (mount an output folder and copy the archive out): the archives of runs 2 to 5 of
+  the local sample were lost with their temporary containers, so metadata snapshots and real-data U2 cannot be rebuilt from them.
+- [ ] S5 U3 buyer record concentration, S6 lifecycle references plus U4 change between captures, S7 catalogue and promotion to `reviewed`.
 
 ## V1-04 — source boundaries for a second feed
 
