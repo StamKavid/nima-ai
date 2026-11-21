@@ -143,6 +143,8 @@ generated ontology. Internal metric certification needs recorded review.
 Status 2026-11-20: step 1 (acceptance dossier) is drafted in
 [`docs/sources/diavgeia-acceptance.md`](../sources/diavgeia-acceptance.md) and awaits the owner's
 decisions; no connector code until they are made.
+The pilot spec is [`SPEC-diavgeia-pilot.md`](../specs/SPEC-diavgeia-pilot.md) (draft; the census found the
+explicit key sparse, so the pilot shape is Δ.2.2 by organisation and window).
 
 Inspect current official API/schema/access/reuse/rate documentation before code;
 no dated API assumptions are authoritative. Freeze namespace/ADA identity,
