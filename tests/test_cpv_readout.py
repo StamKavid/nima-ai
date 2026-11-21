@@ -15,13 +15,13 @@ from nima.analytics.cpv_readout import export_cpv_readout, prepare_cpv_readout
 from nima.analytics.cpv_request import CpvRequest, decode_cpv_request, read_cpv_request
 from nima.analytics.request import RequestError
 from nima.analytics.result import ReadoutError
+from nima.identity import AssessmentError
 from nima.ingestion.archive import Archive
 from nima.ingestion.config import Limits, Summary
 from nima.metadata import extract
-from nima.identity import AssessmentError
 from nima.metadata.extract import MetadataError
-from nima.semantics.cpv_period import SemanticError
 from nima.projections.worker import drain
+from nima.semantics.cpv_period import SemanticError
 from nima.storage.postgres import migrate
 from nima.storage.runs import RunStore
 from tests.test_analytics_snapshot import reader, state
@@ -29,8 +29,7 @@ from tests.test_collection import QUERY
 
 CUTOFF = "2026-06-01T00:00:00+00:00"
 FAKE_SQL = (
-    "SELECT '{}'::jsonb FROM "
-    "(SELECT %s::jsonb, %s::timestamptz, %s::text, %s::text, %s::text) x"
+    "SELECT '{}'::jsonb FROM (SELECT %s::jsonb, %s::timestamptz, %s::text, %s::text, %s::text) x"
 )
 
 
@@ -80,9 +79,7 @@ def seed(
     ).encode()
     with store.lease():
         store.begin(QUERY)
-        store.commit_page(
-            run, raw, observed_at=observed, owner=store.owner
-        )
+        store.commit_page(run, raw, observed_at=observed, owner=store.owner)
         store.finish(Summary(status="complete"))
     drain(dsn, run_id=run)
     return run
@@ -361,9 +358,7 @@ def test_each_stored_observation_is_labelled_by_how_it_was_selected(
     request = multi_request(runs, "2026-01-05T00:00:00+00:00")
     with reader(pg_dsn) as (dsn, _):
         body, result = prepare_cpv_readout(dsn, request)
-    labels = {
-        (row["source_id"], row["selection"]) for row in json.loads(body)["evidence"]
-    }
+    labels = {(row["source_id"], row["selection"]) for row in json.loads(body)["evidence"]}
     assert labels == {
         ("kimdis:A", "earlier_observation"),
         ("kimdis:A", "selected"),
