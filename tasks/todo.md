@@ -51,10 +51,13 @@
   `participation.validate_observations` and `sql_rows` gained a keyword `limit` (default unchanged; the nine U1 pins pass).
 - [ ] Preserve the original archives of future captures (mount an output folder and copy the archive out): the archives of runs 2 to 5 of
   the local sample were lost with their temporary containers, so metadata snapshots and real-data U2 cannot be rebuilt from them.
-- [ ] S6a: U4 `observed_change_between_captures.v1` (in review: 44 tests with PostgreSQL parity, 100% line and branch, 54 rule breaks caught,
-  two redundant SQL filters removed; abstains `incomparable` unless both captures are complete, share a query hash, have no quarantined
-  record and are strictly ordered).
-- [ ] S6b: lifecycle references (M4: explicit edges only, resolved or `reference_unresolved`, umbrella threshold measured on real data first).
+- [ ] S6a: U4 `observed_change_between_captures.v1`: owner merged #180 at `689897e`; reachable from `origin/main`. 44 tests with PostgreSQL
+  parity, 100% line and branch, 54 rule breaks caught, two redundant SQL filters removed; abstains `incomparable` unless both captures are
+  complete, share a query hash, have no quarantined record and are strictly ordered. Mark delivered after the hosted run on `689897e` is read.
+- [ ] S6b: lifecycle references (M4), in review: explicit edges only, five statuses (`resolved`, `unresolved`, `target_ambiguous`, `external`,
+  `self_reference`); sharing measured on 1,317 real records (most shared award target has nine citing records, no umbrella pattern), so **no
+  default threshold** is adopted and a flag is raised only when the caller passes one (the owner may choose a number from a larger sample);
+  50 tests, 100% line and branch, 35 rule breaks caught; no reference SQL until a metric consumes the edges (V1-07).
 - [ ] S7 catalogue and promotion to `reviewed`.
 
 ## V1-04 — source boundaries for a second feed
