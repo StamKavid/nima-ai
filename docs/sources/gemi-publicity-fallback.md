@@ -514,7 +514,6 @@ Existing executable verification commands, from the repository root:
 ```bash
 export PATH="$PWD/.tools/bin:$PATH"
 export UV_CACHE_DIR=/workspace/work/uv-cache
-just skills-check
 just lint
 just check
 just audit
