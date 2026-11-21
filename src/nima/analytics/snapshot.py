@@ -475,6 +475,11 @@ def connected[T](dsn: str, work: Callable[[Connection], T]) -> T:
         raise SnapshotError("analytics_evidence") from None
 
 
+def read_cohort_in(connection: Connection, run_ids: tuple[UUID, ...]) -> Cohort:
+    """The same frozen cohort on a snapshot the caller already holds (see ``connected``)."""
+    return _read_cohort(connection, _run_selection(run_ids), _calculation())
+
+
 def read_cohort(dsn: str, run_ids: tuple[UUID, ...]) -> Cohort:
     """Frozen, coverage-checked evidence of the selected runs for any metric."""
     selected = _run_selection(run_ids)

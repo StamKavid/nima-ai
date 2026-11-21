@@ -10,6 +10,7 @@ from typing import Any, NoReturn
 import psycopg
 
 from nima.analytics.buyer_readout import export_buyer_readout
+from nima.analytics.change_readout import export_change_readout
 from nima.analytics.cpv_readout import export_cpv_readout
 from nima.analytics.export import export_readout
 from nima.analytics.result import ReadoutError
@@ -44,6 +45,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     buyer.add_argument("--request", type=Path, required=True, help="Private explicit selection")
     buyer.add_argument("--output-dir", type=Path, required=True, help="Private result directory")
+    change = operations.add_parser(
+        "observed-change",
+        help="Publish a private cited comparison of two captures of one query",
+        allow_abbrev=False,
+    )
+    change.add_argument("--request", type=Path, required=True, help="Private explicit selection")
+    change.add_argument("--output-dir", type=Path, required=True, help="Private result directory")
     return parser
 
 
@@ -63,6 +71,7 @@ def run(argv: list[str]) -> int:
         exporter = {
             "cpv-period": export_cpv_readout,
             "buyer-concentration": export_buyer_readout,
+            "observed-change": export_change_readout,
         }.get(args.operation, export_readout)
         result: Any = exporter(dsn, args.request, args.output_dir)
     except ReadoutError as error:
