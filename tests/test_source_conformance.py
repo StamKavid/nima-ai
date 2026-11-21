@@ -23,8 +23,10 @@ from nima.sources.base import (
     checked_provenance,
     checked_request,
 )
+from nima.sources.diavgeia import DiavgeiaAdapter, DiavgeiaQuery
 from nima.sources.kimdis import InvalidRecord, KimdisAdapter
 from scripts import dependency_graph as dg
+from tests.diavgeia_samples import award, decision, search_page
 from tests.synthetic_sources import (
     EventsAdapter,
     LedgerAdapter,
@@ -79,7 +81,20 @@ EVENTS = AdapterCase(
     quarantine_page=events_page(0, 1, 1, [event("acme", 4, "not money")]),
     broken_envelope=b'{"content": 1}',
 )
-ALL_CASES = (KIMDIS, LEDGER, EVENTS)
+DIAVGEIA = AdapterCase(
+    name="diavgeia",
+    make=lambda: DiavgeiaAdapter(DiavgeiaQuery("99999", "2026-01-01", "2026-01-30")),
+    pages=(
+        search_page(0, 2, 1, [decision("ΑΒΓΔΕ-ΖΗ1")]),
+        search_page(1, 2, 1, [decision("ΑΒΓΔΕ-ΖΗ2")]),
+    ),
+    money_page=search_page(
+        0, 1, 1, [decision("ΑΒΓΔΕ-ΖΗ3", extraFieldValues=award("123456789012345678.90"))]
+    ),
+    quarantine_page=search_page(0, 1, 1, [decision("ΑΒΓΔΕ-ΖΗ4", status="BOGUS")]),
+    broken_envelope=b'{"content": 1}',
+)
+ALL_CASES = (KIMDIS, LEDGER, EVENTS, DIAVGEIA)
 CASES = [pytest.param(case, id=case.name) for case in ALL_CASES]
 
 
@@ -237,5 +252,5 @@ def test_requests_go_to_the_declared_endpoint_and_differ_by_page(case: AdapterCa
 
 def test_each_source_declares_its_own_origin_and_none_borrows_another() -> None:
     origins = {case.name: checked_provenance(case.make()) for case in ALL_CASES}
-    assert len({p.endpoint for p in origins.values()}) == 3
-    assert len({p.documentation_url for p in origins.values()}) == 3
+    assert len({p.endpoint for p in origins.values()}) == len(ALL_CASES)
+    assert len({p.documentation_url for p in origins.values()}) == len(ALL_CASES)

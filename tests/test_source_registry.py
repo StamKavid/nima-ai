@@ -12,7 +12,7 @@ def test_the_default_source_is_kimdis_with_its_exact_identity() -> None:
     adapter = registry.default_adapter()
     assert isinstance(adapter, KimdisAdapter) and adapter.name == registry.DEFAULT_SOURCE
     assert adapter.normalizer_version == registry.DEFAULT_NORMALIZER_VERSION
-    assert registry.known_sources() == ("kimdis",)
+    assert registry.known_sources() == ("diavgeia", "kimdis")
 
 
 def test_an_adapter_is_built_by_name_with_an_optional_query() -> None:
