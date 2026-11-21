@@ -62,9 +62,29 @@ reference SQL. Every test scenario runs both on PostgreSQL and requires the same
 definition hash binds the rules and the SQL hash. Inputs are validated with fixed error reasons and
 bounded (5,000 versions and 100 runs per capture); no source value appears in an error.
 
+## Readout command and the completeness rule (S8d)
+
+`nima analytics observed-change --request <file> --output-dir <dir>` takes two disjoint sets of stored
+runs (`nima-observed-change-request-v1`: `earlier_run_ids`, `later_run_ids`, archive roots) and reads
+them with SELECT only. Each run's `RunFacts` come from its **stored counters**, with this rule:
+
+- **Collection complete**: status `complete` under a managed lease; the reported total pages equals
+  the total records divided by the page size, rounded up; `next_page` equals the page count (at
+  least one); the stored pages are exactly 0 to the last page; and each page holds the record count
+  its position requires.
+- **Normalization complete**: normalized observations plus quarantined records equal the reported
+  total records.
+- **Quarantined**: the number of quarantined records of the run. Any quarantined record makes the
+  metric abstain (`quarantined_records`).
+
+If the facts already make the captures incomparable, the artifact states the reasons and does not
+touch the archives (`raw_bytes: not_performed_incomparable`). Otherwise the frozen cohort is read on
+the same snapshot, every original page is verified against the archive, the versions are built from
+the verified cohort, and the reference SQL must return the identical document. The artifact cites
+every version with its capture, run, page and JSON pointer, and lists the run facts it used.
+
 ## Not part of this slice
 
-No command that reads stored runs, decides completeness from stored counters or builds the two
-captures, no field-level change detail, and no real-data reconciliation. The first real revisions
+No field-level change detail, and no real-data reconciliation. The first real revisions
 observed (five records changed between two local captures) are evidence this metric is meant for; they
 are not yet a reconciliation.
