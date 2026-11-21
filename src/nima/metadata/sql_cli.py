@@ -10,7 +10,7 @@ from uuid import UUID
 
 from nima.identity import AssessmentError
 from nima.identity.artifacts import publish
-from nima.metadata.extract import DIMENSIONS, MetadataError
+from nima.sources.metadata_extract import DIMENSIONS, MetadataError
 from nima.metadata.store import promote_metadata, query_metadata
 
 

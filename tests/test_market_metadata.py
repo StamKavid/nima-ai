@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from nima.metadata.extract import MetadataError, gemi_metadata, kimdis_metadata, select_assertions
+from nima.sources.metadata_extract import MetadataError, gemi_metadata, kimdis_metadata, select_assertions
 from nima.sources.gemi import normalize_profile
 from tests.test_collection import body
 
@@ -98,7 +98,7 @@ def test_gemi_activity_coverage(fields: dict[str, object], status: str) -> None:
 
 
 def test_assertion_limit_fails_instead_of_truncating(monkeypatch: pytest.MonkeyPatch) -> None:
-    from nima.metadata import extract
+    from nima.sources import metadata_extract as extract
 
     monkeypatch.setattr(extract, "MAX_ASSERTIONS", 3)
     with pytest.raises(MetadataError, match="^metadata_limit$"):

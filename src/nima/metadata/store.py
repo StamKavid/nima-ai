@@ -15,7 +15,7 @@ from psycopg.types.json import Jsonb
 from nima.identity import AssessmentError
 from nima.identity.artifacts import encode
 from nima.metadata.export import prepare_metadata
-from nima.metadata.extract import (
+from nima.sources.metadata_extract import (
     VERSION,
     Assertion,
     MetadataError,

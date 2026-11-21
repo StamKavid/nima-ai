@@ -9,7 +9,7 @@ from typing import cast
 from nima.identity import MAX_REPORT_BYTES, AssessmentError
 from nima.identity.artifacts import encode
 from nima.metadata.cpv import CpvEntry, CpvReference
-from nima.metadata.extract import MAX_ASSERTIONS, VERSION, MetadataError
+from nima.sources.metadata_extract import MAX_ASSERTIONS, VERSION, MetadataError
 from nima.sources.kimdis import InvalidRecord, decode_response
 
 MATCH_VERSION = "cpv-matches-v1"

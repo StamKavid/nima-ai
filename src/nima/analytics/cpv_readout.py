@@ -20,7 +20,7 @@ from nima.analytics.snapshot import SnapshotError, read_cohort
 from nima.graph.pilot_archive import PilotArchiveError
 from nima.identity import AssessmentError
 from nima.identity.artifacts import publish
-from nima.metadata.extract import MetadataError, kimdis_metadata
+from nima.sources.metadata_extract import MetadataError, kimdis_metadata
 from nima.semantics.cpv_period import (
     CpvAssertion,
     MetricResult,
