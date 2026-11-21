@@ -452,7 +452,7 @@ def _selection(run_ids: tuple[UUID, ...], tax_id: str, cutoff: datetime) -> tupl
     return selected
 
 
-def _connected[T](dsn: str, work: Callable[[Connection], T]) -> T:
+def connected[T](dsn: str, work: Callable[[Connection], T]) -> T:
     """One SELECT-only, repeatable-read connection with schema and role checks."""
     try:
         with connect(dsn) as connection, connection.transaction():
@@ -479,7 +479,7 @@ def read_cohort(dsn: str, run_ids: tuple[UUID, ...]) -> Cohort:
     """Frozen, coverage-checked evidence of the selected runs for any metric."""
     selected = _run_selection(run_ids)
     calculation = _calculation()
-    return _connected(dsn, lambda connection: _read_cohort(connection, selected, calculation))
+    return connected(dsn, lambda connection: _read_cohort(connection, selected, calculation))
 
 
 def read_snapshot(
@@ -495,6 +495,6 @@ def read_snapshot(
     except SemanticError:
         raise SnapshotError("analytics_input") from None
     calculation = _calculation()
-    return _connected(
+    return connected(
         dsn, lambda connection: _load(connection, selected, tax_id, cutoff, calculation)
     )

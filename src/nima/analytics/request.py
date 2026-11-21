@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -59,7 +60,7 @@ class ReadoutRequest:
         return hashlib.sha256(body).hexdigest()
 
 
-def _pairs(pairs: list[tuple[str, object]]) -> dict[str, object]:
+def pairs_hook(pairs: list[tuple[str, object]]) -> dict[str, object]:
     result: dict[str, object] = {}
     for key, value in pairs:
         if key in result:
@@ -68,11 +69,11 @@ def _pairs(pairs: list[tuple[str, object]]) -> dict[str, object]:
     return result
 
 
-def _constant(value: str) -> Never:
+def constant_hook(value: str) -> Never:
     raise RequestError("analytics_input")
 
 
-def _uuid(value: object) -> UUID:
+def uuid_value(value: object) -> UUID:
     if not isinstance(value, str):
         raise RequestError("analytics_input")
     parsed = UUID(value)
@@ -81,7 +82,7 @@ def _uuid(value: object) -> UUID:
     return parsed
 
 
-def _path(value: object) -> Path:
+def path_value(value: object) -> Path:
     if not isinstance(value, str) or not 1 <= len(value) <= 4096 or "\x00" in value:
         raise RequestError("analytics_input")
     try:
@@ -99,7 +100,7 @@ def _path(value: object) -> Path:
     return path
 
 
-def _cutoff(value: object) -> datetime:
+def cutoff_value(value: object) -> datetime:
     if (
         not isinstance(value, str)
         or re.fullmatch(
@@ -120,7 +121,7 @@ def decode_request(body: bytes) -> ReadoutRequest:
         raise RequestError("analytics_limit")
     try:
         value: object = json.loads(
-            body.decode("utf-8"), object_pairs_hook=_pairs, parse_constant=_constant
+            body.decode("utf-8"), object_pairs_hook=pairs_hook, parse_constant=constant_hook
         )
         if not isinstance(value, dict) or set(value) != _FIELDS:
             raise RequestError("analytics_input")
@@ -140,7 +141,7 @@ def decode_request(body: bytes) -> ReadoutRequest:
             or len(raw_bindings) != len(raw_runs)
         ):
             raise RequestError("analytics_input")
-        runs = tuple(sorted(_uuid(run) for run in raw_runs))
+        runs = tuple(sorted(uuid_value(run) for run in raw_runs))
         if len(set(runs)) != len(runs):
             raise RequestError("analytics_input")
         bindings = []
@@ -148,13 +149,13 @@ def decode_request(body: bytes) -> ReadoutRequest:
             if not isinstance(binding, dict) or set(binding) != {"run_id", "root"}:
                 raise RequestError("analytics_input")
             bindings.append(
-                ArchiveBinding("kimdis", _uuid(binding["run_id"]), _path(binding["root"]))
+                ArchiveBinding("kimdis", uuid_value(binding["run_id"]), path_value(binding["root"]))
             )
         if sorted(binding.run_id for binding in bindings) != list(runs):
             raise RequestError("analytics_input")
         return ReadoutRequest(
             runs,
-            _cutoff(data["observation_cutoff"]),
+            cutoff_value(data["observation_cutoff"]),
             cast(str, data["supplier_tax_id"]),
             tuple(sorted(bindings, key=lambda binding: binding.run_id)),
         )
@@ -164,12 +165,12 @@ def decode_request(body: bytes) -> ReadoutRequest:
         raise RequestError("analytics_input") from None
 
 
-def read_request(path: Path) -> ReadoutRequest:
+def read_private_request[T](path: Path, decode: Callable[[bytes], T]) -> T:
     if not isinstance(path, Path):
         raise RequestError("analytics_input")
     descriptor = None
     try:
-        absolute = _path(str(path.absolute()))
+        absolute = path_value(str(path.absolute()))
         descriptor = artifacts.directory(absolute.parent, private=True)
         before = os.stat(absolute.name, dir_fd=descriptor, follow_symlinks=False)
         if before.st_nlink != 1:
@@ -193,4 +194,8 @@ def read_request(path: Path) -> ReadoutRequest:
     finally:
         if descriptor is not None:
             os.close(descriptor)
-    return decode_request(body)
+    return decode(body)
+
+
+def read_request(path: Path) -> ReadoutRequest:
+    return read_private_request(path, decode_request)

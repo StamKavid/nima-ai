@@ -9,6 +9,7 @@ from typing import NoReturn
 
 import psycopg
 
+from nima.analytics.cpv_readout import export_cpv_readout
 from nima.analytics.export import export_readout
 from nima.analytics.result import ReadoutError
 
@@ -28,6 +29,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     readout.add_argument("--request", type=Path, required=True, help="Private explicit selection")
     readout.add_argument("--output-dir", type=Path, required=True, help="Private result directory")
+    cpv = operations.add_parser(
+        "cpv-period",
+        help="Publish a private cited captured-record count by CPV code and month",
+        allow_abbrev=False,
+    )
+    cpv.add_argument("--request", type=Path, required=True, help="Private explicit selection")
+    cpv.add_argument("--output-dir", type=Path, required=True, help="Private result directory")
     return parser
 
 
@@ -44,7 +52,8 @@ def run(argv: list[str]) -> int:
         dsn = os.environ.get("NIMA_DATABASE_URL", "")
         if not dsn.strip():
             raise ValueError("analytics_configuration")
-        result = export_readout(dsn, args.request, args.output_dir)
+        exporter = export_cpv_readout if args.operation == "cpv-period" else export_readout
+        result = exporter(dsn, args.request, args.output_dir)
     except ReadoutError as error:
         return _failure(error.reason)
     except psycopg.Error:

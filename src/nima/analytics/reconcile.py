@@ -8,7 +8,7 @@ from uuid import UUID
 
 from nima.analytics.request import ReadoutRequest, RequestError, decode_request
 from nima.analytics.snapshot import ReadoutSnapshot, SnapshotError, validate_snapshot
-from nima.graph.pilot_archive import PilotArchiveError, RawReference, recover
+from nima.graph.pilot_archive import ArchiveBinding, PilotArchiveError, RawReference, recover
 from nima.identity import AssessmentError
 from nima.identity.artifacts import encode
 from nima.projections.contracts import project_contract
@@ -128,6 +128,45 @@ def _page(
     )
 
 
+def verify_pages(
+    document: dict[str, object], bindings: tuple[ArchiveBinding, ...]
+) -> tuple[tuple[VerifiedPage, ...], dict[tuple[str, int], bytes]]:
+    """Recover every selected original and compare it with the frozen SQL facts.
+
+    Returns the verified pages and each page's original bytes by (run id, page number), so a
+    metric that needs more than the stored record can re-extract it from the verified bytes.
+    """
+    pages = cast(list[dict[str, object]], document["pages"])
+    records = cast(list[dict[str, object]], document["records"])
+    runs = {run["run_id"]: run for run in cast(list[dict[str, object]], document["runs"])}
+    references = tuple(
+        RawReference("kimdis", UUID(cast(str, page["run_id"])), cast(str, page["raw_sha256"]))
+        for page in pages
+    )
+    recovered = recover(references, bindings)
+    bodies = {
+        (str(ref.run_id), ref.raw_sha256): obj.body
+        for obj in recovered.objects
+        for ref in obj.references
+    }
+    verified = tuple(
+        _page(
+            bodies[cast(str, page["run_id"]), cast(str, page["raw_sha256"])],
+            page,
+            runs[page["run_id"]],
+            records,
+        )
+        for page in pages
+    )
+    by_page = {
+        (cast(str, page["run_id"]), cast(int, page["page_number"])): bodies[
+            cast(str, page["run_id"]), cast(str, page["raw_sha256"])
+        ]
+        for page in pages
+    }
+    return verified, by_page
+
+
 def reconcile(snapshot: ReadoutSnapshot, request: ReadoutRequest) -> ReconciledReadout:
     """Verify originals at read time; this establishes no publisher/legal truth."""
     try:
@@ -143,28 +182,7 @@ def reconcile(snapshot: ReadoutSnapshot, request: ReadoutRequest) -> ReconciledR
             cutoff=request.observation_cutoff,
             expected_definition_sha256=policy_hash,
         )
-        pages = cast(list[dict[str, object]], document["pages"])
-        records = cast(list[dict[str, object]], document["records"])
-        runs = {run["run_id"]: run for run in cast(list[dict[str, object]], document["runs"])}
-        references = tuple(
-            RawReference("kimdis", UUID(cast(str, page["run_id"])), cast(str, page["raw_sha256"]))
-            for page in pages
-        )
-        recovered = recover(references, request.archive_bindings)
-        bodies = {
-            (str(ref.run_id), ref.raw_sha256): obj.body
-            for obj in recovered.objects
-            for ref in obj.references
-        }
-        verified = tuple(
-            _page(
-                bodies[cast(str, page["run_id"]), cast(str, page["raw_sha256"])],
-                page,
-                runs[page["run_id"]],
-                records,
-            )
-            for page in pages
-        )
+        verified, _ = verify_pages(document, request.archive_bindings)
         return ReconciledReadout(
             snapshot,
             encode(request.semantic_payload()).decode(),
