@@ -1,6 +1,6 @@
 # Spec: Diavgeia commitment decisions (Β.1.3), second pilot
 
-Module ID: `diavgeia-commitments`. Status: **draft for owner review; no code, no request.** Builds on
+Module ID: `diavgeia-commitments`. Status: **decisions C1 to C5 recorded as recommended by the owner on 2026-11-22; no code, no request yet.** Builds on
 [SPEC-diavgeia-pilot](SPEC-diavgeia-pilot.md) and its [run record](../verification/diavgeia-pilot-run.md), the
 [acceptance dossier](../sources/diavgeia-acceptance.md) and the [source boundary](SPEC-source-boundaries.md).
 Release gate served: R1 and the join work of V1-07.
@@ -93,6 +93,8 @@ commitment, an approval, an award and a payment as one economic event; real deci
 Each slice is one review-ready PR with the repository gates. C0 and C2 contain the owner's live steps.
 
 ## Decisions for the owner
+
+C1 to C5 are decided as recommended (2026-11-22). Next is the code for C0, then the owner's approval of its requests.
 
 | # | Decision | Recommendation |
 |---|---|---|

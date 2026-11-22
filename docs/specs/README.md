@@ -12,7 +12,7 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | [SPEC-semantic-model](SPEC-semantic-model.md) | Shared selection, time, party tier and metrics U1-U4 (V1-05) | Draft for owner review |
 | [SPEC-gemi-afm-lookup](SPEC-gemi-afm-lookup.md) | GEMI search by reported tax number | Draft for owner review |
 | [SPEC-diavgeia-pilot](SPEC-diavgeia-pilot.md) | Diavgeia second-source pilot, Δ.2.2 by organisation and window (V1-06) | Decided except P2 (organisation, window); D2, D3 command and first real run delivered |
-| [SPEC-diavgeia-commitments](SPEC-diavgeia-commitments.md) | Second Diavgeia pilot: do KIMDIS citations point at Β.1.3 commitments (V1-06) | Draft for owner review; C0 to C3 not started |
+| [SPEC-diavgeia-commitments](SPEC-diavgeia-commitments.md) | Second Diavgeia pilot: do KIMDIS citations point at Β.1.3 commitments (V1-06) | Decided (C1 to C5 as recommended); C0 to C3 not started |
 | [SPEC-metric-readouts](SPEC-metric-readouts.md) | Readout commands for U2-U4 over stored runs | Approved; S8a next |
 | [SPEC-semantic-layer](SPEC-semantic-layer.md) | First shared metric definition | Provider implemented; metric draft |
 | [SPEC-market-analytics](SPEC-market-analytics.md) | Cited supplier-buyer readout | CLI implemented; human validation open |
