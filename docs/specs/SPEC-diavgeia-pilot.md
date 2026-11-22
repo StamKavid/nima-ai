@@ -1,8 +1,9 @@
 # Spec: Diavgeia second-source pilot (V1-06)
 
 Module ID: `diavgeia-pilot`. Status: **decisions P1 and P3 to P6 recorded as recommended by the owner on 2026-11-21 ("recommended
-for P1 and P3 to P6"); P2 (organisation and window) is open. D2 is delivered (adapter, registry, synthetic
-samples; no request); the D3 command is built; the live run needs P2.** Depends on [ADR-0008](../decisions/0008-diavgeia-second-source-measure-first.md), the
+for P1 and P3 to P6"); P2 was settled on 2026-11-22 (organisation `6`,
+issue dates 2026-10-08 to 2026-11-06). D2 and the D3 command are delivered; the first real run and the
+overlap measurement are recorded in [the run record](../verification/diavgeia-pilot-run.md).** Depends on [ADR-0008](../decisions/0008-diavgeia-second-source-measure-first.md), the
 [acceptance dossier](../sources/diavgeia-acceptance.md) (owner decisions 1 to 5), the
 [source boundary](SPEC-source-boundaries.md) and its [collection extension](SPEC-source-neutral-collection.md).
 Release gate served: R1 (two validated source adapters) and the join work of V1-07.
@@ -65,8 +66,9 @@ documented millisecond timestamps; no effective-date claim), `version_id`, `stat
 `corrected_version_id` (when present), `private_data` flag, `related_ada` (`textRelatedADA`, a typed
 reference never a merge), and for awards `award_amount` as exact decimal text with `award_currency`.
 **Persons: a count (`person_count`) and the distinct tax-number types (`person_types`) only; no
-tax number, country or name.** The documented main Greek type reads "natural or legal person in
-Greece", so a legal entity cannot be told from an individual by type; until a written policy says how,
+tax number, country or name.** The documentation's main Greek type reads "natural or legal person in
+Greece", and the first real run showed short codes (`EL`, `EUP`) whose meaning is unverified, so a
+legal entity cannot be told from an individual by type; until a written policy says how,
 nothing person-level is projected (dossier decision 3, applied strictly). The cost is accepted for
 the pilot, whose goals are adapter conformance and citation overlap, not supplier joins. Unknown stays
 unknown; only `ada`, `status` and `versionId` are required, because the other fields are optional in
@@ -103,18 +105,19 @@ economic event; real decisions or documents in Git.
 | D1 | This spec approved with decisions P1 to P6 | P1, P3 to P6 decided 2026-11-21; P2 open |
 | D2 | Synthetic samples (statuses, versions, persons, private data, amounts, empty and malformed pages), the `diavgeia` adapter and its registry entry; **no network** | The shared parser and engine conformance suites pass on the new adapter; 100% line and branch; every rule break caught. **Done in review.** |
 | D3 | The `nima ingest diavgeia` command (**built**), then one owner-approved real run (P1 cohort) with the archive preserved | Run reconstructs from the archive; counts and status mix recorded in `docs/verification/`, no decision content |
-| D4 | Measure how many of the four KIMDIS citations resolve to a collected decision, and how many collected ADAs any KIMDIS record cites | Counts recorded; V1-07 join spec can start |
+| D4 | Measure how many of the four KIMDIS citations resolve to a collected decision, and how many collected ADAs any KIMDIS record cites | Counts recorded; V1-07 join spec can start. **Done 2026-11-22: 0 of 4 cited ADAs resolve; see the run record.** |
 
 Each slice is one review-ready PR with the repository gates. D3 is the owner's live step.
 
 ## Decisions for the owner
 
-P1 and P3 to P6 are decided as recommended (2026-11-21). P2 is open and blocks only D3.
+P1 and P3 to P6 are decided as recommended (2026-11-21). P2 was decided on 2026-11-22: organisation `6`
+(Ministry of National Defence), issue dates 2026-10-08 to 2026-11-06.
 
 | # | Decision | Recommendation |
 |---|---|---|
 | P1 | Pilot shape: Δ.2.2 by one organisation and one window (fallback of dossier decision 4) | Yes. Fetching only the four cited ADAs is too few to test an adapter |
-| P2 | Which organisation and window | You choose. A body with regular awards and a KIMDIS presence helps the overlap count; the Diavgeia organisation `uid` is not the KIMDIS buyer key, so it must be read from Diavgeia's organisation list once (a live request that needs your approval) |
+| P2 | Which organisation and window | You choose. A body with regular awards and a KIMDIS presence helps the overlap count; the Diavgeia `uid` and the KIMDIS buyer key coincide for the Ministry of National Defence (`6`); whether that holds for other bodies is unverified, so check a second body before relying on it |
 | P3 | `status=all` rather than the default published-only | Yes, otherwise revocations stay invisible |
 | P4 | Natural persons: count and flag only; `private_data` decisions carry no person fields | Yes, as dossier decision 3 |
 | P5 | ADA matching on exact bytes only | Yes; measure mismatches before any rule |
@@ -145,7 +148,8 @@ uv run --frozen python -m nima ingest diavgeia --database   --organization <uid>
 It uses the engine's default limits (100 pages, 20 requests a minute, stop on any error) and stores
 the run in the database named by `NIMA_DATABASE_URL`. Without `--database` it archives only. Record the
 printed counts (pages, records, normalized, quarantined) and the status mix in
-`docs/verification/`, with no decision content. The `uid` is not the KIMDIS buyer key.
+`docs/verification/`, with no decision content. The Diavgeia `uid` equals the KIMDIS buyer key for the Ministry of National Defence;
+whether that holds generally is unverified.
 
 ## Deferred, with triggers
 

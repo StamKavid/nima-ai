@@ -111,10 +111,17 @@ def test_the_amount_is_exact_decimal_text_with_its_currency() -> None:
     assert only(page(decision(extraFieldValues=award("5"))))["award_amount"] == "5"
 
 
-@pytest.mark.parametrize("amount", ["12.5", True, None, [1]])
+@pytest.mark.parametrize("amount", ["12.5", True, [1]])
 def test_a_non_numeric_amount_is_quarantined(amount: object) -> None:
     raw = page(decision(extraFieldValues={"awardAmount": {"amount": amount}}))
     assert reason(raw) == "invalid_award_amount"
+
+
+def test_an_award_without_an_amount_keeps_the_currency_and_the_amount_unknown() -> None:
+    """Seen in the first real run: ``awardAmount`` with a currency and no amount."""
+    for award_amount in ({"currency": "EUR"}, {"currency": "EUR", "amount": None}):
+        record = only(page(decision(extraFieldValues={"awardAmount": award_amount})))
+        assert record["award_amount"] is None and record["award_currency"] == "EUR"
 
 
 def test_an_amount_with_an_extreme_exponent_is_quarantined_not_expanded() -> None:
@@ -161,7 +168,15 @@ def test_a_related_ada_is_a_reference_and_must_be_a_valid_ada() -> None:
     record = only(page(decision(extraFieldValues={"textRelatedADA": "ΓΔ-2"})))
     assert record["related_ada"] == "ΓΔ-2"
     assert reason(page(decision(extraFieldValues={"textRelatedADA": "bad ada"}))) == "invalid_ada"
+    assert reason(page(decision(extraFieldValues={"textRelatedADA": "  "}))) == "invalid_ada"
     assert reason(page(decision(extraFieldValues=[1]))) == "invalid_extra_fields"
+
+
+def test_an_empty_related_ada_means_there_is_none() -> None:
+    """Seen in the first real run: the source writes an empty string for no related decision."""
+    for related in ("", None):
+        record = only(page(decision(extraFieldValues={"textRelatedADA": related})))
+        assert record["related_ada"] is None
 
 
 def test_a_decision_that_is_not_an_object_is_quarantined_not_fatal() -> None:
