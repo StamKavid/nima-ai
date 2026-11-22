@@ -25,11 +25,23 @@ from nima.identity.review_types import ReviewError
 from nima.ingestion.archive import Archive, ArchiveError
 from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits, Query
+from nima.ingestion.diavgeia_lookup import LookupSource
+from nima.ingestion.diavgeia_lookup import lookup as lookup_decisions
 from nima.ingestion.gemi import GemiRunError, validate_inputs
 from nima.ingestion.gemi import collect as collect_gemi
 from nima.ingestion.resume import resume
 from nima.projections.worker import PROJECTION_VERSION, ProjectionFailure, drain
-from nima.sources.diavgeia import DiavgeiaAdapter, DiavgeiaQuery
+from nima.sources.diavgeia import (
+    CONNECTOR_VERSION,
+    DECISION_ENDPOINT,
+    DOCUMENTATION_URL,
+    LICENSE,
+    DiavgeiaAdapter,
+    DiavgeiaQuery,
+    InvalidDecision,
+    decision_summary,
+    decision_url,
+)
 from nima.storage.gemi import IMPORT_VERSION
 from nima.storage.gemi import import_run as import_gemi
 from nima.storage.gemi_archive import ImportFailure
@@ -149,6 +161,12 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     diavgeia.add_argument("--from-date", type=_date, required=True)
     diavgeia.add_argument("--to-date", type=_date, required=True)
     diavgeia.add_argument("--archive-dir", type=Path, required=True)
+    decisions = sources.add_parser(
+        "diavgeia-decisions",
+        help="Look up the decision type of 1 to 15 explicit Diavgeia ADAs; counts only",
+    )
+    decisions.add_argument("--ada", action="append", required=True)
+    decisions.add_argument("--archive-dir", type=Path, required=True)
     kimdis = sources.add_parser(
         "kimdis",
         help="Collect one explicit KIMDIS date window; no automatic resume",
@@ -170,6 +188,19 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     )
     kimdis.add_argument("--max-retry-delay", type=float, default=60)
     return parser
+
+
+_DIAVGEIA_DECISIONS = LookupSource(
+    url_for=decision_url,
+    summarize=decision_summary,
+    invalid=InvalidDecision,
+    manifest={
+        "connector_version": CONNECTOR_VERSION,
+        "endpoint": DECISION_ENDPOINT,
+        "source": DOCUMENTATION_URL,
+        "license": LICENSE,
+    },
+)
 
 
 def _failure(code: str, *, run_id: str | None = None) -> None:
@@ -394,6 +425,16 @@ def main(argv: list[str] | None = None) -> int:
                 gemi_summary = collect_gemi(ids, args.archive_dir, api_key=key, client=client)
             print(json.dumps(asdict(gemi_summary), allow_nan=False))
             return {"complete": 0, "quarantined": 3, "interrupted": 130}.get(gemi_summary.status, 1)
+        if args.source == "diavgeia-decisions":
+            lookup_ids = tuple(args.ada)
+            for ada in lookup_ids:
+                decision_url(ada)
+            with httpx.Client() as client:
+                found = lookup_decisions(
+                    lookup_ids, args.archive_dir, source=_DIAVGEIA_DECISIONS, client=client
+                )
+            print(json.dumps(asdict(found), ensure_ascii=False, allow_nan=False))
+            return {"complete": 0, "quarantined": 3, "interrupted": 130}.get(found.status, 1)
         query: Query | None
         adapter: DiavgeiaAdapter | None
         if args.source == "diavgeia":

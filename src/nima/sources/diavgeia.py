@@ -234,6 +234,45 @@ def _record(value: object) -> tuple[str, dict[str, object]]:
     }
 
 
+DECISION_ENDPOINT = "https://diavgeia.gov.gr/opendata/decisions"
+
+
+class InvalidDecision(ValueError):
+    """A single-decision response that cannot be used; the reason is fixed text."""
+
+
+def decision_url(ada: str) -> str:
+    """The documented single-decision path (``GET /decisions/<ADA>``, JSON by suffix)."""
+    if not isinstance(ada, str) or len(ada) > 64 or not _ADA.fullmatch(ada):
+        raise ValueError("Invalid ADA")
+    return f"{DECISION_ENDPOINT}/{ada}.json"
+
+
+def decision_summary(raw: bytes, ada: str, max_bytes: int) -> dict[str, str | None]:
+    """Only the type, organisation and status of one decision; nothing else is read."""
+    try:
+        value = _decode(raw, max_bytes)
+    except SourcePageError as error:
+        text = str(error)
+        if "size" in text:
+            raise InvalidDecision("size") from None
+        raise InvalidDecision("object" if "object" in text else "json") from None
+    if value.get("ada") != ada:
+        raise InvalidDecision("ada_mismatch")
+    if value.get("status") not in STATUSES:
+        raise InvalidDecision("status")
+    kind, organization = value.get("decisionTypeId"), value.get("organizationId")
+    if not isinstance(kind, str) or not kind.strip():
+        raise InvalidDecision("decision_type")
+    if organization is not None and (not isinstance(organization, str) or not organization.strip()):
+        raise InvalidDecision("organization")
+    return {
+        "decision_type": kind,
+        "organization_id": organization,
+        "status": cast(str, value["status"]),
+    }
+
+
 class DiavgeiaAdapter:
     name = "diavgeia"
     connector_version = CONNECTOR_VERSION
