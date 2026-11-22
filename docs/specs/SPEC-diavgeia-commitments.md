@@ -21,8 +21,8 @@ creates no identity link, no join and no metric.
 
 | Claim | Status |
 |---|---|
-| KIMDIS `diavgeiaADA` points at a commitment decision | **Unverified.** From earlier project work, not re-read in KIMDIS documentation ([dossier](../sources/diavgeia-acceptance.md)) |
-| Δ.2.2 `textRelatedADA` points at the related *expenditure approval*, Δ.2.1 at the related *commitment* | Documented. So the 11 related ADAs on collected awards are probably approvals (Β.2.1), not commitments: unverified |
+| KIMDIS `diavgeiaADA` points at a commitment decision | **Confirmed for the 4 cited ADAs (C0, 2026-11-22):** all Β.1.3, under organisations `6057` and `99221065`, not `6` ([record](../verification/diavgeia-c0-lookup.md)) |
+| Δ.2.2 `textRelatedADA` points at the related *expenditure approval*, Δ.2.1 at the related *commitment* | Documented, but **observed otherwise for awards**: the 11 related ADAs on the collected awards are Δ.2.1 tender summaries (C0) |
 | Β.1.3 special fields | Documented list only (`financialYear`, `budgettype`, `partialead`, `kae`, `entryNumber`, `recalledExpenseDecision`, `amountWithVAT`, `amountWithKae`, `relatedPartialADA`). **No real Β.1.3 response has been seen.** The first Δ.2.2 run quarantined 10 of 262 on shapes the documentation did not show, so every shape below is provisional |
 | 4 KIMDIS records cite an ADA, none shared | Measured 2026-11-20; sparse, so even a perfect resolution gives at most 4 links |
 
@@ -94,7 +94,7 @@ Each slice is one review-ready PR with the repository gates. C0 and C2 contain t
 
 ## Decisions for the owner
 
-C1 to C5 are decided as recommended (2026-11-22). Next is the code for C0, then the owner's approval of its requests.
+C1 to C5 are decided as recommended (2026-11-22). C0 is delivered and ran on 2026-11-22: the cited ADAs are Β.1.3, so C5 does not stop the work. **C2 needs a new decision**: the cited commitments are not under organisation `6` ([record](../verification/diavgeia-c0-lookup.md)).
 
 | # | Decision | Recommendation |
 |---|---|---|

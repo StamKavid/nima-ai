@@ -209,7 +209,7 @@
   - [x] Reconstruction: the run replays offline from its archive, deterministically, with all 262 records normalised; the first-run
     quarantine was reprocessed from raw bytes. `nima archive replay` itself is KIMDIS-only (finding in the run record).
   - [x] Commitment-type spec drafted: [SPEC-diavgeia-commitments](../docs/specs/SPEC-diavgeia-commitments.md) (C0 lookup of the 15
-    already-cited ADAs first; C1 to C3 only if they are Β.1.3). Decisions C1 to C5 recorded as recommended 2026-11-22.
+    already-cited ADAs first; C1 to C3 only if they are Β.1.3). Decisions C1 to C5 recorded as recommended 2026-11-22. C0 delivered (#202) and run 2026-11-22: the 4 cited ADAs are Β.1.3 under organisations 6057 and 99221065; the 11 award-related ADAs are Δ.2.1 under 6 (`docs/verification/diavgeia-c0-lookup.md`). C2 (organisation) reopened.
   - [ ] Open for the owner: try one more body, and decide whether to make the replay command source-aware.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
   Candidate: fetch exactly the ADAs a small KIMDIS cohort cites in `diavgeiaADA` (one by one, with
