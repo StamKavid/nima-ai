@@ -94,7 +94,7 @@ Each slice is one review-ready PR with the repository gates. C0 and C2 contain t
 
 ## Decisions for the owner
 
-C1 to C5 are decided as recommended (2026-11-22). C0 is delivered and ran on 2026-11-22: the cited ADAs are Β.1.3, so C5 does not stop the work. **C2 needs a new decision**: the cited commitments are not under organisation `6` ([record](../verification/diavgeia-c0-lookup.md)).
+C1 to C5 are decided as recommended (2026-11-22). C0 is delivered and ran on 2026-11-22: the cited ADAs are Β.1.3, so C5 does not stop the work. C2 was reopened because the cited commitments are not under organisation `6` ([record](../verification/diavgeia-c0-lookup.md)) and was decided on 2026-11-22 as recommended: run the cited organisations, in narrow windows around the issue dates already in the C0 archive (read offline, no new request): organisation `6057`, 2026-10-25 to 2026-10-27 (covers 2 citations); organisation `99221065`, 2026-10-04 to 2026-10-06 (1 citation) and 2026-08-17 to 2026-08-19 (1 citation). Three runs, each its own owner approval. A window holds every commitment of that body on those days, so a run proves a citation resolves or does not, and says nothing about coverage.
 
 | # | Decision | Recommendation |
 |---|---|---|
