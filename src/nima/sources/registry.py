@@ -10,6 +10,8 @@ from dataclasses import dataclass
 
 from nima.sources.base import PayloadSource, SourceAdapter
 from nima.sources.diavgeia import DiavgeiaAdapter
+from nima.sources.diavgeia_commitments import REGISTRY_KEY as COMMITMENT_KEY
+from nima.sources.diavgeia_commitments import CommitmentAdapter
 from nima.sources.kimdis import KimdisAdapter
 
 DEFAULT_SOURCE = "kimdis"
@@ -30,6 +32,9 @@ _SOURCES: dict[str, RegisteredSource] = {
     ),
     DiavgeiaAdapter.name: RegisteredSource(
         DiavgeiaAdapter.connector_version, DiavgeiaAdapter, DiavgeiaAdapter.from_payload
+    ),
+    COMMITMENT_KEY: RegisteredSource(
+        CommitmentAdapter.connector_version, CommitmentAdapter, CommitmentAdapter.from_payload
     ),
 }
 

@@ -34,6 +34,7 @@ from nima.sources.base import (
     SourceRequestError,
 )
 from nima.sources.diavgeia import DiavgeiaAdapter, DiavgeiaQuery
+from nima.sources.diavgeia_commitments import CommitmentAdapter, CommitmentQuery
 from nima.sources.kimdis import KimdisAdapter
 from nima.sources.registry import RegisteredSource
 from nima.storage.postgres import CheckpointError, PageStore, migrate
@@ -112,11 +113,27 @@ DIAVGEIA = EngineCase(
     ),
     page_param="page",
 )
+DIAVGEIA_COMMITMENT = EngineCase(
+    make=lambda: CommitmentAdapter(CommitmentQuery("6057", "2026-10-25", "2026-10-27")),
+    pages=(
+        search_page(0, 3, 1, [decision("ΑΒΓΔΕ-ΖΗ1")]),
+        search_page(1, 3, 1, [decision("ΑΒΓΔΕ-ΖΗ2", status="BOGUS")]),
+        search_page(2, 3, 1, [decision("ΑΒΓΔΕ-ΖΗ3")]),
+    ),
+    bad_pointer="/decisions/0",
+    first_pointer="/decisions/0",
+    repeated_id_pages=(
+        search_page(0, 2, 1, [decision("ΑΒΓΔΕ-ΖΗ1", versionId="v1")]),
+        search_page(1, 2, 1, [decision("ΑΒΓΔΕ-ΖΗ1", versionId="v2")]),
+    ),
+    page_param="page",
+)
 CASES = [
     pytest.param(KIMDIS, id="kimdis"),
     pytest.param(LEDGER, id="ledger"),
     pytest.param(EVENTS, id="events"),
     pytest.param(DIAVGEIA, id="diavgeia"),
+    pytest.param(DIAVGEIA_COMMITMENT, id="diavgeia-commitment"),
 ]
 
 

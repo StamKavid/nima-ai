@@ -24,9 +24,10 @@ from nima.sources.base import (
     checked_request,
 )
 from nima.sources.diavgeia import DiavgeiaAdapter, DiavgeiaQuery
+from nima.sources.diavgeia_commitments import CommitmentAdapter, CommitmentQuery
 from nima.sources.kimdis import InvalidRecord, KimdisAdapter
 from scripts import dependency_graph as dg
-from tests.diavgeia_samples import award, decision, search_page
+from tests.diavgeia_samples import award, commitment, decision, search_page
 from tests.synthetic_sources import (
     EventsAdapter,
     LedgerAdapter,
@@ -94,7 +95,23 @@ DIAVGEIA = AdapterCase(
     quarantine_page=search_page(0, 1, 1, [decision("ΑΒΓΔΕ-ΖΗ4", status="BOGUS")]),
     broken_envelope=b'{"content": 1}',
 )
-ALL_CASES = (KIMDIS, LEDGER, EVENTS, DIAVGEIA)
+DIAVGEIA_COMMITMENT = AdapterCase(
+    name="diavgeia-commitment",
+    make=lambda: CommitmentAdapter(CommitmentQuery("6057", "2026-10-25", "2026-10-27")),
+    pages=(
+        search_page(0, 2, 1, [decision("ΑΒΓΔΕ-ΖΗ1", decisionTypeId="Β.1.3")]),
+        search_page(1, 2, 1, [decision("ΑΒΓΔΕ-ΖΗ2", decisionTypeId="Β.1.3")]),
+    ),
+    money_page=search_page(
+        0,
+        1,
+        1,
+        [decision("ΑΒΓΔΕ-ΖΗ3", extraFieldValues=commitment("123456789012345678.90"))],
+    ),
+    quarantine_page=search_page(0, 1, 1, [decision("ΑΒΓΔΕ-ΖΗ4", status="BOGUS")]),
+    broken_envelope=b'{"content": 1}',
+)
+ALL_CASES = (KIMDIS, LEDGER, EVENTS, DIAVGEIA, DIAVGEIA_COMMITMENT)
 CASES = [pytest.param(case, id=case.name) for case in ALL_CASES]
 
 
@@ -252,5 +269,7 @@ def test_requests_go_to_the_declared_endpoint_and_differ_by_page(case: AdapterCa
 
 def test_each_source_declares_its_own_origin_and_none_borrows_another() -> None:
     origins = {case.name: checked_provenance(case.make()) for case in ALL_CASES}
-    assert len({p.endpoint for p in origins.values()}) == len(ALL_CASES)
-    assert len({p.documentation_url for p in origins.values()}) == len(ALL_CASES)
+    # Two decision types of one feed share that feed's origin; distinct feeds never do.
+    feeds = len({case.make().name for case in ALL_CASES})
+    assert len({p.endpoint for p in origins.values()}) == feeds
+    assert len({p.documentation_url for p in origins.values()}) == feeds
