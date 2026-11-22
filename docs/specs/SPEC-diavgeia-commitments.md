@@ -104,6 +104,19 @@ C1 to C5 are decided as recommended (2026-11-22). Next is the code for C0, then 
 | C4 | Adapter shape | A separate adapter (`diavgeia-commitment`) reusing the first adapter's helpers, so the Δ.2.2 connector and normaliser versions and its 96 tests stay untouched. A shared adapter with a type parameter would change a delivered contract |
 | C5 | Stop rule | If C0 shows the cited ADAs are not Β.1.3, stop and record the types found; do not build C1 to C3 on a guess |
 
+## Running C2 (owner)
+
+`nima ingest diavgeia --decision-type commitment` is built and tested against a mock server; it has never contacted
+Diavgeia for this type. Each of the three runs needs its own approval, and each uses the engine's default limits
+(100 pages, 20 requests a minute, stop on any error). Add `--database` to also store the run, as in the first pilot.
+Record the printed counts in `docs/verification/`, with no decision content.
+
+```sh
+uv run --frozen python -m nima ingest diavgeia --decision-type commitment --organization 6057 --from-date 2026-10-25 --to-date 2026-10-27 --archive-dir <dir>
+uv run --frozen python -m nima ingest diavgeia --decision-type commitment --organization 99221065 --from-date 2026-10-04 --to-date 2026-10-06 --archive-dir <dir>
+uv run --frozen python -m nima ingest diavgeia --decision-type commitment --organization 99221065 --from-date 2026-08-17 --to-date 2026-08-19 --archive-dir <dir>
+```
+
 ## Deferred, with triggers
 
 | Item | Trigger |
