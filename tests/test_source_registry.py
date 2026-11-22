@@ -12,7 +12,7 @@ def test_the_default_source_is_kimdis_with_its_exact_identity() -> None:
     adapter = registry.default_adapter()
     assert isinstance(adapter, KimdisAdapter) and adapter.name == registry.DEFAULT_SOURCE
     assert adapter.normalizer_version == registry.DEFAULT_NORMALIZER_VERSION
-    assert registry.known_sources() == ("diavgeia", "kimdis")
+    assert registry.known_sources() == ("diavgeia", "diavgeia-commitment", "kimdis")
 
 
 def test_an_adapter_is_built_by_name_with_an_optional_query() -> None:
@@ -47,3 +47,11 @@ def test_a_run_of_an_unregistered_connector_is_refused(version: str) -> None:
 def test_a_registered_source_that_cannot_read_the_payload_refuses_it() -> None:
     with pytest.raises(ValueError, match="Invalid saved"):
         registry.adapter_from_run(KimdisAdapter.connector_version, {})
+
+
+def test_the_commitment_adapter_is_rebuilt_by_its_own_connector_version() -> None:
+    from nima.sources.diavgeia_commitments import CommitmentAdapter, CommitmentQuery
+
+    payload = CommitmentQuery("6057", "2026-10-25", "2026-10-27").payload()
+    rebuilt = registry.adapter_from_run(CommitmentAdapter.connector_version, payload)
+    assert isinstance(rebuilt, CommitmentAdapter) and rebuilt.query_payload() == payload

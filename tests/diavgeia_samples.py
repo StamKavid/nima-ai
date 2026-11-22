@@ -34,3 +34,24 @@ def award(amount: str, *, persons: int = 1) -> dict[str, Any]:
         "awardAmount": {"amount": f"@@{amount}@@", "currency": "EUR"},
         "person": [{"afmType": "Φυσικό ή Νομικό πρόσωπο εντός της Ελλάδας"}] * persons,
     }
+
+
+def commitment(amount: str, *, lines: int = 1, **extra: Any) -> dict[str, Any]:
+    """Extra fields of a commitment (Β.1.3); ``amount`` becomes an exact JSON number."""
+    fields: dict[str, Any] = {
+        "financialYear": 2026,
+        "budgettype": "ΤΑΚΤΙΚΟΣ",
+        "partialead": False,
+        "entryNumber": 17,
+        "amountWithVAT": {"amount": f"@@{amount}@@", "currency": "EUR"},
+        "amountWithKae": [
+            {
+                "kae": "2420",
+                "amountWithVAT": {"amount": f"@@{amount}@@", "currency": "EUR"},
+                "sponsorAFMName": {"afm": "000000000", "name": "SUPPLIER NAME"},
+            }
+        ]
+        * lines,
+    }
+    fields.update(extra)
+    return fields

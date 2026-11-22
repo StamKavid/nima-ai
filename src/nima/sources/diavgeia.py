@@ -15,11 +15,11 @@ import hashlib
 import json
 import math
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
-from typing import Never, cast
+from typing import ClassVar, Never, Self, cast
 
 from nima.sources.base import (
     DEFAULT_MAX_BYTES,
@@ -51,6 +51,8 @@ _ADA = re.compile(r"[^\W_]+(?:-[^\W_]+)*")
 class DiavgeiaQuery:
     """One organisation, one issue-date window of at most 30 days, awards only."""
 
+    decision_type: ClassVar[str] = DECISION_TYPE
+
     organization: str
     from_issue_date: str
     to_issue_date: str
@@ -65,7 +67,7 @@ class DiavgeiaQuery:
     def payload(self) -> dict[str, object]:
         return {
             "organization": self.organization,
-            "decisionType": DECISION_TYPE,
+            "decisionType": self.decision_type,
             "fromIssueDate": self.from_issue_date,
             "toIssueDate": self.to_issue_date,
             "status": "all",
@@ -165,10 +167,12 @@ def _ada(value: object) -> str:
     return value
 
 
-def _amount(extra: dict[str, object]) -> tuple[str | None, str | None]:
-    award = extra.get("awardAmount")
+def _money(award: object, *, bare: bool = False) -> tuple[str | None, str | None]:
+    """An exact amount and its currency; ``bare`` also accepts a plain JSON number."""
     if award is None:
         return None, None
+    if bare and not isinstance(award, dict):
+        award = {"amount": award}
     if not isinstance(award, dict):
         raise _BadRecord("invalid_award_amount")
     amount, currency = award.get("amount"), award.get("currency")
@@ -180,6 +184,10 @@ def _amount(extra: dict[str, object]) -> tuple[str | None, str | None]:
     if abs(number.adjusted()) > MAX_EXPONENT:
         raise _BadRecord("invalid_award_amount")
     return format(number, "f"), _optional_text(currency)
+
+
+def _amount(extra: dict[str, object]) -> tuple[str | None, str | None]:
+    return _money(extra.get("awardAmount"))
 
 
 def _persons(extra: dict[str, object]) -> tuple[int, list[str]]:
@@ -196,7 +204,8 @@ def _persons(extra: dict[str, object]) -> tuple[int, list[str]]:
     return len(persons), sorted(types)
 
 
-def _record(value: object) -> tuple[str, dict[str, object]]:
+def _header(value: object) -> tuple[dict[str, object], dict[str, object]]:
+    """The metadata every decision type shares, and its ``extraFieldValues`` object."""
     if not isinstance(value, dict):
         raise _BadRecord("record_not_an_object")
     ada = _ada(value.get("ada"))
@@ -213,10 +222,7 @@ def _record(value: object) -> tuple[str, dict[str, object]]:
         extra = {}
     if not isinstance(extra, dict):
         raise _BadRecord("invalid_extra_fields")
-    related = extra.get("textRelatedADA")
-    amount, currency = _amount(extra)
-    person_count, person_types = _persons(extra)
-    return f"diavgeia:{ada}", {
+    return {
         "ada": ada,
         "decision_type": _optional_text(value.get("decisionTypeId")),
         "organization_id": _optional_text(value.get("organizationId")),
@@ -226,12 +232,73 @@ def _record(value: object) -> tuple[str, dict[str, object]]:
         "status": status,
         "corrected_version_id": _optional_text(value.get("correctedVersionId")),
         "private_data": private,
-        "related_ada": None if related in (None, "") else _ada(related),
+    }, extra
+
+
+def _related(value: object) -> str | None:
+    """A typed reference to another decision; an empty string means none."""
+    return None if value in (None, "") else _ada(value)
+
+
+def _record(value: object) -> tuple[str, dict[str, object]]:
+    header, extra = _header(value)
+    amount, currency = _amount(extra)
+    person_count, person_types = _persons(extra)
+    return f"diavgeia:{header['ada']}", {
+        **header,
+        "related_ada": _related(extra.get("textRelatedADA")),
         "award_amount": amount,
         "award_currency": currency,
         "person_count": person_count,
         "person_types": person_types,
     }
+
+
+def normalize_search_page(
+    raw: bytes, max_bytes: int, record: Callable[[object], tuple[str, dict[str, object]]]
+) -> NormalizedPage:
+    """The search envelope and pagination shared by every decision type; ``record`` reads one."""
+    response = _decode(raw, max_bytes)
+    info, decisions = response.get("info"), response.get("decisions")
+    if not isinstance(info, dict) or not isinstance(decisions, list):
+        raise SourcePageError("Missing info or decisions")
+    number = _integer(info.get("page"), "page")
+    size = _integer(info.get("size"), "size", 1)
+    total = _integer(info.get("total"), "total")
+    pages = math.ceil(total / size)
+    if number >= max(1, pages) or len(decisions) != min(size, max(0, total - number * size)):
+        raise SourcePageError("Inconsistent pagination")
+    digest = hashlib.sha256(raw).hexdigest()
+    records: list[NormalizedRecord] = []
+    issues: list[PageIssue] = []
+    source_ids: list[str] = []
+    for index, value in enumerate(decisions):
+        pointer = f"/decisions/{index}"
+        try:
+            source_id, normalized = record(value)
+        except _BadRecord as error:
+            issues.append(PageIssue(index, pointer, str(error)))
+            ada = value.get("ada") if isinstance(value, dict) else None
+            if isinstance(ada, str) and len(ada) <= 64 and _ADA.fullmatch(ada):
+                source_ids.append(f"diavgeia:{ada}")
+        else:
+            source_ids.append(source_id)
+            records.append(
+                NormalizedRecord(index, pointer, source_id, _source_hash(value), normalized)
+            )
+    return NormalizedPage(
+        number=number,
+        size=size,
+        total_records=total,
+        total_pages=pages,
+        last=number == max(0, pages - 1),
+        record_count=len(decisions),
+        response_sha256=digest,
+        records=tuple(records),
+        issues=tuple(issues),
+        source_ids=tuple(source_ids),
+        record_hashes=tuple(_source_hash(value) for value in decisions),
+    )
 
 
 DECISION_ENDPOINT = "https://diavgeia.gov.gr/opendata/decisions"
@@ -275,6 +342,7 @@ def decision_summary(raw: bytes, ada: str, max_bytes: int) -> dict[str, str | No
 
 class DiavgeiaAdapter:
     name = "diavgeia"
+    query_type: ClassVar[type[DiavgeiaQuery]] = DiavgeiaQuery
     connector_version = CONNECTOR_VERSION
     normalizer_version = NORMALIZER_VERSION
     provenance = SourceProvenance(
@@ -285,7 +353,7 @@ class DiavgeiaAdapter:
         self._query = query
 
     @classmethod
-    def from_payload(cls, payload: Mapping[str, object]) -> "DiavgeiaAdapter":
+    def from_payload(cls, payload: Mapping[str, object]) -> Self:
         """Rebuild the adapter for a saved run; the payload must be exactly what was written."""
         organization = payload.get("organization")
         first, last = payload.get("fromIssueDate"), payload.get("toIssueDate")
@@ -293,7 +361,7 @@ class DiavgeiaAdapter:
             raise ValueError("Invalid saved query")
         if not isinstance(last, str):
             raise ValueError("Invalid saved query")
-        canonical = DiavgeiaQuery(organization, first, last).payload()
+        canonical = cls.query_type(organization, first, last).payload()
         if canonical != dict(payload):
             raise ValueError("Saved query is not in canonical form")
         return cls(QueryPayload(canonical))
@@ -323,44 +391,4 @@ class DiavgeiaAdapter:
         )
 
     def normalize_page(self, raw: bytes, *, max_bytes: int = DEFAULT_MAX_BYTES) -> NormalizedPage:
-        response = _decode(raw, max_bytes)
-        info, decisions = response.get("info"), response.get("decisions")
-        if not isinstance(info, dict) or not isinstance(decisions, list):
-            raise SourcePageError("Missing info or decisions")
-        number = _integer(info.get("page"), "page")
-        size = _integer(info.get("size"), "size", 1)
-        total = _integer(info.get("total"), "total")
-        pages = math.ceil(total / size)
-        if number >= max(1, pages) or len(decisions) != min(size, max(0, total - number * size)):
-            raise SourcePageError("Inconsistent pagination")
-        digest = hashlib.sha256(raw).hexdigest()
-        records: list[NormalizedRecord] = []
-        issues: list[PageIssue] = []
-        source_ids: list[str] = []
-        for index, value in enumerate(decisions):
-            pointer = f"/decisions/{index}"
-            try:
-                source_id, normalized = _record(value)
-            except _BadRecord as error:
-                issues.append(PageIssue(index, pointer, str(error)))
-                ada = value.get("ada") if isinstance(value, dict) else None
-                if isinstance(ada, str) and len(ada) <= 64 and _ADA.fullmatch(ada):
-                    source_ids.append(f"diavgeia:{ada}")
-            else:
-                source_ids.append(source_id)
-                records.append(
-                    NormalizedRecord(index, pointer, source_id, _source_hash(value), normalized)
-                )
-        return NormalizedPage(
-            number=number,
-            size=size,
-            total_records=total,
-            total_pages=pages,
-            last=number == max(0, pages - 1),
-            record_count=len(decisions),
-            response_sha256=digest,
-            records=tuple(records),
-            issues=tuple(issues),
-            source_ids=tuple(source_ids),
-            record_hashes=tuple(_source_hash(value) for value in decisions),
-        )
+        return normalize_search_page(raw, max_bytes, _record)
