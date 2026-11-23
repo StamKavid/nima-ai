@@ -50,7 +50,7 @@ def test_exact_text_agreement_preserves_originals_contexts_and_unknown_authority
     assert result.registry[0].comparison_afm == "001234567"
     assert result.registry[0].identifier_status == "eligible"
     assert len(result.comparisons) == 2 and result.automatic_identity_links == 0
-    assert result.policy_version == "registry-comparison-v1"
+    assert result.policy_version == "registry-comparison-v3"
     for row, country in zip(result.comparisons, ("GR", "EL"), strict=True):
         assert row.outcome == "reported_identifier_agreement"
         assert row.registry_observation_refs == (0,) and row.issues == ()

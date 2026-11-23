@@ -51,7 +51,8 @@ selected evidence was compared, not complete collection or registry coverage.
 
 ## Comparison policy
 
-Version the policy as `registry-comparison-v1`. Preserve original values; trim
+Version the policy as `registry-comparison-v3` (v1 at delivery; v2 added searched AFMs; v3 made branches
+not a conflict, below). Preserve original values; trim
 only ASCII space/tab/CR/LF in derived comparison fields. Reuse the existing
 identifier assessment to determine KIMDIS eligibility: its
 `kimdis.reported-country-tax` key requires reported GR or EL country and a
@@ -80,7 +81,9 @@ name-based merging or inferred legal form/status.
 
 Retain all selected registry observations, including unchanged repeats and
 A→B→A revisions. Report `multiple_registry_numbers_for_reported_afm` when one
-eligible reported AFM occurs under different selected GEMI numbers. Report
+eligible reported AFM occurs under different selected GEMI numbers **that are not branches** (a number whose
+registry `isBranch` is true never counts towards the conflict; an unknown flag counts as a head office, so
+evidence without the flag behaves as in v1). Report
 `reported_afm_changed_for_registry_number` when one GEMI number has different
 nonmissing AFM comparison texts across its selected found observations. Preserve
 the original assertions and eligibility reasons; choose no winner. Missing claims
@@ -103,15 +106,16 @@ each supplier or classify tax evasion, collusion or wrongdoing.
 `--gemi-import` also accepts the id of an imported AFM search
 ([SPEC-gemi-afm-import](../specs/SPEC-gemi-afm-import.md)); profile imports and searches may be mixed in one
 selection. With no search selected, the report and its policy version are exactly the ones described above.
-With one or more, the policy is `registry-comparison-v2` and the report format `...-report-v2`, which adds
-`search_imports` and `search_queries` and, on each hit, `queried_afm` and `afm_matches`.
+With one or more, the report format is `...-report-v2`, which adds `search_imports` and `search_queries`
+and, on each hit, `queried_afm` and `afm_matches`. The policy version is `registry-comparison-v3` either way.
 
 - A returned company is a registry observation by its own reported AFM. A **hit that reports a different AFM**
   stays in the report as evidence with identifier status `search_afm_mismatch` and is never an agreement.
 - A **branch repeats its head office's AFM** (observed in the L6 pilot), so a company with branches shows
-  several registry numbers for one AFM and carries `multiple_registry_numbers_for_reported_afm`. Read
-  `is_branch` and the registry status in the report; nothing is chosen. Deleted registrations are kept with
-  their status.
+  several registry numbers for one AFM. Branches do not raise `multiple_registry_numbers_for_reported_afm`
+  (decision L5c-1): a head office with any number of branches is an ordinary agreement, and two head offices
+  under one AFM are still reported. Read `is_branch` and the registry status in the report; nothing is chosen.
+  Deleted registrations are kept with their status.
 - A party whose AFM was searched and answered 404 and has no agreement elsewhere gets
   **`queried_not_found_at_observation`** instead of `no_candidate_in_selected_imports`. It says only that the
   search found nothing on that day; an agreement from any other selected import still wins.

@@ -55,7 +55,15 @@ Each searched AFM answered `hit_multiple`; none was truncated, quarantined or mi
 The L6 record said 3 of the 12 hits carry a deletion status. The count is 4 (two for one company, two for
 another, one of those by merger); the L6 record and the spec table are corrected in the same change.
 
-## Decision for the owner
+## After decision L5c-1 (policy v3)
+
+The owner decided L5c-1 as recommended, and the same offline run was repeated under `registry-comparison-v3`:
+the three agreements are unchanged and **no supplier carries `multiple_registry_numbers_for_reported_afm`**
+in any of the three modes (3 head offices and 9 branches, none of the branches counted towards a conflict).
+Search-only and combined runs still show 3 agreements resting on more than one registry number; profile-only
+shows 0. The first table above records the v1/v2 result that prompted the decision.
+
+## Decision for the owner (decided: as recommended)
 
 | # | Decision | Recommendation |
 |---|---|---|

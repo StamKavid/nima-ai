@@ -14,7 +14,6 @@ from nima.identity import (
     MAX_COMPARISON_MENTIONS,
     MAX_REGISTRY_OBSERVATIONS,
     REGISTRY_POLICY_VERSION,
-    REGISTRY_SEARCH_POLICY_VERSION,
     ComparisonError,
 )
 from nima.identity.policy import Assessment, PartyClaim, evaluate
@@ -60,6 +59,9 @@ class RegistryObservation:
     # company reports it. A branch repeats its head office's AFM, so several hits may match.
     queried_afm: str | None = None
     afm_matches: bool | None = None
+    # The registry's own flag. A branch repeats its head office's AFM, so branches do not count
+    # towards a conflict; unknown (None) counts as a head office.
+    is_branch: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -108,6 +110,8 @@ def _registry(observation: RegistryObservation) -> RegistryAssessment:
     except ValueError:
         raise ComparisonError("registry_observation") from None
     if canonical_number != observation.registry_number:
+        raise ComparisonError("registry_observation")
+    if observation.is_branch is not None and type(observation.is_branch) is not bool:
         raise ComparisonError("registry_observation")
     searched = observation.queried_afm is not None or observation.afm_matches is not None
     if searched:
@@ -195,7 +199,14 @@ def compare(
     conflicting_afms = {
         afm
         for afm, references in by_afm.items()
-        if len({registry[index].observation.registry_number for index in references}) > 1
+        if len(
+            {
+                registry[index].observation.registry_number
+                for index in references
+                if registry[index].observation.is_branch is not True
+            }
+        )
+        > 1
     }
     changed_numbers = {number for number, afms in by_number.items() if len(afms) > 1}
     marked = []
@@ -234,5 +245,4 @@ def compare(
     return ComparisonResult(
         registry,
         tuple(comparisons),
-        policy_version=REGISTRY_SEARCH_POLICY_VERSION if searched else REGISTRY_POLICY_VERSION,
     )
