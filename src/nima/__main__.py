@@ -133,7 +133,13 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     assess.add_argument("--max-mentions", type=int, default=10000)
     compare = identities.add_parser("compare", help="Compare reported identifiers offline")
     compare.add_argument("run_id", type=UUID)
-    compare.add_argument("--gemi-import", action="append", type=UUID, required=True)
+    compare.add_argument(
+        "--gemi-import",
+        action="append",
+        type=UUID,
+        required=True,
+        help="A GEMI profile import or an imported AFM search; repeat for several",
+    )
     compare.add_argument("--projection-version", required=True)
     compare.add_argument("--output-dir", type=Path, required=True)
     compare.add_argument("--max-mentions", type=int, default=10000)

@@ -98,6 +98,28 @@ intervals: a current name/status is not proof of identity or status at a contrac
 date. The report compares parties; it does not allocate joint-award amounts to
 each supplier or classify tax evasion, collusion or wrongdoing.
 
+## Imported AFM searches (slice L5b)
+
+`--gemi-import` also accepts the id of an imported AFM search
+([SPEC-gemi-afm-import](../specs/SPEC-gemi-afm-import.md)); profile imports and searches may be mixed in one
+selection. With no search selected, the report and its policy version are exactly the ones described above.
+With one or more, the policy is `registry-comparison-v2` and the report format `...-report-v2`, which adds
+`search_imports` and `search_queries` and, on each hit, `queried_afm` and `afm_matches`.
+
+- A returned company is a registry observation by its own reported AFM. A **hit that reports a different AFM**
+  stays in the report as evidence with identifier status `search_afm_mismatch` and is never an agreement.
+- A **branch repeats its head office's AFM** (observed in the L6 pilot), so a company with branches shows
+  several registry numbers for one AFM and carries `multiple_registry_numbers_for_reported_afm`. Read
+  `is_branch` and the registry status in the report; nothing is chosen. Deleted registrations are kept with
+  their status.
+- A party whose AFM was searched and answered 404 and has no agreement elsewhere gets
+  **`queried_not_found_at_observation`** instead of `no_candidate_in_selected_imports`. It says only that the
+  search found nothing on that day; an agreement from any other selected import still wins.
+- Issues from the searches: `search_truncated` (more companies exist than were returned), `search_afm_mismatch`
+  and `search_quarantined` (the answer returned no usable hit).
+- A hit cannot yet be reviewed as an identity (decision L5-2). Bounds are shared: at most 100 selected
+  registry observations, profile rows and hits together.
+
 ## Consistent snapshot and provenance
 
 Read the KIMDIS cohort, its coverage and all selected GEMI rows in **one

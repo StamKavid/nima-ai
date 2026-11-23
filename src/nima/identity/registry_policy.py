@@ -14,18 +14,40 @@ from nima.identity import (
     MAX_COMPARISON_MENTIONS,
     MAX_REGISTRY_OBSERVATIONS,
     REGISTRY_POLICY_VERSION,
+    REGISTRY_SEARCH_POLICY_VERSION,
     ComparisonError,
 )
 from nima.identity.policy import Assessment, PartyClaim, evaluate
 from nima.sources.gemi import registry_number
+from nima.sources.gemi_search import queryable_afm
 
 type RegistryOutcome = Literal["found", "not_found_at_observation"]
 type RegistryIdentifierStatus = Literal[
-    "eligible", "tax_missing", "placeholder", "format_unassessed", "not_found_at_observation"
+    "eligible",
+    "tax_missing",
+    "placeholder",
+    "format_unassessed",
+    "not_found_at_observation",
+    "search_afm_mismatch",
 ]
 type ComparisonOutcome = Literal[
-    "reported_identifier_agreement", "no_candidate_in_selected_imports", "unassessed_identifier"
+    "reported_identifier_agreement",
+    "no_candidate_in_selected_imports",
+    "unassessed_identifier",
+    "queried_not_found_at_observation",
 ]
+type SearchOutcome = Literal[
+    "hit_single",
+    "hit_multiple",
+    "truncated",
+    "afm_mismatch",
+    "not_found_at_observation",
+    "quarantined",
+]
+_HIT_OUTCOMES = frozenset({"hit_single", "hit_multiple", "truncated", "afm_mismatch"})
+_SEARCH_OUTCOMES = _HIT_OUTCOMES | {"not_found_at_observation", "quarantined"}
+# What a searched AFM's own answer adds to the comparison of a party carrying that AFM.
+_QUERY_ISSUES = {"afm_mismatch": "search_afm_mismatch", "quarantined": "search_quarantined"}
 
 
 @dataclass(frozen=True)
@@ -34,6 +56,20 @@ class RegistryObservation:
     registry_number: str
     outcome: RegistryOutcome
     reported_afm: str | None
+    # Set only for a company returned by an AFM search: the AFM that was asked for, and whether the
+    # company reports it. A branch repeats its head office's AFM, so several hits may match.
+    queried_afm: str | None = None
+    afm_matches: bool | None = None
+
+
+@dataclass(frozen=True)
+class SearchQuery:
+    """One searched AFM and the fixed outcome of its answer; a 404 says nothing about existence."""
+
+    import_id: UUID
+    afm: str
+    outcome: SearchOutcome
+    truncated: bool
 
 
 @dataclass(frozen=True)
@@ -57,7 +93,7 @@ class ComparisonResult:
     registry: tuple[RegistryAssessment, ...]
     comparisons: tuple[Comparison, ...]
     automatic_identity_links: Literal[0] = field(default=0, init=False)
-    policy_version: str = field(default=REGISTRY_POLICY_VERSION, init=False)
+    policy_version: str = REGISTRY_POLICY_VERSION
 
 
 def _registry(observation: RegistryObservation) -> RegistryAssessment:
@@ -73,6 +109,14 @@ def _registry(observation: RegistryObservation) -> RegistryAssessment:
         raise ComparisonError("registry_observation") from None
     if canonical_number != observation.registry_number:
         raise ComparisonError("registry_observation")
+    searched = observation.queried_afm is not None or observation.afm_matches is not None
+    if searched:
+        try:
+            queryable_afm(observation.queried_afm)
+        except ValueError:
+            raise ComparisonError("registry_observation") from None
+        if observation.outcome != "found" or type(observation.afm_matches) is not bool:
+            raise ComparisonError("registry_observation")
     if observation.outcome == "not_found_at_observation":
         if observation.reported_afm is not None:
             raise ComparisonError("registry_observation")
@@ -80,7 +124,9 @@ def _registry(observation: RegistryObservation) -> RegistryAssessment:
     raw = observation.reported_afm
     afm = None if raw is None else raw.strip(" \t\r\n") or None
     status: RegistryIdentifierStatus
-    if afm is None:
+    if observation.afm_matches is False:
+        status = "search_afm_mismatch"  # kept as evidence; never an agreement
+    elif afm is None:
         status = "tax_missing"
     elif afm == "000000000":
         status = "placeholder"
@@ -91,19 +137,52 @@ def _registry(observation: RegistryObservation) -> RegistryAssessment:
     return RegistryAssessment(observation, afm, status)
 
 
+def _queries(queries: Sequence[SearchQuery]) -> dict[tuple[UUID, str], SearchQuery]:
+    selected: dict[tuple[UUID, str], SearchQuery] = {}
+    for item in queries:
+        try:
+            queryable_afm(item.afm)
+        except ValueError:
+            raise ComparisonError("registry_observation") from None
+        if (
+            not isinstance(item.import_id, UUID)
+            or item.outcome not in _SEARCH_OUTCOMES
+            or type(item.truncated) is not bool
+            or (item.import_id, item.afm) in selected
+        ):
+            raise ComparisonError("registry_observation")
+        selected[(item.import_id, item.afm)] = item
+    return selected
+
+
 def compare(
-    parties: Sequence[PartyClaim], observations: Sequence[RegistryObservation]
+    parties: Sequence[PartyClaim],
+    observations: Sequence[RegistryObservation],
+    queries: Sequence[SearchQuery] = (),
 ) -> ComparisonResult:
     if len(parties) > MAX_COMPARISON_MENTIONS or len(observations) > MAX_REGISTRY_OBSERVATIONS:
         raise ComparisonError("comparison_limit")
+    searched = _queries(queries)
     assessed = tuple(_registry(row) for row in observations)
-    keys = {(row.observation.import_id, row.observation.registry_number) for row in assessed}
+    for row in assessed:
+        if row.observation.queried_afm is not None:
+            owner = searched.get((row.observation.import_id, row.observation.queried_afm))
+            if owner is None or owner.outcome not in _HIT_OUTCOMES:
+                raise ComparisonError("registry_observation")
+    keys = {
+        (row.observation.import_id, row.observation.registry_number, row.observation.queried_afm)
+        for row in assessed
+    }
     if len(keys) != len(assessed):
         raise ComparisonError("registry_observation")
     registry = tuple(
         sorted(
             assessed,
-            key=lambda row: (row.observation.import_id.int, row.observation.registry_number),
+            key=lambda row: (
+                row.observation.import_id.int,
+                row.observation.registry_number,
+                row.observation.queried_afm or "",
+            ),
         )
     )
     by_afm: dict[str, list[int]] = defaultdict(list)
@@ -135,13 +214,25 @@ def compare(
             (key[2] for key in assessment.keys if key[0] == "kimdis.reported-country-tax"), None
         )
         references = () if tax is None else tuple(by_afm.get(tax, ()))
+        looked_up = [item for (_, afm), item in searched.items() if afm == tax]
         outcome: ComparisonOutcome
         if tax is None:
             outcome = "unassessed_identifier"
         elif references:
             outcome = "reported_identifier_agreement"
+        elif any(item.outcome == "not_found_at_observation" for item in looked_up):
+            outcome = "queried_not_found_at_observation"
         else:
             outcome = "no_candidate_in_selected_imports"
-        issues = sorted({issue for index in references for issue in registry[index].issues})
-        comparisons.append(Comparison(assessment, outcome, references, tuple(issues)))
-    return ComparisonResult(registry, tuple(comparisons))
+        found = {issue for index in references for issue in registry[index].issues}
+        for item in looked_up:
+            if item.outcome in _QUERY_ISSUES:
+                found.add(_QUERY_ISSUES[item.outcome])
+            if item.truncated:
+                found.add("search_truncated")
+        comparisons.append(Comparison(assessment, outcome, references, tuple(sorted(found))))
+    return ComparisonResult(
+        registry,
+        tuple(comparisons),
+        policy_version=REGISTRY_SEARCH_POLICY_VERSION if searched else REGISTRY_POLICY_VERSION,
+    )

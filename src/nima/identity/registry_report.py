@@ -3,18 +3,17 @@
 from collections.abc import Sequence
 from dataclasses import asdict
 from pathlib import Path
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 from uuid import UUID
 
 from nima.identity import (
     MAX_COMPARISON_MENTIONS,
     POLICY_VERSION,
-    REGISTRY_POLICY_VERSION,
     AssessmentError,
 )
 from nima.identity.artifacts import encode, publish
 from nima.identity.registry_cohort import ComparisonCohort, read_comparison_cohort
-from nima.identity.registry_policy import compare
+from nima.identity.registry_policy import SearchQuery, compare
 
 
 class Report(TypedDict):
@@ -29,6 +28,9 @@ class Report(TypedDict):
     registry_imports: list[dict[str, object]]
     registry_observations: list[dict[str, object]]
     occurrences: list[dict[str, object]]
+    # Present only when an imported AFM search was selected (report format v2).
+    search_imports: NotRequired[list[dict[str, object]]]
+    search_queries: NotRequired[list[dict[str, object]]]
 
 
 def build_report(cohort: ComparisonCohort) -> Report:
@@ -44,13 +46,29 @@ def build_report(cohort: ComparisonCohort) -> Report:
         ),
     )
     registry = sorted(
-        cohort.registry, key=lambda row: (row.claim.import_id.int, row.claim.registry_number)
+        cohort.registry,
+        key=lambda row: (
+            row.claim.import_id.int,
+            row.claim.registry_number,
+            row.claim.queried_afm or "",
+        ),
     )
-    result = compare(tuple(row.claim() for row in parties), tuple(row.claim for row in registry))
+    searches = sorted(cohort.search_queries, key=lambda row: (row.import_id.int, row.afm))
+    result = compare(
+        tuple(row.claim() for row in parties),
+        tuple(row.claim for row in registry),
+        tuple(SearchQuery(q.import_id, q.afm, q.outcome, q.truncated) for q in searches),
+    )
     catalog: list[dict[str, object]] = []
     for row, assessed in zip(registry, result.registry, strict=True):
+        searched: dict[str, object] = (
+            {"queried_afm": row.claim.queried_afm, "afm_matches": row.claim.afm_matches}
+            if row.claim.queried_afm is not None
+            else {}
+        )
         catalog.append(
             {
+                **searched,
                 "import_id": str(row.claim.import_id),
                 "registry_number": row.claim.registry_number,
                 "outcome": row.claim.outcome,
@@ -85,7 +103,7 @@ def build_report(cohort: ComparisonCohort) -> Report:
                 },
             }
         )
-    return {
+    report: Report = {
         "report_format": "nima-registry-comparison-report-v1",
         "policy_version": result.policy_version,
         "procurement_assessment_policy_version": POLICY_VERSION,
@@ -101,6 +119,14 @@ def build_report(cohort: ComparisonCohort) -> Report:
         "registry_observations": catalog,
         "occurrences": occurrences,
     }
+    if cohort.search_imports:
+        report["report_format"] = "nima-registry-comparison-report-v2"
+        report["search_imports"] = [
+            {**asdict(row), "import_id": str(row.import_id)}
+            for row in sorted(cohort.search_imports, key=lambda row: row.import_id.int)
+        ]
+        report["search_queries"] = [{**asdict(q), "import_id": str(q.import_id)} for q in searches]
+    return report
 
 
 def compare_run(
@@ -119,15 +145,22 @@ def compare_run(
         digest = publish(output, body)
     except OSError:
         raise AssessmentError("output_io") from None
-    return {
+    summary: dict[str, object] = {
         "status": "complete",
         "run_id": str(run),
         "gemi_import_ids": [
             str(row.import_id) for row in sorted(cohort.imports, key=lambda row: row.import_id.int)
         ],
-        "policy_version": REGISTRY_POLICY_VERSION,
+        "policy_version": report["policy_version"],
         "report_sha256": digest,
         "mention_count": len(cohort.parties),
         "registry_observation_count": len(cohort.registry),
         "automatic_identity_links": 0,
     }
+    if cohort.search_imports:
+        summary["search_import_ids"] = [
+            str(row.import_id)
+            for row in sorted(cohort.search_imports, key=lambda row: row.import_id.int)
+        ]
+        summary["searched_afm_count"] = len(cohort.search_queries)
+    return summary
