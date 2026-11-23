@@ -1,6 +1,6 @@
 # Spec: importing GEMI AFM search runs into SQL (slice L5)
 
-Status: **approved 2026-11-23; L5-1 to L5-5 decided as recommended. L5a delivered (#215); L5b in review.**
+Status: **approved 2026-11-23; L5-1 to L5-5 decided as recommended. L5a delivered (#215), L5b delivered (#216), L5c recorded; decision L5c-1 open.**
 Part of [SPEC-gemi-afm-lookup](SPEC-gemi-afm-lookup.md); depends on its L1 to L4 and L6, all delivered.
 
 ## Objective
@@ -83,7 +83,7 @@ L5-1 to L5-5 are decided as recommended (owner, 2026-11-23).
 |---|---|---|
 | L5-1 | Storage shape | A: separate search tables, as above |
 | L5-2 | Review of a search-found match | Defer. Comparison first; reviewing a hit needs the review tables to point at a hit and is its own migration. Trigger: you want to accept or reject a match that came from a search |
-| L5-3 | Deleted registrations (3 of the 12 hits in the pilot) | Import and report them with their status, never filter them. Add no new rule until you decide what a deleted entry means for a comparison |
+| L5-3 | Deleted registrations (4 of the 12 hits in the pilot) | Import and report them with their status, never filter them. Add no new rule until you decide what a deleted entry means for a comparison |
 | L5-4 | Limits | At most 25 AFMs and 500 hits per import; the comparison keeps its 100-observation bound, so a larger selection fails visibly rather than truncating |
 | L5-5 | Migration 0014 | Approve the table list above in principle; the SQL is reviewed in its own PR before it merges, and applied to your database only when you choose |
 
