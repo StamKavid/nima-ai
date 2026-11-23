@@ -79,7 +79,7 @@ def state(dsn: str) -> str:
         tables = connection.execute(
             "SELECT tablename FROM pg_tables WHERE schemaname='nima' ORDER BY tablename"
         ).fetchall()
-        assert len(tables) == 28
+        assert len(tables) == 32
         for (name,) in tables:
             row = connection.execute(
                 sql.SQL(

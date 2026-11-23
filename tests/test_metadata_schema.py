@@ -15,12 +15,12 @@ from tests.test_metadata_export import kimdis_run
 def test_metadata_schema_is_separate_and_previous_migrations_preserved(pg_dsn: str) -> None:
     from nima.storage.postgres import _migrations
 
-    assert len(_migrations()) == 13
+    assert len(_migrations()) == 14
     migrate(pg_dsn)
     migrate(pg_dsn)
     with psycopg.connect(pg_dsn) as c:
         assert c.execute("SELECT count(*) FROM pg_tables WHERE schemaname='nima'").fetchone() == (
-            28,
+            32,
         )
         assert c.execute(
             "SELECT to_regclass('nima_processing.reported_market_metadata')"
