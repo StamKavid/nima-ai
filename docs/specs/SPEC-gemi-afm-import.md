@@ -1,6 +1,6 @@
 # Spec: importing GEMI AFM search runs into SQL (slice L5)
 
-Status: **draft for owner review, 2026-11-23. No code and no migration until the decisions below are made.**
+Status: **approved 2026-11-23; L5-1 to L5-5 decided as recommended. L5a not started; its migration SQL is reviewed in its own PR before it merges or runs on any database.**
 Part of [SPEC-gemi-afm-lookup](SPEC-gemi-afm-lookup.md); depends on its L1 to L4 and L6, all delivered.
 
 ## Objective
@@ -76,6 +76,8 @@ any use of a hit to create or accept an identity.
 write a hit as an observation of a request that was not made for it; alter an existing GEMI table.
 
 ## Decisions for the owner
+
+L5-1 to L5-5 are decided as recommended (owner, 2026-11-23).
 
 | # | Decision | Recommendation |
 |---|---|---|

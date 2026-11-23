@@ -11,7 +11,7 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | [SPEC-entity-resolution](SPEC-entity-resolution.md) | Evidence-backed party identity | Approved |
 | [SPEC-semantic-model](SPEC-semantic-model.md) | Shared selection, time, party tier and metrics U1-U4 (V1-05) | Draft for owner review |
 | [SPEC-gemi-afm-lookup](SPEC-gemi-afm-lookup.md) | GEMI search by reported tax number | Draft for owner review |
-| [SPEC-gemi-afm-import](SPEC-gemi-afm-import.md) | Importing GEMI AFM search runs into SQL (slice L5) | Draft for owner review |
+| [SPEC-gemi-afm-import](SPEC-gemi-afm-import.md) | Importing GEMI AFM search runs into SQL (slice L5) | Approved (L5-1 to L5-5 as recommended); L5a next |
 | [SPEC-diavgeia-pilot](SPEC-diavgeia-pilot.md) | Diavgeia second-source pilot, Δ.2.2 by organisation and window (V1-06) | Decided except P2 (organisation, window); D2, D3 command and first real run delivered |
 | [SPEC-diavgeia-commitments](SPEC-diavgeia-commitments.md) | Second Diavgeia pilot: do KIMDIS citations point at Β.1.3 commitments (V1-06) | Decided (C1 to C5 as recommended); C0 to C3 not started |
 | [SPEC-archive-replay-sources](SPEC-archive-replay-sources.md) | Source-aware `archive replay` and `promote` for the Diavgeia pilots | Delivered (R1, R2); promotion awaits an owner-selected digest |
