@@ -6,7 +6,8 @@
 - [x] L2: owner merged #172 at `f574266` (pure parser, all outcomes, string `arGemi`; `normalize_profile` split into `decode_body` and
   `normalize_company`); reachable from `origin/main`. Hosted run 44909801231 on `e6dd5ef` passed all three jobs. 53 tests, 100% line and
   branch for `gemi_search.py`, 18 rule breaks all caught.
-- [ ] L3: collector `ingest gemi-afm` on the shared GEMI transport, archive-first; crash, retry and budget tests.
+- [x] L3 (in review): `nima ingest gemi-afm` on the shared GEMI transport, archive-first; transport tests now run for both request kinds,
+  100% of new lines covered, 12 rule breaks caught. No live call. Not in L3: the private AFM file of decision D1 (flags only).
 - [ ] L4: read-only archive verification for search runs.
 - [ ] L5: import of hits and `queried_not_found_at_observation` (migration; ask the owner first).
 - [ ] L6: live pilot on the owner's machine (three existing AFMs, one 404, equivalence and latency); amend the spec.

@@ -3,16 +3,31 @@
 import json
 from collections.abc import Callable, Iterator
 from pathlib import Path
+from typing import Any
 
 import httpx
 import pytest
 
 from nima.ingestion.archive import Archive
-from nima.ingestion.gemi import GemiLimits, GemiRunError, collect
+from nima.ingestion.gemi import GemiLimits, GemiRunError, collect, collect_afm
 from tests.test_collection import Clock
+from tests.test_gemi_afm_collection import RULES
 from tests.test_gemi_contracts import profile
+from tests.test_gemi_search import AFM, body, company
 
 KEY = "synthetic-test-credential"
+SOURCES = ["profile", "afm"]  # the two request kinds that share one transport
+
+
+def good(source: str, number: int = 1) -> bytes:
+    return profile(number) if source == "profile" else body([company(str(number))])
+
+
+def run(source: str, root: Path, client: httpx.Client, **options: object) -> Any:
+    """One lookup of the given kind; the transport rules are the same for both."""
+    if source == "profile":
+        return collect(("1",), root, api_key=KEY, client=client, **options)  # type: ignore[arg-type]
+    return collect_afm((AFM,), root, rules=RULES, api_key=KEY, client=client, **options)  # type: ignore[arg-type]
 
 
 def test_lookup_archives_before_transform_and_accounts_for_404(tmp_path: Path) -> None:
@@ -116,8 +131,9 @@ def test_limits_reject_unbounded_or_invalid_values(make: Callable[[], GemiLimits
         ("interrupt", "interrupted"),
     ],
 )
+@pytest.mark.parametrize("source", SOURCES)
 def test_attempt_failures_and_quarantine_remain_visible(
-    tmp_path: Path, kind: str, expected: str
+    tmp_path: Path, source: str, kind: str, expected: str
 ) -> None:
     calls = 0
     clock = Clock()
@@ -141,7 +157,11 @@ def test_attempt_failures_and_quarantine_remain_visible(
             clock.elapsed = 301
         return httpx.Response(
             200,
-            content=profile(2 if kind == "quarantine" else 1),
+            content=b'{"unexpected": 1}'
+            if kind == "quarantine" and source == "afm"
+            else profile(2)
+            if kind == "quarantine"
+            else good(source),
             headers={
                 "content-type": "text/plain" if kind == "media" else "application/json",
                 "content-encoding": "gzip" if kind == "encoding" else "identity",
@@ -160,9 +180,7 @@ def test_attempt_failures_and_quarantine_remain_visible(
     else:
         transport = httpx.MockTransport(handle)
     with httpx.Client(transport=transport, follow_redirects=True) as client:
-        result = collect(
-            ("1",), tmp_path / "raw", api_key=KEY, client=client, clock=clock, limits=limits
-        )
+        result = run(source, tmp_path / "raw", client, clock=clock, limits=limits)
     assert result.status == expected
     if kind in {"redirect", "auth", "deferred"}:
         assert calls == 1
@@ -236,8 +254,9 @@ def test_cli_requires_key_before_client_and_emits_only_summary(
     assert json.loads(capsys.readouterr().out)["run_id"] == "synthetic-run"
 
 
+@pytest.mark.parametrize("source", SOURCES)
 def test_stream_error_never_archives_partial_body_and_rate_budget_keeps_prior_success(
-    tmp_path: Path,
+    tmp_path: Path, source: str
 ) -> None:
     class Broken(httpx.SyncByteStream):
         def __iter__(self) -> Iterator[bytes]:
@@ -247,36 +266,43 @@ def test_stream_error_never_archives_partial_body_and_rate_budget_keeps_prior_su
     with httpx.Client(
         transport=httpx.MockTransport(lambda _: httpx.Response(200, stream=Broken()))
     ) as client:
-        result = collect(
-            ("1",),
-            tmp_path / "partial",
-            api_key=KEY,
-            client=client,
-            limits=GemiLimits(max_attempts=1),
-            clock=Clock(),
+        result = run(
+            source, tmp_path / "partial", client, limits=GemiLimits(max_attempts=1), clock=Clock()
         )
     assert result.failure == "retry_exhausted"
     assert not list((tmp_path / "partial" / "objects").glob("*/*.body"))
     with httpx.Client(
         transport=httpx.MockTransport(
             lambda _: httpx.Response(
-                200, content=profile(), headers={"content-type": "application/json"}
+                200, content=good(source), headers={"content-type": "application/json"}
             )
         )
     ) as client:
-        result = collect(
-            ("1", "2"),
-            tmp_path / "budget",
-            api_key=KEY,
-            client=client,
-            limits=GemiLimits(run_timeout=2),
-            clock=Clock(),
-        )
+        if source == "profile":
+            result = collect(
+                ("1", "2"),
+                tmp_path / "budget",
+                api_key=KEY,
+                client=client,
+                limits=GemiLimits(run_timeout=2),
+                clock=Clock(),
+            )
+        else:
+            result = collect_afm(
+                (AFM, "123456789"),
+                tmp_path / "budget",
+                rules=RULES,
+                api_key=KEY,
+                client=client,
+                limits=GemiLimits(run_timeout=2),
+                clock=Clock(),
+            )
     assert result.failure == "time_budget" and result.found == result.attempts == 1
     assert not result.collection_complete
 
 
-def test_small_stream_chunks_cannot_hide_elapsed_run_budget(tmp_path: Path) -> None:
+@pytest.mark.parametrize("source", SOURCES)
+def test_small_stream_chunks_cannot_hide_elapsed_run_budget(tmp_path: Path, source: str) -> None:
     clock = Clock()
 
     class Trickle(httpx.SyncByteStream):
@@ -288,13 +314,8 @@ def test_small_stream_chunks_cannot_hide_elapsed_run_budget(tmp_path: Path) -> N
     with httpx.Client(
         transport=httpx.MockTransport(lambda _: httpx.Response(200, stream=Trickle()))
     ) as client:
-        result = collect(
-            ("1",),
-            tmp_path / "raw",
-            api_key=KEY,
-            client=client,
-            limits=GemiLimits(run_timeout=5),
-            clock=clock,
+        result = run(
+            source, tmp_path / "raw", client, limits=GemiLimits(run_timeout=5), clock=clock
         )
     assert result.failure == "time_budget" and clock.elapsed == 6
     assert not list((tmp_path / "raw" / "objects").glob("*/*.body"))
