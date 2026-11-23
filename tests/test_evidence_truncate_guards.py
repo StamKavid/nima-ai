@@ -43,13 +43,13 @@ IMMUTABLE = "Evidence rows are immutable"
 def test_every_evidence_table_is_classified_as_truncate_guarded() -> None:
     evidence = {n for n, r in ac.table_rules().items() if r.kind is ac.TableKind.EVIDENCE}
     guarded = {n for n, r in ac.table_rules().items() if r.truncate_guarded}
-    assert len(evidence) == 22 and guarded == evidence
+    assert len(evidence) == 26 and guarded == evidence
     assert {f"nima.{t}" for t in OLDER_EVIDENCE} <= guarded
 
 
 def test_migration_list_and_new_file_are_additive_triggers_only() -> None:
     migrations = postgres._migrations()
-    assert [v for v, _, _ in migrations] == list(range(1, 14))
+    assert [v for v, _, _ in migrations] == list(range(1, 15))
     body = files("nima.storage").joinpath("migrations/0013.sql").read_text()
     statements = [s.strip() for s in re.sub(r"--[^\n]*", "", body).split(";") if s.strip()]
     pattern = re.compile(
@@ -163,7 +163,7 @@ def test_upgrade_from_twelve_preserves_every_row_owner_and_grant(
     pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     migrations = postgres._migrations()
-    assert len(migrations) == 13
+    assert len(migrations) == 14
     with monkeypatch.context() as patch:
         patch.setattr(postgres, "_migrations", lambda: migrations[:12])
         retired(pg_dsn, tmp_path / "raw")
@@ -178,7 +178,11 @@ def test_upgrade_from_twelve_preserves_every_row_owner_and_grant(
     migrate(pg_dsn)  # idempotent: a second application changes nothing
     after = database_snapshot(pg_dsn)
     assert all(after[t] == before[t] for t in before.keys() - {"schema_migrations"})
-    assert acl(pg_dsn) == before_acl
+    after_acl = acl(pg_dsn)
+    added = [row for row in after_acl if str(row[0]).startswith("gemi_search_")]
+    assert [row for row in after_acl if row not in added] == before_acl
+    # 0014 adds four tables for the table owner only: no grant, and no change to any other ACL.
+    assert len(added) == 4 and all(row[2] is None for row in added)
     with psycopg.connect(pg_dsn) as c:
         assert c.execute(
             "SELECT version,sha256 FROM nima.schema_migrations ORDER BY version"
@@ -187,7 +191,7 @@ def test_upgrade_from_twelve_preserves_every_row_owner_and_grant(
             "SELECT count(*) FROM pg_trigger WHERE tgname LIKE '%\\_no\\_truncate' "
             "AND NOT tgisinternal"
         ).fetchone()
-    assert triggers == (22,)  # seven existing guards plus the fifteen new ones
+    assert triggers == (26,)  # seven existing guards, fifteen from 0013, four for 0014
     with psycopg.connect(pg_dsn, autocommit=True) as c:
         c.execute(sql.SQL("DROP OWNED BY {}").format(sql.Identifier(role)))
         c.execute(sql.SQL("DROP ROLE {}").format(sql.Identifier(role)))

@@ -17,6 +17,10 @@ EXPECTED_EVIDENCE = {
     "nima.gemi_responses",
     "nima.gemi_profile_versions",
     "nima.gemi_observations",
+    "nima.gemi_search_imports",
+    "nima.gemi_search_requests",
+    "nima.gemi_search_outcomes",
+    "nima.gemi_search_hits",
     "nima.refresh_events",
     "nima.identity_entities",
     "nima.identity_review_events",
@@ -41,7 +45,9 @@ EXPECTED_CONTROL = {
     "nima.refresh_windows",
     "nima.identity_review_heads",
 }
-EXPECTED_TRUNCATE_GUARDED = EXPECTED_EVIDENCE  # 0013 guarded the fifteen older tables
+EXPECTED_TRUNCATE_GUARDED = (
+    EXPECTED_EVIDENCE  # 0013 guarded the fifteen older tables; 0014 guards its own
+)
 REWRITE = {ac.Priv.UPDATE, ac.Priv.DELETE, ac.Priv.TRUNCATE, ac.Priv.TRIGGER, ac.Priv.REFERENCES}
 
 
@@ -49,7 +55,7 @@ def test_classification_is_pinned_explicitly() -> None:
     rules = ac.table_rules()
     assert {n for n, r in rules.items() if r.kind is ac.TableKind.EVIDENCE} == EXPECTED_EVIDENCE
     assert {n for n, r in rules.items() if r.kind is ac.TableKind.CONTROL} == EXPECTED_CONTROL
-    assert len(rules) == 33
+    assert len(rules) == 37
     assert {n for n, r in rules.items() if r.truncate_guarded} == EXPECTED_TRUNCATE_GUARDED
 
 

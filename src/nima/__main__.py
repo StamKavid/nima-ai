@@ -50,7 +50,7 @@ from nima.sources.diavgeia import (
 )
 from nima.sources.diavgeia_commitments import CommitmentAdapter, CommitmentQuery
 from nima.sources.gemi_search import parse_search, queryable_afm
-from nima.storage.gemi import IMPORT_VERSION
+from nima.storage.gemi import IMPORT_VERSION, SEARCH_IMPORT_VERSION, import_search_run
 from nima.storage.gemi import import_run as import_gemi
 from nima.storage.gemi_archive import ImportFailure, verify_search_run
 from nima.storage.postgres import CheckpointError, MigrationError, migrate
@@ -117,6 +117,9 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     )
     archived.add_argument("run_id", type=UUID)
     archived.add_argument("--archive-dir", type=Path, required=True)
+    stored = registry.add_parser("import-afm", help="Verify and persist one search archive offline")
+    stored.add_argument("run_id", type=UUID)
+    stored.add_argument("--archive-dir", type=Path, required=True)
     checked = registry.add_parser(
         "verify-afm", help="Verify one search archive from its original bytes, offline"
     )
@@ -264,6 +267,27 @@ def _import_gemi(run_id: UUID, archive_root: Path) -> int:
         result = {
             "run_id": run_id.hex,
             "import_version": IMPORT_VERSION,
+            "status": "failed",
+            "failure": reason,
+        }
+    print(json.dumps(result, allow_nan=False))
+    return code
+
+
+def _import_afm(run_id: UUID, archive_root: Path) -> int:
+    code = 0
+    try:
+        result = asdict(import_search_run(_database_url(), archive_root, run_id, _GEMI_SEARCH))
+    except (ImportFailure, KeyboardInterrupt, ValueError) as exc:
+        if isinstance(exc, ImportFailure):
+            reason, code = exc.reason, 1
+        elif isinstance(exc, KeyboardInterrupt):
+            reason, code = "interrupted", 130
+        else:
+            reason, code = "configuration", 2
+        result = {
+            "run_id": run_id.hex,
+            "import_version": SEARCH_IMPORT_VERSION,
             "status": "failed",
             "failure": reason,
         }
@@ -442,6 +466,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "gemi":
         if args.operation == "verify-afm":
             return _verify_afm(args.run_id, args.archive_dir)
+        if args.operation == "import-afm":
+            return _import_afm(args.run_id, args.archive_dir)
         return _import_gemi(args.run_id, args.archive_dir)
     try:
         if args.command == "identities":

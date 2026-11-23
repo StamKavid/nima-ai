@@ -174,6 +174,27 @@ Acceptance requires:
 - Five-axis review, `just check`, `just audit`, and private main-targeted PR with
   hosted CI and StamKavid attribution. No automatic merge or deployment.
 
+## Search runs (slice L5a, migration 0014)
+
+A verified AFM search run ([search by AFM](gemi.md), [SPEC-gemi-afm-import](../specs/SPEC-gemi-afm-import.md))
+is imported with `nima gemi import-afm RUN_ID --archive-dir DIR`, which needs `NIMA_DATABASE_URL` and no key.
+It re-verifies the archive on every call, writes in one transaction under an advisory lock, and on a repeat
+checks that the stored rows are identical and changes nothing.
+
+Four immutable tables, with no grant and a TRUNCATE guard each, leave the profile tables untouched:
+
+| Table | One row per |
+|---|---|
+| `gemi_search_imports` | imported run: manifest bytes and hash, versions, license, counts |
+| `gemi_search_requests` | HTTP attempt, keyed by AFM (nine digits, leading zero kept) |
+| `gemi_search_outcomes` | searched AFM: the fixed outcome and the final request it rests on |
+| `gemi_search_hits` | returned company, with `afm_matches` and the profile version it points at |
+
+Each hit's normalized payload is also a `gemi_profile_versions` row whose raw hash is the search response's,
+so the evidence pointer stays `/searchResults/<i>/...`. Quarantined answers are outcomes without hits; an
+unconfirmed quarantine (media type not archived) is flagged. The comparison does not read these tables yet
+(slice L5b), and a hit cannot yet be reviewed as an identity (decision L5-2).
+
 ## Review and later work
 
 Always preserve assertions, original evidence, observation times and unknowns.
