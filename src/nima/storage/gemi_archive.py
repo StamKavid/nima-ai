@@ -7,16 +7,17 @@ import hashlib
 import json
 import os
 import stat
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
+from types import MappingProxyType
 from typing import cast
 from uuid import UUID
 
 from nima.ingestion.archive import MARKER
-from nima.ingestion.gemi import GemiLimits
+from nima.ingestion.gemi import GemiLimits, SearchRules
 from nima.sources.gemi import (
     ENDPOINT,
     MAX_BODY,
@@ -38,6 +39,9 @@ CONTRACT = {
     "license": "ODC-BY-1.0",
     "publisher": "Central GEMI Service / Central Union of Chambers",
 }
+SEARCH_CONTRACT = {**CONTRACT, "connector_version": "gemi-afm-search-v1"}
+SEARCH_STATUSES = {"complete", "quarantined"}
+NOT_FOUND = "not_found_at_observation"
 
 
 class ImportFailure(Exception):
@@ -79,6 +83,21 @@ class VerifiedRun:
     manifest_sha256: str
     responses: tuple[ResponseEvidence, ...]
     observations: tuple[Observation, ...]
+
+
+@dataclass(frozen=True)
+class VerifiedSearch:
+    """Recomputed from the original response bodies; counts and outcomes, no company data."""
+
+    run_id: UUID
+    manifest_sha256: str
+    requested: int
+    attempts: int
+    outcomes: Mapping[str, str]
+    outcome_counts: Mapping[str, int]
+    companies: int
+    eligible_hits: int
+    unconfirmed_quarantines: int
 
 
 @contextmanager
@@ -153,6 +172,22 @@ def _duration(value: object) -> float:
     return float(value)
 
 
+def _limits(data: dict[str, object]) -> GemiLimits:
+    raw_limits = _object(data["limits"])
+    defaults = GemiLimits()
+    if raw_limits.keys() != asdict(defaults).keys():
+        raise ImportFailure("manifest_invalid")
+    # Constructor enforces the collector's finite ceilings and exact integer counts.
+    return GemiLimits(
+        max_attempts=_integer(raw_limits["max_attempts"], 1, 3),
+        max_bytes=_integer(raw_limits["max_bytes"], 1, defaults.max_bytes),
+        requests_per_minute=_duration(raw_limits["requests_per_minute"]),
+        request_timeout=_duration(raw_limits["request_timeout"]),
+        run_timeout=_duration(raw_limits["run_timeout"]),
+        max_retry_delay=_duration(raw_limits["max_retry_delay"]),
+    )
+
+
 def _header(data: dict[str, object], run_id: UUID) -> tuple[list[str], GemiLimits]:
     if type(data["format_version"]) is not int or data["format_version"] != 1:
         raise ImportFailure("manifest_version")
@@ -174,29 +209,22 @@ def _header(data: dict[str, object], run_id: UUID) -> tuple[list[str], GemiLimit
         or list(dict.fromkeys(registry_number(cast(str, n)) for n in inputs)) != numbers
     ):
         raise ImportFailure("manifest_invalid")
-    raw_limits = _object(data["limits"])
-    defaults = GemiLimits()
-    if raw_limits.keys() != asdict(defaults).keys():
-        raise ImportFailure("manifest_invalid")
-    # Constructor enforces the collector's finite ceilings and exact integer counts.
-    limits = GemiLimits(
-        max_attempts=_integer(raw_limits["max_attempts"], 1, 3),
-        max_bytes=_integer(raw_limits["max_bytes"], 1, defaults.max_bytes),
-        requests_per_minute=_duration(raw_limits["requests_per_minute"]),
-        request_timeout=_duration(raw_limits["request_timeout"]),
-        run_timeout=_duration(raw_limits["run_timeout"]),
-        max_retry_delay=_duration(raw_limits["max_retry_delay"]),
-    )
-    return numbers, limits
+    return numbers, _limits(data)
 
 
 def _receipt(
-    value: object, number: str, attempt: int, previous: datetime, end: datetime, limits: GemiLimits
+    value: object,
+    number: str,
+    attempt: int,
+    previous: datetime,
+    end: datetime,
+    limits: GemiLimits,
+    key: str = "registry_number",
 ) -> tuple[dict[str, object], ResponseEvidence]:
     row = _object(value)
     started, finished = _time(row["started_at"]), _time(row["finished_at"])
     if (
-        row["registry_number"] != number
+        row[key] != number
         or row["state"] != "finished"
         or _integer(row["attempt"], 1, limits.max_attempts) != attempt
         or not previous <= started <= finished <= end
@@ -332,5 +360,116 @@ def verify_run(archive_root: Path, run_id: UUID) -> VerifiedRun:
         raise ImportFailure("archive_invalid") from None
     except InvalidProfile:
         raise ImportFailure("profile_invalid") from None
+    except (KeyError, IndexError, TypeError, ValueError, RecursionError, OverflowError):
+        raise ImportFailure("manifest_invalid") from None
+
+
+def _search_header(
+    data: dict[str, object], run_id: UUID, rules: SearchRules
+) -> tuple[list[str], GemiLimits]:
+    if type(data["format_version"]) is not int or data["format_version"] != 1:
+        raise ImportFailure("manifest_version")
+    if any(data.get(key) != value for key, value in SEARCH_CONTRACT.items()):
+        raise ImportFailure("manifest_version")
+    summary = _object(data["summary"])
+    if (
+        summary["run_id"] != run_id.hex
+        or summary["status"] not in SEARCH_STATUSES
+        or summary["collection_complete"] is not True
+        or summary["normalization_complete"] is not (summary["status"] == "complete")
+        or summary["failure"] is not None
+    ):
+        raise ImportFailure("run_incomplete")
+    inputs = _list(data["inputs"], 25)
+    afms = [rules.queryable(value) for value in _list(data["afms"], 25)]
+    if afms != data["afms"] or list(dict.fromkeys(rules.queryable(v) for v in inputs)) != afms:
+        raise ImportFailure("manifest_invalid")
+    return afms, _limits(data)
+
+
+def verify_search_run(archive_root: Path, run_id: UUID, rules: SearchRules) -> VerifiedSearch:
+    """Recompute every AFM's outcome from the archived bodies; no HTTP, key, SQL or derived file.
+
+    A quarantine caused only by the response's media type cannot be recomputed, because headers
+    are not archived. It is accepted for a 200 answer and counted as unconfirmed, never trusted.
+    """
+    root = archive_root.absolute()
+    try:
+        with _directory(root) as directory:
+            if _read(directory, ".nima-archive", len(MARKER)) != MARKER.encode():
+                raise ImportFailure("archive_invalid")
+        with _directory(root / "runs" / run_id.hex) as directory:
+            manifest = _read(directory, "manifest.json", MAX_MANIFEST)
+        data = _object(
+            json.loads(manifest.decode("utf-8"), object_pairs_hook=_pairs, parse_constant=_constant)
+        )
+        afms, limits = _search_header(data, run_id, rules)
+        attempts = _list(data["attempts"], 75)
+        previous, end = _time(data["started_at"]), _time(data["finished_at"])
+        claimed = _object(data["outcomes"])
+        outcomes: dict[str, str] = {}
+        total_body = companies = eligible = unconfirmed = cursor = 0
+        for afm in afms:
+            for attempt in range(1, limits.max_attempts + 1):
+                row, response = _receipt(
+                    attempts[cursor], afm, attempt, previous, end, limits, "afm"
+                )
+                cursor += 1
+                previous = response.finished_at
+                raw = (
+                    _body(root, row, MAX_TOTAL_BODY - total_body) if row["body_complete"] else None
+                )
+                total_body += 0 if raw is None else len(raw)
+                if raw is None:
+                    continue  # A transport failure may follow an HTTP status line.
+                if response.status not in {200, 404}:
+                    if response.status not in {429, 500, 502, 503, 504}:
+                        raise ImportFailure("manifest_invalid")
+                    continue
+                answer = rules.parse(raw, afm, response.status)
+                outcome = answer.outcome
+                if outcome != "quarantined" and claimed.get(afm) == "quarantined":
+                    if response.status != 200:
+                        raise ImportFailure("manifest_invalid")
+                    outcome, unconfirmed = "quarantined", unconfirmed + 1
+                elif outcome != "quarantined":
+                    companies += len(answer.hits)
+                    eligible += sum(hit.afm_matches for hit in answer.hits)
+                outcomes[afm] = outcome
+                break
+            else:
+                raise ImportFailure("run_incomplete")
+        counts: dict[str, int] = {}
+        for outcome in outcomes.values():
+            counts[outcome] = counts.get(outcome, 0) + 1
+        summary = _object(data["summary"])
+        expected = {
+            "requested": len(afms),
+            "found": sum(1 for o in outcomes.values() if o not in {"quarantined", NOT_FOUND}),
+            "not_found": counts.get(NOT_FOUND, 0),
+            "quarantined": counts.get("quarantined", 0),
+            "attempts": cursor,
+            "companies": companies,
+        }
+        if (
+            cursor != len(attempts)
+            or claimed != outcomes
+            or summary["outcome_counts"] != counts
+            or any(_integer(summary[k], 0, 1000) != v for k, v in expected.items())
+        ):
+            raise ImportFailure("manifest_invalid")
+        return VerifiedSearch(
+            run_id,
+            hashlib.sha256(manifest).hexdigest(),
+            len(afms),
+            cursor,
+            MappingProxyType(outcomes),
+            MappingProxyType(counts),
+            companies,
+            eligible,
+            unconfirmed,
+        )
+    except OSError:
+        raise ImportFailure("archive_invalid") from None
     except (KeyError, IndexError, TypeError, ValueError, RecursionError, OverflowError):
         raise ImportFailure("manifest_invalid") from None

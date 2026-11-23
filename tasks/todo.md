@@ -8,7 +8,7 @@
   branch for `gemi_search.py`, 18 rule breaks all caught.
 - [x] L3 (in review): `nima ingest gemi-afm` on the shared GEMI transport, archive-first; transport tests now run for both request kinds,
   100% of new lines covered, 12 rule breaks caught. No live call. Not in L3: the private AFM file of decision D1 (flags only).
-- [ ] L4: read-only archive verification for search runs.
+- [x] L4 (in review): `nima gemi verify-afm RUN_ID --archive-dir DIR` recomputes every outcome from the original bodies; 16 rule breaks caught, new lines covered. Offline, no live call.
 - [ ] L5: import of hits and `queried_not_found_at_observation` (migration; ask the owner first).
 - [ ] L6: live pilot on the owner's machine (three existing AFMs, one 404, equivalence and latency); amend the spec.
 
