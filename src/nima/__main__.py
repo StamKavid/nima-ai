@@ -42,6 +42,7 @@ from nima.sources.diavgeia import (
     decision_summary,
     decision_url,
 )
+from nima.sources.diavgeia_commitments import CommitmentAdapter, CommitmentQuery
 from nima.storage.gemi import IMPORT_VERSION
 from nima.storage.gemi import import_run as import_gemi
 from nima.storage.gemi_archive import ImportFailure
@@ -154,9 +155,15 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     gemi.add_argument("--archive-dir", type=Path, required=True)
     diavgeia = sources.add_parser(
         "diavgeia",
-        help="Collect Diavgeia award decisions of one organisation and one window of 30 days",
+        help="Collect Diavgeia decisions of one type, one organisation and one window of 30 days",
     )
     diavgeia.add_argument("--database", action="store_true", help="Persist via NIMA_DATABASE_URL")
+    diavgeia.add_argument(
+        "--decision-type",
+        choices=("award", "commitment"),
+        default="award",
+        help="award (Δ.2.2, default) or commitment (Β.1.3)",
+    )
     diavgeia.add_argument("--organization", required=True)
     diavgeia.add_argument("--from-date", type=_date, required=True)
     diavgeia.add_argument("--to-date", type=_date, required=True)
@@ -439,10 +446,13 @@ def main(argv: list[str] | None = None) -> int:
         adapter: DiavgeiaAdapter | None
         if args.source == "diavgeia":
             query, limits = None, Limits()
-            adapter = DiavgeiaAdapter(
-                DiavgeiaQuery(
-                    args.organization, args.from_date.isoformat(), args.to_date.isoformat()
-                )
+            adapter_type, query_type = (
+                (CommitmentAdapter, CommitmentQuery)
+                if args.decision_type == "commitment"
+                else (DiavgeiaAdapter, DiavgeiaQuery)
+            )
+            adapter = adapter_type(
+                query_type(args.organization, args.from_date.isoformat(), args.to_date.isoformat())
             )
         else:
             adapter = None

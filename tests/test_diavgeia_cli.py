@@ -112,3 +112,49 @@ def test_the_engines_default_limits_and_no_database_unless_asked(
     assert seen["database_dsn"] is None
     adapter = seen["adapter"]
     assert adapter.query_payload()["organization"] == "99999"  # type: ignore[attr-defined]
+
+
+def test_the_commitment_type_asks_for_commitments_and_keeps_the_same_safeguards(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    sent: list[httpx.Request] = []
+    row = decision(decisionTypeId="Β.1.3")
+    serve(monkeypatch, search_page(0, 1, 100, [row]), sent)
+    assert main([*arguments(tmp_path), "--decision-type", "commitment"]) == 0
+    summary = json.loads(capsys.readouterr().out)
+    assert (summary["records"], summary["normalized"], summary["quarantined"]) == (1, 1, 0)
+    assert dict(sent[0].url.params)["type"] == "Β.1.3" and sent[0].url.host == "diavgeia.gov.gr"
+    manifest = next((tmp_path / "raw" / "runs").glob("*/manifest.json")).read_text()
+    assert "diavgeia-commitment-search-v1" in manifest
+
+
+def test_the_award_type_is_the_default_and_an_unknown_type_is_refused(tmp_path: Path) -> None:
+    seen: dict[str, object] = {}
+
+    def spy(query: object, limits: Limits, archive: object, **options: object) -> object:
+        seen.update(options)
+        raise RuntimeError("stop before any request")
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr("nima.__main__.collect", spy)
+        with pytest.raises(RuntimeError):
+            main(arguments(tmp_path))
+        assert seen["adapter"].query_payload()["decisionType"] == "Δ.2.2"  # type: ignore[attr-defined]
+        with pytest.raises(RuntimeError):
+            main([*arguments(tmp_path), "--decision-type", "commitment"])
+        assert seen["adapter"].query_payload()["decisionType"] == "Β.1.3"  # type: ignore[attr-defined]
+    with pytest.raises(SystemExit) as caught:
+        main([*arguments(tmp_path), "--decision-type", "payment"])
+    assert caught.value.code == 2
+
+
+def test_an_unsafe_window_is_refused_for_commitments_too(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(
+        "nima.__main__.httpx.Client", lambda: pytest.fail("a client must not be created")
+    )
+    bad = arguments(tmp_path, **{"--to-date": "2026-02-15"})
+    assert main([*bad, "--decision-type", "commitment"]) == 2
+    assert json.loads(capsys.readouterr().out)["failure"] == "configuration"
+    assert not (tmp_path / "raw").exists()
