@@ -482,6 +482,5 @@ def collect_afm(
         limits if limits is not None else GemiLimits(),
         clock if clock is not None else SystemClock(),
     )
-    summary = lookup.execute()
-    assert isinstance(summary, GemiSearchSummary)
-    return summary
+    lookup.execute()
+    return lookup.summary
