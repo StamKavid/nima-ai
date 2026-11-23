@@ -5,6 +5,8 @@ from typing import Literal
 MAX_REPORT_BYTES = 32 * 1024 * 1024
 POLICY_VERSION = "kimdis-identifier-assessment-v1"
 REGISTRY_POLICY_VERSION = "registry-comparison-v1"
+# The same policy once searched AFMs are selected: a looked-up AFM and its hits are evidence too.
+REGISTRY_SEARCH_POLICY_VERSION = "registry-comparison-v2"
 MAX_COMPARISON_MENTIONS = 10000
 MAX_REGISTRY_OBSERVATIONS = 100
 

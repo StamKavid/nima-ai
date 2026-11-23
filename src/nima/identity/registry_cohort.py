@@ -16,12 +16,12 @@ from psycopg import sql
 from nima.identity import MAX_COMPARISON_MENTIONS, MAX_REGISTRY_OBSERVATIONS, ComparisonError
 from nima.identity.cohort import read_cohort_in_transaction
 from nima.identity.policy import Occurrence, PartyClaim
-from nima.identity.registry_policy import RegistryObservation
+from nima.identity.registry_policy import RegistryObservation, SearchOutcome
 from nima.projections.worker import PROJECTION_VERSION
 from nima.sources.gemi import NORMALIZER_VERSION as GEMI_VERSION
 from nima.sources.gemi import Assertion
-from nima.storage.gemi import IMPORT_VERSION
-from nima.storage.gemi_archive import CONTRACT
+from nima.storage.gemi import IMPORT_VERSION, SEARCH_IMPORT_VERSION
+from nima.storage.gemi_archive import CONTRACT, SEARCH_CONTRACT
 from nima.storage.postgres import Connection, _connect, check_schema
 
 MAX_INPUT_BYTES = 8 * 1024 * 1024
@@ -111,6 +111,114 @@ _FIELD_SPECS = (
 )
 
 
+_SEARCH_IMPORT_ROWS = """SELECT jsonb_build_object(
+    'import_id', i.run_id, 'import_version', i.import_version,
+    'connector_version', i.connector_version, 'normalizer_version', i.normalizer_version,
+    'manifest_sha256', i.manifest_sha256, 'source_url', i.source_url, 'license', i.license,
+    'publisher', i.publisher, 'imported_at', i.imported_at, 'afm_count', i.afm_count,
+    'request_count', i.request_count, 'hit_count', i.hit_count,
+    'unconfirmed_quarantine_count', i.unconfirmed_quarantine_count) AS payload,
+    i.import_version=%s AND i.connector_version=%s AND i.normalizer_version=%s
+        AND i.source_url=%s AND i.license=%s AND i.publisher=%s AS supported,
+    i.afm_count=(SELECT count(*) FROM nima.gemi_search_outcomes o WHERE o.run_id=i.run_id)
+    AND i.request_count=(SELECT count(*) FROM nima.gemi_search_requests r WHERE r.run_id=i.run_id)
+    AND i.hit_count=(SELECT count(*) FROM nima.gemi_search_hits h WHERE h.run_id=i.run_id)
+    AND i.unconfirmed_quarantine_count=(SELECT count(*) FROM nima.gemi_search_outcomes o
+        WHERE o.run_id=i.run_id AND o.unconfirmed_quarantine) AS complete,
+    i.hit_count AS observations
+    FROM nima.gemi_search_imports i WHERE i.run_id=ANY(%s)"""
+_SEARCH_PARAMETERS = (
+    SEARCH_IMPORT_VERSION,
+    SEARCH_CONTRACT["connector_version"],
+    GEMI_VERSION,
+    CONTRACT["source"],
+    CONTRACT["license"],
+    CONTRACT["publisher"],
+)
+
+_SEARCH_QUERY_ROWS = """SELECT jsonb_build_object(
+    'import_id', o.run_id, 'afm', o.afm, 'outcome', o.outcome, 'truncated', o.truncated,
+    'unconfirmed_quarantine', o.unconfirmed_quarantine, 'hit_count', o.hit_count,
+    'attempt', o.attempt, 'status', o.status, 'raw_sha256', o.raw_sha256,
+    'observed_at', o.observed_at) AS payload,
+    r.run_id IS NOT NULL AND b.sha256 IS NOT NULL AND r.failure IS NULL
+        AND r.status=o.status AND o.hit_count=(SELECT count(*) FROM nima.gemi_search_hits h
+            WHERE h.run_id=o.run_id AND h.afm=o.afm) AS valid
+    FROM nima.gemi_search_outcomes o
+    LEFT JOIN nima.gemi_search_requests r ON r.run_id=o.run_id AND r.afm=o.afm
+        AND r.attempt=o.attempt AND r.status=o.status AND r.raw_sha256=o.raw_sha256
+        AND r.observed_at=o.observed_at
+    LEFT JOIN nima.raw_objects b ON b.sha256=o.raw_sha256 AND b.byte_length=r.byte_length
+    WHERE o.run_id=ANY(%s)"""
+
+_SEARCH_HIT_ROWS = """SELECT jsonb_build_object(
+    'import_id', h.run_id, 'queried_afm', h.afm, 'hit_index', h.hit_index,
+    'registry_number', h.registry_number, 'afm_matches', h.afm_matches,
+    'outcome', 'found', 'attempt', o.attempt, 'status', o.status, 'raw_sha256', h.raw_sha256,
+    'observed_at', o.observed_at, 'source_id', h.source_id,
+    'normalizer_version', h.normalizer_version,
+    'fields', jsonb_build_object(
+        'registry_number', v.normalized->'fields'->'registry_number',
+        'reported_afm', v.normalized->'fields'->'reported_afm',
+        'name_el', v.normalized->'fields'->'name_el',
+        'legal_type_id', v.normalized->'fields'->'legal_type_id',
+        'legal_type_label', v.normalized->'fields'->'legal_type_label',
+        'status_id', v.normalized->'fields'->'status_id',
+        'status_label', v.normalized->'fields'->'status_label',
+        'is_branch', v.normalized->'fields'->'is_branch',
+        'auto_registered', v.normalized->'fields'->'auto_registered',
+        'incorporation_date', v.normalized->'fields'->'incorporation_date',
+        'last_status_change', v.normalized->'fields'->'last_status_change')) AS payload,
+    r.run_id IS NOT NULL AND b.sha256 IS NOT NULL AND r.failure IS NULL AND o.status=200
+        AND o.outcome IN ('hit_single','hit_multiple','truncated','afm_mismatch')
+        AND h.normalizer_version=%s AND v.source_id IS NOT NULL
+        AND v.normalized->>'source_id'=v.source_id
+        AND v.normalized->>'normalizer_version'=v.normalizer_version
+        AND v.normalized->>'response_sha256'=v.raw_sha256 AS valid
+    FROM nima.gemi_search_hits h
+    JOIN nima.gemi_search_outcomes o ON o.run_id=h.run_id AND o.afm=h.afm
+    LEFT JOIN nima.gemi_search_requests r ON r.run_id=o.run_id AND r.afm=o.afm
+        AND r.attempt=o.attempt AND r.status=o.status AND r.raw_sha256=o.raw_sha256
+        AND r.observed_at=o.observed_at
+    LEFT JOIN nima.raw_objects b ON b.sha256=h.raw_sha256 AND b.byte_length=r.byte_length
+    LEFT JOIN nima.gemi_profile_versions v ON v.source_id=h.source_id
+        AND v.normalizer_version=h.normalizer_version AND v.raw_sha256=h.raw_sha256
+    WHERE h.run_id=ANY(%s)"""
+
+
+@dataclass(frozen=True)
+class SearchImportEvidence:
+    import_id: UUID
+    import_version: str
+    connector_version: str
+    normalizer_version: str
+    manifest_sha256: str
+    source_url: str
+    license: str
+    publisher: str
+    imported_at: str
+    afm_count: int
+    request_count: int
+    hit_count: int
+    unconfirmed_quarantine_count: int
+
+
+@dataclass(frozen=True)
+class SearchQueryEvidence:
+    """What searching one AFM answered. A 404 is a statement about one observation."""
+
+    import_id: UUID
+    afm: str
+    outcome: SearchOutcome
+    truncated: bool
+    unconfirmed_quarantine: bool
+    hit_count: int
+    attempt: int
+    status: int
+    raw_sha256: str
+    observed_at: str
+
+
 @dataclass(frozen=True)
 class ImportEvidence:
     import_id: UUID
@@ -175,6 +283,8 @@ class ComparisonCohort:
     parties: tuple[PartyEvidence, ...]
     imports: tuple[ImportEvidence, ...]
     registry: tuple[RegistryEvidence, ...]
+    search_imports: tuple[SearchImportEvidence, ...] = ()
+    search_queries: tuple[SearchQueryEvidence, ...] = ()
 
 
 def _configuration(run: UUID, imports: Sequence[UUID], version: str, max_mentions: int) -> None:
@@ -198,13 +308,17 @@ def read_comparison_cohort(
     *,
     max_mentions: int = MAX_COMPARISON_MENTIONS,
 ) -> ComparisonCohort:
+    """Select profile imports and imported AFM searches by the same explicit UUIDs."""
     _configuration(run, gemi_imports, version, max_mentions)
-    imports = tuple(sorted(gemi_imports, key=lambda selected: selected.int))
+    selected = tuple(sorted(gemi_imports, key=lambda item: item.int))
     check_schema(dsn)
     with _connect(dsn) as connection, connection.transaction():
         connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
         connection.execute("SET LOCAL TIME ZONE 'UTC'")
-        reserved = _preflight(connection, run, imports, version)
+        imports, searches = _kinds(connection, selected)
+        reserved = _preflight(connection, run, imports, version) + _search_preflight(
+            connection, searches
+        )
         if reserved >= MAX_INPUT_BYTES:
             raise ComparisonError("comparison_limit")
         coverage, members = read_cohort_in_transaction(
@@ -214,49 +328,80 @@ def read_comparison_cohort(
             max_mentions,
             max_input_bytes=MAX_INPUT_BYTES - reserved,
         )
+        registry = _registry_evidence(connection, imports) + _search_hits(connection, searches)
+        if len(registry) > MAX_REGISTRY_OBSERVATIONS:  # profile and search rows together
+            raise ComparisonError("comparison_limit")
         result = ComparisonCohort(
             run,
             version,
             MappingProxyType(coverage),
             _parties(connection, run, version, members),
             _imports(connection, imports),
-            _registry_evidence(connection, imports),
+            tuple(sorted(registry, key=_registry_order)),
+            _search_imports(connection, searches),
+            _search_queries(connection, searches),
         )
     return result
 
 
+def _registry_order(item: RegistryEvidence) -> tuple[int, str, str]:
+    claim = item.claim
+    return claim.import_id.int, claim.registry_number, claim.queried_afm or ""
+
+
+def _kinds(
+    connection: Connection, selected: tuple[UUID, ...]
+) -> tuple[tuple[UUID, ...], tuple[UUID, ...]]:
+    """Split the selected ids into profile imports and search imports.
+
+    An id that is a search import is read as one; every other id is left to the profile checks,
+    which refuse an id that is not an import at all.
+    """
+    rows = connection.execute(
+        "SELECT run_id FROM nima.gemi_search_imports WHERE run_id=ANY(%s)", (list(selected),)
+    ).fetchall()
+    searches = {cast(UUID, row[0]) for row in rows}
+    return (
+        tuple(item for item in selected if item not in searches),
+        tuple(item for item in selected if item in searches),
+    )
+
+
 def _preflight(connection: Connection, run: UUID, imports: tuple[UUID, ...], version: str) -> int:
-    count, supported, complete, expected, import_bytes = cast(
-        tuple[int, bool, bool, int, int],
-        connection.execute(
-            sql.SQL(
-                "SELECT count(*), coalesce(bool_and(supported), false), "
-                "coalesce(bool_and(complete), false), coalesce(sum(observations), 0), "
-                "coalesce(sum(octet_length(payload::text)), 0) FROM ({}) selected"
-            ).format(sql.SQL(_IMPORT_ROWS)),
-            (*_IMPORT_PARAMETERS, list(imports)),
-        ).fetchone(),
-    )
-    if count != len(imports):
-        raise ComparisonError("registry_import_unavailable")
-    if not supported:
-        raise ComparisonError("registry_version")
-    if not complete:
-        raise ComparisonError("registry_incomplete")
-    if expected > MAX_REGISTRY_OBSERVATIONS:
-        raise ComparisonError("comparison_limit")
-    observations, invalid, registry_bytes = cast(
-        tuple[int, int, int],
-        connection.execute(
-            sql.SQL(
-                "SELECT count(*), count(*) FILTER (WHERE valid IS NOT TRUE), "
-                "coalesce(sum(octet_length(payload::text)), 0) FROM ({}) selected"
-            ).format(sql.SQL(_REGISTRY_ROWS)),
-            (GEMI_VERSION, list(imports)),
-        ).fetchone(),
-    )
-    if observations != expected or invalid:
-        raise ComparisonError("registry_incomplete")
+    """Check the selected profile imports; with none selected only the dates are measured."""
+    expected = import_bytes = registry_bytes = 0
+    if imports:
+        count, supported, complete, expected, import_bytes = cast(
+            tuple[int, bool, bool, int, int],
+            connection.execute(
+                sql.SQL(
+                    "SELECT count(*), coalesce(bool_and(supported), false), "
+                    "coalesce(bool_and(complete), false), coalesce(sum(observations), 0), "
+                    "coalesce(sum(octet_length(payload::text)), 0) FROM ({}) selected"
+                ).format(sql.SQL(_IMPORT_ROWS)),
+                (*_IMPORT_PARAMETERS, list(imports)),
+            ).fetchone(),
+        )
+        if count != len(imports):
+            raise ComparisonError("registry_import_unavailable")
+        if not supported:
+            raise ComparisonError("registry_version")
+        if not complete:
+            raise ComparisonError("registry_incomplete")
+        if expected > MAX_REGISTRY_OBSERVATIONS:
+            raise ComparisonError("comparison_limit")
+        observations, invalid, registry_bytes = cast(
+            tuple[int, int, int],
+            connection.execute(
+                sql.SQL(
+                    "SELECT count(*), count(*) FILTER (WHERE valid IS NOT TRUE), "
+                    "coalesce(sum(octet_length(payload::text)), 0) FROM ({}) selected"
+                ).format(sql.SQL(_REGISTRY_ROWS)),
+                (GEMI_VERSION, list(imports)),
+            ).fetchone(),
+        )
+        if observations != expected or invalid:
+            raise ComparisonError("registry_incomplete")
     date_bytes = cast(
         tuple[int],
         connection.execute(
@@ -269,7 +414,55 @@ def _preflight(connection: Connection, run: UUID, imports: tuple[UUID, ...], ver
     return import_bytes + registry_bytes + date_bytes + _COVERAGE_RESERVE
 
 
+def _search_preflight(connection: Connection, searches: tuple[UUID, ...]) -> int:
+    """Check the selected search imports the same way; returns the bytes they will add."""
+    if not searches:
+        return 0
+    supported, complete, hits, size = cast(
+        tuple[bool, bool, int, int],
+        connection.execute(
+            sql.SQL(
+                "SELECT coalesce(bool_and(supported), false), "
+                "coalesce(bool_and(complete), false), coalesce(sum(observations), 0), "
+                "coalesce(sum(octet_length(payload::text)), 0) FROM ({}) selected"
+            ).format(sql.SQL(_SEARCH_IMPORT_ROWS)),
+            (*_SEARCH_PARAMETERS, list(searches)),
+        ).fetchone(),
+    )
+    if not supported:
+        raise ComparisonError("registry_version")
+    if not complete:
+        raise ComparisonError("registry_incomplete")
+    if hits > MAX_REGISTRY_OBSERVATIONS:
+        raise ComparisonError("comparison_limit")
+    invalid, hit_bytes = cast(
+        tuple[int, int],
+        connection.execute(
+            sql.SQL(
+                "SELECT count(*) FILTER (WHERE valid IS NOT TRUE), "
+                "coalesce(sum(octet_length(payload::text)), 0) FROM ({}) selected"
+            ).format(sql.SQL(_SEARCH_HIT_ROWS)),
+            (GEMI_VERSION, list(searches)),
+        ).fetchone(),
+    )
+    bad_queries, query_bytes = cast(
+        tuple[int, int],
+        connection.execute(
+            sql.SQL(
+                "SELECT count(*) FILTER (WHERE valid IS NOT TRUE), "
+                "coalesce(sum(octet_length(payload::text)), 0) FROM ({}) selected"
+            ).format(sql.SQL(_SEARCH_QUERY_ROWS)),
+            (list(searches),),
+        ).fetchone(),
+    )
+    if invalid or bad_queries:
+        raise ComparisonError("registry_incomplete")
+    return size + hit_bytes + query_bytes
+
+
 def _imports(connection: Connection, imports: tuple[UUID, ...]) -> tuple[ImportEvidence, ...]:
+    if not imports:
+        return ()
     rows = connection.execute(
         sql.SQL("SELECT payload FROM ({}) selected").format(sql.SQL(_IMPORT_ROWS)),
         (*_IMPORT_PARAMETERS, list(imports)),
@@ -298,6 +491,8 @@ def _imports(connection: Connection, imports: tuple[UUID, ...]) -> tuple[ImportE
 def _registry_evidence(
     connection: Connection, imports: tuple[UUID, ...]
 ) -> tuple[RegistryEvidence, ...]:
+    if not imports:
+        return ()
     rows = connection.execute(
         sql.SQL("SELECT payload FROM ({}) selected").format(sql.SQL(_REGISTRY_ROWS)),
         (GEMI_VERSION, list(imports)),
@@ -329,9 +524,127 @@ def _registry_evidence(
                 fields,
             )
         )
-    return tuple(
-        sorted(result, key=lambda item: (item.claim.import_id.int, item.claim.registry_number))
-    )
+    return tuple(result)
+
+
+def _search_imports(
+    connection: Connection, searches: tuple[UUID, ...]
+) -> tuple[SearchImportEvidence, ...]:
+    if not searches:
+        return ()
+    rows = connection.execute(
+        sql.SQL("SELECT payload FROM ({}) selected").format(sql.SQL(_SEARCH_IMPORT_ROWS)),
+        (*_SEARCH_PARAMETERS, list(searches)),
+    ).fetchall()
+    result = []
+    for row in rows:
+        data = _object(row[0])
+        result.append(
+            SearchImportEvidence(
+                _uuid(data["import_id"]),
+                _required(data["import_version"]),
+                _required(data["connector_version"]),
+                _required(data["normalizer_version"]),
+                _required(data["manifest_sha256"]),
+                _required(data["source_url"]),
+                _required(data["license"]),
+                _required(data["publisher"]),
+                _when(data["imported_at"]),
+                _integer(data["afm_count"]),
+                _integer(data["request_count"]),
+                _integer(data["hit_count"]),
+                _integer(data["unconfirmed_quarantine_count"]),
+            )
+        )
+    return tuple(sorted(result, key=lambda item: item.import_id.int))
+
+
+_SEARCH_OUTCOME_NAMES = frozenset(
+    {
+        "hit_single",
+        "hit_multiple",
+        "truncated",
+        "afm_mismatch",
+        "not_found_at_observation",
+        "quarantined",
+    }
+)
+
+
+def _flag(value: object) -> bool:
+    if type(value) is not bool:
+        raise ComparisonError("registry_shape")
+    return value
+
+
+def _search_queries(
+    connection: Connection, searches: tuple[UUID, ...]
+) -> tuple[SearchQueryEvidence, ...]:
+    if not searches:
+        return ()
+    rows = connection.execute(
+        sql.SQL("SELECT payload FROM ({}) selected").format(sql.SQL(_SEARCH_QUERY_ROWS)),
+        (list(searches),),
+    ).fetchall()
+    result = []
+    for row in rows:
+        data = _object(row[0])
+        outcome = _required(data["outcome"])
+        if outcome not in _SEARCH_OUTCOME_NAMES:
+            raise ComparisonError("registry_shape")
+        result.append(
+            SearchQueryEvidence(
+                _uuid(data["import_id"]),
+                _required(data["afm"]),
+                cast(SearchOutcome, outcome),
+                _flag(data["truncated"]),
+                _flag(data["unconfirmed_quarantine"]),
+                _integer(data["hit_count"]),
+                _integer(data["attempt"]),
+                _integer(data["status"]),
+                _required(data["raw_sha256"]),
+                _when(data["observed_at"]),
+            )
+        )
+    return tuple(sorted(result, key=lambda item: (item.import_id.int, item.afm)))
+
+
+def _search_hits(
+    connection: Connection, searches: tuple[UUID, ...]
+) -> tuple[RegistryEvidence, ...]:
+    if not searches:
+        return ()
+    rows = connection.execute(
+        sql.SQL("SELECT payload FROM ({}) selected").format(sql.SQL(_SEARCH_HIT_ROWS)),
+        (GEMI_VERSION, list(searches)),
+    ).fetchall()
+    result = []
+    for row in rows:
+        data = _object(row[0])
+        import_id, number = _uuid(data["import_id"]), _required(data["registry_number"])
+        index = _integer(data["hit_index"])
+        fields = _fields(data["fields"], number, f"/searchResults/{index}")
+        claim = RegistryObservation(
+            import_id,
+            number,
+            "found",
+            _text(fields["reported_afm"].value),
+            _required(data["queried_afm"]),
+            _flag(data["afm_matches"]),
+        )
+        result.append(
+            RegistryEvidence(
+                claim,
+                _integer(data["attempt"]),
+                _integer(data["status"]),
+                _required(data["raw_sha256"]),
+                _when(data["observed_at"]),
+                _text(data["source_id"]),
+                _text(data["normalizer_version"]),
+                fields,
+            )
+        )
+    return tuple(result)
 
 
 def _parties(
@@ -448,7 +761,7 @@ def _scalar(value: object, kind: str) -> str | int | bool | None:
     raise ComparisonError("registry_shape")
 
 
-def _fields(value: object, number: str) -> Mapping[str, Assertion]:
+def _fields(value: object, number: str, prefix: str = "") -> Mapping[str, Assertion]:
     raw = _object(value)
     result = {}
     for name, pointer, kind in _FIELD_SPECS:
@@ -460,9 +773,9 @@ def _fields(value: object, number: str) -> Mapping[str, Assertion]:
         if location is None:
             if parsed is not None:
                 raise ComparisonError("registry_shape")
-        elif location != pointer:
+        elif location != prefix + pointer:
             raise ComparisonError("registry_shape")
-        result[name] = Assertion(parsed, None if location is None else pointer)
+        result[name] = Assertion(parsed, None if location is None else prefix + pointer)
     if str(result["registry_number"].value) != number:
         raise ComparisonError("registry_shape")
     return MappingProxyType(result)

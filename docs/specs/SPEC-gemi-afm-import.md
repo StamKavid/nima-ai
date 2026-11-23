@@ -1,6 +1,6 @@
 # Spec: importing GEMI AFM search runs into SQL (slice L5)
 
-Status: **approved 2026-11-23; L5-1 to L5-5 decided as recommended. L5a built and in review: its migration SQL (`0014.sql`) is reviewed in its own PR before it merges or runs on any database.**
+Status: **approved 2026-11-23; L5-1 to L5-5 decided as recommended. L5a delivered (#215); L5b in review.**
 Part of [SPEC-gemi-afm-lookup](SPEC-gemi-afm-lookup.md); depends on its L1 to L4 and L6, all delivered.
 
 ## Objective
