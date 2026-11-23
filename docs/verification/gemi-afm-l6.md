@@ -22,7 +22,8 @@ because PowerShell had dropped the leading zero of unquoted AFMs; nothing was se
 - **No match is a 404**, as documented, not an empty list.
 - **Branches repeat the head office AFM.** Each searched AFM returned one head office and 1 to 4 branches (5, 2
   and 5 hits), and every hit reported the queried AFM. The spec's open question is answered.
-- **Deleted registrations are returned.** 3 of the 12 hits carry a deletion status (one by merger). They are
+- **Deleted registrations are returned.** 4 of the 12 hits carry a deletion status (one of them by merger; corrected from 3 on
+  2026-11-23 after the L5c recount). They are
   evidence of history, not a current company, and any comparison must keep their status.
 - **No result was truncated** (`totalCount` at most the 20 requested).
 - **Equivalence of a hit and its profile (D3):** for the 3 head offices, every normalized field is equal. In
