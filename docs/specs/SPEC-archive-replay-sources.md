@@ -1,6 +1,6 @@
 # Source-aware archive replay and promotion
 
-Status: draft for owner review (2026-11-23). No code until the decisions below are made.
+Status: approved 2026-11-23; R1 to R4 decided as recommended. R1 slice not started.
 
 ## Objective
 
@@ -63,6 +63,8 @@ award and commitment records into one economic event; real decisions in Git.
 Each slice is one review-ready PR. R2 contains the owner's live steps and needs a local database.
 
 ## Decisions for the owner
+
+R1 to R4 are decided as recommended (owner, 2026-11-23).
 
 | # | Decision | Recommendation |
 |---|---|---|
