@@ -1,6 +1,6 @@
 # Spec: importing GEMI AFM search runs into SQL (slice L5)
 
-Status: **approved 2026-11-23; L5-1 to L5-5 decided as recommended. L5a delivered (#215), L5b delivered (#216), L5c recorded; decision L5c-1 open.**
+Status: **approved 2026-11-23; L5-1 to L5-5 decided as recommended. L5a delivered (#215), L5b delivered (#216), L5c recorded; decision L5c-1 (branches are not a conflict) decided as recommended and delivered.**
 Part of [SPEC-gemi-afm-lookup](SPEC-gemi-afm-lookup.md); depends on its L1 to L4 and L6, all delivered.
 
 ## Objective
@@ -56,7 +56,7 @@ rejects. Review of a search-found match is deferred (decision L5-2).
   `gemi-company-v1`, the search response hash), the same way profiles are. Its payload keeps the pointer
   `/searchResults/<i>/...`, so the evidence location stays exact.
 - **Not imported:** quarantined answers (counted, no rows), failed or incomplete runs, derived files.
-- **Comparison (`registry-comparison-v1` successor):** `identities compare` accepts search imports beside profile
+- **Comparison (`registry-comparison-v3`; v2 added searches, v3 made branches not a conflict, L5c-1):** `identities compare` accepts search imports beside profile
   imports, by the same explicit UUID list. A hit is a registry observation when `afm_matches` is true. A hit
   that reports a different AFM stays evidence and is never an agreement. A new outcome,
   `queried_not_found_at_observation`, replaces "no candidate" when the party's AFM was searched and answered

@@ -22,9 +22,15 @@ A, B, C, D, E = "100000001", "100000002", "100000003", "100000004", "100000005"
 
 
 def hit(
-    number: str, reported: str | None, queried: str, *, matches: bool = True, run: UUID = RUN
+    number: str,
+    reported: str | None,
+    queried: str,
+    *,
+    matches: bool = True,
+    run: UUID = RUN,
+    branch: bool | None = None,
 ) -> RegistryObservation:
-    return RegistryObservation(run, number, "found", reported, queried, matches)
+    return RegistryObservation(run, number, "found", reported, queried, matches, branch)
 
 
 def query(afm: str, outcome: str, *, truncated: bool = False, run: UUID = RUN) -> SearchQuery:
@@ -35,7 +41,7 @@ def query(afm: str, outcome: str, *, truncated: bool = False, run: UUID = RUN) -
 HITS = (
     hit("1", A, A),
     hit("2", B, B),
-    hit("3", B, B),
+    hit("3", B, B, branch=True),
     hit("5", "999999999", D, matches=False),
     hit("6", E, E),
     hit("7", E, E),
@@ -57,11 +63,7 @@ def test_the_five_afm_example_gives_one_outcome_per_party() -> None:
     ]
     assert outcomes == [
         ("reported_identifier_agreement", (0,), ()),
-        (
-            "reported_identifier_agreement",
-            (1, 2),
-            ("multiple_registry_numbers_for_reported_afm",),
-        ),
+        ("reported_identifier_agreement", (1, 2), ()),
         ("queried_not_found_at_observation", (), ()),
         ("no_candidate_in_selected_imports", (), ("search_afm_mismatch",)),
         (
@@ -72,7 +74,7 @@ def test_the_five_afm_example_gives_one_outcome_per_party() -> None:
         ("unassessed_identifier", (), ()),
     ]
     assert result.automatic_identity_links == 0
-    assert result.policy_version == "registry-comparison-v2"
+    assert result.policy_version == "registry-comparison-v3"
 
 
 def test_a_mismatching_hit_is_kept_as_evidence_and_never_an_agreement() -> None:
@@ -132,7 +134,7 @@ def test_input_without_search_evidence_is_exactly_the_old_comparison() -> None:
     )
     old = compare(parties, observations)
     assert compare(parties, observations, ()) == old
-    assert old.policy_version == "registry-comparison-v1"
+    assert old.policy_version == "registry-comparison-v3"
     assert [row.outcome for row in old.comparisons] == [
         "reported_identifier_agreement",
         "unassessed_identifier",

@@ -12,7 +12,7 @@
 - [ ] L5: import of hits and `queried_not_found_at_observation` (migration; ask the owner first). Design: [SPEC-gemi-afm-import](../docs/specs/SPEC-gemi-afm-import.md); L5-1 to L5-5 decided as recommended
   2026-11-23. L5a delivered (#215: migration 0014, `nima gemi import-afm`). L5b delivered (#216): `identities compare` reads search imports
   (policy `registry-comparison-v2`, outcome `queried_not_found_at_observation`); no migration. L5c run offline on the L6 archives
-  (`docs/verification/gemi-afm-l5c.md`); decision L5c-1 on the branch issue is open.
+  (`docs/verification/gemi-afm-l5c.md`); decision L5c-1 (branches are not a conflict) decided as recommended; policy `registry-comparison-v3` in review.
 - [x] L6 (2026-11-23, in review): live pilot run by the owner; three listed legal entities, 12 hits all matching the AFM, profile equivalence
   holds (title order aside), latency measured, 404 observed; spec amended (`docs/verification/gemi-afm-l6.md`). Next: L5 needs migration approval.
 

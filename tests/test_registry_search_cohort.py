@@ -103,11 +103,14 @@ def test_the_report_gives_each_party_its_outcome_and_marks_the_searched_afms(
         )
     )
     assert report["report_format"] == "nima-registry-comparison-report-v2"
-    assert report["policy_version"] == "registry-comparison-v2"
+    assert report["policy_version"] == "registry-comparison-v3"
     assert report["automatic_identity_links"] == 0 and report["registry_imports"] == []
     outcomes = supplier_outcomes(report)
     assert outcomes[A][0] == "reported_identifier_agreement" and outcomes[A][2] == ()
+    # B is a head office with one branch: an ordinary agreement. E has two head offices.
     assert outcomes[B][0] == "reported_identifier_agreement" and len(outcomes[B][1]) == 2
+    assert outcomes[B][2] == ()
+    assert "multiple_registry_numbers_for_reported_afm" in outcomes[E][2]
     assert outcomes[C] == ("queried_not_found_at_observation", (), ())
     assert outcomes[D] == ("no_candidate_in_selected_imports", (), ("search_afm_mismatch",))
     assert (
@@ -340,7 +343,7 @@ def test_the_compare_command_accepts_a_search_import_and_prints_counts_only(
     assert main(arguments) == 0
     printed = capsys.readouterr().out
     summary = json.loads(printed)
-    assert summary["status"] == "complete" and summary["policy_version"] == "registry-comparison-v2"
+    assert summary["status"] == "complete" and summary["policy_version"] == "registry-comparison-v3"
     assert summary["search_import_ids"] == [str(selected)] and summary["gemi_import_ids"] == []
     assert summary["searched_afm_count"] == 5 and summary["automatic_identity_links"] == 0
     assert A not in printed and B not in printed

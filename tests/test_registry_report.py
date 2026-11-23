@@ -85,7 +85,7 @@ def test_catalog_references_preserve_repeated_versions_and_original_provenance()
     inputs = cohort()
     report = json.loads(artifacts.encode(registry_report.build_report(inputs)))
     assert report["report_format"] == "nima-registry-comparison-report-v1"
-    assert report["policy_version"] == "registry-comparison-v1"
+    assert report["policy_version"] == "registry-comparison-v3"
     assert report["archive_integrity"] == "not_checked" and report["automatic_identity_links"] == 0
     rows = report["occurrences"]
     assert [row["observation_id"] for row in rows] == [1, 2]

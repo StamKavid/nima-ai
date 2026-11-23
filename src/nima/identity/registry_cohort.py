@@ -505,7 +505,11 @@ def _registry_evidence(
         if data["outcome"] == "found":
             fields = _fields(data["fields"], number)
             claim = RegistryObservation(
-                import_id, number, "found", _text(fields["reported_afm"].value)
+                import_id,
+                number,
+                "found",
+                _text(fields["reported_afm"].value),
+                is_branch=_branch(fields),
             )
         elif data["outcome"] == "not_found_at_observation" and data["fields"] is None:
             fields = MappingProxyType({})
@@ -571,6 +575,12 @@ _SEARCH_OUTCOME_NAMES = frozenset(
 )
 
 
+def _branch(fields: Mapping[str, Assertion]) -> bool | None:
+    """The registry's own is_branch flag; None means the profile did not say. The field reader has
+    already refused anything that is neither a boolean nor null."""
+    return cast(bool | None, fields["is_branch"].value)
+
+
 def _flag(value: object) -> bool:
     if type(value) is not bool:
         raise ComparisonError("registry_shape")
@@ -631,6 +641,7 @@ def _search_hits(
             _text(fields["reported_afm"].value),
             _required(data["queried_afm"]),
             _flag(data["afm_matches"]),
+            _branch(fields),
         )
         result.append(
             RegistryEvidence(
