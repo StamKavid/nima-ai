@@ -34,8 +34,8 @@ now adds `source_id` from the adapter's own record id when the key is absent. KI
 change to a replay layout and is called out for the owner at review. Before it, promotion of a Diavgeia run
 failed with a missing key.
 
-Not known (settled by R1: `adapter_for` builds an adapter that can normalise without a query): whether `adapter_for("diavgeia")` builds an adapter that can normalise a page without a query. The first
-pilot's replay called the adapter directly. Slice R1 settles it with a test before any other work.
+Settled by R1: `adapter_for("diavgeia")` and `adapter_for("diavgeia-commitment")` build adapters that normalise a
+page without a query, so replay needs no saved query.
 
 ## Behaviour
 
