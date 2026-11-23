@@ -178,7 +178,18 @@ Run record: connector `gemi-afm-search-v1`, normalizer `gemi-company-v1`, an `af
 per AFM (`hit_single`, `hit_multiple`, `truncated`, `afm_mismatch`, `not_found_at_observation`,
 `quarantined`). Every returned company is kept as its own normalized row with `afm_matches` and
 `truncated`; none is chosen. The summary prints counts only (`found` is AFMs with a hit, `companies`
-the hits). A search run is not importable as a profile run until slice L4.
+the hits). A search run is not importable as a profile run.
+
+Verify a finished search run offline, with no key, database or request:
+
+```bash
+uv run --frozen python -m nima gemi verify-afm RUN_ID --archive-dir data/gemi-afm
+```
+
+It recomputes every AFM's outcome from the archived response bodies and requires the manifest's outcomes
+and counts to match; derived files are not trusted. The response media type is not archived, so a
+quarantine that rests on it alone is accepted for a 200 answer and reported as `unconfirmed_quarantines`.
+Output is counts only; failures use the fixed archive reasons.
 
 ## Integration, stack and style
 

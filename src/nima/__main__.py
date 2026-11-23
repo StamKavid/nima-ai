@@ -52,7 +52,7 @@ from nima.sources.diavgeia_commitments import CommitmentAdapter, CommitmentQuery
 from nima.sources.gemi_search import parse_search, queryable_afm
 from nima.storage.gemi import IMPORT_VERSION
 from nima.storage.gemi import import_run as import_gemi
-from nima.storage.gemi_archive import ImportFailure
+from nima.storage.gemi_archive import ImportFailure, verify_search_run
 from nima.storage.postgres import CheckpointError, MigrationError, migrate
 from nima.storage.runs import inspect_run
 
@@ -117,6 +117,11 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     )
     archived.add_argument("run_id", type=UUID)
     archived.add_argument("--archive-dir", type=Path, required=True)
+    checked = registry.add_parser(
+        "verify-afm", help="Verify one search archive from its original bytes, offline"
+    )
+    checked.add_argument("run_id", type=UUID)
+    checked.add_argument("--archive-dir", type=Path, required=True)
     identities = commands.add_parser("identities").add_subparsers(dest="operation", required=True)
     assess = identities.add_parser("assess", help="Assess one projected run offline")
     assess.add_argument("run_id", type=UUID)
@@ -266,6 +271,34 @@ def _import_gemi(run_id: UUID, archive_root: Path) -> int:
     return code
 
 
+def _verify_afm(run_id: UUID, archive_root: Path) -> int:
+    try:
+        verified = verify_search_run(archive_root, run_id, _GEMI_SEARCH)
+    except ImportFailure as exc:
+        print(json.dumps({"status": "failed", "failure": exc.reason}))
+        return 1
+    except KeyboardInterrupt:
+        print(json.dumps({"status": "failed", "failure": "interrupted"}))
+        return 130
+    print(
+        json.dumps(
+            {
+                "status": "verified",
+                "run_id": run_id.hex,
+                "requested": verified.requested,
+                "attempts": verified.attempts,
+                "outcome_counts": dict(verified.outcome_counts),
+                "companies": verified.companies,
+                "eligible_hits": verified.eligible_hits,
+                "unconfirmed_quarantines": verified.unconfirmed_quarantines,
+                "manifest_sha256": verified.manifest_sha256,
+            },
+            allow_nan=False,
+        )
+    )
+    return 0
+
+
 def _compare(args: argparse.Namespace) -> int:
     code = 0
     try:
@@ -407,6 +440,8 @@ def main(argv: list[str] | None = None) -> int:
             buyers=tuple(getattr(args, "buyer_id", [])),
         )
     if args.command == "gemi":
+        if args.operation == "verify-afm":
+            return _verify_afm(args.run_id, args.archive_dir)
         return _import_gemi(args.run_id, args.archive_dir)
     try:
         if args.command == "identities":
