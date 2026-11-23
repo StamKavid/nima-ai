@@ -40,7 +40,7 @@ live checks the same day:
   about 29 s to the first byte and 33 s in total. Search latency for small companies is not yet
   measured.
 - The same AFM can belong to more than one registry record (a head office and its branches carry
-  separate registry numbers); whether branches repeat the head office AFM is **not verified**.
+  separate registry numbers); branches repeat the head office AFM (verified in L6).
 
 ## Assumptions (correct me before I proceed)
 
@@ -189,6 +189,23 @@ Every outcome in the table is reachable and tested; a verified archive reproduce
 table from original bytes; the existing comparison produces identical results for inputs that
 contain no search evidence; no hit is ever selected automatically; the live pilot records the
 equivalence and latency findings honestly, including a failure if there is one.
+
+## L6 findings (2026-11-23)
+
+Recorded in [the L6 record](../verification/gemi-afm-l6.md). They settle the following:
+
+- **Assumption 3 holds for these three companies.** A search hit equals the profile fetched by registry number
+  in every normalized field; the title lists (`titles_el`, `titles_en`) can differ in order only. Under D3 a hit
+  can be used directly as profile evidence. Titles must then be compared as sets, not as sequences.
+- **Branches repeat the head office AFM** (verified on three AFMs: one head office plus 1 to 4 branches), so
+  `hit_multiple` is the normal answer for a company with branches, not an exception.
+- **Deleted registrations are returned** in a search; their status is kept and a deleted entry is never a
+  current company.
+- **D4 run budget, measured:** search 4 to 10.5 s, profile 2.4 to 6.1 s. At 7.5 s spacing a 25-AFM run of
+  large companies takes roughly 190 to 260 s, close to the 300 s ceiling. Recommendation: keep 25 AFMs and the
+  300 s run budget; a stop on `time_budget` is clean and the remaining AFMs can be searched in a second run.
+  Not changed; the owner can raise it.
+- **Not a safe probe:** a wrong-check-digit AFM can exist in the registry. Personal AFMs must not be queried.
 
 ## Decisions (recorded 2026-11-20)
 

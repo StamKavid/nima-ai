@@ -10,7 +10,8 @@
   100% of new lines covered, 12 rule breaks caught. No live call. Not in L3: the private AFM file of decision D1 (flags only).
 - [x] L4 (in review): `nima gemi verify-afm RUN_ID --archive-dir DIR` recomputes every outcome from the original bodies; 16 rule breaks caught, new lines covered. Offline, no live call.
 - [ ] L5: import of hits and `queried_not_found_at_observation` (migration; ask the owner first).
-- [ ] L6: live pilot on the owner's machine (three existing AFMs, one 404, equivalence and latency); amend the spec.
+- [x] L6 (2026-11-23, in review): live pilot run by the owner; three listed legal entities, 12 hits all matching the AFM, profile equivalence
+  holds (title order aside), latency measured, 404 observed; spec amended (`docs/verification/gemi-afm-l6.md`). Next: L5 needs migration approval.
 
 ## V1-05 S2 — time model, measured first
 
