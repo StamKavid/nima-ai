@@ -124,4 +124,4 @@ uv run --frozen python -m nima ingest diavgeia --decision-type commitment --orga
 | Expenditure approvals (Β.2.1) | C0 shows the related ADAs on awards are approvals and the owner wants the award-to-approval link |
 | Payments (Β.2.2) | The owner wants the payment stage; KIMDIS `paymentRefNo` is a KIMDIS key, not Diavgeia |
 | Supplier fields | A written policy for natural versus legal persons |
-| Source-aware `nima archive replay` | Its own small design, recorded in the first run record |
+| Source-aware `nima archive replay` | Designed in [SPEC-archive-replay-sources](SPEC-archive-replay-sources.md) (draft) |
