@@ -213,7 +213,7 @@
   - [x] C2 delivered: three owner-approved commitment runs (32 Β.1.3 records); all 4 cited ADAs resolve
     (`docs/verification/diavgeia-c2-commitments.md`).
   - [ ] Source-aware replay and promotion drafted for owner review: [SPEC-archive-replay-sources](../docs/specs/SPEC-archive-replay-sources.md)
-    (R1 to R4 decided as recommended 2026-11-23; slice R1 next).
+    (R1 to R4 decided as recommended 2026-11-23; R1 delivered, R2 run 2026-11-23: all three commitment runs replay exactly; `docs/verification/diavgeia-r2-replay.md`).
   - [ ] Open for the owner: try one more body.
 - [ ] S5 real small public dataset (gated: owner names it, reuse terms checked, host allowed).
   Candidate: fetch exactly the ADAs a small KIMDIS cohort cites in `diavgeiaADA` (one by one, with

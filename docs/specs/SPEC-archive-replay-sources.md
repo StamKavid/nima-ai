@@ -1,6 +1,6 @@
 # Source-aware archive replay and promotion
 
-Status: approved 2026-11-23; R1 to R4 decided as recommended. R1 delivered in review; R2 next.
+Status: approved 2026-11-23; R1 to R4 decided as recommended. R1 delivered (#209); R2 run on 2026-11-23 ([record](../verification/diavgeia-r2-replay.md)).
 
 ## Objective
 
