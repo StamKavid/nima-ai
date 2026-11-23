@@ -86,8 +86,33 @@ class VerifiedRun:
 
 
 @dataclass(frozen=True)
+class SearchHitRecord:
+    """One returned company, as recomputed from the stored answer."""
+
+    index: int
+    registry_number: str
+    afm_matches: bool
+    payload: str  # canonical JSON of the normalized company, ready for the profile-version table
+
+
+@dataclass(frozen=True)
+class SearchAnswerRecord:
+    """The final answer for one AFM and the request it rests on."""
+
+    afm: str
+    attempt: int
+    outcome: str
+    status: int
+    sha256: str
+    observed_at: datetime
+    truncated: bool
+    unconfirmed: bool
+    hits: tuple[SearchHitRecord, ...]
+
+
+@dataclass(frozen=True)
 class VerifiedSearch:
-    """Recomputed from the original response bodies; counts and outcomes, no company data."""
+    """Recomputed from the original response bodies; the outcome counts are all the CLI prints."""
 
     run_id: UUID
     manifest_sha256: str
@@ -98,6 +123,10 @@ class VerifiedSearch:
     companies: int
     eligible_hits: int
     unconfirmed_quarantines: int
+    archive_root: str
+    manifest: bytes
+    requests: tuple[ResponseEvidence, ...]
+    answers: tuple[SearchAnswerRecord, ...]
 
 
 @contextmanager
@@ -408,6 +437,8 @@ def verify_search_run(archive_root: Path, run_id: UUID, rules: SearchRules) -> V
         previous, end = _time(data["started_at"]), _time(data["finished_at"])
         claimed = _object(data["outcomes"])
         outcomes: dict[str, str] = {}
+        requests: list[ResponseEvidence] = []
+        answers: list[SearchAnswerRecord] = []
         total_body = companies = eligible = unconfirmed = cursor = 0
         for afm in afms:
             for attempt in range(1, limits.max_attempts + 1):
@@ -420,6 +451,7 @@ def verify_search_run(archive_root: Path, run_id: UUID, rules: SearchRules) -> V
                     _body(root, row, MAX_TOTAL_BODY - total_body) if row["body_complete"] else None
                 )
                 total_body += 0 if raw is None else len(raw)
+                requests.append(response)
                 if raw is None:
                     continue  # A transport failure may follow an HTTP status line.
                 if response.status not in {200, 404}:
@@ -427,15 +459,47 @@ def verify_search_run(archive_root: Path, run_id: UUID, rules: SearchRules) -> V
                         raise ImportFailure("manifest_invalid")
                     continue
                 answer = rules.parse(raw, afm, response.status)
-                outcome = answer.outcome
-                if outcome != "quarantined" and claimed.get(afm) == "quarantined":
+                outcome, kept = answer.outcome, answer.hits
+                header_only = outcome != "quarantined" and claimed.get(afm) == "quarantined"
+                if header_only:
                     if response.status != 200:
                         raise ImportFailure("manifest_invalid")
-                    outcome, unconfirmed = "quarantined", unconfirmed + 1
+                    outcome, kept, unconfirmed = "quarantined", (), unconfirmed + 1
                 elif outcome != "quarantined":
-                    companies += len(answer.hits)
-                    eligible += sum(hit.afm_matches for hit in answer.hits)
+                    companies += len(kept)
+                    eligible += sum(hit.afm_matches for hit in kept)
                 outcomes[afm] = outcome
+                answers.append(
+                    SearchAnswerRecord(
+                        afm,
+                        attempt,
+                        outcome,
+                        response.status,
+                        cast(str, response.sha256),
+                        cast(datetime, response.observed_at),
+                        answer.truncated and not header_only,
+                        header_only,
+                        tuple(
+                            SearchHitRecord(
+                                index,
+                                str(
+                                    cast(dict[str, dict[str, dict[str, object]]], payload)[
+                                        "fields"
+                                    ]["registry_number"]["value"]
+                                ),
+                                hit.afm_matches,
+                                json.dumps(
+                                    payload,
+                                    ensure_ascii=False,
+                                    allow_nan=False,
+                                    separators=(",", ":"),
+                                ),
+                            )
+                            for index, hit in enumerate(kept)
+                            for payload in (hit.company.payload(),)
+                        ),
+                    )
+                )
                 break
             else:
                 raise ImportFailure("run_incomplete")
@@ -468,6 +532,10 @@ def verify_search_run(archive_root: Path, run_id: UUID, rules: SearchRules) -> V
             companies,
             eligible,
             unconfirmed,
+            str(root),
+            manifest,
+            tuple(requests),
+            tuple(answers),
         )
     except OSError:
         raise ImportFailure("archive_invalid") from None

@@ -61,7 +61,7 @@ def _control(*names: str) -> tuple[TableRule, ...]:
     return tuple(TableRule(n, TableKind.CONTROL) for n in names)
 
 
-# Classification mirrors migrations 0001-0013 plus the runner-created schema_migrations.
+# Classification mirrors migrations 0001-0014 plus the runner-created schema_migrations.
 # Every evidence table blocks UPDATE/DELETE with row triggers and TRUNCATE with a
 # statement trigger (0013 added the guard to the fifteen tables from 0001-0007).
 _TABLES: tuple[TableRule, ...] = (
@@ -78,6 +78,10 @@ _TABLES: tuple[TableRule, ...] = (
         "nima.gemi_responses",
         "nima.gemi_profile_versions",
         "nima.gemi_observations",
+        "nima.gemi_search_imports",
+        "nima.gemi_search_requests",
+        "nima.gemi_search_outcomes",
+        "nima.gemi_search_hits",
         "nima.refresh_events",
         "nima.identity_entities",
         "nima.identity_review_events",

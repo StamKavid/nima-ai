@@ -143,7 +143,7 @@ def test_upgrade_ten_preserves_every_existing_table_and_checksum(
     pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     migrations = postgres._migrations()
-    assert [item[0] for item in migrations] == list(range(1, 14))
+    assert [item[0] for item in migrations] == list(range(1, 15))
     with monkeypatch.context() as patch:
         patch.setattr(postgres, "_migrations", lambda: migrations[:10])
         _, policy = new_policy(pg_dsn, tmp_path / "raw")
