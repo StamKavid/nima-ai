@@ -11,6 +11,7 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 from nima.dataops.replay import prepare_replay
+from nima.sources.base import SourceAdapter
 from nima.storage.connection import connect
 from nima.storage.postgres import MigrationError, validate_schema
 from nima.storage.runs import run_lock_key
@@ -57,12 +58,17 @@ def _rows(document: dict[str, object]) -> tuple[dict[str, object], list[dict[str
 
 
 def promote_run(
-    dsn: str, run_id: UUID, archive_root: Path, normalizer_version: str, replay_sha256: str
+    dsn: str,
+    run_id: UUID,
+    archive_root: Path,
+    normalizer_version: str,
+    replay_sha256: str,
+    adapter: SourceAdapter | None = None,
 ) -> Promotion:
     """Rebuild selected canonical bytes, then atomically persist an explicit SQL batch."""
     if not isinstance(replay_sha256, str) or re.fullmatch("[0-9a-f]{64}", replay_sha256) is None:
         raise PromotionError("promotion_input")
-    body, prepared = prepare_replay(dsn, run_id, archive_root, normalizer_version)
+    body, prepared = prepare_replay(dsn, run_id, archive_root, normalizer_version, adapter)
     if prepared.artifact_sha256 != replay_sha256:
         raise PromotionError("promotion_selection")
     document = cast(dict[str, object], json.loads(body))

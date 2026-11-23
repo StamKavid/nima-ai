@@ -154,7 +154,8 @@ def _dataset(
                     "json_pointer": record.evidence_pointer,
                     "content_sha256": page.record_hashes[record.index],
                     "status": "normalized",
-                    "normalized": dict(record.normalized),
+                    # KIMDIS records already carry it, so adding it changes nothing for them.
+                    "normalized": {"source_id": record.source_id, **record.normalized},
                 }
             )
         for issue in page.issues:
@@ -274,7 +275,12 @@ def prepare_replay(
 
 
 def replay_run(
-    dsn: str, run_id: UUID, archive_root: Path, output: Path, normalizer_version: str
+    dsn: str,
+    run_id: UUID,
+    archive_root: Path,
+    output: Path,
+    normalizer_version: str,
+    adapter: SourceAdapter | None = None,
 ) -> Replay:
     """Publish the same prepared bytes used by explicit SQL replay promotion."""
     if (
@@ -285,7 +291,7 @@ def replay_run(
         or (isinstance(archive_root, Path) and output.is_relative_to(archive_root))
     ):
         raise ReplayError("replay_input")
-    body, result = prepare_replay(dsn, run_id, archive_root, normalizer_version)
+    body, result = prepare_replay(dsn, run_id, archive_root, normalizer_version, adapter)
     try:
         publish(output, body)
     except AssessmentError:
