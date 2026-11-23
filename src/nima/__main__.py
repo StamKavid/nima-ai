@@ -27,7 +27,13 @@ from nima.ingestion.collector import RunError, collect
 from nima.ingestion.config import Limits, Query
 from nima.ingestion.diavgeia_lookup import LookupSource
 from nima.ingestion.diavgeia_lookup import lookup as lookup_decisions
-from nima.ingestion.gemi import GemiRunError, validate_inputs
+from nima.ingestion.gemi import (
+    GemiRunError,
+    SearchRules,
+    collect_afm,
+    validate_afms,
+    validate_inputs,
+)
 from nima.ingestion.gemi import collect as collect_gemi
 from nima.ingestion.resume import resume
 from nima.projections.worker import PROJECTION_VERSION, ProjectionFailure, drain
@@ -43,6 +49,7 @@ from nima.sources.diavgeia import (
     decision_url,
 )
 from nima.sources.diavgeia_commitments import CommitmentAdapter, CommitmentQuery
+from nima.sources.gemi_search import parse_search, queryable_afm
 from nima.storage.gemi import IMPORT_VERSION
 from nima.storage.gemi import import_run as import_gemi
 from nima.storage.gemi_archive import ImportFailure
@@ -153,6 +160,9 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     gemi = sources.add_parser("gemi", help="Look up explicit GEMI numbers into a private archive")
     gemi.add_argument("--gemi-id", action="append", required=True)
     gemi.add_argument("--archive-dir", type=Path, required=True)
+    afm = sources.add_parser("gemi-afm", help="Search GEMI by explicit AFM into a private archive")
+    afm.add_argument("--afm", action="append", required=True)
+    afm.add_argument("--archive-dir", type=Path, required=True)
     diavgeia = sources.add_parser(
         "diavgeia",
         help="Collect Diavgeia decisions of one type, one organisation and one window of 30 days",
@@ -197,6 +207,10 @@ def _parser(*, comparison: bool = False) -> argparse.ArgumentParser:
     return parser
 
 
+_GEMI_SEARCH = SearchRules(
+    queryable=queryable_afm,
+    parse=lambda raw, afm, status: parse_search(raw, queried_afm=afm, http_status=status),
+)
 _DIAVGEIA_DECISIONS = LookupSource(
     url_for=decision_url,
     summarize=decision_summary,
@@ -432,6 +446,18 @@ def main(argv: list[str] | None = None) -> int:
                 gemi_summary = collect_gemi(ids, args.archive_dir, api_key=key, client=client)
             print(json.dumps(asdict(gemi_summary), allow_nan=False))
             return {"complete": 0, "quarantined": 3, "interrupted": 130}.get(gemi_summary.status, 1)
+        if args.source == "gemi-afm":
+            key = os.environ.get("NIMA_GEMI_API_KEY", "")
+            afms = tuple(args.afm)
+            validate_afms(afms, key, _GEMI_SEARCH)
+            with httpx.Client() as client:
+                search_summary = collect_afm(
+                    afms, args.archive_dir, rules=_GEMI_SEARCH, api_key=key, client=client
+                )
+            print(json.dumps(asdict(search_summary), allow_nan=False))
+            return {"complete": 0, "quarantined": 3, "interrupted": 130}.get(
+                search_summary.status, 1
+            )
         if args.source == "diavgeia-decisions":
             lookup_ids = tuple(args.ada)
             for ada in lookup_ids:

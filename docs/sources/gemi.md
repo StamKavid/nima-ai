@@ -163,6 +163,23 @@ Summaries expose run ID and counters/reasons only, not names, AFM, key or driver
 messages. A killed worker's pending outcome remains unknown. No automatic HTTP
 resume, exactly-once request guarantee or server/storage crash claim is included.
 
+### Search by AFM (L3, no live call yet)
+
+Implemented against synthetic responses only; first use is the L6 pilot. Design and decisions:
+[SPEC-gemi-afm-lookup](../specs/SPEC-gemi-afm-lookup.md).
+
+```bash
+uv run --frozen python -m nima ingest gemi-afm --afm 012345678 --archive-dir data/gemi-afm
+```
+
+Repeat `--afm` for up to 25 AFMs; each must be nine ASCII digits and not `000000000`, and is sent once
+as `GET /companies?afm=<AFM>&resultsSize=20` over the same transport, limits and key rules as above.
+Run record: connector `gemi-afm-search-v1`, normalizer `gemi-company-v1`, an `afms` list and one outcome
+per AFM (`hit_single`, `hit_multiple`, `truncated`, `afm_mismatch`, `not_found_at_observation`,
+`quarantined`). Every returned company is kept as its own normalized row with `afm_matches` and
+`truncated`; none is chosen. The summary prints counts only (`found` is AFMs with a hit, `companies`
+the hits). A search run is not importable as a profile run until slice L4.
+
 ## Integration, stack and style
 
 Keep Python 3.12, HTTPX 0.28.1 and existing archive primitives; no new dependency,

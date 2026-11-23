@@ -5,9 +5,11 @@ Source: https://opendata-api.businessportal.gr/api-docs
 """
 
 import math
-from dataclasses import asdict, dataclass
+from collections.abc import Callable
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Protocol
 
 import httpx
 
@@ -21,6 +23,46 @@ from nima.sources.gemi import (
     normalize_profile,
     registry_number,
 )
+
+
+class SearchCompany(Protocol):
+    def payload(self) -> dict[str, object]: ...
+
+
+class SearchHit(Protocol):
+    @property
+    def company(self) -> SearchCompany: ...
+
+    @property
+    def afm_matches(self) -> bool: ...
+
+
+class SearchAnswer(Protocol):
+    """What the engine needs from the source's reading of one search response."""
+
+    @property
+    def outcome(self) -> str: ...
+
+    @property
+    def truncated(self) -> bool: ...
+
+    @property
+    def hits(self) -> tuple[SearchHit, ...]: ...
+
+    @property
+    def quarantine_path(self) -> str | None: ...
+
+
+@dataclass(frozen=True)
+class SearchRules:
+    """The source's own rules for a search; the caller supplies them so the engine imports none."""
+
+    queryable: Callable[[object], str]  # raises ValueError for an AFM that may not be sent
+    parse: Callable[[bytes, str, int], SearchAnswer]  # raw body, queried AFM, HTTP status
+
+
+MAX_AFMS = 25  # decision D4 of SPEC-gemi-afm-lookup
+SEARCH_SIZE = 20  # decision D2: ask for up to 20 hits and keep every one
 
 
 @dataclass(frozen=True)
@@ -65,13 +107,21 @@ class GemiSummary:
     failure: str | None = None
 
 
+@dataclass
+class GemiSearchSummary(GemiSummary):
+    """``found`` counts AFMs that returned at least one company; ``companies`` counts the hits."""
+
+    companies: int = 0
+    outcome_counts: dict[str, int] = field(default_factory=dict)
+
+
 class GemiRunError(Exception):
     def __init__(self, run_id: str, reason: str):
         self.run_id, self.reason = run_id, reason
         super().__init__(reason)
 
 
-def validate_inputs(ids: tuple[str, ...], key: str) -> tuple[str, ...]:
+def _check_key(key: str) -> None:
     if (
         not isinstance(key, str)
         or not 1 <= len(key) <= 4096
@@ -79,12 +129,30 @@ def validate_inputs(ids: tuple[str, ...], key: str) -> tuple[str, ...]:
         or key == "api-docs-key"
     ):
         raise ValueError("A personal GEMI API key is required")
+
+
+def validate_afms(afms: tuple[str, ...], key: str, rules: SearchRules) -> tuple[str, ...]:
+    _check_key(key)
+    if not isinstance(afms, tuple) or not 1 <= len(afms) <= MAX_AFMS:
+        raise ValueError(f"Select 1 to {MAX_AFMS} explicit AFMs")
+    return tuple(dict.fromkeys(rules.queryable(value) for value in afms))
+
+
+def validate_inputs(ids: tuple[str, ...], key: str) -> tuple[str, ...]:
+    _check_key(key)
     if not isinstance(ids, tuple) or not 1 <= len(ids) <= 10:
         raise ValueError("Select 1–10 explicit registry numbers")
     return tuple(dict.fromkeys(registry_number(value) for value in ids))
 
 
 class _Lookup:
+    """One bounded GET per input, archive first. Subclasses choose the request and the outcome."""
+
+    connector_version = "gemi-profile-v1"
+    numbers_key = "registry_numbers"
+    receipt_key = "registry_number"
+    summary_type: type[GemiSummary] = GemiSummary
+
     def __init__(
         self,
         ids: tuple[str, ...],
@@ -101,10 +169,10 @@ class _Lookup:
         self.previous: float | None = None
         self.receipts: list[dict[str, object]] = []
         self.outcomes: dict[str, str] = {}
-        self.summary = GemiSummary(requested=len(ids))
+        self.summary = self.summary_type(requested=len(ids))
         self.manifest: dict[str, object] = {
             "format_version": 1,
-            "connector_version": "gemi-profile-v1",
+            "connector_version": self.connector_version,
             "normalizer_version": NORMALIZER_VERSION,
             "endpoint": ENDPOINT,
             "source": "https://opendata.businessportal.gr/techdocs/",
@@ -112,7 +180,7 @@ class _Lookup:
             "license": "ODC-BY-1.0",
             "publisher": "Central GEMI Service / Central Union of Chambers",
             "inputs": list(original),
-            "registry_numbers": list(ids),
+            self.numbers_key: list(ids),
             "limits": asdict(limits),
             "started_at": datetime.now(UTC).isoformat(),
             "attempts": self.receipts,
@@ -139,6 +207,9 @@ class _Lookup:
         if seconds > 0:
             self.clock.sleep(seconds)
 
+    def target(self, item: str) -> tuple[str, dict[str, str] | None]:
+        return f"{ENDPOINT}/{item}", None
+
     def request(self, number: str, attempt: int) -> tuple[bytes, int, str | None, bool]:
         if self.previous is not None:
             self.wait(
@@ -149,7 +220,7 @@ class _Lookup:
             )
         self.remaining()
         receipt: dict[str, object] = {
-            "registry_number": number,
+            self.receipt_key: number,
             "attempt": attempt,
             "state": "started",
             "started_at": datetime.now(UTC).isoformat(),
@@ -159,9 +230,11 @@ class _Lookup:
         self.save()  # The persisted pending attempt precedes the network request.
         try:
             self.previous = self.clock.monotonic()
+            url, params = self.target(number)
             with self.client.stream(
                 "GET",
-                f"{ENDPOINT}/{number}",
+                url,
+                params=params,
                 headers={
                     "api_key": self.key,
                     "Accept": "application/json",
@@ -233,47 +306,49 @@ class _Lookup:
             self.wait(delay)
         raise CollectionStopped("retry_exhausted")
 
+    def handle(self, number: str, raw: bytes, status: int, is_json: bool) -> None:
+        if status == 404:
+            self.outcomes[number] = "not_found_at_observation"
+            self.summary.not_found += 1
+        else:
+            try:
+                if not is_json:
+                    raise InvalidProfile("content_type")
+                profile = normalize_profile(raw, number)
+            except InvalidProfile as exc:
+                self.archive.append(
+                    self.run,
+                    "quarantine",
+                    [
+                        {
+                            "registry_number": number,
+                            "field": str(exc),
+                            "response_sha256": self.receipts[-1]["sha256"],
+                        }
+                    ],
+                )
+                self.summary.quarantined += 1
+                self.outcomes[number] = "quarantined"
+            else:
+                self.archive.append(
+                    self.run,
+                    "normalized",
+                    [
+                        {
+                            "profile": profile.payload(),
+                            "observed_at": self.receipts[-1]["observed_at"],
+                        }
+                    ],
+                )
+                self.summary.found += 1
+                self.outcomes[number] = "found"
+
     def execute(self) -> GemiSummary:
         try:
             self.save()
             try:
                 for number in self.ids:
-                    raw, status, is_json = self.fetch(number)
-                    if status == 404:
-                        self.outcomes[number] = "not_found_at_observation"
-                        self.summary.not_found += 1
-                    else:
-                        try:
-                            if not is_json:
-                                raise InvalidProfile("content_type")
-                            profile = normalize_profile(raw, number)
-                        except InvalidProfile as exc:
-                            self.archive.append(
-                                self.run,
-                                "quarantine",
-                                [
-                                    {
-                                        "registry_number": number,
-                                        "field": str(exc),
-                                        "response_sha256": self.receipts[-1]["sha256"],
-                                    }
-                                ],
-                            )
-                            self.summary.quarantined += 1
-                            self.outcomes[number] = "quarantined"
-                        else:
-                            self.archive.append(
-                                self.run,
-                                "normalized",
-                                [
-                                    {
-                                        "profile": profile.payload(),
-                                        "observed_at": self.receipts[-1]["observed_at"],
-                                    }
-                                ],
-                            )
-                            self.summary.found += 1
-                            self.outcomes[number] = "found"
+                    self.handle(number, *self.fetch(number))
                     self.save()
                 self.summary.collection_complete = len(self.outcomes) == len(self.ids)
                 self.summary.normalization_complete = self.summary.quarantined == 0
@@ -319,3 +394,93 @@ def collect(
         limits if limits is not None else GemiLimits(),
         clock if clock is not None else SystemClock(),
     ).execute()
+
+
+class _AfmLookup(_Lookup):
+    connector_version = "gemi-afm-search-v1"
+    numbers_key = "afms"
+    receipt_key = "afm"
+    summary_type = GemiSearchSummary
+    summary: GemiSearchSummary
+
+    def __init__(
+        self,
+        rules: SearchRules,
+        ids: tuple[str, ...],
+        original: tuple[str, ...],
+        key: str,
+        archive: Archive,
+        client: httpx.Client,
+        limits: GemiLimits,
+        clock: Clock,
+    ):
+        self.rules = rules
+        super().__init__(ids, original, key, archive, client, limits, clock)
+
+    def target(self, item: str) -> tuple[str, dict[str, str] | None]:
+        return ENDPOINT, {"afm": item, "resultsSize": str(SEARCH_SIZE)}
+
+    def handle(self, number: str, raw: bytes, status: int, is_json: bool) -> None:
+        hits: tuple[SearchHit, ...] = ()
+        if status == 200 and not is_json:
+            outcome, truncated, reason = "quarantined", False, "content_type"
+        else:
+            result = self.rules.parse(raw, number, status)
+            outcome, hits, truncated = result.outcome, result.hits, result.truncated
+            reason = result.quarantine_path or ""
+        if outcome == "quarantined":
+            self.archive.append(
+                self.run,
+                "quarantine",
+                [{"afm": number, "field": reason, "response_sha256": self.receipts[-1]["sha256"]}],
+            )
+            self.summary.quarantined += 1
+        elif hits:
+            self.archive.append(
+                self.run,
+                "normalized",
+                [
+                    {
+                        "afm": number,
+                        "outcome": outcome,
+                        "truncated": truncated,
+                        "afm_matches": hit.afm_matches,
+                        "profile": hit.company.payload(),
+                        "observed_at": self.receipts[-1]["observed_at"],
+                    }
+                    for hit in hits
+                ],
+            )
+            self.summary.found += 1
+            self.summary.companies += len(hits)
+        else:
+            self.summary.not_found += 1
+        self.outcomes[number] = outcome
+        counts = self.summary.outcome_counts
+        counts[outcome] = counts.get(outcome, 0) + 1
+
+
+def collect_afm(
+    afms: tuple[str, ...],
+    archive_dir: Path,
+    *,
+    rules: SearchRules,
+    api_key: str,
+    client: httpx.Client,
+    limits: GemiLimits | None = None,
+    clock: Clock | None = None,
+) -> GemiSearchSummary:
+    """Search the registry once per explicit AFM; every returned company is kept, none chosen."""
+    canonical = validate_afms(afms, api_key, rules)
+    lookup = _AfmLookup(
+        rules,
+        canonical,
+        afms,
+        api_key,
+        Archive(archive_dir),
+        client,
+        limits if limits is not None else GemiLimits(),
+        clock if clock is not None else SystemClock(),
+    )
+    lookup.execute()
+    return lookup.summary
