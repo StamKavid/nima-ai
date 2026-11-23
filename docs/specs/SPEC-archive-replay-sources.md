@@ -1,6 +1,6 @@
 # Source-aware archive replay and promotion
 
-Status: approved 2026-11-23; R1 to R4 decided as recommended. R1 slice not started.
+Status: approved 2026-11-23; R1 to R4 decided as recommended. R1 delivered in review; R2 next.
 
 ## Objective
 
@@ -27,7 +27,14 @@ Read from the code on 2026-11-23:
 | Both Diavgeia adapters have the name `diavgeia`, so their replay artifacts share `artifact_version` and `source`; the connector version in `source_run` tells them apart | `dataops/replay._dataset` |
 | **Replay needs the run in SQL.** The three commitment runs of 2026-11-23 were collected with `--archive-dir` only, so they exist as file archives, not as `nima.ingest_runs` rows | run records in `docs/verification/` |
 
-Not known: whether `adapter_for("diavgeia")` builds an adapter that can normalise a page without a query. The first
+Found while building R1: promotion requires `normalized.source_id` to equal the record's source id (a database
+check, `0008.sql`). KIMDIS records carry that key; Diavgeia records keep the id beside the record. The replay
+now adds `source_id` from the adapter's own record id when the key is absent. KIMDIS replay bytes do not change
+(their records already carry it, pinned by a test); Diavgeia replay artifacts gain that one key. This is the only
+change to a replay layout and is called out for the owner at review. Before it, promotion of a Diavgeia run
+failed with a missing key.
+
+Not known (settled by R1: `adapter_for` builds an adapter that can normalise without a query): whether `adapter_for("diavgeia")` builds an adapter that can normalise a page without a query. The first
 pilot's replay called the adapter directly. Slice R1 settles it with a test before any other work.
 
 ## Behaviour

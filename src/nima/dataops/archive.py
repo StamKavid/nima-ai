@@ -22,6 +22,7 @@ from nima.graph.pilot_archive import (
     RawReference,
     recover,
 )
+from nima.sources.registry import adapter_for
 from nima.storage.connection import connect
 from nima.storage.postgres import MigrationError, validate_schema
 
@@ -152,6 +153,7 @@ def _parser() -> argparse.ArgumentParser:
     replay.add_argument("--archive-dir", type=Path, required=True)
     replay.add_argument("--normalizer-version", required=True)
     replay.add_argument("--output-dir", type=Path, required=True)
+    replay.add_argument("--source", default="kimdis")
     promote = commands.add_parser(
         "promote", help="Store a selected replay as derived SQL data", allow_abbrev=False
     )
@@ -159,6 +161,7 @@ def _parser() -> argparse.ArgumentParser:
     promote.add_argument("--archive-dir", type=Path, required=True)
     promote.add_argument("--normalizer-version", required=True)
     promote.add_argument("--replay-sha256", required=True)
+    promote.add_argument("--source", default="kimdis")
     return parser
 
 
@@ -170,7 +173,12 @@ def run(argv: list[str]) -> int:
             raise ValueError("archive_configuration")
         if args.operation == "promote":
             promoted = promotion.promote_run(
-                dsn, args.run_id, args.archive_dir, args.normalizer_version, args.replay_sha256
+                dsn,
+                args.run_id,
+                args.archive_dir,
+                args.normalizer_version,
+                args.replay_sha256,
+                adapter_for(args.source),
             )
             print(
                 json.dumps({"status": "complete", "outcome": "promoted_replay", **asdict(promoted)})
@@ -178,7 +186,12 @@ def run(argv: list[str]) -> int:
             return 0
         if args.operation == "replay":
             replay = normalization.replay_run(
-                dsn, args.run_id, args.archive_dir, args.output_dir, args.normalizer_version
+                dsn,
+                args.run_id,
+                args.archive_dir,
+                args.output_dir,
+                args.normalizer_version,
+                adapter_for(args.source),
             )
             summary = asdict(replay)
             del summary["artifact_sha256"]
