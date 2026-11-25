@@ -1,12 +1,13 @@
 # Delivery plan
 
-## Active V1-07: explicit citations, model/SQL checkpoint
+## Active V1-07: verified two-source readout
 
 Owner approved [J1–J4](../docs/specs/SPEC-cross-source-citations.md) as recommended
 on 2026-11-25, including the model/SQL → verified readout → real reconciliation
 delivery order. This extends the existing roadmap; preserve all open work below.
-PR #221 is still open, so record approval without claiming a main merge. Continue
-that PR with the first bounded implementation, then describe its final scope anew.
+Owner merged #221 at `998f798`; its provider head `e5db0d2` is reachable from
+`origin/main` and its tree is identical. All three jobs passed in run 45602309764;
+4,230 tests locally and hosted, new provider 100% line/branch, unchanged U1–U4.
 
 Implementation order (sequential): C1 pure typed observations, validation and exact
 citation classification using the existing latest-observation selector; C2 independent
@@ -25,9 +26,29 @@ Risks: later revisions accidentally filtered into earlier valid targets (select
 first, then classify); same-hash contradictory facts (validate before selection);
 Python/SQL collation and lineage disagreement (Unicode and repeated-observation
 parity tests); scope growth (end at model/SQL, no CLI or generic graph framework).
-The next checkpoint adds verified two-source snapshot/archive readout, in separately
-bounded tasks after this model contract is reviewed. Four-positive real validation
-still needs the owner's actual private inputs; no fresh source request is implied.
+The owner requested continuation after merge. Next, sequentially: R1 strict private
+two-source request plus the narrow Diavgeia tag in existing archive recovery; R2
+bounded ingestion-ledger snapshot and source-adapter reconciliation, including
+quarantine accounting and explicit partial capture; R3 model/SQL parity on that
+same read-only session, minimal evidence artifact, publication and CLI; R4 full
+regressions/mutations, gates/audit, wheel and exact-head hosted CI. Each task stays
+within roughly five implementation/test files; deliver the combined vertical readout
+as one PR. No projection, source-data, schema, dependency or CI change.
+
+Reuse `analytics.snapshot.connected` for role/schema/time/statement controls and
+`graph.pilot_archive.recover` for descriptor-safe bounded bytes. The new reader
+does not require a Diavgeia SQL projection. Recompute all admitted pages through
+their supported installed adapter and compare record hashes, normalized forms,
+indices, identifiers and quarantine reasons. Verify all selected pages, even when
+there are no matches. Source tables never receive a repair or fallback fetch.
+Runs with no pages retain partial-coverage disclosure; their bindings provide no
+bytes and are not used for recovery. Complete-empty runs still need their empty page.
+
+Keep counts/size preflights before materializing SQL JSON and cap canonical output
+at 8 MiB. Only run/query lineage, identifiers, types/statuses/cancellation and
+evidence locators enter the private artifact; omit names, amounts and subjects.
+Four-positive real validation still needs the owner's actual private inputs;
+no fresh source request is implied. Stop after the verified readout PR.
 
 ## GEMI AFM lookup: delivered (2026-11-25), kept for the decisions and the risks it answered
 

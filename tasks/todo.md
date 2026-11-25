@@ -2,25 +2,41 @@
 
 ## Active V1-07 — citation model/SQL (J1–J4 approved 2026-11-25)
 
-- [x] Record owner approval and implementation order; #221 remains unmerged.
-- [x] C1 pure model implemented for review (not merged): validate both source cohorts even without matching citations;
+- [x] Record owner approval and implementation order; #221 verified merged at `998f798`.
+- [x] C1 pure model delivered in #221: validate both source cohorts even without matching citations;
   select latest before type/status filtering; classify all five edge outcomes;
   preserve source ambiguity, unknown/empty references, sharing and version lineage.
   - Files: `src/nima/semantics/citations.py`, `tests/test_source_citations.py`.
   - Verify: failing known-answer/input tests first, then green; inclusive cutoff,
     A→B→A, equal-content re-observation and conflicting revisions.
-- [x] C2 reference SQL implemented for review (not merged): independent selection/joins with deterministic ordering,
+- [x] C2 reference SQL delivered in #221: independent selection/joins with deterministic ordering,
   same known answers and evidence sets on native PostgreSQL 17.
   - Files: provider, `src/nima/semantics/citations.sql`, the same test module.
   - Verified: 61 citation cases pass on native PostgreSQL 17.11; provider 100% line/branch.
     Empty, Unicode, shared targets, conflicts, cancelled/revoked and missing/unexpected
     decision types; no persistent objects. [Evidence](../docs/verification/cross-source-citations-model.md).
-- [ ] C3 checkpoint: mutation checks, new-code 100% line/branch, unchanged U1 pins,
+- [x] C3 checkpoint: mutation checks, new-code 100% line/branch, unchanged U1 pins,
   full `just check`/`just audit`, wheel contents, review and exact-head hosted CI.
   - Files: current task records and scoped verification record if needed.
-  - Stop: one reviewed model/SQL PR; no CLI/source acquisition or metric certification.
-- [ ] Later: bounded verified two-source readout, then actual private four-positive
-  reconciliation; V1-08 dataset acceptance remains separate.
+  - Delivered: #221, all three jobs green in run 45602309764; 4,230 tests passed locally/hosted.
+- [ ] R1 request/recovery: explicit two-source selection, private request validation,
+  path-independent hash; Diavgeia tag supported by the existing safe archive reader.
+  - Files: citation request/test modules and pilot-archive reader/tests.
+  - Verify: red/green invalid/duplicate/version/binding cases; wrong labels and corrupt
+    objects fail; existing KIMDIS/GEMI behavior remains unchanged.
+- [ ] R2 ledger verification: one bounded read-only snapshot; raw/normalized/SQL
+  page/record/quarantine parity and disclosed complete/partial coverage.
+  - Files: citation snapshot/reconciliation/test modules.
+  - Verify: restricted reader, supported connectors, omitted/mutated records/pages,
+    partial/quarantined/empty/no-page runs and zero matching edges.
+- [ ] R3 readout: model and SQL parity, private bounded content-addressed artifact,
+  source/field evidence, stable relocation/retry and `analytics source-citations` CLI.
+  - Files: readout/test modules, existing analytics commands and request support.
+  - Verify: exact known answers and evidence, no names/amounts in result, no network
+    or database/source-file writes, publication/input/parity failures stay closed.
+- [ ] R4 checkpoint: targeted mutation checks, 100% new-code line/branch, full
+  `just check`/`just audit`, package proof and exact-head hosted CI; one readout PR.
+- [ ] Later: actual private four-positive reconciliation; V1-08 acceptance is separate.
 
 ## GEMI AFM lookup (spec drafted 2026-11-20)
 
