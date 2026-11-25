@@ -16,10 +16,15 @@ def run(argv: list[str]) -> int:
                 "validate-readout",
                 "validation-show",
                 "validation-health",
+                "assess-citations",
             ),
         )
         parser.print_help()
         return 0
+    if argv and argv[0] == "assess-citations":
+        from nima.dataops.acceptance_cli import run as acceptance_run
+
+        return acceptance_run(argv)
     if argv and argv[0] == "access-audit":
         from nima.dataops.access_cli import run_audit
 
