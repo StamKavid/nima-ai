@@ -19,17 +19,17 @@
   full `just check`/`just audit`, wheel contents, review and exact-head hosted CI.
   - Files: current task records and scoped verification record if needed.
   - Delivered: #221, all three jobs green in run 45602309764; 4,230 tests passed locally/hosted.
-- [ ] R1 request/recovery: explicit two-source selection, private request validation,
+- [x] R1 implemented for review: explicit two-source selection, private request validation,
   path-independent hash; Diavgeia tag supported by the existing safe archive reader.
   - Files: citation request/test modules and pilot-archive reader/tests.
   - Verify: red/green invalid/duplicate/version/binding cases; wrong labels and corrupt
     objects fail; existing KIMDIS/GEMI behavior remains unchanged.
-- [ ] R2 ledger verification: one bounded read-only snapshot; raw/normalized/SQL
+- [x] R2 implemented for review: one bounded read-only snapshot; raw/normalized/SQL
   page/record/quarantine parity and disclosed complete/partial coverage.
   - Files: citation snapshot/reconciliation/test modules.
   - Verify: restricted reader, supported connectors, omitted/mutated records/pages,
     partial/quarantined/empty/no-page runs and zero matching edges.
-- [ ] R3 readout: model and SQL parity, private bounded content-addressed artifact,
+- [x] R3 implemented for review: model and SQL parity, private bounded content-addressed artifact,
   source/field evidence, stable relocation/retry and `analytics source-citations` CLI.
   - Files: readout/test modules, existing analytics commands and request support.
   - Verify: exact known answers and evidence, no names/amounts in result, no network

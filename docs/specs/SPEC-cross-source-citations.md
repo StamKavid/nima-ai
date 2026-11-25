@@ -35,10 +35,12 @@ These are recorded prior observations, not checks re-executed in this spec incre
 - The separate preserved 77-record cohort used for the private metric evidence
   pack is not the four-citation cohort. It cannot substantiate positive join checks.
 
-Today `lifecycle.evaluate` labels all Diavgeia targets `external` because its
+At this spec's baseline, `lifecycle.evaluate` labels all Diavgeia targets `external` because its
 selection is KIMDIS-only. The analytics cohort/reconciler is also KIMDIS-specific;
 `ArchiveBinding` and `RawReference` currently admit only KIMDIS and GEMI.
-Ingestion/replay support for Diavgeia does not mean downstream verification exists.
+Ingestion/replay support alone does not establish downstream verification. The
+model/SQL checkpoint subsequently merged in #221 at `998f798`; the separate verified
+readout follows this contract. Operator instructions: [source citations](../runbooks/source-citations.md).
 
 ## Join and selection contract
 
