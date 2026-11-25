@@ -237,6 +237,13 @@ def test_policy_definition_cannot_be_changed_by_its_caller() -> None:
     assert evaluate(facts()).policy_sha256 == original
 
 
+def test_v1_policy_identity_and_the_exact_reviewed_rule_table_are_stable() -> None:
+    result = evaluate(facts())
+    assert result.policy_id == definition()["id"] == "nima.dataset-acceptance"
+    assert result.policy_version == definition()["version"] == "1.0.0"
+    assert definition_sha256() == "7197ff430fe3fafe9b6e330d3db7ffc000e6de69015bf85efbfc4284be55d2e0"
+
+
 @pytest.mark.parametrize("use", ["U1", "U2", "U3", "U4", "citations"])
 def test_quarantine_counts_cannot_be_overridden_by_a_success_flag(use: str) -> None:
     data = counted(facts(use), "quarantined", "quarantined_record", 1)
@@ -463,3 +470,29 @@ def test_malformed_bindings_are_not_verification_outcomes(target: str, value: An
     data = facts()
     with pytest.raises(AcceptanceError, match="^acceptance_input$"):
         evaluate(replace(data, binding=replace(data.binding, **{target: value})))
+
+
+@pytest.mark.parametrize(
+    "name,grain",
+    [
+        ("unresolved_citations", "citation"),
+        ("ambiguous_targets", "citation"),
+        ("unknown_target_types", "citation"),
+        ("mismatched_target_types", "citation"),
+        ("revoked_targets", "citation"),
+        ("unknown_reference_lists", "source_record"),
+        ("unknown_cancellations", "source_record"),
+        ("cancelled_records", "source_record"),
+    ],
+)
+def test_each_citation_limitation_remains_disclosed(name: str, grain: str) -> None:
+    data = facts("citations")
+    for counter, counter_grain in [
+        ("observations", "observation"),
+        ("page_records", "reported_record"),
+        ("selected_records", "source_record"),
+    ]:
+        data = counted(data, counter, counter_grain, 1)
+    result = evaluate(counted(data, name, grain, 1))
+    assert result.status == "limited"
+    assert result.limitations == (name,)
