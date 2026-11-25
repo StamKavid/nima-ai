@@ -44,7 +44,7 @@ admitted by the policy can receive its explicit `not_assessed` decision.
 
 ## Proposed interface and verification
 
-Approved command to implement:
+Approved command:
 
 ```sh
 uv run --frozen python -m nima dataops assess-citations \
@@ -186,7 +186,7 @@ class CitationAcceptanceExport:
 
 Use existing Python/Psycopg/file primitives, strict mypy and fixed errors. No new
 dependency, CI change, source call, grant, schema migration, schedule or deployment.
-Proposed test file/commands apply after implementation, not in this draft:
+Verification commands:
 
 ```sh
 uv run --frozen pytest tests/test_citation_acceptance.py
@@ -226,3 +226,6 @@ and exact-head hosted CI. Real-cohort reconciliation and certification stay open
 Owner approved B1–B3 as recommended on 2026-11-26 (Europe/Athens). Execute the
 bounded readout under `tasks/plan.md` and `tasks/todo.md`; no source activation,
 metric review/certification, durable journal or real-data acceptance is authorized.
+
+Implementation is under final verification; see the [scoped proof](../verification/citation-acceptance-readout.md)
+and [operator runbook](../runbooks/citation-acceptance.md). No main-delivery claim yet.

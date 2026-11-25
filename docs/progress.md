@@ -1,4 +1,4 @@
-# Capability progress: 2026-11-25
+# Capability progress: 2026-11-26
 
 ## Current project and chapter position
 
@@ -8,9 +8,13 @@ two-source readout and first V1-08 pure policy are delivered. Tested head
 run 45639919348. Local proof: 4,463 tests / 95.03% overall coverage, 134 pure and
 15 native SQL cases for the new boundary, 100% new-policy coverage, 22 rejected
 mutations and clean audit/wheel checks. [Delivery record](verification/dataset-acceptance-policy.md).
-Next is the [citation-acceptance readout spec](specs/SPEC-citation-acceptance-readout.md),
-drafted for B1–B3 review. The pure policy is not yet wired to a product acceptance
-command or durable journal; this draft does not implement either.
+The [citation-acceptance contract](specs/SPEC-citation-acceptance-readout.md) is
+merged in #224 at `39519c2`; all three main jobs passed in run 45714441006.
+B1–B3 were approved on 2026-11-26 (Europe/Athens). The consumer is implemented
+in a new delivery candidate, with 135 focused tests and 100% new-module
+line/branch coverage; final gates and hosted CI are pending. It reconstructs one
+citation report and publishes a separate data-fitness sidecar. U1–U4 consumers
+and durable acceptance history remain open. [Proof](verification/citation-acceptance-readout.md).
 Actual four-positive reconciliation and metric certification remain pending.
 This adds no new source acquisition or milestone release and does not rescore
 the historical rubric below.

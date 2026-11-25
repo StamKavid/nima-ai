@@ -15,7 +15,8 @@ consumers and actual source reconciliation remain open.
 Dependency direction: DataOps command → citation adapter → existing public
 preparation API and pure acceptance policy. The policy remains stdlib-only;
 normalizers, existing artifacts, reader transactions and legacy validation are
-not rewritten. Update the existing #224 with this one working consumer.
+not rewritten. The #224 contract is now merged at `39519c2`; deliver this consumer in a new PR
+against main after verifying the implementation.
 
 R1 front-loads verified-result mapping. Write failing known answers for all
 fourteen counters, strict producer shapes/bindings and current policy metadata.

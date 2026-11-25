@@ -7,12 +7,12 @@
 - [x] Draft [citation-acceptance readout contract](../docs/specs/SPEC-citation-acceptance-readout.md)
   with explicit counter grains, reconstruction and failure/publication behavior.
 - [x] Owner approved B1–B3 as recommended on 2026-11-26 (Europe/Athens).
-- [ ] R1 verified-result mapping: all fourteen counters/grains and closed producer/policy bindings.
+- [x] R1 verified-result mapping: all fourteen counters/grains and closed producer/policy bindings.
   - Acceptance: hand-computed ambiguity/shared-target/revision/cutoff/unknown cases;
     missing producer fields fail, never default to zero.
   - Verify: failing tests first, focused `tests/test_citation_acceptance.py`, strict types.
   - Files: adapter and focused test module (small); depends on existing #223 policy.
-- [ ] R2 operator path: descriptor-safe subject read, one reconstruction, byte equality,
+- [x] R2 operator path: descriptor-safe subject read, one reconstruction, byte equality,
   sidecar and DataOps routing; depends on R1.
   - Acceptance: native restricted-reader proof; no HTTP on success or failures;
     retries/relocation preserve bytes and inputs; negative decisions stay explicit.
@@ -58,7 +58,7 @@
   - Delivered: #223; [proof](../docs/verification/dataset-acceptance-policy.md).
     Local 4,463 tests / 95.03%, 100% new-policy coverage, 22 rejected mutations,
     audit and wheel clean; all three jobs passed on main `a4eb99d` in run 45639919348.
-- [ ] Later: verified acceptance adapter, additive journal contract and real-cohort reconciliation; full V1-08 remains open.
+- [ ] Later: U1–U4 verified acceptance adapters, additive journal contract and real-cohort reconciliation; full V1-08 remains open.
 
 ## Delivered V1-07 — citation model/SQL and verified readout (J1–J4 approved 2026-11-25)
 
