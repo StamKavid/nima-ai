@@ -24,6 +24,7 @@ passed after the smallest provider implementation. Expanded synthetic checks:
 | Representative deliberate Python rule breaks | All 13 rejected |
 | Deliberate reference-SQL rule breaks | All 8 rejected |
 | Locked dependency advisory audit | No known vulnerabilities found |
+| SQL ownership guard | Explicit citation-model owner/hash checked; an unregistered SQL file is rejected |
 
 Python mutations: cutoff, source conflict, target conflict, exact identifier,
 type, same-version facts, duplicate IDs, normalizer, observation bound, edge
@@ -32,6 +33,11 @@ selection, target conflict, type, source conflict, sharing, full selected-conten
 lineage and lineage order. Each produced a failing test; originals were restored.
 The private harness/logs remain outside Git. This is targeted mutation evidence,
 not an exhaustive mutation score.
+
+The existing SQL-inventory test assumed every semantic SQL file was a metric.
+It now names the citation model explicitly, verifies its SQL hash and still
+rejects every undeclared file. The four metric entries, statuses and published
+hashes are unchanged; citations are not inserted as a fifth metric.
 
 Parity executes the packaged SQL with bound JSON/cutoff parameters inside a
 read-only transaction on a disposable local database. SQL creates no views,
