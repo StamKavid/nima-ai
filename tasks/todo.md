@@ -1,10 +1,29 @@
 # Tasks
 
-## Next V1-08 — dataset-acceptance policy review
+## Active V1-08 — pure dataset-acceptance policy
 
 - [x] Verify #222 merged at `9273451`, reviewed head `724bb14` reachable with identical tree.
 - [x] Draft [acceptance spec](../docs/specs/SPEC-dataset-acceptance.md), grounded in existing metric and journal contracts.
-- [ ] Owner decisions A1–A3; no implementation approval or technical plan recorded yet.
+- [x] Owner approved A1–A3 as recommended on 2026-11-25, including pure-policy implementation.
+- [ ] P1 typed policy path (no dependency on P2): fixed bindings/checks/counters,
+  deterministic required-check decisions and known answers; no source/file/SQL I/O.
+  - Acceptance: required failure outranks missing proof; missing proof cannot pass;
+    metric-specific unknowns and honest partial citation inspection remain explicit.
+  - Verify: test-first `uv run --frozen pytest tests/test_dataset_acceptance.py`;
+    immutable/canonical/reordered inputs, unsupported versions and bad count grains.
+  - Files: `src/nima/contracts/acceptance.py`, `tests/test_dataset_acceptance.py` (small).
+- [ ] P2 verification boundary (depends on P1): existing public verified readers
+  on disposable PostgreSQL 17 feed the policy through a test-only bridge.
+  - Acceptance: complete/partial decisions and original/SQL disagreement are distinct;
+    no untrusted JSON success flag bypasses reconstruction; source state stays unchanged.
+  - Verify: focused native SQL tests with synthetic captures and a restricted reader;
+    compare SQL rows and original file state before/after.
+  - Files: `tests/test_dataset_acceptance_integration.py` plus policy tests if needed (small).
+- [ ] P3 delivery checkpoint (depends on P1/P2): full gates, audit and review.
+  - Acceptance: 100% new policy line/branch coverage, targeted mutations rejected;
+    old semantic pins and artifact contracts unchanged; all exact-head hosted jobs pass.
+  - Verify: `just check`, `just audit`, package/import/dependency proof and hosted CI.
+  - Files: scoped verification record, task/progress records and spec index (medium).
 - [ ] Later: verified acceptance adapter, additive journal contract and real-cohort reconciliation; full V1-08 remains open.
 
 ## Delivered V1-07 — citation model/SQL and verified readout (J1–J4 approved 2026-11-25)

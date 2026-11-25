@@ -1,7 +1,7 @@
 # Spec: dataset acceptance policy
 
-Module ID: `dataset-acceptance` (V1-08). Status: **draft for owner review,
-2026-11-25; no implementation approval recorded.** Baseline: main `9273451`
+Module ID: `dataset-acceptance` (V1-08). Status: **owner approved A1–A3 as
+recommended on 2026-11-25, including implementation of the pure-policy slice.** Baseline: main `9273451`
 (#222). Extends the [work package](../roadmap/agent-backlog.md#v1-08--dataset-acceptance-and-comparability)
 and [release contract](SPEC-release-v1.0.md). This first policy slice does not
 complete V1-08's durable-history or real-cohort acceptance requirements.
@@ -197,7 +197,7 @@ re-label the old validator, repair data silently or auto-certify a metric.
 
 ## Owner decisions
 
-Recommended decisions for this specification:
+Owner approved all three recommended decisions on 2026-11-25:
 
 - **A1:** Adopt per-use data-fitness decisions and the table above, preserving
   partial citation inspection and all existing metric rules.
@@ -207,5 +207,6 @@ Recommended decisions for this specification:
   contracts unchanged; scope the verified acceptance adapter and additive durable
   journal contract separately. V1-08 remains open until these and real reconciliation pass.
 
-Planning and implementation await these decisions. No real-data acceptance,
-metric review/certification, deployment or release is recorded by this draft.
+Execution is limited to this approved slice; the plan and checkpoints are in
+`tasks/plan.md` and `tasks/todo.md`. No real-data acceptance, metric review or
+certification, deployment or release is recorded by this approval.

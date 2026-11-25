@@ -6,8 +6,8 @@
 model/SQL and verified two-source readout are delivered. Its reviewed head
 `724bb14` is reachable with an identical tree; all three jobs passed in run
 45624593892, with 4,314 tests, 100% new-module line/branch coverage and 22 targeted
-mutations rejected. Next is the [V1-08 policy spec](specs/SPEC-dataset-acceptance.md),
-drafted for A1–A3 review; no acceptance implementation approval is recorded.
+mutations rejected. The owner approved [V1-08 A1–A3](specs/SPEC-dataset-acceptance.md)
+as recommended on 2026-11-25; the pure-policy slice is active under the recorded plan.
 Actual four-positive reconciliation and metric certification remain pending.
 This adds no new source acquisition or milestone release and does not rescore
 the historical rubric below.

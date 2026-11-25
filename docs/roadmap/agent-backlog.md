@@ -177,8 +177,8 @@ name matching are separate evaluated features, not shortcuts here.
 
 ## V1-08 — dataset acceptance and comparability
 
-The [first policy specification](../specs/SPEC-dataset-acceptance.md) is drafted
-for A1–A3 review after verified merge of #222 at `9273451`. It proposes per-use
+The owner approved [A1–A3](../specs/SPEC-dataset-acceptance.md) as recommended on
+2026-11-25 after verified merge of #222 at `9273451`. The active slice is per-use
 data fitness, not metric certification. First scope is the pure evaluator;
 verified adapter, additive durable-history contract and real reconciliation stay
 open. V1-01's current journal admits only its original readout validator: general

@@ -1,6 +1,6 @@
 # Delivery plan
 
-## Next V1-08: specification review
+## Active V1-08: approved pure acceptance policy
 
 Owner merged #222 at `9273451`; reviewed head `724bb14` is reachable from
 `origin/main` with an identical tree. All three exact-head hosted jobs passed in
@@ -8,10 +8,44 @@ run 45624593892; 4,314 tests, 100% new-module line/branch coverage and 22 target
 mutations rejected. The verified V1-07 readout checkpoint is delivered; actual
 four-positive reconciliation remains open.
 
-The [dataset-acceptance policy spec](../docs/specs/SPEC-dataset-acceptance.md) is
-drafted for A1–A3 review. No V1-08 implementation plan or approval is recorded.
+Owner approved [A1–A3](../docs/specs/SPEC-dataset-acceptance.md) as recommended on
+2026-11-25, including implementing the pure evaluator first. Execute that bounded
+slice under this plan; no second feature or source activation is authorized.
 Existing journal constraints require a separate additive contract before durable
 general acceptance can be claimed. Preserve the earlier plans and open work below.
+
+Dependency order: existing verified reader/provider facts → typed policy input →
+per-use acceptance decision. The policy imports only stdlib; no dependency points
+from the policy into analytics, SQL, files or source adapters. Existing readers
+remain the owners of physical verification. First scope has no product adapter.
+
+P1 is one working policy path: immutable bindings/checks/aggregate counters,
+closed vocabulary and supported-definition/source profiles, then deterministic
+per-use required-check decisions. Begin with failing known answers, implement the
+minimum and expand with negative cases. Required failure outranks unavailable
+proof; a missing required check cannot pass. Partial citation inspection retains
+its limitation while partial U1–U4 captures block. Counts have named grains;
+only valid partitions reconcile, never overlapping CPV/supplier cell sums.
+
+P2 exercises existing public readers against owned native PostgreSQL 17 fixtures
+and original bytes, then passes verified outcomes into the pure policy in tests.
+The fixture bridge is not a supported product adapter or a durable attestation.
+Prove complete/partial decisions, failed SQL/raw reconciliation, missing proof,
+and unchanged SQL/archive state. No private pilot or source request is involved.
+
+P3 verifies 100% new policy line/branch coverage, targeted decision/accounting
+mutations, unchanged semantic pins/catalogue and dependency baseline, full
+`just check`/`just audit`, installed-wheel contents and all exact-head hosted
+jobs. Review and deliver this combined slice by updating #223; do not merge it.
+End checkpoint: reviewed pure-policy PR; verified acceptance publication,
+additive durable history and real-cohort reconciliation remain separate work.
+
+Risks and controls: caller-supplied flags masquerading as evidence (typed internal
+input only; SQL integration invokes actual reconcilers); missing checks passing
+vacuously (explicit required sets); partial data mistaken for zero activity
+(retain provider status and exclusion counts); unreviewed definition changes
+(closed pinned profiles and catalogue parity); scope growing into another quality
+framework (one module, focused unit/integration tests; no new CLI/schema/library).
 
 ## Delivered V1-07: verified two-source readout
 
