@@ -6,6 +6,11 @@ recommended on 2026-11-25, including implementation of the pure-policy slice.** 
 and [release contract](SPEC-release-v1.0.md). This first policy slice does not
 complete V1-08's durable-history or real-cohort acceptance requirements.
 
+Pure-policy delivery: #223, main `a4eb99d`, tested `d2d94db` reachable with an
+identical tree; all three main jobs passed in run 45639919348. The
+[first consumer contract](SPEC-citation-acceptance-readout.md) remains a separate
+draft under A3. No product adapter or durable-history acceptance is claimed here.
+
 ## Objective and assumptions
 
 An operator or downstream insight can tell whether a specific verified capture

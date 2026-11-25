@@ -1,6 +1,20 @@
 # Delivery plan
 
-## Active V1-08: approved pure acceptance policy
+## Next V1-08: citation-acceptance contract review
+
+Owner merged #223 at `a4eb99d`; tested head `d2d94db` is reachable from main
+with an identical tree. All three main CI jobs passed in run 45639919348.
+The local gate passed 4,463 tests at 95.03% overall coverage; new policy coverage
+is 100%, 22 mutations rejected, audit and installed-wheel proof clean.
+
+The [citation-acceptance readout spec](../docs/specs/SPEC-citation-acceptance-readout.md)
+proposes the first verified consumer under A3's separate contract. B1–B3 await
+owner review; no adapter implementation plan or approval is recorded. Durable
+history, U1–U4 consumers and actual source reconciliation remain open.
+
+## Delivered V1-08: pure acceptance policy
+
+The following records the approved execution scope; it is no longer active work.
 
 Owner merged #222 at `9273451`; reviewed head `724bb14` is reachable from
 `origin/main` with an identical tree. All three exact-head hosted jobs passed in
@@ -44,8 +58,9 @@ P1/P2 are implemented in the #223 candidate: 134 pure cases and 15 native SQL
 cases pass, new policy has 100% line/branch coverage and 22 mutations are rejected.
 Applicable counters must be explicit; missing diagnostics never become zeros.
 The ten-run bound follows all existing readout interfaces. [Focused proof](../docs/verification/dataset-acceptance-policy.md).
-P3 final quality/package/hosted results and owner review remain the delivery gate;
-this does not mark the pure policy merged or complete the V1-08 work package.
+P3 is delivered in #223, verified on main `a4eb99d`: full quality/package/audit
+proof and all three main jobs pass. This completes the first policy checkpoint,
+not the V1-08 work package's consumers, durable history or real-data acceptance.
 
 Risks and controls: caller-supplied flags masquerading as evidence (typed internal
 input only; SQL integration invokes actual reconcilers); missing checks passing

@@ -2,9 +2,12 @@
 
 Date: 2026-11-25. Owner approved A1–A3 of the
 [spec](../specs/SPEC-dataset-acceptance.md), including implementation of the first
-pure-policy slice. Candidate: [PR #223](https://github.com/StamKavid/nima-ai/pull/223).
-This record covers the focused evidence observed before final delivery gates;
-the PR records full-gate, package and exact-head hosted results.
+pure-policy slice. Delivered: [PR #223](https://github.com/StamKavid/nima-ai/pull/223),
+main `a4eb99d`, with tested `d2d94db` reachable and an identical tree. The final
+local gate passes all 4,463 tests at 95.03% overall coverage; audit, security and
+installed-wheel proof pass. All three jobs passed on main in
+[CI run 45639919348](https://github.com/StamKavid/nima-ai/actions/runs/45639919348).
+The focused proof and corrections below describe that delivered slice.
 
 ## Implemented boundary
 
@@ -78,8 +81,9 @@ The candidate's final full-gate results remain on the PR.
 
 ## Remaining work
 
-- Deliver/review this pure-policy candidate after full local and exact-head hosted
-  gates. No metric definition or old artifact contract changes.
+- The pure policy is delivered. The first consumer's
+  [citation-acceptance contract](../specs/SPEC-citation-acceptance-readout.md) is a
+  separate draft; existing metric definitions and artifact contracts are unchanged.
 - Specify and build the verified acceptance readout adapter. A cached JSON
   artifact with a success flag must never substitute for reconstruction.
 - Review an additive durable journal contract. V1-01's current Python and SQL

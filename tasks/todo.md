@@ -1,6 +1,14 @@
 # Tasks
 
-## Active V1-08 — pure dataset-acceptance policy
+## Next V1-08 — citation-acceptance contract review
+
+- [x] Verify #223 merged at `a4eb99d`, tested `d2d94db` reachable with identical tree;
+  all three main CI jobs passed in run 45639919348.
+- [x] Draft [citation-acceptance readout contract](../docs/specs/SPEC-citation-acceptance-readout.md)
+  with explicit counter grains, reconstruction and failure/publication behavior.
+- [ ] Owner decisions B1–B3; no new adapter implementation plan or approval recorded.
+
+## Delivered V1-08 — pure dataset-acceptance policy
 
 - [x] Verify #222 merged at `9273451`, reviewed head `724bb14` reachable with identical tree.
 - [x] Draft [acceptance spec](../docs/specs/SPEC-dataset-acceptance.md), grounded in existing metric and journal contracts.
@@ -25,13 +33,14 @@
   - Files: `tests/test_dataset_acceptance_integration.py` plus policy tests if needed (small).
   - Observed: all 15 native SQL cases pass; restricted readers, actual original-byte
     verification, no HTTP and unchanged SQL/archive state. The bridge is test-only.
-- [ ] P3 delivery checkpoint (depends on P1/P2): full gates, audit and review.
+- [x] P3 delivery checkpoint (depends on P1/P2): full gates, audit and review.
   - Acceptance: 100% new policy line/branch coverage, targeted mutations rejected;
     old semantic pins and artifact contracts unchanged; all exact-head hosted jobs pass.
   - Verify: `just check`, `just audit`, package/import/dependency proof and hosted CI.
   - Files: scoped verification record, task/progress records and spec index (medium).
-  - Candidate: #223; [focused proof](../docs/verification/dataset-acceptance-policy.md).
-    Final full-gate/package/hosted results are reported on the PR before review-ready handoff.
+  - Delivered: #223; [proof](../docs/verification/dataset-acceptance-policy.md).
+    Local 4,463 tests / 95.03%, 100% new-policy coverage, 22 rejected mutations,
+    audit and wheel clean; all three jobs passed on main `a4eb99d` in run 45639919348.
 - [ ] Later: verified acceptance adapter, additive journal contract and real-cohort reconciliation; full V1-08 remains open.
 
 ## Delivered V1-07 — citation model/SQL and verified readout (J1–J4 approved 2026-11-25)
