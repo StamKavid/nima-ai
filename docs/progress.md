@@ -2,15 +2,15 @@
 
 ## Current project and chapter position
 
-**Update 2026-11-25.** Merged main is at #222 (`9273451`): the approved V1-07
-model/SQL and verified two-source readout are delivered. Its reviewed head
-`724bb14` is reachable with an identical tree; all three jobs passed in run
-45624593892, with 4,314 tests, 100% new-module line/branch coverage and 22 targeted
-mutations rejected. The owner approved [V1-08 A1–A3](specs/SPEC-dataset-acceptance.md)
-as recommended on 2026-11-25; the pure-policy slice is active under the recorded plan.
-Its #223 candidate has 134 passing pure cases and 15 native SQL cases, 100% new
-policy line/branch coverage and 22 rejected mutations; final delivery gates are
-tracked on the PR. It adds no product acceptance gate or durable journal yet.
+**Update 2026-11-25.** Merged main is at #223 (`a4eb99d`): the V1-07 verified
+two-source readout and first V1-08 pure policy are delivered. Tested head
+`d2d94db` is reachable with an identical tree; all three main CI jobs passed in
+run 45639919348. Local proof: 4,463 tests / 95.03% overall coverage, 134 pure and
+15 native SQL cases for the new boundary, 100% new-policy coverage, 22 rejected
+mutations and clean audit/wheel checks. [Delivery record](verification/dataset-acceptance-policy.md).
+Next is the [citation-acceptance readout spec](specs/SPEC-citation-acceptance-readout.md),
+drafted for B1–B3 review. The pure policy is not yet wired to a product acceptance
+command or durable journal; this draft does not implement either.
 Actual four-positive reconciliation and metric certification remain pending.
 This adds no new source acquisition or milestone release and does not rescore
 the historical rubric below.
