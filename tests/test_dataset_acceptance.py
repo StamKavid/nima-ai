@@ -168,6 +168,50 @@ def test_unknown_capture_completeness_limits_inspection_without_becoming_a_pass(
     assert result.limitations == ("capture_completeness_unknown",)
 
 
+@pytest.mark.parametrize(
+    "check,reason",
+    [
+        ("bindings", "bindings_disagreement"),
+        ("evidence", "evidence_disagreement"),
+        ("keys", "inconsistent_version"),
+        ("membership", "membership_disagreement"),
+        ("page_accounting", "page_accounting_disagreement"),
+        ("selection", "selection_disagreement"),
+        ("eligibility", "eligibility_disagreement"),
+    ],
+)
+@pytest.mark.parametrize("use", ["U1", "citations"])
+def test_known_integrity_failures_block_even_citation_inspection(
+    use: str, check: str, reason: str
+) -> None:
+    assert evaluate(checked(facts(use), check, "failed", reason)).status == "blocked"
+
+
+def test_citation_inspection_needs_both_source_namespaces() -> None:
+    data = facts("citations")
+    assert (
+        evaluate(replace(data, binding=replace(data.binding, runs=data.binding.runs[:1]))).status
+        == "not_assessed"
+    )
+
+
+@pytest.mark.parametrize(
+    "connector,normalizer",
+    [
+        ("diavgeia-search-v1", "diavgeia-decision-v1"),
+        ("diavgeia-commitment-search-v1", "diavgeia-commitment-v1"),
+    ],
+)
+def test_both_existing_diavgeia_profiles_remain_supported(connector: str, normalizer: str) -> None:
+    data = facts("citations")
+    source, target = data.binding.runs
+    target = replace(target, connector_version=connector, normalizer_version=normalizer)
+    assert (
+        evaluate(replace(data, binding=replace(data.binding, runs=(source, target)))).status
+        == "ready"
+    )
+
+
 def test_unknown_date_limits_only_u2_and_ignores_overlapping_cells() -> None:
     for use in ["U1", "U2", "U3"]:
         data = counted(facts(use), "observations", "observation", 2)
