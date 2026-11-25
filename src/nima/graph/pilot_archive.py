@@ -34,14 +34,14 @@ class PilotArchiveError(ValueError):
 
 @dataclass(frozen=True)
 class RawReference:
-    source: Literal["kimdis", "gemi"]
+    source: Literal["kimdis", "gemi", "diavgeia"]
     run_id: UUID
     raw_sha256: str
 
 
 @dataclass(frozen=True)
 class ArchiveBinding:
-    source: Literal["kimdis", "gemi"]
+    source: Literal["kimdis", "gemi", "diavgeia"]
     run_id: UUID
     root: Path
 
@@ -94,7 +94,7 @@ def _selection(
     for binding in bindings:
         if (
             not isinstance(binding, ArchiveBinding)
-            or binding.source not in ("kimdis", "gemi")
+            or binding.source not in ("kimdis", "gemi", "diavgeia")
             or not isinstance(binding.run_id, UUID)
             or not isinstance(binding.root, Path)
             or not binding.root.is_absolute()
@@ -109,7 +109,7 @@ def _selection(
     for ref in references:
         if (
             not isinstance(ref, RawReference)
-            or ref.source not in ("kimdis", "gemi")
+            or ref.source not in ("kimdis", "gemi", "diavgeia")
             or not isinstance(ref.run_id, UUID)
             or not isinstance(ref.raw_sha256, str)
             or re.fullmatch(r"[0-9a-f]{64}", ref.raw_sha256) is None

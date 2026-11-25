@@ -14,15 +14,19 @@ from uuid import uuid4
 from nima.identity import MAX_REPORT_BYTES, AssessmentError
 
 
-def encode(value: object) -> bytes:
+def encode(value: object, *, limit: int | None = None) -> bytes:
+    limit = MAX_REPORT_BYTES if limit is None else limit
+    if type(limit) is not int or not 1 <= limit <= MAX_REPORT_BYTES:
+        raise AssessmentError("assessment_limit")
     body = bytearray()
     encoder = json.JSONEncoder(
         ensure_ascii=False, allow_nan=False, sort_keys=True, separators=(",", ":")
     )
     for chunk in encoder.iterencode(value):
-        body.extend(chunk.encode())
-        if len(body) > MAX_REPORT_BYTES:
+        part = chunk.encode()
+        if len(body) + len(part) > limit:
             raise AssessmentError("assessment_limit")
+        body.extend(part)
     return bytes(body)
 
 
