@@ -1096,3 +1096,9 @@ bounded durable validation history; first freeze its exact result/attempt and
 SQL/file recovery contract. The broader roadmap is proposed scope, not an
 instruction to implement every card, deploy or publish. Main delivery/progress
 and actual evidence, not roadmap checkboxes, establish what exists.
+
+Citation consumer R1/R2 and R3 local proof are complete: 4,598 tests / 95.12%,
+135 focused cases at 100% new-module line/branch, 22 rejected mutations, audit
+and native isolated-wheel proof. Post-push exact-head hosted checks remain the
+merge gate and are recorded on the implementation PR. No second feature begins
+until this delivery is reviewable.

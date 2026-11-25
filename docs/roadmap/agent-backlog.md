@@ -185,7 +185,8 @@ open. The evaluator is delivered in #223 at `a4eb99d`, with
 [proof](../verification/dataset-acceptance-policy.md) and all three main CI jobs
 passing in run 45639919348. The [first consumer contract](../specs/SPEC-citation-acceptance-readout.md)
 was merged in #224; B1–B3 were approved 2026-11-26. Its citation-inspection
-consumer is implemented with a bound sidecar; final delivery verification is pending.
+consumer is implemented with a bound sidecar and local delivery proof; hosted
+merge readiness is recorded on its implementation PR.
 U1–U4 consumers and the additive journal remain separate work.
 V1-01's current journal admits only its original readout validator: general
 acceptance results cannot be inserted without an explicit evolution contract.

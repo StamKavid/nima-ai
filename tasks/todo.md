@@ -18,12 +18,19 @@
     retries/relocation preserve bytes and inputs; negative decisions stay explicit.
   - Verify: native PostgreSQL 17/file/CLI cases; exact size and publication refusal cases.
   - Files: adapter, `acceptance_cli.py`, DataOps dispatcher and focused tests (medium).
-- [ ] R3 delivery checkpoint: early lint/type/security, mutations, full gates/audit,
-  package, process interruption and exact-head hosted CI; depends on R1/R2.
+- [x] R3 local delivery proof: early lint/type/security, mutations, full gates/audit,
+  package and process interruption; depends on R1/R2.
   - Acceptance: 100% new-code line/branch and unchanged 90% overall floor; legacy
     artifacts unchanged; full source restored after mutations; all hosted jobs pass.
   - Verify: `just check`, `just audit`, wheel smoke and scoped verification record.
   - Files: operator/verification documentation, task/progress records and spec index.
+  - Observed: 4,598 tests / 95.12% overall; 135 focused cases, 100% new-module
+    line/branch coverage, all 22 mutations rejected; audit and isolated-wheel
+    native SQL/original-byte CLI proof pass. Existing contract/semantic pins unchanged.
+  - **Post-push merge gate:** require all three hosted jobs on the exact final
+    commit. Record the SHA/results on the implementation PR; local proof is not
+    hosted proof. Verify that PR state before the next delivery; do not rerun an
+    unchanged full local gate solely to update this pre-push status record.
 
 ## Delivered V1-08 — pure dataset-acceptance policy
 

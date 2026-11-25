@@ -50,8 +50,22 @@ Early full-project lint, strict mypy (394 files), Bandit and Gitleaks pass.
 All **22 targeted mutations are rejected**, covering all fourteen counters,
 completeness, report hashing/byte equality, single-snapshot behavior, publication,
 returned bindings and sidecar bounds. The adapter is restored byte-for-byte with
-SHA-256 checked. Final full gates/audit, installed-wheel proof and exact-head
-hosted jobs are pending completion and will be recorded before merge readiness.
+SHA-256 checked. The final local `just check` passes **4,598 tests** with
+**95.12%** overall combined line/branch coverage and the unchanged 90% floor.
+One pre-existing Prefect home-directory warning remains. Source/wheel builds,
+Bandit, Gitleaks and `just audit` pass; all three existing ODCS contracts are
+unchanged. The full suite retains 100% coverage for both new modules.
+
+The final built wheel was loaded through Python isolated mode from a private
+working directory, with source bytes checked against the archive. Its normal
+CLI reconstructed actual PostgreSQL 17/original fixture evidence using a restricted
+reader and returned `ready` with all fourteen counters. No checkout module or
+stubbed verifier supplied that packaged result; source table hashes are unchanged.
+
+Hosted checks run after publication. Their exact commit and results are recorded
+on the implementation PR; all three jobs must pass before merge readiness. A local
+gate does not establish hosted CI. The post-push result is not embedded in its own
+immutable commit. This record makes no main-delivery or real-cohort claim.
 
 Private logs and owned test resources stay outside Git under
 `/workspace/work/nima-citation-acceptance-proof`; that workspace path is a local

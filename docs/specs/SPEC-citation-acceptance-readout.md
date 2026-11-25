@@ -227,5 +227,5 @@ Owner approved B1–B3 as recommended on 2026-11-26 (Europe/Athens). Execute the
 bounded readout under `tasks/plan.md` and `tasks/todo.md`; no source activation,
 metric review/certification, durable journal or real-data acceptance is authorized.
 
-Implementation is under final verification; see the [scoped proof](../verification/citation-acceptance-readout.md)
+Implemented for review; local gates pass. Hosted merge readiness is tracked on the PR; see the [scoped proof](../verification/citation-acceptance-readout.md)
 and [operator runbook](../runbooks/citation-acceptance.md). No main-delivery claim yet.
