@@ -291,7 +291,7 @@ def definition() -> dict[str, object]:
                 "overlapping_cpv_cells_and_supplier_participations_are_not_partitions",
             ],
             "limits": {
-                "runs": 100,
+                "runs": 10,
                 "checks": len(_CHECKS),
                 "counts": len(_COUNTS),
                 "counter": 2**63 - 1,
@@ -333,7 +333,7 @@ def _validate(facts: DatasetFacts) -> None:
         or not isinstance(b.cutoff, datetime)
         or b.cutoff.utcoffset() != timedelta(0)
         or not isinstance(b.runs, tuple)
-        or len(b.runs) > 100
+        or len(b.runs) > 10
         or not isinstance(facts.checks, tuple)
         or len(facts.checks) > len(_CHECKS)
         or not isinstance(facts.counts, tuple)
@@ -406,11 +406,10 @@ def evaluate(facts: DatasetFacts) -> Assessment:
         mark("bindings", "not_assessed", "unsupported_definition")
     elif not b.runs or b.cohort_sha256 is None:
         mark("bindings", "not_assessed", "proof_unavailable")
-    elif (
-        any((r.source, r.connector_version, r.normalizer_version) not in _PROFILES for r in b.runs)
-        or {r.source for r in b.runs}
-        != ({"kimdis", "diavgeia"} if b.use == "citations" else {"kimdis"})
-        or (b.use == "citations" and len(b.runs) > 10)
+    elif any(
+        (r.source, r.connector_version, r.normalizer_version) not in _PROFILES for r in b.runs
+    ) or {r.source for r in b.runs} != (
+        {"kimdis", "diavgeia"} if b.use == "citations" else {"kimdis"}
     ):
         mark("bindings", "not_assessed", "unsupported_version")
     if supported and facts.provider_status not in _STATUSES[b.use]:

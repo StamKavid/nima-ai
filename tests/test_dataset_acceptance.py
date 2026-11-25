@@ -149,7 +149,7 @@ def test_records_without_an_admitted_page_are_a_membership_failure() -> None:
 
 @pytest.mark.parametrize(
     "use,size,expected",
-    [("U1", 100, "ready"), ("citations", 10, "ready"), ("citations", 11, "not_assessed")],
+    [("U1", 10, "ready"), ("citations", 10, "ready"), ("citations", 11, "input_error")],
 )
 def test_run_profile_bounds_are_the_existing_use_bounds(use: str, size: int, expected: str) -> None:
     data = facts(use)
@@ -158,7 +158,12 @@ def test_run_profile_bounds_are_the_existing_use_bounds(use: str, size: int, exp
         for n in range(3, size + 3 - len(data.binding.runs))
     )
     assert len(runs) == size
-    assert evaluate(replace(data, binding=replace(data.binding, runs=runs))).status == expected
+    changed = replace(data, binding=replace(data.binding, runs=runs))
+    if expected == "input_error":
+        with pytest.raises(AcceptanceError, match="^acceptance_input$"):
+            evaluate(changed)
+    else:
+        assert evaluate(changed).status == expected
 
 
 def test_unknown_capture_completeness_limits_inspection_without_becoming_a_pass() -> None:
@@ -241,7 +246,7 @@ def test_v1_policy_identity_and_the_exact_reviewed_rule_table_are_stable() -> No
     result = evaluate(facts())
     assert result.policy_id == definition()["id"] == "nima.dataset-acceptance"
     assert result.policy_version == definition()["version"] == "1.0.0"
-    assert definition_sha256() == "7197ff430fe3fafe9b6e330d3db7ffc000e6de69015bf85efbfc4284be55d2e0"
+    assert definition_sha256() == "06975d8b0ae0ee3eca0368c39a9008c6a75ff439c3c01eef4e3549b7926bafa6"
 
 
 @pytest.mark.parametrize("use", ["U1", "U2", "U3", "U4", "citations"])
