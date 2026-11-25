@@ -3,17 +3,18 @@
 ## Active V1-07 — citation model/SQL (J1–J4 approved 2026-11-25)
 
 - [x] Record owner approval and implementation order; #221 remains unmerged.
-- [ ] C1 pure model: validate both source cohorts even without matching citations;
+- [x] C1 pure model implemented for review (not merged): validate both source cohorts even without matching citations;
   select latest before type/status filtering; classify all five edge outcomes;
   preserve source ambiguity, unknown/empty references, sharing and version lineage.
   - Files: `src/nima/semantics/citations.py`, `tests/test_source_citations.py`.
   - Verify: failing known-answer/input tests first, then green; inclusive cutoff,
     A→B→A, equal-content re-observation and conflicting revisions.
-- [ ] C2 reference SQL: independent selection/joins with deterministic ordering,
+- [x] C2 reference SQL implemented for review (not merged): independent selection/joins with deterministic ordering,
   same known answers and evidence sets on native PostgreSQL 17.
   - Files: provider, `src/nima/semantics/citations.sql`, the same test module.
-  - Verify: Python/SQL parity including empty, Unicode, shared targets, conflicts,
-    cancelled/revoked and missing/unexpected decision types; no persistent objects.
+  - Verified: 61 citation cases pass on native PostgreSQL 17.11; provider 100% line/branch.
+    Empty, Unicode, shared targets, conflicts, cancelled/revoked and missing/unexpected
+    decision types; no persistent objects. [Evidence](../docs/verification/cross-source-citations-model.md).
 - [ ] C3 checkpoint: mutation checks, new-code 100% line/branch, unchanged U1 pins,
   full `just check`/`just audit`, wheel contents, review and exact-head hosted CI.
   - Files: current task records and scoped verification record if needed.
