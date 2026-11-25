@@ -1,8 +1,15 @@
-# Capability progress: 2026-11-19
+# Capability progress: 2026-11-25
 
 ## Current project and chapter position
 
-Merged main is `4c6d41f` after #161 (Diavgis prior art and the measurement to run first, docs only),
+**Update 2026-11-25.** Merged main is past #219. Since #161: the Diavgeia award pilot and its Β.1.3 commitment pilot
+(collect, replay, three live runs; [records](verification/diavgeia-c2-commitments.md)), source-aware archive replay
+and promotion, and the GEMI AFM lookup end to end (search collector, offline verification, SQL import,
+comparison policy v3, live pilot; [records](verification/gemi-afm-l6.md)). The rubric score and the capability rows
+below were **not** re-scored for these and describe 2026-11-19; the active work list is `tasks/todo.md`, and the
+owner-side open items are in the last section of this page. What follows is the 2026-11-19 position, kept as written.
+
+Merged main was `4c6d41f` after #161 (Diavgis prior art and the measurement to run first, docs only),
 including exact `5f74cc4`. The Diavgeia dossier itself is #160; V1-04 is delivered through #159.
 The unchanged-weight [analytics-foundation rubric](roadmap/analytics-readiness.md)
 was **approximately 65/100** when last scored at merged #147 (up from 61: saved-intent/
