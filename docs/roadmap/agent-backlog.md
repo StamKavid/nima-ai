@@ -177,6 +177,13 @@ name matching are separate evaluated features, not shortcuts here.
 
 ## V1-08 — dataset acceptance and comparability
 
+The [first policy specification](../specs/SPEC-dataset-acceptance.md) is drafted
+for A1–A3 review after verified merge of #222 at `9273451`. It proposes per-use
+data fitness, not metric certification. First scope is the pure evaluator;
+verified adapter, additive durable-history contract and real reconciliation stay
+open. V1-01's current journal admits only its original readout validator: general
+acceptance results cannot be inserted without an explicit evolution contract.
+
 Add versioned checks for key uniqueness, referential integrity, expected run/page
 totals, quarantine/exclusions, reference membership and date/amount eligibility.
 Record outcomes through V1-01. Declare which failures block a metric and which

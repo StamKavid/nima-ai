@@ -1,6 +1,13 @@
 # Tasks
 
-## Active V1-07 — citation model/SQL (J1–J4 approved 2026-11-25)
+## Next V1-08 — dataset-acceptance policy review
+
+- [x] Verify #222 merged at `9273451`, reviewed head `724bb14` reachable with identical tree.
+- [x] Draft [acceptance spec](../docs/specs/SPEC-dataset-acceptance.md), grounded in existing metric and journal contracts.
+- [ ] Owner decisions A1–A3; no implementation approval or technical plan recorded yet.
+- [ ] Later: verified acceptance adapter, additive journal contract and real-cohort reconciliation; full V1-08 remains open.
+
+## Delivered V1-07 — citation model/SQL and verified readout (J1–J4 approved 2026-11-25)
 
 - [x] Record owner approval and implementation order; #221 verified merged at `998f798`.
 - [x] C1 pure model delivered in #221: validate both source cohorts even without matching citations;
@@ -19,23 +26,25 @@
   full `just check`/`just audit`, wheel contents, review and exact-head hosted CI.
   - Files: current task records and scoped verification record if needed.
   - Delivered: #221, all three jobs green in run 45602309764; 4,230 tests passed locally/hosted.
-- [x] R1 implemented for review: explicit two-source selection, private request validation,
+- [x] R1 delivered in #222: explicit two-source selection, private request validation,
   path-independent hash; Diavgeia tag supported by the existing safe archive reader.
   - Files: citation request/test modules and pilot-archive reader/tests.
   - Verify: red/green invalid/duplicate/version/binding cases; wrong labels and corrupt
     objects fail; existing KIMDIS/GEMI behavior remains unchanged.
-- [x] R2 implemented for review: one bounded read-only snapshot; raw/normalized/SQL
+- [x] R2 delivered in #222: one bounded read-only snapshot; raw/normalized/SQL
   page/record/quarantine parity and disclosed complete/partial coverage.
   - Files: citation snapshot/reconciliation/test modules.
   - Verify: restricted reader, supported connectors, omitted/mutated records/pages,
     partial/quarantined/empty/no-page runs and zero matching edges.
-- [x] R3 implemented for review: model and SQL parity, private bounded content-addressed artifact,
+- [x] R3 delivered in #222: model and SQL parity, private bounded content-addressed artifact,
   source/field evidence, stable relocation/retry and `analytics source-citations` CLI.
   - Files: readout/test modules, existing analytics commands and request support.
   - Verify: exact known answers and evidence, no names/amounts in result, no network
     or database/source-file writes, publication/input/parity failures stay closed.
-- [ ] R4 checkpoint: targeted mutation checks, 100% new-code line/branch, full
+- [x] R4 delivered in #222: targeted mutation checks, 100% new-code line/branch, full
   `just check`/`just audit`, package proof and exact-head hosted CI; one readout PR.
+  - Verified: 4,314 tests locally/hosted; 84 new cases, 22 mutations rejected;
+    all three jobs passed in run 45624593892. [Evidence](../docs/verification/cross-source-citations-readout.md).
 - [ ] Later: actual private four-positive reconciliation; V1-08 acceptance is separate.
 
 ## GEMI AFM lookup (spec drafted 2026-11-20)

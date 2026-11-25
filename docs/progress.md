@@ -2,11 +2,15 @@
 
 ## Current project and chapter position
 
-**Update 2026-11-25.** Merged main is at #221 (`998f798`): the approved V1-07 pure
-citation model and reference SQL are delivered, with 4,230 tests and all three
-hosted jobs passing on its reviewed head. The verified two-source readout is the
-active follow-up; actual four-positive reconciliation and metric certification
-remain pending. This adds no new source acquisition or milestone release.
+**Update 2026-11-25.** Merged main is at #222 (`9273451`): the approved V1-07
+model/SQL and verified two-source readout are delivered. Its reviewed head
+`724bb14` is reachable with an identical tree; all three jobs passed in run
+45624593892, with 4,314 tests, 100% new-module line/branch coverage and 22 targeted
+mutations rejected. Next is the [V1-08 policy spec](specs/SPEC-dataset-acceptance.md),
+drafted for A1–A3 review; no acceptance implementation approval is recorded.
+Actual four-positive reconciliation and metric certification remain pending.
+This adds no new source acquisition or milestone release and does not rescore
+the historical rubric below.
 Since #161: the Diavgeia award pilot and its Β.1.3 commitment pilot
 (collect, replay, three live runs; [records](verification/diavgeia-c2-commitments.md)), source-aware archive replay
 and promotion, and the GEMI AFM lookup end to end (search collector, offline verification, SQL import,

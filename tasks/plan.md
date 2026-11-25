@@ -1,6 +1,19 @@
 # Delivery plan
 
-## Active V1-07: verified two-source readout
+## Next V1-08: specification review
+
+Owner merged #222 at `9273451`; reviewed head `724bb14` is reachable from
+`origin/main` with an identical tree. All three exact-head hosted jobs passed in
+run 45624593892; 4,314 tests, 100% new-module line/branch coverage and 22 targeted
+mutations rejected. The verified V1-07 readout checkpoint is delivered; actual
+four-positive reconciliation remains open.
+
+The [dataset-acceptance policy spec](../docs/specs/SPEC-dataset-acceptance.md) is
+drafted for A1–A3 review. No V1-08 implementation plan or approval is recorded.
+Existing journal constraints require a separate additive contract before durable
+general acceptance can be claimed. Preserve the earlier plans and open work below.
+
+## Delivered V1-07: verified two-source readout
 
 Owner approved [J1–J4](../docs/specs/SPEC-cross-source-citations.md) as recommended
 on 2026-11-25, including the model/SQL → verified readout → real reconciliation
