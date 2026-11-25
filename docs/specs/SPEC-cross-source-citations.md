@@ -1,7 +1,7 @@
 # Spec: evidence-backed KIMDIS–Diavgeia citations
 
-Module ID: `cross-source-citations` (V1-07). Status: **draft for owner review,
-2026-11-25; no implementation or source acquisition authorized by this document.**
+Module ID: `cross-source-citations` (V1-07). Status: **owner approved J1–J4 as
+recommended on 2026-11-25. Model/SQL implementation first; no source acquisition.**
 Baseline: main `eb0c903` (#220). Extends the [lifecycle model](../semantics/lifecycle-references.md)
 and [source acceptance](../sources/diavgeia-acceptance.md); serves R2/R3/R5 of the
 [release contract](SPEC-release-v1.0.md). V1-05 metric review/certification stays open.

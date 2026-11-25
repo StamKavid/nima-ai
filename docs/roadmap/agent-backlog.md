@@ -160,8 +160,8 @@ document/RAG stack just because decisions link to PDFs.
 
 ## V1-07 — cross-source joins without invented identities
 
-Draft contract (2026-11-25): [SPEC-cross-source-citations](../specs/SPEC-cross-source-citations.md).
-J1–J4 await owner review. First relation: exact KIMDIS `diavgeiaADA` → Diavgeia `ada`,
+Approved contract (2026-11-25): [SPEC-cross-source-citations](../specs/SPEC-cross-source-citations.md).
+Owner approved J1–J4 as recommended. First relation: exact KIMDIS `diavgeiaADA` → Diavgeia `ada`,
 with type/status/conflict disclosure and originals on both sides; no source requests.
 The prior four-positive pilot needs its actual private inputs before real-data
 reconciliation can be claimed. The separate metric evidence pack does not supply them.
