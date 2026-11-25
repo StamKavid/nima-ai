@@ -250,7 +250,7 @@ def test_v1_policy_identity_and_the_exact_reviewed_rule_table_are_stable() -> No
     result = evaluate(facts())
     assert result.policy_id == definition()["id"] == "nima.dataset-acceptance"
     assert result.policy_version == definition()["version"] == "1.0.0"
-    assert definition_sha256() == "4414d4595e27738a932d9544e4dfaf345dab4dcf45d999026fc7b6cd94e4b94b"
+    assert definition_sha256() == "f0a50c1b405ed1a581022641f69d7fd272da85e2d5ab6c69ac4e83c46ef9ef06"
 
 
 @pytest.mark.parametrize("use", ["U1", "U2", "U3", "U4", "citations"])

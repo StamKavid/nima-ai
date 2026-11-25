@@ -280,7 +280,7 @@ def definition() -> dict[str, object]:
             "required_counts": {u: sorted(_required_counts(u)) for u in _USES},
             "failure_reasons": _FAILURES,
             "unassessed_reasons": _UNASSESSED,
-            "pass_reason": "ok",
+            "successful_check_reason": "ok",
             "not_applicable_reason": "not_required_for_use",
             "count_grains": _COUNTS,
             "core_counts": sorted(_CORE_COUNTS),

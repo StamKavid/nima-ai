@@ -33,7 +33,7 @@ The fixture bridge is not a supported product adapter or a durable attestation.
 Prove complete/partial decisions, failed SQL/raw reconciliation, missing proof,
 and unchanged SQL/archive state. No private pilot or source request is involved.
 
-P3 verifies 100% new policy line/branch coverage, targeted decision/accounting
+P3 first runs the cheap lint/type/security preflight, then verifies 100% new policy line/branch coverage, targeted decision/accounting
 mutations, unchanged semantic pins/catalogue and dependency baseline, full
 `just check`/`just audit`, installed-wheel contents and all exact-head hosted
 jobs. Review and deliver this combined slice by updating #223; do not merge it.
