@@ -25,6 +25,7 @@ def verified_citation_facts(dsn: str, request: CitationRequest) -> policy.Datase
     body, result = prepare_citation_readout(dsn, request)
     data = json.loads(body)
     captures, pages = data["captures"], data["verified_pages"]
+    selected = [s.versions[0] for s in result.sources if len(s.versions) == 1]
     base = facts("citations")
     data_facts = replace(
         base,
@@ -58,6 +59,16 @@ def verified_citation_facts(dsn: str, request: CitationRequest) -> policy.Datase
         ("ambiguous_targets", "citation", result.outcome_counts["target_ambiguous"]),
         ("unknown_target_types", "citation", result.outcome_counts["target_type_unknown"]),
         ("mismatched_target_types", "citation", result.outcome_counts["target_type_mismatch"]),
+        ("unknown_cancellations", "source_record", sum(v.cancelled is None for v in selected)),
+        ("cancelled_records", "source_record", sum(v.cancelled is True for v in selected)),
+        (
+            "revoked_targets",
+            "citation",
+            sum(
+                len(e.target_versions) == 1 and e.target_versions[0].decision_status == "REVOKED"
+                for e in result.edges
+            ),
+        ),
     ]:
         data_facts = counted(data_facts, name, grain, value)
     return data_facts
@@ -191,6 +202,7 @@ def test_existing_u1_preparation_preserves_numeric_rules_and_draft_definition(
         ("unknown_cancellations", "source_record", metric.unknown_cancellation_count),
         ("cancelled_records", "source_record", metric.cancelled_count),
         ("unassigned_buyers", "source_record", len(metric.unassigned_source_ids)),
+        ("invalid_supplier_occurrences", "supplier_occurrence", metric.invalid_supplier_count),
     ]:
         data = counted(data, name, grain, value)
     result = policy.evaluate(data)

@@ -74,6 +74,9 @@ Checks have fixed IDs and `passed`, `failed`, `not_assessed` or `not_applicable`
 outcomes. Reasons come from the policy, never exception strings or source values.
 All required checks must pass before `ready` or `limited`. Not-applicable checks
 must be explicitly declared for that use; a missing required check is not a pass.
+Counters applicable to a use must also be explicit, including genuine zeros.
+An omitted diagnostic or denominator counter yields `not_assessed`; it is never
+interpreted as zero or allowed to hide a known accounting failure.
 
 ## Check contract
 

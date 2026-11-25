@@ -20,7 +20,7 @@ The supported profiles are the current four draft metrics and draft citation
 model. Policy `nima.dataset-acceptance` version `1.0.0` has definition hash:
 
 ```text
-06975d8b0ae0ee3eca0368c39a9008c6a75ff439c3c01eef4e3549b7926bafa6
+4414d4595e27738a932d9544e4dfaf345dab4dcf45d999026fc7b6cd94e4b94b
 ```
 
 Definitions and SQL hashes are explicitly pinned; an installed new version or
@@ -39,10 +39,10 @@ empty/unresolved/incomparable statuses remain explicit; no unknown becomes zero.
 
 | Check | Observed result |
 |---|---|
-| Pure known answers and adversarial input cases | 125 passed |
-| New policy line and branch coverage | 100%, 167 statements and 64 branches |
+| Pure known answers and adversarial input cases | 134 passed |
+| New policy line and branch coverage | 100%, 177 statements and 72 branches |
 | Native PostgreSQL 17 integration | 15 passed using existing verified readers and restricted source roles |
-| Targeted behavior mutations | 18 rejected; source restored byte-for-byte, SHA-256 checked |
+| Targeted behavior mutations | 22 rejected; source restored byte-for-byte, SHA-256 checked |
 | Existing request cardinality | Ten selected runs total, including both sides of a comparison/citation request |
 
 The SQL tests use synthetic captures and invoke actual public preparation paths
@@ -65,6 +65,11 @@ Review also corrected an overly broad draft run bound. The old implementation
 fails the new eleven-run rejection test; the corrected policy matches all five
 existing readout interfaces. The initial full gate was interrupted for this
 correction and is not a claimed pass; the final gate is a fresh full run.
+Later review reproduced another gap: omitted applicable counters could look like
+zero. Each use now requires its diagnostic counters explicitly, with U3's
+denominator/joint/partial relationships checked. Missing counts do not hide a
+known partition failure. Regression tests fail against the earlier implementation;
+the final full gate is restarted after this correction too.
 
 ## Remaining work
 

@@ -34,7 +34,8 @@ OTHER_RUN = "00000000-0000-4000-8000-000000000002"
 
 
 def facts(use: str = "U1") -> DatasetFacts:
-    profile = cast(dict[str, dict[str, str]], definition()["uses"])[use]
+    metadata = definition()
+    profile = cast(dict[str, dict[str, str]], metadata["uses"])[use]
     runs: tuple[RunBinding, ...] = (
         RunBinding("kimdis", RUN, "kimdis-contract-v1", "kimdis-normalized-v1"),
     )
@@ -44,6 +45,13 @@ def facts(use: str = "U1") -> DatasetFacts:
                 "diavgeia", OTHER_RUN, "diavgeia-commitment-search-v1", "diavgeia-commitment-v1"
             ),
         )
+    names = set(cast(list[str], metadata["core_counts"]))
+    names.update(cast(dict[str, tuple[str, ...]], metadata["limiting_counts"])[use])
+    if use == "U3":
+        names.update(
+            {"buyer_records", "resolved_records", "joint_records", "supplier_participations"}
+        )
+    grains = cast(dict[str, str], metadata["count_grains"])
     return DatasetFacts(
         DatasetBinding(
             use,
@@ -60,13 +68,8 @@ def facts(use: str = "U1") -> DatasetFacts:
         if use == "U4"
         else "empty_capture",
         tuple(CheckResult(c, "passed", "ok") for c in CHECKS),
-        (
-            Count("observations", "observation", 0),
-            Count("pages", "page", 1),
-            Count("page_records", "reported_record", 0),
-            Count("quarantined", "quarantined_record", 0),
-            Count("selected_records", "source_record", 0),
-            Count("ambiguous_records", "source_record", 0),
+        tuple(
+            Count(name, grains[name], len(runs) if name == "pages" else 0) for name in sorted(names)
         ),
     )
 
@@ -159,6 +162,7 @@ def test_run_profile_bounds_are_the_existing_use_bounds(use: str, size: int, exp
     )
     assert len(runs) == size
     changed = replace(data, binding=replace(data.binding, runs=runs))
+    changed = counted(changed, "pages", "page", size)
     if expected == "input_error":
         with pytest.raises(AcceptanceError, match="^acceptance_input$"):
             evaluate(changed)
@@ -246,7 +250,7 @@ def test_v1_policy_identity_and_the_exact_reviewed_rule_table_are_stable() -> No
     result = evaluate(facts())
     assert result.policy_id == definition()["id"] == "nima.dataset-acceptance"
     assert result.policy_version == definition()["version"] == "1.0.0"
-    assert definition_sha256() == "06975d8b0ae0ee3eca0368c39a9008c6a75ff439c3c01eef4e3549b7926bafa6"
+    assert definition_sha256() == "4414d4595e27738a932d9544e4dfaf345dab4dcf45d999026fc7b6cd94e4b94b"
 
 
 @pytest.mark.parametrize("use", ["U1", "U2", "U3", "U4", "citations"])
@@ -400,6 +404,53 @@ def test_missing_core_counts_and_record_partition_errors_have_precise_results() 
         result = evaluate(counted(data, name, grain, 1))
         assert result.status == "blocked"
         assert next(c for c in result.checks if c.check_id == expected).status == "failed"
+
+
+@pytest.mark.parametrize(
+    "use,name",
+    [
+        ("U1", "unknown_suppliers"),
+        ("U2", "unknown_dates"),
+        ("U3", "resolved_records"),
+        ("U4", "ambiguous_records"),
+        ("citations", "unresolved_citations"),
+    ],
+)
+def test_missing_applicable_counter_never_silently_means_zero(use: str, name: str) -> None:
+    data = facts(use)
+    result = evaluate(replace(data, counts=tuple(c for c in data.counts if c.name != name)))
+    assert result.status == "not_assessed"
+    assert (
+        next(c for c in result.checks if c.check_id == "eligibility").reason == "proof_unavailable"
+    )
+    assert name not in {c.name for c in result.counts}
+
+
+def test_a_missing_diagnostic_does_not_hide_a_known_accounting_failure() -> None:
+    data = counted(facts("U2"), "page_records", "reported_record", 1)
+    data = replace(data, counts=tuple(c for c in data.counts if c.name != "unknown_dates"))
+    assert evaluate(data).status == "blocked"
+
+
+@pytest.mark.parametrize(
+    "name,value", [("joint_records", 2), ("partial_suppliers", 2), ("supplier_participations", 1)]
+)
+def test_joint_and_partial_records_cannot_exceed_resolved_records(name: str, value: int) -> None:
+    data = facts("U3")
+    for counter, grain, number in [
+        ("observations", "observation", 2),
+        ("page_records", "reported_record", 2),
+        ("selected_records", "source_record", 2),
+        ("buyer_records", "source_record", 2),
+        ("resolved_records", "source_record", 1),
+        ("unresolved_suppliers", "source_record", 1),
+        ("joint_records", "source_record", 1),
+        ("supplier_participations", "participation", 2),
+    ]:
+        data = counted(data, counter, grain, number)
+    assert evaluate(data).status == "limited"
+    grain = "participation" if name == "supplier_participations" else "source_record"
+    assert evaluate(counted(data, name, grain, value)).status == "blocked"
 
 
 def test_u3_joint_participation_overlaps_but_resolved_denominator_does_not() -> None:

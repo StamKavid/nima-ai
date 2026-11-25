@@ -12,8 +12,10 @@
   - Verify: test-first `uv run --frozen pytest tests/test_dataset_acceptance.py`;
     immutable/canonical/reordered inputs, unsupported versions and bad count grains.
   - Files: `src/nima/contracts/acceptance.py`, `tests/test_dataset_acceptance.py` (small).
-  - Observed: 125 pure cases, 100% policy line/branch coverage; all 18 targeted
+  - Observed: 134 pure cases, 100% policy line/branch coverage; all 22 targeted
     mutations rejected. Ten-run bound corrected against the actual request interfaces.
+    Missing applicable counters are not treated as zero; U3 joint/partial and
+    participation counts reconcile with resolved records.
 - [x] P2 verification boundary (depends on P1): existing public verified readers
   on disposable PostgreSQL 17 feed the policy through a test-only bridge.
   - Acceptance: complete/partial decisions and original/SQL disagreement are distinct;

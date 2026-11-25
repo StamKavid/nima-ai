@@ -258,6 +258,13 @@ def _required(use: str) -> tuple[str, ...]:
     )
 
 
+def _required_counts(use: str) -> frozenset[str]:
+    names = _CORE_COUNTS | set(_LIMITATIONS.get(use, ()))
+    if use == "U3":
+        names |= {"buyer_records", "resolved_records", "joint_records", "supplier_participations"}
+    return frozenset(names)
+
+
 def definition() -> dict[str, object]:
     return deepcopy(
         {
@@ -270,6 +277,7 @@ def definition() -> dict[str, object]:
             "profiles": _PROFILES,
             "provider_statuses": _STATUSES,
             "required_checks": {u: _required(u) for u in _USES},
+            "required_counts": {u: sorted(_required_counts(u)) for u in _USES},
             "failure_reasons": _FAILURES,
             "unassessed_reasons": _UNASSESSED,
             "pass_reason": "ok",
@@ -289,6 +297,9 @@ def definition() -> dict[str, object]:
                 "positive_quarantine_blocks_numeric_captures",
                 "incomparable_provider_status_cannot_pass_comparability",
                 "overlapping_cpv_cells_and_supplier_participations_are_not_partitions",
+                "applicable_diagnostic_counters_must_be_explicit_even_when_zero",
+                "joint_and_partial_records_at_most_resolved_buyer_records",
+                "supplier_participations_at_least_resolved_plus_joint_records",
             ],
             "limits": {
                 "runs": 10,
@@ -420,9 +431,9 @@ def evaluate(facts: DatasetFacts) -> Assessment:
         and checks["comparability"].status != "failed"
     ):
         mark("comparability", "failed", "comparability_disagreement")
-    if not counts.keys() >= _CORE_COUNTS:
+    if not counts.keys() >= _required_counts(b.use):
         mark("eligibility", "not_assessed", "proof_unavailable")
-    else:
+    if counts.keys() >= _CORE_COUNTS:
         if counts["quarantined"] > 0:
             mark("capture_completeness", "failed", "quarantined_records")
         elif counts["pages"] == 0:
@@ -445,6 +456,18 @@ def evaluate(facts: DatasetFacts) -> Assessment:
         and counts["resolved_records"] + counts["unresolved_suppliers"] != counts["buyer_records"]
     ):
         mark("eligibility", "failed", "eligibility_disagreement")
+    if (
+        b.use == "U3"
+        and counts.keys() >= {"joint_records", "partial_suppliers", "resolved_records"}
+        and max(counts["joint_records"], counts["partial_suppliers"]) > counts["resolved_records"]
+    ):
+        mark("eligibility", "failed", "eligibility_disagreement")
+    if (
+        b.use == "U3"
+        and counts.keys() >= {"joint_records", "resolved_records", "supplier_participations"}
+        and counts["supplier_participations"] < counts["resolved_records"] + counts["joint_records"]
+    ):
+        mark("eligibility", "failed", "eligibility_disagreement")
 
     required = _required(b.use) if supported else ("bindings",)
     for c in required:
@@ -454,7 +477,7 @@ def evaluate(facts: DatasetFacts) -> Assessment:
         checks["comparability"] = CheckResult(
             "comparability", "not_applicable", "not_required_for_use"
         )
-    limitations = [n for n in _LIMITATIONS.get(b.use, ()) if counts.get(n, 0) > 0]
+    limitations = [n for n in _LIMITATIONS.get(b.use, ()) if n in counts and counts[n] > 0]
     if b.use == "citations" and checks["capture_completeness"].status != "passed":
         limitations.append(
             "partial_capture"
