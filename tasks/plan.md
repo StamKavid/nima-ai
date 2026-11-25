@@ -40,6 +40,12 @@ jobs. Review and deliver this combined slice by updating #223; do not merge it.
 End checkpoint: reviewed pure-policy PR; verified acceptance publication,
 additive durable history and real-cohort reconciliation remain separate work.
 
+P1/P2 are implemented in the #223 candidate: 125 pure cases and 15 native SQL
+cases pass, new policy has 100% line/branch coverage and 18 mutations are rejected.
+The ten-run bound follows all existing readout interfaces. [Focused proof](../docs/verification/dataset-acceptance-policy.md).
+P3 final quality/package/hosted results and owner review remain the delivery gate;
+this does not mark the pure policy merged or complete the V1-08 work package.
+
 Risks and controls: caller-supplied flags masquerading as evidence (typed internal
 input only; SQL integration invokes actual reconcilers); missing checks passing
 vacuously (explicit required sets); partial data mistaken for zero activity

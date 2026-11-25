@@ -8,6 +8,9 @@ model/SQL and verified two-source readout are delivered. Its reviewed head
 45624593892, with 4,314 tests, 100% new-module line/branch coverage and 22 targeted
 mutations rejected. The owner approved [V1-08 A1–A3](specs/SPEC-dataset-acceptance.md)
 as recommended on 2026-11-25; the pure-policy slice is active under the recorded plan.
+Its #223 candidate has 125 passing pure cases and 15 native SQL cases, 100% new
+policy line/branch coverage and 18 rejected mutations; final delivery gates are
+tracked on the PR. It adds no product acceptance gate or durable journal yet.
 Actual four-positive reconciliation and metric certification remain pending.
 This adds no new source acquisition or milestone release and does not rescore
 the historical rubric below.

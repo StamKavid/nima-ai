@@ -181,7 +181,9 @@ The owner approved [A1–A3](../specs/SPEC-dataset-acceptance.md) as recommended
 2026-11-25 after verified merge of #222 at `9273451`. The active slice is per-use
 data fitness, not metric certification. First scope is the pure evaluator;
 verified adapter, additive durable-history contract and real reconciliation stay
-open. V1-01's current journal admits only its original readout validator: general
+open. The evaluator is implemented for review in #223, with
+[focused proof](../verification/dataset-acceptance-policy.md); final delivery gates
+are recorded on the PR. V1-01's current journal admits only its original readout validator: general
 acceptance results cannot be inserted without an explicit evolution contract.
 
 Add versioned checks for key uniqueness, referential integrity, expected run/page
