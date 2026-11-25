@@ -1,12 +1,29 @@
 # Tasks
 
-## Next V1-08 — citation-acceptance contract review
+## Active V1-08 — verified citation-acceptance readout
 
 - [x] Verify #223 merged at `a4eb99d`, tested `d2d94db` reachable with identical tree;
   all three main CI jobs passed in run 45639919348.
 - [x] Draft [citation-acceptance readout contract](../docs/specs/SPEC-citation-acceptance-readout.md)
   with explicit counter grains, reconstruction and failure/publication behavior.
-- [ ] Owner decisions B1–B3; no new adapter implementation plan or approval recorded.
+- [x] Owner approved B1–B3 as recommended on 2026-11-26 (Europe/Athens).
+- [ ] R1 verified-result mapping: all fourteen counters/grains and closed producer/policy bindings.
+  - Acceptance: hand-computed ambiguity/shared-target/revision/cutoff/unknown cases;
+    missing producer fields fail, never default to zero.
+  - Verify: failing tests first, focused `tests/test_citation_acceptance.py`, strict types.
+  - Files: adapter and focused test module (small); depends on existing #223 policy.
+- [ ] R2 operator path: descriptor-safe subject read, one reconstruction, byte equality,
+  sidecar and DataOps routing; depends on R1.
+  - Acceptance: native restricted-reader proof; no HTTP on success or failures;
+    retries/relocation preserve bytes and inputs; negative decisions stay explicit.
+  - Verify: native PostgreSQL 17/file/CLI cases; exact size and publication refusal cases.
+  - Files: adapter, `acceptance_cli.py`, DataOps dispatcher and focused tests (medium).
+- [ ] R3 delivery checkpoint: early lint/type/security, mutations, full gates/audit,
+  package, process interruption and exact-head hosted CI; depends on R1/R2.
+  - Acceptance: 100% new-code line/branch and unchanged 90% overall floor; legacy
+    artifacts unchanged; full source restored after mutations; all hosted jobs pass.
+  - Verify: `just check`, `just audit`, wheel smoke and scoped verification record.
+  - Files: operator/verification documentation, task/progress records and spec index.
 
 ## Delivered V1-08 — pure dataset-acceptance policy
 

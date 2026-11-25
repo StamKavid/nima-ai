@@ -1,16 +1,46 @@
 # Delivery plan
 
-## Next V1-08: citation-acceptance contract review
+## Active V1-08: verified citation-acceptance readout
 
 Owner merged #223 at `a4eb99d`; tested head `d2d94db` is reachable from main
 with an identical tree. All three main CI jobs passed in run 45639919348.
 The local gate passed 4,463 tests at 95.03% overall coverage; new policy coverage
 is 100%, 22 mutations rejected, audit and installed-wheel proof clean.
 
-The [citation-acceptance readout spec](../docs/specs/SPEC-citation-acceptance-readout.md)
-proposes the first verified consumer under A3's separate contract. B1–B3 await
-owner review; no adapter implementation plan or approval is recorded. Durable
-history, U1–U4 consumers and actual source reconciliation remain open.
+Owner approved [B1–B3](../docs/specs/SPEC-citation-acceptance-readout.md) as recommended
+on 2026-11-26 (Europe/Athens), including the bounded citation consumer. Execute
+sequentially, keeping existing incomplete work below. Durable history, U1–U4
+consumers and actual source reconciliation remain open.
+
+Dependency direction: DataOps command → citation adapter → existing public
+preparation API and pure acceptance policy. The policy remains stdlib-only;
+normalizers, existing artifacts, reader transactions and legacy validation are
+not rewritten. Update the existing #224 with this one working consumer.
+
+R1 front-loads verified-result mapping. Write failing known answers for all
+fourteen counters, strict producer shapes/bindings and current policy metadata.
+Build from a fresh public preparation result, never a fixture template or cached
+success flag. Exercise source/target ambiguity, shared revoked targets, A→B→A,
+unknown/empty lists, cancellation and after-cutoff evidence before full gates.
+
+R2 adds private subject/hash reading, one actual reconstruction, exact byte
+comparison, pure evaluation and bounded sidecar publication. Route the new
+command through the existing DataOps dispatcher. Native PostgreSQL 17 tests
+prove restricted-role/single-snapshot behavior, every required counter, closed
+failures, real retry/relocation and no input/SQL writes. Broken proof produces
+no assessment; reconstructed subjects can publish any policy decision.
+
+R3 runs cheap lint/type/security first, then 100% new-code line/branch coverage,
+targeted mapping/verification/publication mutations, unchanged legacy pins,
+process-interruption recovery, full `just check`/`just audit`, installed-wheel
+proof and all exact-head hosted jobs. Keep source stable during test/mutation
+runs. Deliver a reviewable PR, not a merge or a live data operation.
+
+Risks: double-counting shared targets (edge grain, not distinct target); treating
+ambiguity as a chosen version (typed selection, separate counts); omitted counters
+becoming zeros (explicit measured values); trusting saved JSON flags (always run
+the existing verifier and compare complete bytes); duplicate verification engines
+(reuse the public preparation API); late scanner failures (cheap preflight first).
 
 ## Delivered V1-08: pure acceptance policy
 
