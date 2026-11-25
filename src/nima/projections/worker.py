@@ -11,9 +11,13 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 from nima.projections.contracts import InvalidProjection, project_contract
+from nima.sources.registry import DEFAULT_SOURCE
 from nima.storage.postgres import NORMALIZER_VERSION, Connection, _connect, check_schema
 
 PROJECTION_VERSION = "kimdis-participation-v1"
+# Source ids are namespaced by their adapter (`kimdis:<reference>`); this projection reads one
+# source.
+SOURCE_PREFIX = f"{DEFAULT_SOURCE}:"
 
 
 class ProjectionFailure(Exception):
@@ -85,7 +89,14 @@ def _project(connection: Connection, row: tuple[object, ...]) -> bool:
 
 
 def drain(dsn: str, *, max_events: int = 100, run_id: UUID | None = None) -> dict[str, object]:
-    """Process a bounded batch; retry locked/later-committing IDs next invocation."""
+    """Process a bounded batch; retry locked/later-committing IDs next invocation.
+
+    The outbox holds the events of every source. Without a run, only this projection's own source
+    is claimed and counted, so another source's events neither stop the queue nor keep the backlog
+    above zero; they stay undelivered for their own consumer. An event of this source that cannot be
+    projected (an unknown normalizer version, a bad shape) still stops visibly. Naming a run
+    projects exactly that run, and a run of another source fails visibly.
+    """
     if type(max_events) is not int or not 1 <= max_events <= 1000:
         raise ValueError("max_events must be 1–1000")
     check_schema(dsn)
@@ -105,11 +116,12 @@ def drain(dsn: str, *, max_events: int = 100, run_id: UUID | None = None) -> dic
                         WHERE q.observation_id > %s
                         AND (%s::uuid IS NULL OR EXISTS (SELECT 1 FROM nima.observations selected
                             WHERE selected.observation_id=q.observation_id AND selected.run_id=%s))
+                        AND (%s::uuid IS NOT NULL OR starts_with(v.source_id, %s))
                         AND NOT EXISTS (
                             SELECT 1 FROM nima.projection_receipts r
                             WHERE r.projection_version=%s AND r.observation_id=q.observation_id)
                         ORDER BY q.observation_id LIMIT 1 FOR UPDATE OF q SKIP LOCKED""",
-                        (after_id, run_id, run_id, PROJECTION_VERSION),
+                        (after_id, run_id, run_id, run_id, SOURCE_PREFIX, PROJECTION_VERSION),
                     ).fetchone()
                     if row is None:
                         break
@@ -122,9 +134,11 @@ def drain(dsn: str, *, max_events: int = 100, run_id: UUID | None = None) -> dic
                 """SELECT count(*) FROM nima.outbox q
                 WHERE (%s::uuid IS NULL OR EXISTS (SELECT 1 FROM nima.observations selected
                     WHERE selected.observation_id=q.observation_id AND selected.run_id=%s))
+                AND (%s::uuid IS NOT NULL OR EXISTS (SELECT 1 FROM nima.observations o
+                    WHERE o.observation_id=q.observation_id AND starts_with(o.source_id, %s)))
                 AND NOT EXISTS (SELECT 1 FROM nima.projection_receipts r
                     WHERE r.projection_version=%s AND r.observation_id=q.observation_id)""",
-                (run_id, run_id, PROJECTION_VERSION),
+                (run_id, run_id, run_id, SOURCE_PREFIX, PROJECTION_VERSION),
             ).fetchone()
             remaining = cast(tuple[int], remaining_row)[0]  # COUNT always returns one row.
     except (InvalidProjection, psycopg.Error) as exc:

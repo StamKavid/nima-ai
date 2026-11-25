@@ -1,6 +1,10 @@
 # Delivery plan
 
-## Active GEMI AFM lookup: spec drafted, no code
+## GEMI AFM lookup: delivered (2026-11-25), kept for the decisions and the risks it answered
+
+**Status:** L1 to L6 and the comparison (L5a to L5c-1) are merged; the record is in `tasks/todo.md` and
+`docs/verification/gemi-afm-l6.md`, `gemi-afm-l5c.md`. Open: importing the L6 runs into the owner's database. The text
+below is the plan as it stood before the work, not the current state.
 
 [SPEC-gemi-afm-lookup.md](../docs/specs/SPEC-gemi-afm-lookup.md) (2026-11-20) proposes `GET /companies?afm=` so a KIMDIS
 reported tax number can be looked up in GEMI without finding the registry number by hand. Evidence and candidates only: every
