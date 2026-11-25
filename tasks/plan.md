@@ -1,5 +1,34 @@
 # Delivery plan
 
+## Active V1-07: explicit citations, model/SQL checkpoint
+
+Owner approved [J1–J4](../docs/specs/SPEC-cross-source-citations.md) as recommended
+on 2026-11-25, including the model/SQL → verified readout → real reconciliation
+delivery order. This extends the existing roadmap; preserve all open work below.
+PR #221 is still open, so record approval without claiming a main merge. Continue
+that PR with the first bounded implementation, then describe its final scope anew.
+
+Implementation order (sequential): C1 pure typed observations, validation and exact
+citation classification using the existing latest-observation selector; C2 independent
+reference SQL on the same validated input and PostgreSQL 17 parity; C3 mutation,
+compatibility, full quality/audit, package and hosted checks. Tests precede each
+behavior change. Each task's file boundary and acceptance live in `tasks/todo.md`.
+
+The model keeps source/target ambiguity and unknown/empty lists separate, preserves
+type/status and selected-content observation lineage, and never reads SQL, blobs or
+network itself. SQL is packaged reference arithmetic, not a new database object.
+Use existing normalizer IDs as an explicit closed supported-version contract in
+the pure module, as other semantic providers do; a later installed adapter must
+not silently change this model's input contract. Leave the lifecycle/U1–U4 bytes alone.
+
+Risks: later revisions accidentally filtered into earlier valid targets (select
+first, then classify); same-hash contradictory facts (validate before selection);
+Python/SQL collation and lineage disagreement (Unicode and repeated-observation
+parity tests); scope growth (end at model/SQL, no CLI or generic graph framework).
+The next checkpoint adds verified two-source snapshot/archive readout, in separately
+bounded tasks after this model contract is reviewed. Four-positive real validation
+still needs the owner's actual private inputs; no fresh source request is implied.
+
 ## GEMI AFM lookup: delivered (2026-11-25), kept for the decisions and the risks it answered
 
 **Status:** L1 to L6 and the comparison (L5a to L5c-1) are merged; the record is in `tasks/todo.md` and

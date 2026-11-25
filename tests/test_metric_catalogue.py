@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 from nima.semantics.catalogue import CatalogueEntry, entries
+from nima.semantics.citations import definition as citation_definition
 
 ROOT = Path(__file__).resolve().parents[1]
 PAGE = ROOT / "docs" / "semantics" / "metric-catalogue.md"
@@ -57,10 +58,16 @@ def test_the_published_page_matches_the_code_exactly() -> None:
     assert published == computed
 
 
-def test_every_packaged_reference_sql_belongs_to_a_catalogue_entry() -> None:
+def test_every_packaged_reference_sql_has_a_declared_metric_or_model_owner() -> None:
     packaged = {p.name for p in files("nima.semantics").iterdir() if p.name.endswith(".sql")}
     listed = {row.provider.rsplit(".", 1)[1] + ".sql" for row in entries()}
-    assert packaged == listed
+    # Citations are a model, not a fifth metric; unknown SQL still fails this closed set.
+    model = citation_definition()
+    assert model["model"] == "explicit_procurement_citations.v1"
+    assert "metric" not in model
+    sql = files("nima.semantics").joinpath("citations.sql").read_text()
+    assert model["sql_sha256"] == hashlib.sha256(sql.encode()).hexdigest()
+    assert packaged == listed | {"citations.sql"}
 
 
 def test_every_semantic_module_that_defines_a_metric_is_listed() -> None:

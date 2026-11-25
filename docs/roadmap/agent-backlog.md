@@ -160,6 +160,12 @@ document/RAG stack just because decisions link to PDFs.
 
 ## V1-07 — cross-source joins without invented identities
 
+Approved contract (2026-11-25): [SPEC-cross-source-citations](../specs/SPEC-cross-source-citations.md).
+Owner approved J1–J4 as recommended. First relation: exact KIMDIS `diavgeiaADA` → Diavgeia `ada`,
+with type/status/conflict disclosure and originals on both sides; no source requests.
+The prior four-positive pilot needs its actual private inputs before real-data
+reconciliation can be claimed. The separate metric evidence pack does not supply them.
+
 Specify exact supported ADA/contract references, direction, source stage and
 evidence. A reference, reported identifier grouping and reviewed identity are
 different relationship types. Keep disagreement, unmatched records and ambiguous
