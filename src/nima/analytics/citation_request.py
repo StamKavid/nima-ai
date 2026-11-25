@@ -111,3 +111,21 @@ def read_citation_request(path: Path) -> CitationRequest:
             else "citation_input"
         )
         raise RequestError(reason) from None
+
+
+def validate_citation_request(request: CitationRequest) -> None:
+    """Programmatic callers must provide the same canonical selection as file callers."""
+    try:
+        if not isinstance(request, CitationRequest):
+            raise RequestError("citation_input")
+        value = {
+            **request.semantic_payload(),
+            "archive_bindings": [
+                {"source": b.source, "run_id": str(b.run_id), "root": str(b.root)}
+                for b in request.archive_bindings
+            ],
+        }
+        if decode_citation_request(json.dumps(value).encode()) != request:
+            raise RequestError("citation_input")
+    except (ValueError, TypeError, AttributeError):
+        raise RequestError("citation_input") from None

@@ -11,6 +11,7 @@ import psycopg
 
 from nima.analytics.buyer_readout import export_buyer_readout
 from nima.analytics.change_readout import export_change_readout
+from nima.analytics.citation_readout import export_citation_readout
 from nima.analytics.cpv_readout import export_cpv_readout
 from nima.analytics.export import export_readout
 from nima.analytics.result import ReadoutError
@@ -52,17 +53,27 @@ def _parser() -> argparse.ArgumentParser:
     )
     change.add_argument("--request", type=Path, required=True, help="Private explicit selection")
     change.add_argument("--output-dir", type=Path, required=True, help="Private result directory")
+    citations = operations.add_parser(
+        "source-citations",
+        help="Publish verified explicit KIMDIS–Diavgeia citations",
+        allow_abbrev=False,
+    )
+    citations.add_argument("--request", type=Path, required=True, help="Private explicit selection")
+    citations.add_argument(
+        "--output-dir", type=Path, required=True, help="Private result directory"
+    )
     return parser
 
 
 def _failure(reason: str) -> int:
     print(json.dumps({"status": "failed", "failure": reason}, allow_nan=False))
-    if reason in {"analytics_configuration", "analytics_input"}:
+    if reason in {"analytics_configuration", "analytics_input", "citation_input"}:
         return 2
     return 130 if reason == "analytics_interrupted" else 1
 
 
 def run(argv: list[str]) -> int:
+    citation = argv[:1] == ["source-citations"]
     try:
         args = _parser().parse_args(argv)
         dsn = os.environ.get("NIMA_DATABASE_URL", "")
@@ -72,17 +83,21 @@ def run(argv: list[str]) -> int:
             "cpv-period": export_cpv_readout,
             "buyer-concentration": export_buyer_readout,
             "observed-change": export_change_readout,
+            "source-citations": export_citation_readout,
         }.get(args.operation, export_readout)
         result: Any = exporter(dsn, args.request, args.output_dir)
     except ReadoutError as error:
         return _failure(error.reason)
     except psycopg.Error:
-        return _failure("analytics_database")
+        return _failure("citation_database" if citation else "analytics_database")
     except OSError:
-        return _failure("analytics_output")
+        return _failure("citation_output" if citation else "analytics_output")
     except ValueError:
-        return _failure("analytics_configuration")
+        return _failure("citation_input" if citation else "analytics_configuration")
     except KeyboardInterrupt:
+        if citation:
+            _failure("citation_output")
+            return 130
         return _failure("analytics_interrupted")
     print(json.dumps({"status": "complete", **asdict(result)}, allow_nan=False))
     return 0
