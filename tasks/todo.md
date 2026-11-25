@@ -1,6 +1,40 @@
 # Tasks
 
-## Active V1-07 — citation model/SQL (J1–J4 approved 2026-11-25)
+## Active V1-08 — pure dataset-acceptance policy
+
+- [x] Verify #222 merged at `9273451`, reviewed head `724bb14` reachable with identical tree.
+- [x] Draft [acceptance spec](../docs/specs/SPEC-dataset-acceptance.md), grounded in existing metric and journal contracts.
+- [x] Owner approved A1–A3 as recommended on 2026-11-25, including pure-policy implementation.
+- [x] P1 typed policy path (no dependency on P2): fixed bindings/checks/counters,
+  deterministic required-check decisions and known answers; no source/file/SQL I/O.
+  - Acceptance: required failure outranks missing proof; missing proof cannot pass;
+    metric-specific unknowns and honest partial citation inspection remain explicit.
+  - Verify: test-first `uv run --frozen pytest tests/test_dataset_acceptance.py`;
+    immutable/canonical/reordered inputs, unsupported versions and bad count grains.
+  - Files: `src/nima/contracts/acceptance.py`, `tests/test_dataset_acceptance.py` (small).
+  - Observed: 134 pure cases, 100% policy line/branch coverage; all 22 targeted
+    mutations rejected. Ten-run bound corrected against the actual request interfaces.
+    Missing applicable counters are not treated as zero; U3 joint/partial and
+    participation counts reconcile with resolved records.
+- [x] P2 verification boundary (depends on P1): existing public verified readers
+  on disposable PostgreSQL 17 feed the policy through a test-only bridge.
+  - Acceptance: complete/partial decisions and original/SQL disagreement are distinct;
+    no untrusted JSON success flag bypasses reconstruction; source state stays unchanged.
+  - Verify: focused native SQL tests with synthetic captures and a restricted reader;
+    compare SQL rows and original file state before/after.
+  - Files: `tests/test_dataset_acceptance_integration.py` plus policy tests if needed (small).
+  - Observed: all 15 native SQL cases pass; restricted readers, actual original-byte
+    verification, no HTTP and unchanged SQL/archive state. The bridge is test-only.
+- [ ] P3 delivery checkpoint (depends on P1/P2): full gates, audit and review.
+  - Acceptance: 100% new policy line/branch coverage, targeted mutations rejected;
+    old semantic pins and artifact contracts unchanged; all exact-head hosted jobs pass.
+  - Verify: `just check`, `just audit`, package/import/dependency proof and hosted CI.
+  - Files: scoped verification record, task/progress records and spec index (medium).
+  - Candidate: #223; [focused proof](../docs/verification/dataset-acceptance-policy.md).
+    Final full-gate/package/hosted results are reported on the PR before review-ready handoff.
+- [ ] Later: verified acceptance adapter, additive journal contract and real-cohort reconciliation; full V1-08 remains open.
+
+## Delivered V1-07 — citation model/SQL and verified readout (J1–J4 approved 2026-11-25)
 
 - [x] Record owner approval and implementation order; #221 verified merged at `998f798`.
 - [x] C1 pure model delivered in #221: validate both source cohorts even without matching citations;
@@ -19,23 +53,25 @@
   full `just check`/`just audit`, wheel contents, review and exact-head hosted CI.
   - Files: current task records and scoped verification record if needed.
   - Delivered: #221, all three jobs green in run 45602309764; 4,230 tests passed locally/hosted.
-- [x] R1 implemented for review: explicit two-source selection, private request validation,
+- [x] R1 delivered in #222: explicit two-source selection, private request validation,
   path-independent hash; Diavgeia tag supported by the existing safe archive reader.
   - Files: citation request/test modules and pilot-archive reader/tests.
   - Verify: red/green invalid/duplicate/version/binding cases; wrong labels and corrupt
     objects fail; existing KIMDIS/GEMI behavior remains unchanged.
-- [x] R2 implemented for review: one bounded read-only snapshot; raw/normalized/SQL
+- [x] R2 delivered in #222: one bounded read-only snapshot; raw/normalized/SQL
   page/record/quarantine parity and disclosed complete/partial coverage.
   - Files: citation snapshot/reconciliation/test modules.
   - Verify: restricted reader, supported connectors, omitted/mutated records/pages,
     partial/quarantined/empty/no-page runs and zero matching edges.
-- [x] R3 implemented for review: model and SQL parity, private bounded content-addressed artifact,
+- [x] R3 delivered in #222: model and SQL parity, private bounded content-addressed artifact,
   source/field evidence, stable relocation/retry and `analytics source-citations` CLI.
   - Files: readout/test modules, existing analytics commands and request support.
   - Verify: exact known answers and evidence, no names/amounts in result, no network
     or database/source-file writes, publication/input/parity failures stay closed.
-- [ ] R4 checkpoint: targeted mutation checks, 100% new-code line/branch, full
+- [x] R4 delivered in #222: targeted mutation checks, 100% new-code line/branch, full
   `just check`/`just audit`, package proof and exact-head hosted CI; one readout PR.
+  - Verified: 4,314 tests locally/hosted; 84 new cases, 22 mutations rejected;
+    all three jobs passed in run 45624593892. [Evidence](../docs/verification/cross-source-citations-readout.md).
 - [ ] Later: actual private four-positive reconciliation; V1-08 acceptance is separate.
 
 ## GEMI AFM lookup (spec drafted 2026-11-20)
