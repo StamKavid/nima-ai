@@ -394,3 +394,19 @@ def test_export_failures_are_private_and_never_fake_success(
             path,
             Path("relative") if case == "relative" else output,
         )
+
+
+def test_sidecar_byte_limit_accepts_exact_bound_and_refuses_one_less(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    request, frame, result = producer((contract(1),), (decision(),))
+    body = encode(frame)
+    report = subject(tmp_path / "reports", body)
+    monkeypatch.setattr(adapter, "prepare_citation_readout", lambda *_: (body, result))
+    original = prepare_citation_acceptance("fixture", request, report).body
+    assert isinstance(original, bytes) and len(original) <= 64 * 1024
+    monkeypatch.setattr(adapter, "MAX_ACCEPTANCE_BYTES", len(original))
+    assert prepare_citation_acceptance("fixture", request, report).body == original
+    monkeypatch.setattr(adapter, "MAX_ACCEPTANCE_BYTES", len(original) - 1)
+    with pytest.raises(CitationAcceptanceError, match="^acceptance_limit$"):
+        prepare_citation_acceptance("fixture", request, report)
