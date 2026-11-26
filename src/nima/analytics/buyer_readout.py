@@ -1,6 +1,6 @@
 """Read, verify against originals, evaluate and privately publish a buyer-concentration readout."""
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import cast
 
@@ -18,7 +18,7 @@ from nima.analytics.result import ReadoutError
 from nima.analytics.snapshot import SnapshotError, read_cohort
 from nima.graph.pilot_archive import PilotArchiveError
 from nima.identity import AssessmentError
-from nima.identity.artifacts import publish
+from nima.identity.artifacts import encode, publish
 from nima.semantics.buyer_concentration import (
     MetricResult,
     definition,
@@ -35,6 +35,17 @@ class BuyerExport:
     buyer_record_count: int
     supplier_count: int
     outcome: str
+
+
+@dataclass(frozen=True)
+class PreparedBuyerReadout:
+    """Verified report and immutable facts from its existing single cohort read."""
+
+    body: bytes = field(repr=False)
+    metric: MetricResult
+    cohort_json: str = field(repr=False)
+    observations: tuple[Observation, ...] = field(repr=False)
+    pages: tuple[VerifiedPage, ...]
 
 
 def _evidence(
@@ -119,7 +130,7 @@ def _body(
     )
 
 
-def prepare_buyer_readout(dsn: str, request: BuyerRequest) -> tuple[bytes, MetricResult]:
+def prepare_buyer_result(dsn: str, request: BuyerRequest) -> PreparedBuyerReadout:
     """Reconstruct and validate without publishing or writing SQL/source evidence."""
     try:
         cohort = read_cohort(dsn, request.run_ids)
@@ -134,7 +145,13 @@ def prepare_buyer_readout(dsn: str, request: BuyerRequest) -> tuple[bytes, Metri
             (request.observation_cutoff, request.buyer),
             result.payload(),
         )
-        return _body(request, cohort.document, cohort.observations, result, pages), result
+        return PreparedBuyerReadout(
+            _body(request, cohort.document, cohort.observations, result, pages),
+            result,
+            encode(cohort.document).decode("utf-8"),
+            cohort.observations,
+            pages,
+        )
     except ReadoutError:
         raise
     except (SnapshotError, ReconciliationError, RequestError) as error:
@@ -147,6 +164,12 @@ def prepare_buyer_readout(dsn: str, request: BuyerRequest) -> tuple[bytes, Metri
         raise ReadoutError("analytics_evidence") from None
     except OSError:
         raise ReadoutError("analytics_output") from None
+
+
+def prepare_buyer_readout(dsn: str, request: BuyerRequest) -> tuple[bytes, MetricResult]:
+    """Preserve the original tuple API and report bytes."""
+    prepared = prepare_buyer_result(dsn, request)
+    return prepared.body, prepared.metric
 
 
 def export_buyer_readout(dsn: str, request_file: Path, output_directory: Path) -> BuyerExport:

@@ -1,6 +1,6 @@
 # Tasks
 
-## Active V1-08 — buyer-concentration acceptance contract
+## Active V1-08 — approved buyer-concentration acceptance consumer
 
 - [x] Verify #229 merged at `c78eb72`, reviewed `5e035d9` reachable with identical tree;
   all three exact-head PR jobs passed in run 45818830229.
@@ -8,7 +8,29 @@
   existing provider/SQL/request/policy code. A synthetic pure-provider probe checks
   cohort versus buyer scopes, sparse evidence, overlapping participation/cancellation
   and partial-record versus invalid-occurrence counts. No source or SQL access.
-- [ ] Owner review of E1–E3; implementation plan/build follows approval.
+- [x] Owner approved E1–E3 including implementation on 2026-11-26 (Europe/Athens).
+- [x] Verify #230 on main `0665eb7`, reviewed `ff5f6b5` reachable with identical tree;
+  record sequential plan and preserve earlier open work.
+- [x] U3-A: additive frozen preparation API and compatibility proof.
+  - Acceptance: old tuple/report bytes unchanged, one cohort read/two read-only connections.
+  - Verify: failing native test first, existing buyer readout cases unchanged.
+  - Files: producer and preparation tests; small, no new dependency.
+  - Observed: missing-API native test failed first; 27 preparation/existing buyer
+    readout cases then passed with actual owned originals/SQL and closed connections.
+- [ ] U3-B: measured fourteen-counter adapter with sparse evidence and typed accounting.
+  - Acceptance: cohort/buyer scopes, partial/joint/unknown/share semantics, hash-only
+    selection and strict fresh bindings; 1 MiB report / 64 KiB sidecar.
+  - Verify: test-first native known answers and mapping/protocol failures.
+  - Files: adapter and focused sample/mapping/failure tests; medium, depends on U3-A.
+- [ ] U3-C: CLI and native refusal/recovery/publication proof.
+  - Acceptance: fresh retry/relocation, no HTTP or source writes, closed SQL at publication.
+  - Verify: native raw/SQL/projection/principal/incomplete refusal and process interruptions.
+  - Files: existing CLIs and CLI/native/crash tests; medium, depends on U3-A/B.
+- [ ] U3-D: delivery gates and reviewable implementation PR.
+  - Acceptance: 100% new-code line/branch, mutations rejected/restored, unchanged pins,
+    full gate/audit, isolated wheel/baseline parity and all exact-head hosted jobs.
+  - Verify: cheap preflight first; source stable during gates, no redundant unchanged full run.
+  - Files: runbook/proof and current status/spec records; medium, depends on U3-A/B/C.
 
 U4, durable history, actual four-positive reconciliation, metric certification
 and investigator task proof remain open.
