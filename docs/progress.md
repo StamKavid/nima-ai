@@ -46,16 +46,22 @@ This adds headroom and diagnostics; no speedup or cause of variance is claimed.
 Post-merge run 45871703704 was still in progress at verification.
 [Record](verification/ci-runtime-headroom.md).
 
-The [U4 observed-change acceptance contract](specs/SPEC-change-acceptance-readout.md)
-is approved under F1–F3 on 2026-11-26, including implementation. #233 is extended
-into its implementation candidate. Focused proof: 228 cases; 100% adapter,
-producer and shared CLI line/branch coverage; 25 rejected/restored mutations.
-It measures six comparable-path counters and publishes actual SQL-only blocked
-abstention without inventing core counts or run-version profiles. All reasons,
-distinct ambiguity/category unions, original bytes and draft status are preserved.
-[Proof](verification/change-acceptance-readout.md). Full local/package/audit and
-exact-head hosted gates belong on the delivery PR; no merge or real-data proof
-is claimed. Durable acceptance history and actual cohort proof remain open.
+The [U4 observed-change consumer](specs/SPEC-change-acceptance-readout.md) is
+delivered in #233 at `2f78f37`, identical reviewed `47d3e47` tree. Local: 5,193 /
+95.38%; hosted: 5,193 / 95.36%, all three jobs in run 45878258204. Proof includes
+228 focused cases / 100% changed-module line/branch, 25 rejected mutations,
+clean audit and isolated-wheel/native/independent old-byte checks on both paths.
+Coverage/JUnit archive hash and all 5,193 timed cases were inspected. It preserves
+all refusal reasons and never invents counts or version profiles on abstention.
+[Proof](verification/change-acceptance-readout.md).
+
+All five acceptance consumers now have software proof. The next proposed bounded
+slice is [durable acceptance history](specs/SPEC-acceptance-history.md), beginning
+with citation recording/inspection; G1–G3 need review. The existing journal's
+validator identity and 4 KiB limits stay intact. Execution refusal is distinct
+from an assessed data-fitness decision, and historical reuse is not fresh checking.
+No new history implementation, migration, actual-cohort proof or certification
+is claimed. V1-08 remains open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the

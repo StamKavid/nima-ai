@@ -232,10 +232,12 @@ review/certification and investigator task proof are separate release gates.
 Owner approved all three recommended decisions, including implementation. This approval
 does not approve durable history, collection, certification, deployment or release.
 
-Implementation candidate: #233, extending this approved contract against main.
-The consumer reuses the public selector once per nonempty comparable capture to
-validate typed summaries/witnesses; it neither implements independent selection
-nor recalculates U4. Both paths keep the original two-connection preparation.
-See [operator command](../runbooks/change-acceptance.md) and
-[focused proof](../verification/change-acceptance-readout.md). Full delivery gates
-are recorded on the PR; durable history and actual cohort proof remain open.
+Delivered #233 at `2f78f37`, identical reviewed `47d3e47` tree. All three PR jobs
+passed in run 45878258204: local 5,193 / 95.38%, hosted 5,193 / 95.36%; 228 focused
+cases / 100% changed-module line/branch, 25 rejected mutations, clean audit and
+both-path isolated-wheel/native/independent old-byte proofs pass. The consumer
+uses the public selector once per nonempty comparable capture for typed witness
+validation, without a new selection algorithm or U4 calculation. See
+[operator command](../runbooks/change-acceptance.md) and
+[proof](../verification/change-acceptance-readout.md). Durable history and actual
+cohort proof remain open.

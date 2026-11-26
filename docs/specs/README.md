@@ -16,12 +16,13 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | [SPEC-diavgeia-commitments](SPEC-diavgeia-commitments.md) | Second Diavgeia pilot: do KIMDIS citations point at Β.1.3 commitments (V1-06) | Decided (C1 to C5 as recommended); C0 to C3 not started |
 | [SPEC-archive-replay-sources](SPEC-archive-replay-sources.md) | Source-aware `archive replay` and `promote` for the Diavgeia pilots | Delivered (R1, R2); promotion awaits an owner-selected digest |
 | [SPEC-cross-source-citations](SPEC-cross-source-citations.md) | Exact KIMDIS–Diavgeia citations with two-sided evidence (V1-07) | Model/SQL #221 and verified readout #222 delivered; real reconciliation open |
-| [SPEC-dataset-acceptance](SPEC-dataset-acceptance.md) | Per-use data fitness and check policy (first V1-08 slice) | Pure policy #223, citation #225, U1 #228, U2 #229 and U3 #231 delivered; U4 approved candidate; history/real acceptance open |
+| [SPEC-dataset-acceptance](SPEC-dataset-acceptance.md) | Per-use data fitness and check policy (first V1-08 slice) | Pure policy #223, citation #225, U1 #228, U2 #229 and U3 #231 delivered; U4 #233 delivered; history/real acceptance open |
 | [SPEC-citation-acceptance-readout](SPEC-citation-acceptance-readout.md) | Verified citation-report acceptance sidecar (V1-08 first consumer) | Delivered #225; B1–B3 approved 2026-11-26 |
 | [SPEC-participation-acceptance-readout](SPEC-participation-acceptance-readout.md) | Supplier–buyer (U1) data-fitness sidecar | Delivered #228; C1–C3 approved 2026-11-26 |
 | [SPEC-cpv-acceptance-readout](SPEC-cpv-acceptance-readout.md) | CPV/month (U2) data-fitness sidecar | Delivered #229; D1–D3 approved 2026-11-26 |
 | [SPEC-buyer-acceptance-readout](SPEC-buyer-acceptance-readout.md) | Buyer-concentration (U3) data-fitness sidecar | Delivered #231; E1–E3 approved 2026-11-26 |
-| [SPEC-change-acceptance-readout](SPEC-change-acceptance-readout.md) | Observed-change (U4) data-fitness sidecar | F1–F3 approved 2026-11-26; #233 implementation candidate; gates on PR |
+| [SPEC-change-acceptance-readout](SPEC-change-acceptance-readout.md) | Observed-change (U4) data-fitness sidecar | Delivered #233; F1–F3 approved 2026-11-26 |
+| [SPEC-acceptance-history](SPEC-acceptance-history.md) | Append-only data-fitness history, first citation record/inspect slice | Proposed G1–G3; schema/contract review only |
 | [SPEC-metric-readouts](SPEC-metric-readouts.md) | Readout commands for U2-U4 over stored runs | Approved; S8a next |
 | [SPEC-semantic-layer](SPEC-semantic-layer.md) | First shared metric definition | Provider implemented; metric draft |
 | [SPEC-market-analytics](SPEC-market-analytics.md) | Cited supplier-buyer readout | CLI implemented; human validation open |

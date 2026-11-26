@@ -196,12 +196,14 @@ tree and all three exact-head PR jobs passed in run 45818830229.
 The [U3 contract](../specs/SPEC-buyer-acceptance-readout.md) was approved under E1–E3
 on 2026-11-26 and merged in #230 at `0665eb7`. Its consumer is delivered in #231 at `d81f89b`, with the identical reviewed
 `c390c2a` tree and all three exact-head PR jobs passed in run 45861771247.
-After CI headroom #232 (`003680b`), the proposed
-[U4 contract](../specs/SPEC-change-acceptance-readout.md) is approved under F1–F3
-on 2026-11-26, including implementation. Its #233 consumer candidate has 228
-focused cases / 100% changed-module line/branch coverage and 25 rejected mutations;
-full local/package/audit and exact-head hosted gates are recorded on that PR.
-U4 and the additive journal remain separate work; no generic acceptance framework is proposed.
+After CI headroom #232 (`003680b`), the
+[U4 consumer](../specs/SPEC-change-acceptance-readout.md) is delivered in #233 at
+`2f78f37`, identical reviewed `47d3e47` tree; all three exact-head PR jobs passed
+in run 45878258204. Local 5,193 / 95.38%, 228 focused cases / 100% changed-module
+line/branch, 25 rejected mutations and both-path isolated-wheel/native proofs pass.
+The proposed [additive history contract](../specs/SPEC-acceptance-history.md)
+starts with citation record/inspect and awaits G1–G3; later U1–U4 adapters remain
+separate. No generic history/acceptance framework or real-data acceptance is claimed.
 V1-01's current journal admits only its original readout validator: general
 acceptance results cannot be inserted without an explicit evolution contract.
 
