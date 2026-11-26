@@ -1,9 +1,9 @@
 # Spec: buyer-concentration data-fitness readout
 
-Module ID: `buyer-acceptance-readout` (V1-08). Status: **proposed for owner review**,
-2026-11-26 (Europe/Athens). Baseline: #229 merged at `c78eb72`.
+Module ID: `buyer-acceptance-readout` (V1-08). Status: **owner approved E1–E3,
+including implementation, on 2026-11-26 (Europe/Athens)**. Baseline: #229 merged at `c78eb72`.
 Extends [A3](SPEC-dataset-acceptance.md#owner-decisions) after citation/U1/U2
-consumers. This contract covers U3 only; implementation awaits E1–E3 approval.
+consumers. This contract covers U3 only. Contract #230 is merged at `0665eb7`.
 
 ## Objective and assumptions
 
@@ -208,7 +208,7 @@ proof remain separate. This contract introduces no new analytical definition.
 
 ## Owner decisions
 
-Recommendations awaiting review:
+Owner approved all three recommended decisions, including implementation:
 
 - **E1 — scope:** one U3 command/sidecar over an additive frozen preparation result;
   preserve the old tuple/report bytes, metric/SQL and policy.
@@ -217,4 +217,9 @@ Recommendations awaiting review:
   distinct-record cancellation/partial/joint/share accounting.
 - **E3 — verification/privacy:** one fresh preparation, existing two-connection
   sequence, 1 MiB report/64 KiB sidecar, hash-only buyer selection and no sidecar
-  on failed reconstruction. Implement only after owner review of this contract.
+  on failed reconstruction.
+
+Contract #230 is merged at `0665eb7`; implemented in a separate consumer candidate.
+See the [runbook](../runbooks/buyer-acceptance.md) and
+[focused verification](../verification/buyer-acceptance-readout.md). Final full
+local/package/audit and exact-head hosted gates are tracked on the implementation PR.

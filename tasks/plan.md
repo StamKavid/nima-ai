@@ -1,12 +1,45 @@
 # Delivery plan
 
-## Active V1-08: U3 contract review
+## Active V1-08: approved U3 acceptance consumer
 
 The [buyer-concentration acceptance contract](../docs/specs/SPEC-buyer-acceptance-readout.md)
-is proposed for E1–E3 review. It defines fourteen counters, whole-cohort versus
-buyer-specific scopes, sparse report evidence and a bounded private sidecar.
-No U3 implementation plan or application change precedes owner approval.
-U4, durable history and actual source/investigator proof remain open.
+was approved under E1–E3 on 2026-11-26 (Europe/Athens), including implementation.
+#230 is merged at `0665eb7`; reviewed `ff5f6b5` is reachable with an identical
+tree. Deliver a new PR to main, without an agent merge or source activation.
+Preserve all earlier incomplete work. U4/history/actual cohort proof stay open.
+
+Dependency direction: existing buyer preparation → bounded acceptance consumer →
+DataOps CLI. The consumer uses the existing public shared selector once for
+cohort coverage; it never re-runs the per-buyer metric or source verification.
+
+U3-A: failing native preparation/API compatibility test, then expose the existing
+sequence as a frozen result. Preserve old tuple/report bytes and errors; one
+cohort read and the same two sequential read-only connections. Files: producer
+and preparation tests (small). Verify against actual owned originals and SQL.
+
+U3-B: test-first fourteen-counter consumer, sparse evidence and exact typed
+selection/supplier/share accounting. Begin with native and hand-computed answers;
+validate hash/shape/run/page/request/metric/policy bindings before publication.
+Files: adapter plus mapping/sample/failure tests (medium), depends on U3-A.
+
+U3-C: CLI and native refusal/retry/relocation/publication proof. Use restricted
+readers and actual originals, no source HTTP/writes, re-verification on every
+retry and both SQL connections closed at publication. Files: existing CLI modules
+and focused CLI/native/crash tests (medium), depends on U3-A/B.
+
+U3-D: cheap lint/types/security first, 100% new line/branch coverage, meaningful
+behavior mutations with restoration, unchanged legacy/semantic/SQL/ODCS/policy
+pins, full check/audit and final isolated-wheel/native/pre-change-byte proof.
+Publish the stable draft candidate to overlap local/hosted gates; require every
+exact-head hosted job before review readiness. Record late results on the PR;
+do not repeat the unchanged full suite solely for documentation updates.
+Files: runbook/verification and current status/spec records (medium), depends on A/B/C.
+
+Risks: sparse report evidence mistaken for whole coverage; buyer filter applied
+before latest revision; partial occurrences mistaken for records; joint supplier
+cells inflating cancellations or share denominators; cached success or copied
+buyer/tax data. Mitigate through native known answers and independent mutations.
+End checkpoint: review-ready U3 consumer PR, not full V1-08 or real-data acceptance.
 
 ## Delivered V1-08: approved U2 acceptance consumer
 

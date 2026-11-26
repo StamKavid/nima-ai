@@ -21,6 +21,8 @@ Its model remains draft. For supplier–buyer reports, the
 existing private evidence to eleven measured acceptance counters.
 For CPV/month reports, the [U2 data-fitness readout](docs/runbooks/cpv-acceptance.md)
 adds ten counters with explicit pre-filter scope and distinct-record cancellation counts.
+The [U3 buyer-concentration check](docs/runbooks/buyer-acceptance.md) adds fourteen
+counters separating cohort coverage, buyer records and overlapping participation.
 
 The planned product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.

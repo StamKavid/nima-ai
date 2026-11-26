@@ -27,10 +27,14 @@ audit and isolated-wheel/native/baseline-byte proofs pass. It reuses the origina
 verifier, measures ten pre-filter counters and avoids treating overlapping CPV or
 cancellation cells as distinct records. [Proof](verification/cpv-acceptance-readout.md).
 
-Next: [U3 buyer-concentration acceptance contract](specs/SPEC-buyer-acceptance-readout.md),
-E1–E3 proposed for review. Existing-model probes establish fourteen counter scopes
-and sparse evidence membership; no U3 consumer is implemented. U4 and durable
-history remain open. No unchanged full local gate is repeated for this doc-only update.
+The [U3 buyer-concentration consumer](specs/SPEC-buyer-acceptance-readout.md) was
+approved under E1–E3 on 2026-11-26 and is implemented in a separate candidate
+after contract #230 merged at `0665eb7`. Focused proof: 236 cases, 100% adapter/
+producer/CLI line and branch coverage, 28 rejected behavior mutations and native
+original/SQL/recovery proof. It measures fourteen counters with explicit whole-
+cohort versus buyer scopes and preserves sparse evidence and exact shares.
+Final full local/package/audit and exact-head hosted gates are on its delivery PR.
+[Proof](verification/buyer-acceptance-readout.md). U4 and durable history remain open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the
