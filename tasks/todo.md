@@ -15,11 +15,14 @@
   - Files: producer and focused preparation tests; small, no new dependency.
   - Observed: failing missing-API test first, then 40 preparation/existing CPV
     cases pass with owned native PostgreSQL/originals; old tuple bytes preserved.
-- [ ] U2-B: measured ten-counter consumer and bounded private sidecar.
+- [x] U2-B: measured ten-counter consumer and bounded private sidecar.
   - Acceptance: pre-filter unknowns, distinct cancellation/ambiguity, strict bindings;
     no copied selection/source details, unchanged policy.
   - Verify: test-first mapping/failure/native cases; 1 MiB subject / 64 KiB sidecar.
   - Files: adapter and focused sample/mapping/failure tests; medium, depends on U2-A.
+  - Observed: 109 native/mapping/adversarial cases pass, strict focused types and
+    lint clean. Includes an initially failing evidence-pointer disagreement case;
+    publication/CLI and final gates follow in U2-C/D.
 - [ ] U2-C: CLI and native publication/refusal/recovery proof.
   - Acceptance: fresh retry/relocation, no HTTP/source writes, closed SQL at publication.
   - Verify: native SQL/raw/path/binding negatives, CLI and process interruption.
