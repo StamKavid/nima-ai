@@ -218,3 +218,8 @@ Owner approved all three recommended decisions, including implementation:
 - **E3 — verification/privacy:** one fresh preparation, existing two-connection
   sequence, 1 MiB report/64 KiB sidecar, hash-only buyer selection and no sidecar
   on failed reconstruction.
+
+Contract #230 is merged at `0665eb7`; implemented in a separate consumer candidate.
+See the [runbook](../runbooks/buyer-acceptance.md) and
+[focused verification](../verification/buyer-acceptance-readout.md). Final full
+local/package/audit and exact-head hosted gates are tracked on the implementation PR.

@@ -33,11 +33,16 @@
     for adapter (219 statements/92 branches), producer (76/4), shared CLI (44/2).
     Twenty U3 native/process cases plus one preparation case use actual synthetic
     originals and restricted readers. Empty-denominator shares explicitly refuse.
-- [ ] U3-D: delivery gates and reviewable implementation PR.
+- [x] U3-D candidate assembled; final delivery gates are recorded on its implementation PR.
   - Acceptance: 100% new-code line/branch, mutations rejected/restored, unchanged pins,
     full gate/audit, isolated wheel/baseline parity and all exact-head hosted jobs.
   - Verify: cheap preflight first; source stable during gates, no redundant unchanged full run.
   - Files: runbook/proof and current status/spec records; medium, depends on U3-A/B/C.
+  - Focused proof: 236 cases, 100% adapter/producer/CLI line/branch; 28 behavior
+    mutations rejected with source restored. Cheap lint/types/security pass.
+  - Before merge readiness require full local check/audit, final isolated-wheel/
+    native/baseline-byte proof and all three exact-head hosted jobs. Verify the
+    live implementation PR; focused proof is not hosted or real-data acceptance.
 
 U4, durable history, actual four-positive reconciliation, metric certification
 and investigator task proof remain open.

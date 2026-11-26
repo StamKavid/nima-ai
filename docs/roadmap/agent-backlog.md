@@ -193,8 +193,9 @@ reviewed tree and all three exact-head jobs passed in run 45805461376.
 The [U2 contract](../specs/SPEC-cpv-acceptance-readout.md) was approved under D1–D3
 on 2026-11-26 and is delivered in #229 at `c78eb72`, with an identical reviewed
 tree and all three exact-head PR jobs passed in run 45818830229.
-The [U3 contract](../specs/SPEC-buyer-acceptance-readout.md) proposes E1–E3 for review;
-no U3 consumer is implemented. U4 and the additive journal remain
+The [U3 contract](../specs/SPEC-buyer-acceptance-readout.md) was approved under E1–E3
+on 2026-11-26 and merged in #230 at `0665eb7`. Its consumer is implemented in a
+separate candidate; final delivery gates are recorded on that PR. U4 and the additive journal remain
 separate work; no generic acceptance framework is proposed.
 V1-01's current journal admits only its original readout validator: general
 acceptance results cannot be inserted without an explicit evolution contract.
