@@ -227,5 +227,8 @@ Owner approved B1–B3 as recommended on 2026-11-26 (Europe/Athens). Execute the
 bounded readout under `tasks/plan.md` and `tasks/todo.md`; no source activation,
 metric review/certification, durable journal or real-data acceptance is authorized.
 
-Implemented for review; local gates pass. Hosted merge readiness is tracked on the PR; see the [scoped proof](../verification/citation-acceptance-readout.md)
-and [operator runbook](../runbooks/citation-acceptance.md). No main-delivery claim yet.
+Delivered in #225 at main `e6c869d`; reviewed `fd35041` is reachable with an
+identical tree and all three PR jobs passed in run 45719893571. See the
+[scoped proof](../verification/citation-acceptance-readout.md) and
+[operator runbook](../runbooks/citation-acceptance.md). The absolute-request-path
+correction is isolated in #226; U1 acceptance is a separate draft contract.

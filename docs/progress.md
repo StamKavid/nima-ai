@@ -2,23 +2,24 @@
 
 ## Current project and chapter position
 
-**Baseline 2026-11-25.** Application main was at #223 (`a4eb99d`): the V1-07 verified
-two-source readout and first V1-08 pure policy are delivered. Tested head
-`d2d94db` is reachable with an identical tree; all three main CI jobs passed in
-run 45639919348. Local proof: 4,463 tests / 95.03% overall coverage, 134 pure and
-15 native SQL cases for the new boundary, 100% new-policy coverage, 22 rejected
-mutations and clean audit/wheel checks. [Delivery record](verification/dataset-acceptance-policy.md).
-The [citation-acceptance contract](specs/SPEC-citation-acceptance-readout.md) is
-merged in #224 at `39519c2`; all three main jobs passed in run 45714441006.
-B1–B3 were approved on 2026-11-26 (Europe/Athens). The consumer is implemented
-in a new delivery candidate: 4,598 tests / 95.12% overall, 135 focused cases,
-100% new-module line/branch coverage, 22 rejected mutations, clean audit and
-isolated-wheel/native proof. Hosted merge readiness is tracked on its PR. It reconstructs one
-citation report and publishes a separate data-fitness sidecar. U1–U4 consumers
-and durable acceptance history remain open. [Proof](verification/citation-acceptance-readout.md).
-Actual four-positive reconciliation and metric certification remain pending.
-This adds no new source acquisition or milestone release and does not rescore
-the historical rubric below.
+**Update 2026-11-26 (Europe/Athens).** #225 is delivered on main `e6c869d`:
+the verified citation-acceptance consumer follows the V1-07 two-source readout and
+V1-08 pure policy. Reviewed `fd35041` is reachable with an identical tree; all
+three exact-head PR jobs passed in run 45719893571. Proof: 4,598 tests / 95.12%
+overall, 135 focused cases / 100% new-module line/branch, 22 rejected mutations,
+clean audit and isolated-wheel/native proof.
+[Delivery record](verification/citation-acceptance-readout.md).
+
+A small absolute-request-path correction is isolated in #226; its current checks
+are recorded on that PR. The next
+[U1 acceptance contract](specs/SPEC-participation-acceptance-readout.md) is drafted
+for C1–C3 review, with eleven explicit counter grains and no copied supplier tax
+number. Its pure semantic probe is not a product implementation or verified
+source cohort. U2–U4 consumers and durable history remain open.
+
+Actual four-positive reconciliation, metric review/certification and investigator
+task proof remain pending. No new source acquisition, release or rescore of the
+historical rubric below follows from this checkpoint.
 Since #161: the Diavgeia award pilot and its Β.1.3 commitment pilot
 (collect, replay, three live runs; [records](verification/diavgeia-c2-commitments.md)), source-aware archive replay
 and promotion, and the GEMI AFM lookup end to end (search collector, offline verification, SQL import,
