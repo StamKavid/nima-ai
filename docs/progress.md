@@ -37,12 +37,20 @@ three post-merge jobs passed in run 45863343061. It measures fourteen counters
 with explicit whole-cohort versus buyer scopes and preserves sparse evidence
 and exact shares. [Proof](verification/buyer-acceptance-readout.md).
 
-Current maintenance checkpoint: [CI runtime headroom and timing evidence](verification/ci-runtime-headroom.md).
-Identical-tree quality jobs took 19m53s and 15m06s against a 20-minute limit.
-The candidate raises that bound to 30 minutes and records built-in pytest phase
-and JUnit timings, preserving every gate. This improves the time allowance and
-visibility; no execution speedup or cause of variance is claimed. Final gates
-are tracked on its delivery PR. U4 and durable history remain open.
+CI maintenance is delivered in #232 at `003680b`, with the identical reviewed
+`967d7ef` tree. All three exact-head PR jobs passed in run 45867107317: local
+5,049 / 95.32%, hosted 5,049 / 95.31%, clean audit. The coverage artifact hash
+and both XML reports were inspected; all 5,049 cases have timings and zero
+failures/errors/skips. Quality took 19m52s against the new 30-minute bound.
+This adds headroom and diagnostics; no speedup or cause of variance is claimed.
+Post-merge run 45871703704 was still in progress at verification.
+[Record](verification/ci-runtime-headroom.md).
+
+Current contract checkpoint: [U4 observed-change acceptance](specs/SPEC-change-acceptance-readout.md),
+awaiting F1–F3 review. Fifteen pure model/policy probes support six measured
+comparable-path counters and SQL-only blocked abstention with missing proof
+explicit. No U4 consumer implementation or native/real-data proof is claimed.
+U4 and durable history remain open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the

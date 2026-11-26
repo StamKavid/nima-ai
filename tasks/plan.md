@@ -1,6 +1,27 @@
 # Delivery plan
 
-## Active: CI runtime headroom and timing evidence
+## Awaiting review: U4 observed-change acceptance contract
+
+Return to V1-08 after verified #232 delivery. The proposed
+[U4 contract](../docs/specs/SPEC-change-acceptance-readout.md) addresses the two
+existing preparation paths: verified comparable captures and SQL-only
+`incomparable` abstention. Fifteen pure synthetic model/policy probes support
+the proposed counter scopes and blocked-with-unavailable-proof behavior.
+They establish no archive/SQL or actual market-data acceptance.
+
+This checkpoint is contract review under A3. No U4 implementation plan or code
+is introduced before owner decisions F1–F3; all earlier incomplete work below
+is preserved. U4, durable history, actual cohort proof and certification stay open.
+
+## Delivered: CI runtime headroom and timing evidence
+
+#232 is merged at `003680b`; reviewed `967d7ef` reaches main with identical
+tree `22146c8a4e2678127ec7f5fc39973770ddb0a976`. All three exact-head PR jobs
+passed in run 45867107317. Local check: 5,049 / 95.32%; hosted: 5,049 / 95.31%.
+Audit passed; downloaded coverage/JUnit artifact SHA-256 and all 5,049 timed
+cases were verified. Quality elapsed 19m52s under the new 30-minute bound.
+Post-merge run 45871703704 was still in progress when delivery was checked.
+The completed maintenance scope follows; no runtime speedup is claimed.
 
 Owner continued after the U3 delivery and runtime-headroom finding. This is a
 CI reliability change, with no new application feature or speedup claim.

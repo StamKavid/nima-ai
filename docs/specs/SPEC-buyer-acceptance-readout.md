@@ -219,7 +219,11 @@ Owner approved all three recommended decisions, including implementation:
   sequence, 1 MiB report/64 KiB sidecar, hash-only buyer selection and no sidecar
   on failed reconstruction.
 
-Contract #230 is merged at `0665eb7`; implemented in a separate consumer candidate.
+Contract #230 is merged at `0665eb7`; the consumer is delivered in #231 at
+`d81f89b`, identical reviewed `c390c2a` tree. Full local proof: 5,049 / 95.32%,
+236 focused cases / 100% changed-module line/branch, 28 rejected mutations,
+clean audit and isolated-wheel/native/baseline-byte proof. All three exact-head
+PR jobs passed in run 45861771247 and all three main jobs in run 45863343061.
 See the [runbook](../runbooks/buyer-acceptance.md) and
-[focused verification](../verification/buyer-acceptance-readout.md). Final full
-local/package/audit and exact-head hosted gates are tracked on the implementation PR.
+[verification](../verification/buyer-acceptance-readout.md). Actual cohort proof
+and certification remain open.

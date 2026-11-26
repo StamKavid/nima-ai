@@ -1,14 +1,28 @@
 # Tasks
 
-## Active — CI runtime headroom and timing evidence
+## Awaiting review — U4 observed-change acceptance
+
+- [x] Verify #232 reaches main at `003680b` with the identical reviewed tree;
+  all three exact-head PR jobs passed and the timing artifact was verified.
+- [x] Check the existing two-capture provider, SQL-parity/readout path and policy;
+  exercise fifteen pure synthetic scenarios without archive, SQL or source access.
+- [x] Draft [U4 contract](../docs/specs/SPEC-change-acceptance-readout.md): six
+  comparable-path counters, SQL-only blocked abstention and explicit missing proof.
+- [ ] Owner decisions F1–F3, including implementation scope. No U4 code yet.
+
+Durable acceptance history, actual cohort proof and metric certification remain open.
+
+## Delivered — CI runtime headroom and timing evidence
 
 - [x] Verify #231 reaches main with an identical tested tree; post-merge CI passed.
 - [x] Compare PR/main timings: same code, quality 19m53s / 15m06s; pytest
   1,111.57s / 839.10s. Cause of the variance is unproven.
 - [x] Keep every gate and test; add a 30-minute quality bound and built-in pytest
   timing/JUnit evidence to the existing seven-day artifact.
-- [ ] Validate workflow/options, full local check/audit and all exact-head hosted
-  jobs. Record final evidence on the delivery PR before review readiness.
+- [x] Workflow/options, full local check/audit and all exact-head hosted jobs
+  passed on `967d7ef`; #232 records final evidence. Verified both artifact XMLs
+  and 5,049 timed cases with zero failures/errors/skips; merge `003680b` has the
+  identical tree. Post-merge run 45871703704 was still running at verification.
 
 No runtime speedup, real-data acceptance or release is claimed. U4 is next
 application work; durable history and actual cohort proof remain open.
