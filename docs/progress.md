@@ -10,12 +10,13 @@ overall, 135 focused cases / 100% new-module line/branch, 22 rejected mutations,
 clean audit and isolated-wheel/native proof.
 [Delivery record](verification/citation-acceptance-readout.md).
 
-A small absolute-request-path correction is isolated in #226; its current checks
-are recorded on that PR. The next
-[U1 acceptance contract](specs/SPEC-participation-acceptance-readout.md) is drafted
-for C1–C3 review, with eleven explicit counter grains and no copied supplier tax
-number. Its pure semantic probe is not a product implementation or verified
-source cohort. U2–U4 consumers and durable history remain open.
+Main now includes #226 at `fcfa11d` and the #227 contract at `e3839c0`. The
+approved U1 acceptance consumer is implemented in a separate candidate. C1–C3 were approved on 2026-11-26. Its candidate
+has 276 focused cases, 100% U1/shared-file/CLI line and branch coverage and 22
+rejected mutations; full local/package/audit and exact-head hosted results are
+recorded on the implementation PR. It measures eleven counters, preserves provider status and
+hash-binds the private supplier selection without copying its tax number.
+[Proof](verification/participation-acceptance-readout.md). U2–U4 consumers and durable history remain open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the

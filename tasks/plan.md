@@ -1,23 +1,49 @@
 # Delivery plan
 
-## Active V1-08: supplier–buyer acceptance contract review
+## Active V1-08: verified U1 acceptance consumer
 
-#225 is merged at `e6c869d`; reviewed head `fd35041` is reachable with an
-identical tree. All three PR jobs passed in run 45719893571. Its final proof is
-4,598 tests / 95.12% overall, 135 focused cases / 100% new-module line/branch,
-22 rejected mutations, audit and isolated-wheel/native proof.
+Owner approved [C1–C3](../docs/specs/SPEC-participation-acceptance-readout.md) on
+2026-11-26 (Europe/Athens), including implementation. The owner merged #226 at `fcfa11d` and the #227 contract at `e3839c0`; both
+reviewed heads are reachable from main, and their combined tree matches the
+previously composed prerequisite tree. Deliver the consumer in a new PR to main.
+No agent merge or history rewrite was performed. Preserve all earlier incomplete work below.
 
-The next [U1 consumer contract](../docs/specs/SPEC-participation-acceptance-readout.md)
-is drafted for C1–C3 review. Source inspection confirms the existing public
-`prepare_readout` boundary; a pure-provider/policy probe confirms the ambiguity
-counter distinction. This is specification work only: no new technical
-implementation plan or U1 build is approved. U2–U4, durable history and real
-validation remain open. Preserve all earlier incomplete work below.
+Dependency direction: DataOps command → U1 adapter → existing public preparation
+and unchanged pure policy. First extract only descriptor-safe subject reading,
+lexical paths and fixed errors into a small shared file helper; maintain citation
+exception exports/valid behavior and its 8 MiB bound. U1 keeps its 1 MiB bound.
+No second verifier, normalizer, SQL snapshot, publisher or adapter registry.
 
-A correction to #225's already-approved absolute-request-path behavior is isolated
-in [#226](https://github.com/StamKavid/nima-ai/pull/226). It adds two regressions,
-with 137 focused cases / 100% coverage; full proof and hosted status are on that
-PR. It does not approve the U1 consumer. Source code is unchanged in this contract PR.
+U1-A: failing file-boundary cases first, extract the shared guard and fixed error
+base, then run all existing citation cases unchanged. Files: shared helper,
+citation adapter and one helper test module. Acceptance: exact byte bounds,
+private/stable single-link reads, fixed errors and preserved citation behavior.
+
+U1-B: begin with one actual native SQL known answer and pure counter/privacy
+cases; implement the minimum U1 prepare/export path. Extend strict producer and
+policy binding checks before full gates. Files: U1 adapter, mapping/sample tests
+and failure tests. Acceptance: all eleven counts measured, ambiguity excluded
+from the unambiguous denominator, country/list unknowns unioned once per record,
+request hash binds the supplier without copying tax ID or source detail.
+
+U1-C: route through the existing acceptance CLI; add native refusal/retry/
+relocation and process-publication proofs. Files: two existing CLI modules and
+focused CLI/native/crash test modules. Acceptance: one preparation/connection,
+no HTTP or source writes, exact closed results, every retry re-verifies, SQL
+closed before publication and original/citation artifacts unchanged.
+
+U1-D: cheap lint/type/security before expensive gates; 100% new-code line/branch,
+meaningful counter/verification/file-limit mutations, full check/audit, final
+built-wheel proof and all exact-head hosted jobs. Keep code stable while tests
+or mutations run. Publish the candidate draft to overlap independent local and
+hosted verification; record results in its PR and mark review-ready only when
+both pass. No extra local full run solely for documentation-status changes.
+
+Risks: false blocked ambiguity (C-only denominator); hidden country uncertainty
+(union flags, preserve provider status); copied AFM (hash-only binding); wrong
+shared bound (explicit per-call 1/8 MiB); trusting saved success (fresh public
+preparation + full byte equality); source-stack growth (no new source engine).
+End checkpoint: reviewed U1 acceptance consumer PR, not V1-08 completion.
 
 ## Delivered V1-08: verified citation-acceptance readout
 
@@ -1121,3 +1147,9 @@ Citation consumer R1/R2 and R3 local proof are complete: 4,598 tests / 95.12%,
 and native isolated-wheel proof. Post-push exact-head hosted checks remain the
 merge gate and are recorded on the implementation PR. No second feature begins
 until this delivery is reviewable.
+
+U1-A/B/C and the delivery candidate are implemented in the candidate: 276 focused cases,
+100% U1/shared-file/CLI line and branch coverage, 22 rejected/restored mutations,
+and early lint/type/security clean. Full local/audit/package and all exact-head
+hosted results are recorded on the PR before review readiness. Main delivery,
+real-source reconciliation and the wider V1-08 remain separate checks.

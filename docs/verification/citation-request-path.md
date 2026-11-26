@@ -2,7 +2,10 @@
 
 Date: 2026-11-26 (Europe/Athens). Fixes an input-validation omission in merged
 #225 under its already-approved [B2 contract](../specs/SPEC-citation-acceptance-readout.md#owner-decisions).
-Report/output paths were checked for absolute form, but the request reader first
+Delivered in #226 at `fcfa11d`, reviewed `935762d` reachable with the same
+application changes. All three jobs passed in run 45763209671; 4,600 tests,
+95.11% overall and 100% adapter/command coverage, audit and isolated-wheel
+valid/relative-request proof pass. Report/output paths were checked for absolute form, but the request reader first
 resolved its argument to an absolute path. A valid private request could therefore
 be accepted through a relative path, contrary to the command's contract.
 

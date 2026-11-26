@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import os
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import cast
@@ -20,7 +19,7 @@ from nima.analytics.request import RequestError, constant_hook, pairs_hook, uuid
 from nima.analytics.result import ReadoutError
 from nima.contracts import acceptance as policy
 from nima.contracts.history import valid_digest
-from nima.evidence import EvidenceError, artifacts
+from nima.dataops.acceptance_files import AcceptanceError, read_subject, valid_path
 from nima.identity import AssessmentError
 from nima.identity.artifacts import encode, publish
 from nima.semantics.citations import MAX_OUTPUT_BYTES, OUTCOMES, CitationResult
@@ -72,20 +71,8 @@ _ERRORS = {
 }
 
 
-class CitationAcceptanceError(ValueError):
-    """Fixed codes only; no driver details, paths or source values."""
-
-    def __init__(self, reason: str) -> None:
-        codes = {
-            "acceptance_input",
-            "acceptance_limit",
-            "acceptance_evidence",
-            "acceptance_database",
-            "acceptance_contract",
-            "acceptance_output",
-            "acceptance_interrupted",
-        }
-        super().__init__(reason if reason in codes else "acceptance_contract")
+class CitationAcceptanceError(AcceptanceError):
+    """Retained citation exception API over the shared closed vocabulary."""
 
 
 @dataclass(frozen=True)
@@ -101,39 +88,6 @@ class CitationAcceptanceExport:
     subject_sha256: str
     decision: str
     policy_sha256: str
-
-
-def _path(value: Path) -> bool:
-    return (
-        isinstance(value, Path)
-        and value.is_absolute()
-        and "\x00" not in str(value)
-        and not str(value).startswith("//")
-        and not {"..", ".git"}.intersection(value.parts)
-    )
-
-
-def _subject(path: Path) -> bytes:
-    fd = -1
-    try:
-        fd = artifacts.directory(path.parent, private=True)
-        info = os.stat(path.name, dir_fd=fd, follow_symlinks=False)
-        if info.st_size > MAX_OUTPUT_BYTES:
-            raise CitationAcceptanceError("acceptance_limit")
-        if info.st_nlink != 1:
-            raise CitationAcceptanceError("acceptance_evidence")
-        body = artifacts.read(fd, path.name, limit=MAX_OUTPUT_BYTES, private=True)
-        if (
-            os.stat(path.name, dir_fd=fd, follow_symlinks=False).st_nlink != 1
-            or hashlib.sha256(body).hexdigest() != path.stem
-        ):
-            raise CitationAcceptanceError("acceptance_evidence")
-        return body
-    except (EvidenceError, OSError):
-        raise CitationAcceptanceError("acceptance_evidence") from None
-    finally:
-        if fd >= 0:
-            os.close(fd)
 
 
 def _object(value: object, fields: str) -> dict[str, object]:
@@ -489,15 +443,17 @@ def prepare_citation_acceptance(
     if (
         not isinstance(dsn, str)
         or not dsn.strip()
-        or not _path(report)
+        or not valid_path(report)
         or report.suffix != ".json"
         or not valid_digest(report.stem)
     ):
         raise CitationAcceptanceError("acceptance_input")
     try:
         validate_citation_request(request)
-        original = _subject(report)
+        original = read_subject(report, limit=MAX_OUTPUT_BYTES)
         fresh, result = prepare_citation_readout(dsn, request)
+    except AcceptanceError as error:
+        raise CitationAcceptanceError(str(error)) from None
     except RequestError as error:
         raise CitationAcceptanceError(_ERRORS.get(error.reason, "acceptance_input")) from None
     except ReadoutError as error:
@@ -516,7 +472,7 @@ def prepare_citation_acceptance(
 def export_citation_acceptance(
     dsn: str, request_file: Path, report: Path, output_directory: Path
 ) -> CitationAcceptanceExport:
-    if not _path(request_file) or not _path(output_directory):
+    if not valid_path(request_file) or not valid_path(output_directory):
         raise CitationAcceptanceError("acceptance_input")
     try:
         request = read_citation_request(request_file)

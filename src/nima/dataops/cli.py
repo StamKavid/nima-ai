@@ -17,11 +17,12 @@ def run(argv: list[str]) -> int:
                 "validation-show",
                 "validation-health",
                 "assess-citations",
+                "assess-participation",
             ),
         )
         parser.print_help()
         return 0
-    if argv and argv[0] == "assess-citations":
+    if argv and argv[0] in {"assess-citations", "assess-participation"}:
         from nima.dataops.acceptance_cli import run as acceptance_run
 
         return acceptance_run(argv)

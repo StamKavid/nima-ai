@@ -1,7 +1,7 @@
 # Spec: supplier–buyer data-fitness readout
 
-Module ID: `participation-acceptance-readout` (V1-08). Status: **draft for owner
-review, 2026-11-26 (Europe/Athens); C1–C3 not yet approved.** Baseline: merged
+Module ID: `participation-acceptance-readout` (V1-08). Status: **owner approved
+C1–C3 on 2026-11-26 (Europe/Athens), including implementation.** Baseline: merged
 #225 at `e6c869d`. Extends [A3](SPEC-dataset-acceptance.md#owner-decisions) and the
 [V1-08 work package](../roadmap/agent-backlog.md#v1-08--dataset-acceptance-and-comparability).
 One consumer for U1; U2–U4 and durable history remain separate contracts.
@@ -28,7 +28,7 @@ existing output-contract validation. Its SQL connection closes before archive
 reconciliation. Use the frozen snapshot it returns; do not open another connection
 or rebuild the metric to assemble the assessment.
 
-Proposed command, **not implemented by this document**:
+Approved command:
 
 ```sh
 uv run --frozen python -m nima dataops assess-participation \
@@ -221,7 +221,7 @@ remains open. Synthetic verification cannot close that product gate.
 
 ## Owner decisions
 
-Recommended for review:
+Owner approved all three recommended decisions on 2026-11-26 (Europe/Athens):
 
 - **C1 — scope:** U1 supplier–buyer acceptance first, through one command/sidecar;
   leave U2–U4 and durable history separate.
@@ -232,6 +232,11 @@ Recommended for review:
   strict 1 MiB subject/64 KiB sidecar bounds, shared small file guards with citation
   compatibility, and no assessment on failed reconstruction.
 
-This draft authorizes no implementation plan or new adapter. C1–C3 approval is
-required before planning/building this consumer; the earlier citation correction
-remains within its already-approved absolute-path contract.
+Execute the approved bounded consumer under `tasks/plan.md` and `tasks/todo.md`.
+The earlier citation correction remains separately approved; no U2–U4 consumer,
+journal evolution, source activation or metric certification follows from C1–C3.
+
+Contract #227 and prerequisite #226 are merged at `e3839c0`/`fcfa11d`.
+Implemented in a separate consumer candidate; see the [runbook](../runbooks/participation-acceptance.md)
+and [local verification record](../verification/participation-acceptance-readout.md).
+Post-push gates and main-delivery state are tracked on the PR.

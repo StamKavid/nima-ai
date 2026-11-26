@@ -8,12 +8,17 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Never
 
-from nima.dataops.citation_acceptance import CitationAcceptanceError, export_citation_acceptance
+from nima.dataops.acceptance_files import AcceptanceError
+from nima.dataops.citation_acceptance import CitationAcceptanceExport, export_citation_acceptance
+from nima.dataops.participation_acceptance import (
+    ParticipationAcceptanceExport,
+    export_participation_acceptance,
+)
 
 
 class _Parser(argparse.ArgumentParser):
     def error(self, message: str) -> Never:
-        raise CitationAcceptanceError("acceptance_input")
+        raise AcceptanceError("acceptance_input")
 
 
 def _event(name: str, **values: object) -> None:
@@ -25,15 +30,22 @@ def run(argv: list[str]) -> int:
     try:
         parser = _Parser(prog="python -m nima dataops", allow_abbrev=False)
         operations = parser.add_subparsers(dest="operation", required=True, parser_class=_Parser)
-        inspect = operations.add_parser("assess-citations", allow_abbrev=False)
-        inspect.add_argument("--request", type=Path, required=True)
-        inspect.add_argument("--report", type=Path, required=True)
-        inspect.add_argument("--output-dir", type=Path, required=True)
+        for command in ("assess-citations", "assess-participation"):
+            inspect = operations.add_parser(command, allow_abbrev=False)
+            inspect.add_argument("--request", type=Path, required=True)
+            inspect.add_argument("--report", type=Path, required=True)
+            inspect.add_argument("--output-dir", type=Path, required=True)
         args = parser.parse_args(argv)
-        result = export_citation_acceptance(
+        result: CitationAcceptanceExport | ParticipationAcceptanceExport
+        exporter = (
+            export_citation_acceptance
+            if args.operation == "assess-citations"
+            else export_participation_acceptance
+        )
+        result = exporter(
             os.environ.get("NIMA_DATABASE_URL", ""), args.request, args.report, args.output_dir
         )
-    except CitationAcceptanceError as error:
+    except AcceptanceError as error:
         reason = str(error)
     except KeyboardInterrupt:
         reason = "acceptance_interrupted"
