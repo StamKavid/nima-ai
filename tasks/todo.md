@@ -10,18 +10,24 @@
   comparable-path counters, SQL-only blocked abstention and explicit missing proof.
 - [x] Owner approved F1–F3 including implementation on 2026-11-26 (Europe/Athens).
 - [x] Record sequential U4-A/B/C/D plan, extending #233 against main.
-- [ ] U4-A: frozen public preparation and old tuple/report compatibility.
+- [x] U4-A: frozen public preparation and old tuple/report compatibility.
   - Verify: failing native test, two read-only connections and both paths.
   - Files: producer and preparation test; small.
-- [ ] U4-B: six measured counters and honest SQL-only blocked abstention.
+- [x] U4-B: six measured counters and honest SQL-only blocked abstention.
   - Verify: hand answers, strict bindings, unions, all reasons and missing proof.
   - Files: adapter and focused mapping/native/failure tests; medium; depends A.
-- [ ] U4-C: CLI and native refusal/retry/relocation/process-publication proof.
+- [x] U4-C: CLI and native refusal/retry/relocation/process-publication proof.
   - Verify: no HTTP/writes, SQL closed, SIGKILL/SIGINT and preserved originals.
   - Files: two CLIs and CLI/native/crash tests; medium; depends B.
-- [ ] U4-D: coverage/mutations, full check/audit, installed wheel and all hosted jobs.
+- [x] U4-D candidate assembled; final delivery gates are recorded on #233.
   - Verify: 100% new line/branch, restored mutations, unchanged pins/old bytes.
   - Files: runbook/proof/status; medium; depends A–C. Final results on PR.
+  - Focused proof: 228 cases; 100% adapter (236 statements/102 branches),
+    producer (106/8) and shared CLI (45/2) line/branch coverage. All 25 meaningful
+    mutations rejected with source SHA-256 restored. Native/process cases prove
+    both paths, two closed connections, retry/relocation, refusal and interruption.
+  - Before review readiness require full local check/audit, final isolated-wheel/
+    native/baseline-byte proof and all exact-head hosted jobs. No real-data claim.
 
 Durable acceptance history, actual cohort proof and metric certification remain open.
 

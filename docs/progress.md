@@ -46,11 +46,16 @@ This adds headroom and diagnostics; no speedup or cause of variance is claimed.
 Post-merge run 45871703704 was still in progress at verification.
 [Record](verification/ci-runtime-headroom.md).
 
-Current contract checkpoint: [U4 observed-change acceptance](specs/SPEC-change-acceptance-readout.md),
-awaiting F1–F3 review. Fifteen pure model/policy probes support six measured
-comparable-path counters and SQL-only blocked abstention with missing proof
-explicit. No U4 consumer implementation or native/real-data proof is claimed.
-U4 and durable history remain open.
+The [U4 observed-change acceptance contract](specs/SPEC-change-acceptance-readout.md)
+is approved under F1–F3 on 2026-11-26, including implementation. #233 is extended
+into its implementation candidate. Focused proof: 228 cases; 100% adapter,
+producer and shared CLI line/branch coverage; 25 rejected/restored mutations.
+It measures six comparable-path counters and publishes actual SQL-only blocked
+abstention without inventing core counts or run-version profiles. All reasons,
+distinct ambiguity/category unions, original bytes and draft status are preserved.
+[Proof](verification/change-acceptance-readout.md). Full local/package/audit and
+exact-head hosted gates belong on the delivery PR; no merge or real-data proof
+is claimed. Durable acceptance history and actual cohort proof remain open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the

@@ -231,3 +231,11 @@ review/certification and investigator task proof are separate release gates.
 
 Owner approved all three recommended decisions, including implementation. This approval
 does not approve durable history, collection, certification, deployment or release.
+
+Implementation candidate: #233, extending this approved contract against main.
+The consumer reuses the public selector once per nonempty comparable capture to
+validate typed summaries/witnesses; it neither implements independent selection
+nor recalculates U4. Both paths keep the original two-connection preparation.
+See [operator command](../runbooks/change-acceptance.md) and
+[focused proof](../verification/change-acceptance-readout.md). Full delivery gates
+are recorded on the PR; durable history and actual cohort proof remain open.
