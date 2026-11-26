@@ -17,11 +17,14 @@
   - Files: producer and preparation tests; small, no new dependency.
   - Observed: missing-API native test failed first; 27 preparation/existing buyer
     readout cases then passed with actual owned originals/SQL and closed connections.
-- [ ] U3-B: measured fourteen-counter adapter with sparse evidence and typed accounting.
+- [x] U3-B: measured fourteen-counter adapter with sparse evidence and typed accounting.
   - Acceptance: cohort/buyer scopes, partial/joint/unknown/share semantics, hash-only
     selection and strict fresh bindings; 1 MiB report / 64 KiB sidecar.
   - Verify: test-first native known answers and mapping/protocol failures.
   - Files: adapter and focused sample/mapping/failure tests; medium, depends on U3-A.
+  - Observed: 131 native/mapping/protocol cases pass; strict focused mypy and
+    lint pass. Includes exact shares, changed buyers, joint/partial/unresolved
+    suppliers, sparse evidence and all fourteen measured counters.
 - [ ] U3-C: CLI and native refusal/recovery/publication proof.
   - Acceptance: fresh retry/relocation, no HTTP or source writes, closed SQL at publication.
   - Verify: native raw/SQL/projection/principal/incomplete refusal and process interruptions.
