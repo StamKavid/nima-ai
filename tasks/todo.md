@@ -1,20 +1,33 @@
 # Tasks
 
-## Active V1-08 — supplier–buyer acceptance contract
+## Active V1-08 — approved U1 acceptance consumer
 
-- [x] Verify #225 merged at `e6c869d`; reviewed `fd35041` is reachable with an identical tree.
-  All three PR jobs passed in run 45719893571; 4,598 tests / 95.12% overall.
-- [x] Inspect the existing U1 preparation/snapshot/result boundary and policy requirements.
-  The subject is limited to 1 MiB; its request includes a private supplier tax number.
-- [x] Probe tied unknown-supplier versions with the existing pure provider/policy:
-  separate ambiguity from unambiguous unknowns to avoid false eligibility failure.
-  This is conceptual proof, not a verified-data or product-adapter claim.
-- [x] Draft [U1 acceptance contract](../docs/specs/SPEC-participation-acceptance-readout.md),
-  with eleven explicit counters, private request binding and unchanged provider status.
-- [ ] Owner review of C1–C3. No U1 implementation plan/build is approved yet.
+- [x] Verify #225 on main `e6c869d`, identical reviewed tree; all three main jobs
+  passed in run 45762240723. #226 and #227 remain open; no merge is assumed.
+- [x] Owner approved C1–C3 on 2026-11-26 (Europe/Athens), including implementation.
+- [x] Record the sequential implementation plan and preserve earlier open work.
+- [ ] U1-A: extract only shared private subject/path/error primitives.
+  - Acceptance: citation behavior/exports/bytes preserved, separate 1/8 MiB bounds.
+  - Verify: failing helper cases then all existing citation cases; strict types/security.
+  - Files: helper, citation adapter, helper tests; small/medium, no prior dependency.
+- [ ] U1-B: verified U1 prepare/export and eleven explicit measured counters.
+  - Acceptance: native known answer, ambiguity/country/union/cancellation semantics,
+    strict fresh producer bindings and tax-number-free bounded sidecar.
+  - Verify: test-first mapping/failure/native cases, no HTTP/source writes.
+  - Files: adapter and mapping/sample/failure tests; medium, depends on U1-A.
+- [ ] U1-C: CLI and native publication/recovery path.
+  - Acceptance: actual one-connection retry/relocation, closed errors, all decisions,
+    process interruption with SQL closed, preserved source bytes/state.
+  - Verify: CLI/native/crash tests; three paths absolute and shared bounds enforced.
+  - Files: existing CLIs and focused CLI/native/crash tests; medium, depends on U1-B.
+- [ ] U1-D: final delivery verification and review.
+  - Acceptance: 100% new-code line/branch, mutations rejected/restored, unchanged
+    legacy/policy pins, full gates/audit, isolated wheel and all exact-head CI green.
+  - Verify: `just check`, `just audit`, mutation/wheel proof and live PR job results.
+  - Files: runbook/proof and current status/spec records; depends on U1-A/B/C.
 
-The independently authorized absolute-request-path correction is #226, with its
-verification state on that PR. It changes neither the policy nor metric meaning.
+U2–U4, durable history, source activation, metric certification and actual
+investigator/cohort proof remain open. Approval of this consumer covers none of them.
 
 ## Delivered V1-08 — verified citation-acceptance readout
 

@@ -18,7 +18,7 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | [SPEC-cross-source-citations](SPEC-cross-source-citations.md) | Exact KIMDIS–Diavgeia citations with two-sided evidence (V1-07) | Model/SQL #221 and verified readout #222 delivered; real reconciliation open |
 | [SPEC-dataset-acceptance](SPEC-dataset-acceptance.md) | Per-use data fitness and check policy (first V1-08 slice) | Pure policy #223 and citation consumer #225 delivered; U1 contract drafted; history/real acceptance open |
 | [SPEC-citation-acceptance-readout](SPEC-citation-acceptance-readout.md) | Verified citation-report acceptance sidecar (V1-08 first consumer) | Delivered #225; B1–B3 approved 2026-11-26 |
-| [SPEC-participation-acceptance-readout](SPEC-participation-acceptance-readout.md) | Supplier–buyer (U1) data-fitness sidecar | Draft; C1–C3 await owner review |
+| [SPEC-participation-acceptance-readout](SPEC-participation-acceptance-readout.md) | Supplier–buyer (U1) data-fitness sidecar | C1–C3 approved 2026-11-26; implementation active |
 | [SPEC-metric-readouts](SPEC-metric-readouts.md) | Readout commands for U2-U4 over stored runs | Approved; S8a next |
 | [SPEC-semantic-layer](SPEC-semantic-layer.md) | First shared metric definition | Provider implemented; metric draft |
 | [SPEC-market-analytics](SPEC-market-analytics.md) | Cited supplier-buyer readout | CLI implemented; human validation open |
