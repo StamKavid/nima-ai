@@ -1,12 +1,36 @@
 # Tasks
 
-## Next V1-08 — citation-acceptance contract review
+## Active V1-08 — verified citation-acceptance readout
 
 - [x] Verify #223 merged at `a4eb99d`, tested `d2d94db` reachable with identical tree;
   all three main CI jobs passed in run 45639919348.
 - [x] Draft [citation-acceptance readout contract](../docs/specs/SPEC-citation-acceptance-readout.md)
   with explicit counter grains, reconstruction and failure/publication behavior.
-- [ ] Owner decisions B1–B3; no new adapter implementation plan or approval recorded.
+- [x] Owner approved B1–B3 as recommended on 2026-11-26 (Europe/Athens).
+- [x] R1 verified-result mapping: all fourteen counters/grains and closed producer/policy bindings.
+  - Acceptance: hand-computed ambiguity/shared-target/revision/cutoff/unknown cases;
+    missing producer fields fail, never default to zero.
+  - Verify: failing tests first, focused `tests/test_citation_acceptance.py`, strict types.
+  - Files: adapter and focused test module (small); depends on existing #223 policy.
+- [x] R2 operator path: descriptor-safe subject read, one reconstruction, byte equality,
+  sidecar and DataOps routing; depends on R1.
+  - Acceptance: native restricted-reader proof; no HTTP on success or failures;
+    retries/relocation preserve bytes and inputs; negative decisions stay explicit.
+  - Verify: native PostgreSQL 17/file/CLI cases; exact size and publication refusal cases.
+  - Files: adapter, `acceptance_cli.py`, DataOps dispatcher and focused tests (medium).
+- [x] R3 local delivery proof: early lint/type/security, mutations, full gates/audit,
+  package and process interruption; depends on R1/R2.
+  - Acceptance: 100% new-code line/branch and unchanged 90% overall floor; legacy
+    artifacts unchanged; full source restored after mutations; all hosted jobs pass.
+  - Verify: `just check`, `just audit`, wheel smoke and scoped verification record.
+  - Files: operator/verification documentation, task/progress records and spec index.
+  - Observed: 4,598 tests / 95.12% overall; 135 focused cases, 100% new-module
+    line/branch coverage, all 22 mutations rejected; audit and isolated-wheel
+    native SQL/original-byte CLI proof pass. Existing contract/semantic pins unchanged.
+  - **Post-push merge gate:** require all three hosted jobs on the exact final
+    commit. Record the SHA/results on the implementation PR; local proof is not
+    hosted proof. Verify that PR state before the next delivery; do not rerun an
+    unchanged full local gate solely to update this pre-push status record.
 
 ## Delivered V1-08 — pure dataset-acceptance policy
 
@@ -41,7 +65,7 @@
   - Delivered: #223; [proof](../docs/verification/dataset-acceptance-policy.md).
     Local 4,463 tests / 95.03%, 100% new-policy coverage, 22 rejected mutations,
     audit and wheel clean; all three jobs passed on main `a4eb99d` in run 45639919348.
-- [ ] Later: verified acceptance adapter, additive journal contract and real-cohort reconciliation; full V1-08 remains open.
+- [ ] Later: U1–U4 verified acceptance adapters, additive journal contract and real-cohort reconciliation; full V1-08 remains open.
 
 ## Delivered V1-07 — citation model/SQL and verified readout (J1–J4 approved 2026-11-25)
 

@@ -1,7 +1,7 @@
 # Spec: verified citation-acceptance readout
 
-Module ID: `citation-acceptance-readout` (V1-08). Status: **draft for owner review,
-2026-11-25; B1–B3 not approved.** Baseline: main `a4eb99d` (#223). Extends the
+Module ID: `citation-acceptance-readout` (V1-08). Status: **owner approved B1–B3 as
+recommended on 2026-11-26 (Europe/Athens), including this readout implementation.** Baseline: main `a4eb99d` (#223). Extends the
 [acceptance policy](SPEC-dataset-acceptance.md) under A3's separately scoped
 adapter contract and the [V1-08 work package](../roadmap/agent-backlog.md#v1-08--dataset-acceptance-and-comparability).
 
@@ -44,7 +44,7 @@ admitted by the policy can receive its explicit `not_assessed` decision.
 
 ## Proposed interface and verification
 
-New command, **not implemented by this draft**:
+Approved command:
 
 ```sh
 uv run --frozen python -m nima dataops assess-citations \
@@ -186,7 +186,7 @@ class CitationAcceptanceExport:
 
 Use existing Python/Psycopg/file primitives, strict mypy and fixed errors. No new
 dependency, CI change, source call, grant, schema migration, schedule or deployment.
-Proposed test file/commands apply after implementation, not in this draft:
+Verification commands:
 
 ```sh
 uv run --frozen pytest tests/test_citation_acceptance.py
@@ -223,5 +223,9 @@ and exact-head hosted CI. Real-cohort reconciliation and certification stay open
   return exit 3 for negative fitness. Broken verification yields a fixed failure
   and no fabricated assessment; every retry re-verifies.
 
-Recommended: accept B1–B3. This draft records no implementation approval, technical
-plan, source activation, metric review or real-data acceptance.
+Owner approved B1–B3 as recommended on 2026-11-26 (Europe/Athens). Execute the
+bounded readout under `tasks/plan.md` and `tasks/todo.md`; no source activation,
+metric review/certification, durable journal or real-data acceptance is authorized.
+
+Implemented for review; local gates pass. Hosted merge readiness is tracked on the PR; see the [scoped proof](../verification/citation-acceptance-readout.md)
+and [operator runbook](../runbooks/citation-acceptance.md). No main-delivery claim yet.

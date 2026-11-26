@@ -14,7 +14,9 @@ capabilities from proposed release work; the package is currently `0.0.1`.
 For offline contract-to-decision references, use the
 [verified KIMDIS–Diavgeia citation readout](docs/runbooks/source-citations.md).
 It checks stored runs against both archives and exports private evidence with
-explicit conflicts and coverage limits. Its model remains draft.
+explicit conflicts and coverage limits. Assess an existing report with the
+[offline citation data-fitness command](docs/runbooks/citation-acceptance.md).
+Its model remains draft.
 
 The planned product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
