@@ -31,11 +31,16 @@
     and shared CLI each have 100% line/branch coverage. Twenty U2 native/process
     cases use actual originals/restricted readers; four kill/interrupt cases
     prove closed SQL and identical retry. Strict mypy passes 411 files.
-- [ ] U2-D: delivery gates and reviewable PR.
+- [x] U2-D candidate assembled; final delivery gates are recorded on #229.
   - Acceptance: 100% new-code line/branch, meaningful mutations rejected/restored,
     unchanged pins, full gate/audit, installed wheel and exact-head hosted jobs.
   - Verify: cheap preflight first, source stable during gates; no redundant unchanged full run.
   - Files: runbook/proof and current status/spec records; medium, depends on U2-A/B/C.
+  - Focused proof: 211 cases, 100% adapter/producer/CLI line and branch coverage;
+    all 22 targeted mutations rejected and source restored. Cheap types/security pass.
+  - Before merge readiness require full local check/audit, final isolated-wheel/native
+    proof and all three exact-head hosted jobs. Verify their live #229 results;
+    focused proof alone is not full-gate, hosted or actual market-data acceptance.
 
 U3/U4, durable acceptance history, actual four-positive reconciliation, metric
 review/certification and investigator task proof remain open.

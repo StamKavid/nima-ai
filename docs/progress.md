@@ -18,10 +18,14 @@ isolated-wheel/native operation. It measures eleven counters, preserves provider
 status and hash-binds supplier selection without copying its tax number.
 [Proof](verification/participation-acceptance-readout.md).
 
-Next: [U2 CPV/month acceptance contract](specs/SPEC-cpv-acceptance-readout.md),
-D1–D3 proposed for review. Existing-provider probes confirm pre-filter diagnostics
-and overlapping CPV cells; no U2 consumer is implemented. U3/U4 and durable history
-remain open. No unchanged full local gate is repeated for this documentation update.
+The [U2 CPV/month consumer](specs/SPEC-cpv-acceptance-readout.md) was approved
+under D1–D3 on 2026-11-26 and is implemented in the #229 candidate. Its 211
+focused/compatibility cases pass at 100% line/branch coverage for the adapter,
+changed producer and shared CLI; 22 behavior mutations are rejected. It reuses
+the original verifier, measures ten pre-filter counters and avoids counting
+overlapping CPV/cancellation cells as distinct records. Final local/package/audit
+and exact-head hosted gates are on the implementation PR.
+[Proof](verification/cpv-acceptance-readout.md). U3/U4 and durable history remain open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the

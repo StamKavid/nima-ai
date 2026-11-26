@@ -19,7 +19,7 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | [SPEC-dataset-acceptance](SPEC-dataset-acceptance.md) | Per-use data fitness and check policy (first V1-08 slice) | Pure policy #223, citation #225 and U1 #228 delivered; U2 proposed; history/real acceptance open |
 | [SPEC-citation-acceptance-readout](SPEC-citation-acceptance-readout.md) | Verified citation-report acceptance sidecar (V1-08 first consumer) | Delivered #225; B1–B3 approved 2026-11-26 |
 | [SPEC-participation-acceptance-readout](SPEC-participation-acceptance-readout.md) | Supplier–buyer (U1) data-fitness sidecar | Delivered #228; C1–C3 approved 2026-11-26 |
-| [SPEC-cpv-acceptance-readout](SPEC-cpv-acceptance-readout.md) | CPV/month (U2) data-fitness sidecar | D1–D3 proposed; no implementation |
+| [SPEC-cpv-acceptance-readout](SPEC-cpv-acceptance-readout.md) | CPV/month (U2) data-fitness sidecar | D1–D3 approved 2026-11-26; #229 implementation candidate, delivery gates on PR |
 | [SPEC-metric-readouts](SPEC-metric-readouts.md) | Readout commands for U2-U4 over stored runs | Approved; S8a next |
 | [SPEC-semantic-layer](SPEC-semantic-layer.md) | First shared metric definition | Provider implemented; metric draft |
 | [SPEC-market-analytics](SPEC-market-analytics.md) | Cited supplier-buyer readout | CLI implemented; human validation open |
