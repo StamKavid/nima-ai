@@ -3,7 +3,8 @@
 ## Active V1-08 — approved U1 acceptance consumer
 
 - [x] Verify #225 on main `e6c869d`, identical reviewed tree; all three main jobs
-  passed in run 45762240723. #226 and #227 remain open; no merge is assumed.
+  passed in run 45762240723. #226/#227 are now merged at `fcfa11d`/`e3839c0`;
+  both reviewed heads are reachable and their combined tree matches the prerequisite tree.
 - [x] Owner approved C1–C3 on 2026-11-26 (Europe/Athens), including implementation.
 - [x] Record the sequential implementation plan and preserve earlier open work.
 - [x] U1-A: extract only shared private subject/path/error primitives.
@@ -20,7 +21,7 @@
     process interruption with SQL closed, preserved source bytes/state.
   - Verify: CLI/native/crash tests; three paths absolute and shared bounds enforced.
   - Files: existing CLIs and focused CLI/native/crash tests; medium, depends on U1-B.
-- [x] U1-D candidate assembled; final local/hosted gates recorded on #227.
+- [x] U1-D candidate assembled; final local/hosted gates recorded on the implementation PR.
   - Acceptance: 100% new-code line/branch, mutations rejected/restored, unchanged
     legacy/policy pins, full gates/audit, isolated wheel and all exact-head CI green.
   - Verify: `just check`, `just audit`, mutation/wheel proof and live PR job results.
@@ -28,7 +29,7 @@
   - Focused proof: 276 cases, 100% U1/shared-file/CLI line and branch coverage,
     strict types/security clean; all 22 mutations rejected and source restored.
   - Merge gate: require full local check/audit, final isolated wheel and all three
-    exact-head hosted jobs. Verify the live #227 results before marking main
+    exact-head hosted jobs. Verify the live implementation PR results before marking main
     delivery; local/focused proof alone is not hosted or real-data acceptance.
 
 U2–U4, durable history, source activation, metric certification and actual

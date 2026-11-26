@@ -236,6 +236,7 @@ Execute the approved bounded consumer under `tasks/plan.md` and `tasks/todo.md`.
 The earlier citation correction remains separately approved; no U2–U4 consumer,
 journal evolution, source activation or metric certification follows from C1–C3.
 
-Implemented in the #227 candidate; see the [runbook](../runbooks/participation-acceptance.md)
+Contract #227 and prerequisite #226 are merged at `e3839c0`/`fcfa11d`.
+Implemented in a separate consumer candidate; see the [runbook](../runbooks/participation-acceptance.md)
 and [local verification record](../verification/participation-acceptance-readout.md).
 Post-push gates and main-delivery state are tracked on the PR.

@@ -3,11 +3,10 @@
 ## Active V1-08: verified U1 acceptance consumer
 
 Owner approved [C1–C3](../docs/specs/SPEC-participation-acceptance-readout.md) on
-2026-11-26 (Europe/Athens), including implementation. Extend open #227 with the
-working consumer. Both #226 and #227 are still open; the feature incorporates
-#226's reviewed path correction without merging anything into main. Main remains
-`e6c869d`, with reviewed #225 content reachable and all three main jobs green in
-run 45762240723. Preserve all earlier incomplete work below.
+2026-11-26 (Europe/Athens), including implementation. The owner merged #226 at `fcfa11d` and the #227 contract at `e3839c0`; both
+reviewed heads are reachable from main, and their combined tree matches the
+previously composed prerequisite tree. Deliver the consumer in a new PR to main.
+No agent merge or history rewrite was performed. Preserve all earlier incomplete work below.
 
 Dependency direction: DataOps command → U1 adapter → existing public preparation
 and unchanged pure policy. First extract only descriptor-safe subject reading,
@@ -44,7 +43,7 @@ Risks: false blocked ambiguity (C-only denominator); hidden country uncertainty
 (union flags, preserve provider status); copied AFM (hash-only binding); wrong
 shared bound (explicit per-call 1/8 MiB); trusting saved success (fresh public
 preparation + full byte equality); source-stack growth (no new source engine).
-End checkpoint: reviewed U1 acceptance consumer in #227, not V1-08 completion.
+End checkpoint: reviewed U1 acceptance consumer PR, not V1-08 completion.
 
 ## Delivered V1-08: verified citation-acceptance readout
 
@@ -1149,7 +1148,7 @@ and native isolated-wheel proof. Post-push exact-head hosted checks remain the
 merge gate and are recorded on the implementation PR. No second feature begins
 until this delivery is reviewable.
 
-U1-A/B/C and the delivery candidate are implemented in #227: 276 focused cases,
+U1-A/B/C and the delivery candidate are implemented in the candidate: 276 focused cases,
 100% U1/shared-file/CLI line and branch coverage, 22 rejected/restored mutations,
 and early lint/type/security clean. Full local/audit/package and all exact-head
 hosted results are recorded on the PR before review readiness. Main delivery,

@@ -2,9 +2,10 @@
 
 Date: 2026-11-26 (Europe/Athens). Owner approved C1–C3 of the
 [contract](../specs/SPEC-participation-acceptance-readout.md), including implementation.
-Candidate extends #227 and includes the reviewed #226 path correction; neither
-is assumed merged. Main baseline is #225 at `e6c869d`, with all three main jobs
-passed in run 45762240723. This record describes the candidate's local proof;
+Contract #227 is merged at `e3839c0` and prerequisite #226 at `fcfa11d`. Both
+reviewed heads are reachable from main and their combined tree matches the
+composed prerequisite. Main baseline for this candidate is `e3839c0`; the prior
+#225 baseline also has all three main jobs passed in run 45762240723. This record describes the candidate's local proof;
 post-push exact-head results are recorded on its implementation PR.
 
 ## Boundary and meaning
@@ -69,7 +70,7 @@ These tests fail on behavior, not a changed policy-definition pin.
 
 Full `just check`, `just audit`, final isolated-wheel operation and all three
 exact-head hosted jobs are required before review readiness. Their post-push
-results are recorded on #227 so this immutable pre-push record does not claim
+results are recorded on the implementation PR so this immutable pre-push record does not claim
 its own future hosted outcome. Application code stays frozen during those runs;
 no second full local suite is run solely to update documentation status.
 

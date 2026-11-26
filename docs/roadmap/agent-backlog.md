@@ -188,7 +188,7 @@ was merged in #224; B1–B3 were approved 2026-11-26. Its citation-inspection
 consumer is delivered in #225 at `e6c869d`; reviewed `fd35041` is reachable
 with an identical tree and all three PR jobs passed in run 45719893571.
 The [U1 consumer](../specs/SPEC-participation-acceptance-readout.md) was approved
-under C1–C3 on 2026-11-26 and is implemented in the #227 candidate; its final
+under C1–C3 on 2026-11-26 and has a merged contract in #227 and is implemented in the consumer candidate; its final
 local and exact-head hosted proof is tracked on that PR. U2–U4 consumers and the additive journal remain
 separate work; no generic acceptance framework is proposed.
 V1-01's current journal admits only its original readout validator: general
