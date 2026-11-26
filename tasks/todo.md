@@ -23,10 +23,14 @@
   - Observed: 109 native/mapping/adversarial cases pass, strict focused types and
     lint clean. Includes an initially failing evidence-pointer disagreement case;
     publication/CLI and final gates follow in U2-C/D.
-- [ ] U2-C: CLI and native publication/refusal/recovery proof.
+- [x] U2-C: CLI and native publication/refusal/recovery proof.
   - Acceptance: fresh retry/relocation, no HTTP/source writes, closed SQL at publication.
   - Verify: native SQL/raw/path/binding negatives, CLI and process interruption.
   - Files: existing CLIs and focused CLI/native/crash tests; medium, depends on U2-A/B.
+  - Observed: 211 focused/compatibility cases pass; new adapter, changed producer
+    and shared CLI each have 100% line/branch coverage. Twenty U2 native/process
+    cases use actual originals/restricted readers; four kill/interrupt cases
+    prove closed SQL and identical retry. Strict mypy passes 411 files.
 - [ ] U2-D: delivery gates and reviewable PR.
   - Acceptance: 100% new-code line/branch, meaningful mutations rejected/restored,
     unchanged pins, full gate/audit, installed wheel and exact-head hosted jobs.
