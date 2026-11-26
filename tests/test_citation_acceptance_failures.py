@@ -21,6 +21,7 @@ from nima.identity.artifacts import encode
 from nima.semantics.citations import MAX_OUTPUT_BYTES
 from tests.citation_acceptance_samples import producer
 from tests.test_citation_acceptance import subject
+from tests.test_citation_acceptance_native import request_file
 from tests.test_source_citations import contract, decision
 
 
@@ -410,3 +411,51 @@ def test_sidecar_byte_limit_accepts_exact_bound_and_refuses_one_less(
     monkeypatch.setattr(adapter, "MAX_ACCEPTANCE_BYTES", len(original) - 1)
     with pytest.raises(CitationAcceptanceError, match="^acceptance_limit$"):
         prepare_citation_acceptance("fixture", request, report)
+
+
+@pytest.mark.parametrize("entrypoint", ["library", "cli"])
+def test_relative_request_is_rejected_even_when_a_valid_private_file_exists(
+    entrypoint: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from nima.dataops import cli
+
+    request, frame, _ = producer((contract(1),), (decision(),))
+    request_file(tmp_path, request)
+    report = subject(tmp_path / "reports", encode(frame))
+    original = (tmp_path / "request.json").read_bytes()
+    monkeypatch.chdir(tmp_path)
+
+    def forbidden(*args: object) -> Any:
+        pytest.fail("A relative request must fail before reconstruction")
+
+    monkeypatch.setattr(adapter, "prepare_citation_readout", forbidden)
+    if entrypoint == "library":
+        with pytest.raises(CitationAcceptanceError, match="^acceptance_input$"):
+            adapter.export_citation_acceptance(
+                "fixture", Path("request.json"), report, tmp_path / "output"
+            )
+    else:
+        monkeypatch.setenv("NIMA_DATABASE_URL", "PRIVATE_DSN")
+        assert (
+            cli.run(
+                [
+                    "assess-citations",
+                    "--request",
+                    "request.json",
+                    "--report",
+                    str(report),
+                    "--output-dir",
+                    str(tmp_path / "output"),
+                ]
+            )
+            == 2
+        )
+        out = capsys.readouterr()
+        assert json.loads(out.out) == {"status": "failed", "failure": "acceptance_input"}
+        assert "PRIVATE_DSN" not in out.out + out.err
+        assert str(tmp_path) not in out.out + out.err
+    assert (tmp_path / "request.json").read_bytes() == original
+    assert not (tmp_path / "output").exists()
