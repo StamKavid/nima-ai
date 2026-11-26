@@ -1,6 +1,51 @@
 # Tasks
 
-## Active V1-08 — approved U1 acceptance consumer
+## Active V1-08 — approved CPV/month acceptance consumer
+
+- [x] Verify #228 merged at `e6f48b4`, reviewed `f843f56` reachable with identical tree;
+  all three exact-head PR jobs passed in run 45805461376.
+- [x] Draft [U2 contract](../docs/specs/SPEC-cpv-acceptance-readout.md), checking
+  existing preparation/SQL behavior and ten counter grains against code and a
+  pure-provider probe. No application implementation or real-data claim.
+- [x] Owner approved D1–D3 including implementation on 2026-11-26 (Europe/Athens).
+- [x] Record sequential plan, extend #229 against main and preserve earlier open work.
+- [x] U2-A: additive frozen preparation result and compatibility proof.
+  - Acceptance: old tuple/report bytes unchanged, one cohort read/two read-only connections.
+  - Verify: failing native known answer/API test first, existing CPV tests unchanged.
+  - Files: producer and focused preparation tests; small, no new dependency.
+  - Observed: failing missing-API test first, then 40 preparation/existing CPV
+    cases pass with owned native PostgreSQL/originals; old tuple bytes preserved.
+- [x] U2-B: measured ten-counter consumer and bounded private sidecar.
+  - Acceptance: pre-filter unknowns, distinct cancellation/ambiguity, strict bindings;
+    no copied selection/source details, unchanged policy.
+  - Verify: test-first mapping/failure/native cases; 1 MiB subject / 64 KiB sidecar.
+  - Files: adapter and focused sample/mapping/failure tests; medium, depends on U2-A.
+  - Observed: 109 native/mapping/adversarial cases pass, strict focused types and
+    lint clean. Includes an initially failing evidence-pointer disagreement case;
+    publication/CLI and final gates follow in U2-C/D.
+- [x] U2-C: CLI and native publication/refusal/recovery proof.
+  - Acceptance: fresh retry/relocation, no HTTP/source writes, closed SQL at publication.
+  - Verify: native SQL/raw/path/binding negatives, CLI and process interruption.
+  - Files: existing CLIs and focused CLI/native/crash tests; medium, depends on U2-A/B.
+  - Observed: 211 focused/compatibility cases pass; new adapter, changed producer
+    and shared CLI each have 100% line/branch coverage. Twenty U2 native/process
+    cases use actual originals/restricted readers; four kill/interrupt cases
+    prove closed SQL and identical retry. Strict mypy passes 411 files.
+- [x] U2-D candidate assembled; final delivery gates are recorded on #229.
+  - Acceptance: 100% new-code line/branch, meaningful mutations rejected/restored,
+    unchanged pins, full gate/audit, installed wheel and exact-head hosted jobs.
+  - Verify: cheap preflight first, source stable during gates; no redundant unchanged full run.
+  - Files: runbook/proof and current status/spec records; medium, depends on U2-A/B/C.
+  - Focused proof: 211 cases, 100% adapter/producer/CLI line and branch coverage;
+    all 22 targeted mutations rejected and source restored. Cheap types/security pass.
+  - Before merge readiness require full local check/audit, final isolated-wheel/native
+    proof and all three exact-head hosted jobs. Verify their live #229 results;
+    focused proof alone is not full-gate, hosted or actual market-data acceptance.
+
+U3/U4, durable acceptance history, actual four-positive reconciliation, metric
+review/certification and investigator task proof remain open.
+
+## Delivered V1-08 — approved U1 acceptance consumer
 
 - [x] Verify #225 on main `e6c869d`, identical reviewed tree; all three main jobs
   passed in run 45762240723. #226/#227 are now merged at `fcfa11d`/`e3839c0`;
@@ -28,9 +73,10 @@
   - Files: runbook/proof and current status/spec records; depends on U1-A/B/C.
   - Focused proof: 276 cases, 100% U1/shared-file/CLI line and branch coverage,
     strict types/security clean; all 22 mutations rejected and source restored.
-  - Merge gate: require full local check/audit, final isolated wheel and all three
-    exact-head hosted jobs. Verify the live implementation PR results before marking main
-    delivery; local/focused proof alone is not hosted or real-data acceptance.
+  - Delivered #228 at `e6f48b4`, identical reviewed `f843f56` tree. Full local
+    check: 4,739 tests / 95.19%; audit and final isolated-wheel/native proof pass.
+    All three exact-head PR jobs passed in run 45805461376. This is software
+    verification; actual source-cohort acceptance remains open.
 
 U2–U4, durable history, source activation, metric certification and actual
 investigator/cohort proof remain open. Approval of this consumer covers none of them.
