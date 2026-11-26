@@ -516,7 +516,7 @@ def prepare_citation_acceptance(
 def export_citation_acceptance(
     dsn: str, request_file: Path, report: Path, output_directory: Path
 ) -> CitationAcceptanceExport:
-    if not _path(output_directory):
+    if not _path(request_file) or not _path(output_directory):
         raise CitationAcceptanceError("acceptance_input")
     try:
         request = read_citation_request(request_file)
