@@ -8,8 +8,11 @@ complete V1-08's durable-history or real-cohort acceptance requirements.
 
 Pure-policy delivery: #223, main `a4eb99d`, tested `d2d94db` reachable with an
 identical tree; all three main jobs passed in run 45639919348. The
-[first consumer contract](SPEC-citation-acceptance-readout.md) remains a separate
-draft under A3. No product adapter or durable-history acceptance is claimed here.
+[citation consumer](SPEC-citation-acceptance-readout.md) is delivered separately
+in #225 at `e6c869d`, under B1–B3. The next
+[U1 consumer contract](SPEC-participation-acceptance-readout.md) is a draft under
+A3. The first-slice wording below describes the pure policy; durable history
+and real-data acceptance remain open.
 
 ## Objective and assumptions
 

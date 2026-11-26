@@ -1,6 +1,22 @@
 # Tasks
 
-## Active V1-08 — verified citation-acceptance readout
+## Active V1-08 — supplier–buyer acceptance contract
+
+- [x] Verify #225 merged at `e6c869d`; reviewed `fd35041` is reachable with an identical tree.
+  All three PR jobs passed in run 45719893571; 4,598 tests / 95.12% overall.
+- [x] Inspect the existing U1 preparation/snapshot/result boundary and policy requirements.
+  The subject is limited to 1 MiB; its request includes a private supplier tax number.
+- [x] Probe tied unknown-supplier versions with the existing pure provider/policy:
+  separate ambiguity from unambiguous unknowns to avoid false eligibility failure.
+  This is conceptual proof, not a verified-data or product-adapter claim.
+- [x] Draft [U1 acceptance contract](../docs/specs/SPEC-participation-acceptance-readout.md),
+  with eleven explicit counters, private request binding and unchanged provider status.
+- [ ] Owner review of C1–C3. No U1 implementation plan/build is approved yet.
+
+The independently authorized absolute-request-path correction is #226, with its
+verification state on that PR. It changes neither the policy nor metric meaning.
+
+## Delivered V1-08 — verified citation-acceptance readout
 
 - [x] Verify #223 merged at `a4eb99d`, tested `d2d94db` reachable with identical tree;
   all three main CI jobs passed in run 45639919348.
@@ -27,10 +43,9 @@
   - Observed: 4,598 tests / 95.12% overall; 135 focused cases, 100% new-module
     line/branch coverage, all 22 mutations rejected; audit and isolated-wheel
     native SQL/original-byte CLI proof pass. Existing contract/semantic pins unchanged.
-  - **Post-push merge gate:** require all three hosted jobs on the exact final
-    commit. Record the SHA/results on the implementation PR; local proof is not
-    hosted proof. Verify that PR state before the next delivery; do not rerun an
-    unchanged full local gate solely to update this pre-push status record.
+  - Delivered: #225 at `e6c869d`, reviewed `fd35041` reachable with an identical
+    tree; all three exact-head jobs passed in run 45719893571. No unchanged
+    full local gate was rerun just to record its merge.
 
 ## Delivered V1-08 — pure dataset-acceptance policy
 

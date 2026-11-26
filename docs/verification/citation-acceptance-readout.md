@@ -3,8 +3,10 @@
 Date: 2026-11-26 (Europe/Athens). B1–B3 were approved after the
 [contract](../specs/SPEC-citation-acceptance-readout.md) in #224. That PR is merged
 at `39519c2`; its documentation head `c4343d3` is reachable with an identical tree
-and all three main CI jobs passed in run 45714441006. This implementation is a
-separate delivery candidate, not yet a main delivery.
+and all three main CI jobs passed in run 45714441006. The implementation is
+delivered in [#225](https://github.com/StamKavid/nima-ai/pull/225), main `e6c869d`,
+with reviewed `fd35041` reachable and an identical tree. All three exact-head PR
+jobs passed in [run 45719893571](https://github.com/StamKavid/nima-ai/actions/runs/45719893571).
 
 ## Boundary and focused proof
 
@@ -62,10 +64,11 @@ CLI reconstructed actual PostgreSQL 17/original fixture evidence using a restric
 reader and returned `ready` with all fourteen counters. No checkout module or
 stubbed verifier supplied that packaged result; source table hashes are unchanged.
 
-Hosted checks run after publication. Their exact commit and results are recorded
-on the implementation PR; all three jobs must pass before merge readiness. A local
-gate does not establish hosted CI. The post-push result is not embedded in its own
-immutable commit. This record makes no main-delivery or real-cohort claim.
+Hosted quality, orchestration-compose and source-worker-egress passed on
+`fd35041db457b648346b6f4ef450d3378b74d5a3` in run 45719893571; hosted quality
+also reports 4,598 tests passed. Reachability and tree comparison confirm main
+contains the reviewed content. The subsequent absolute-request-path correction
+is isolated in #226; no real-cohort acceptance follows from either proof.
 
 Private logs and owned test resources stay outside Git under
 `/workspace/work/nima-citation-acceptance-proof`; that workspace path is a local

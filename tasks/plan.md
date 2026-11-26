@@ -1,6 +1,25 @@
 # Delivery plan
 
-## Active V1-08: verified citation-acceptance readout
+## Active V1-08: supplier–buyer acceptance contract review
+
+#225 is merged at `e6c869d`; reviewed head `fd35041` is reachable with an
+identical tree. All three PR jobs passed in run 45719893571. Its final proof is
+4,598 tests / 95.12% overall, 135 focused cases / 100% new-module line/branch,
+22 rejected mutations, audit and isolated-wheel/native proof.
+
+The next [U1 consumer contract](../docs/specs/SPEC-participation-acceptance-readout.md)
+is drafted for C1–C3 review. Source inspection confirms the existing public
+`prepare_readout` boundary; a pure-provider/policy probe confirms the ambiguity
+counter distinction. This is specification work only: no new technical
+implementation plan or U1 build is approved. U2–U4, durable history and real
+validation remain open. Preserve all earlier incomplete work below.
+
+A correction to #225's already-approved absolute-request-path behavior is isolated
+in [#226](https://github.com/StamKavid/nima-ai/pull/226). It adds two regressions,
+with 137 focused cases / 100% coverage; full proof and hosted status are on that
+PR. It does not approve the U1 consumer. Source code is unchanged in this contract PR.
+
+## Delivered V1-08: verified citation-acceptance readout
 
 Owner merged #223 at `a4eb99d`; tested head `d2d94db` is reachable from main
 with an identical tree. All three main CI jobs passed in run 45639919348.
