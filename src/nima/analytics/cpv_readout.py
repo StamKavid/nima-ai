@@ -1,6 +1,6 @@
 """Read, verify against originals, evaluate and privately publish one CPV-by-period readout."""
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import cast
@@ -19,7 +19,7 @@ from nima.analytics.result import ReadoutError
 from nima.analytics.snapshot import SnapshotError, read_cohort
 from nima.graph.pilot_archive import PilotArchiveError
 from nima.identity import AssessmentError
-from nima.identity.artifacts import publish
+from nima.identity.artifacts import encode, publish
 from nima.semantics.cpv_period import (
     CpvAssertion,
     MetricResult,
@@ -39,6 +39,17 @@ class CpvExport:
     record_count: int
     cell_count: int
     outcome: str
+
+
+@dataclass(frozen=True)
+class PreparedCpvReadout:
+    """Already-verified report and immutable facts from its single cohort read."""
+
+    body: bytes = field(repr=False)
+    metric: MetricResult
+    cohort_json: str = field(repr=False)
+    observations: tuple[Observation, ...] = field(repr=False)
+    pages: tuple[VerifiedPage, ...]
 
 
 def _observations(
@@ -157,7 +168,7 @@ def _body(
     return encode_artifact(body)
 
 
-def prepare_cpv_readout(dsn: str, request: CpvRequest) -> tuple[bytes, MetricResult]:
+def prepare_cpv_result(dsn: str, request: CpvRequest) -> PreparedCpvReadout:
     """Reconstruct and validate without publishing or writing SQL/source evidence."""
     try:
         cohort = read_cohort(dsn, request.run_ids)
@@ -182,7 +193,13 @@ def prepare_cpv_readout(dsn: str, request: CpvRequest) -> tuple[bytes, MetricRes
             ),
             result.payload(),
         )
-        return _body(request, cohort.document, observations, cited, result, pages), result
+        return PreparedCpvReadout(
+            _body(request, cohort.document, observations, cited, result, pages),
+            result,
+            encode(cohort.document).decode("utf-8"),
+            observations,
+            pages,
+        )
     except ReadoutError:
         raise
     except (SnapshotError, ReconciliationError, RequestError) as error:
@@ -195,6 +212,12 @@ def prepare_cpv_readout(dsn: str, request: CpvRequest) -> tuple[bytes, MetricRes
         raise ReadoutError("analytics_evidence") from None
     except OSError:
         raise ReadoutError("analytics_output") from None
+
+
+def prepare_cpv_readout(dsn: str, request: CpvRequest) -> tuple[bytes, MetricResult]:
+    """Preserve the original public tuple API and report bytes."""
+    prepared = prepare_cpv_result(dsn, request)
+    return prepared.body, prepared.metric
 
 
 def export_cpv_readout(dsn: str, request_file: Path, output_directory: Path) -> CpvExport:

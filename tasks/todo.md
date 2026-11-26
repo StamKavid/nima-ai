@@ -1,13 +1,34 @@
 # Tasks
 
-## Active V1-08 — CPV/month acceptance contract
+## Active V1-08 — approved CPV/month acceptance consumer
 
 - [x] Verify #228 merged at `e6f48b4`, reviewed `f843f56` reachable with identical tree;
   all three exact-head PR jobs passed in run 45805461376.
 - [x] Draft [U2 contract](../docs/specs/SPEC-cpv-acceptance-readout.md), checking
   existing preparation/SQL behavior and ten counter grains against code and a
   pure-provider probe. No application implementation or real-data claim.
-- [ ] Owner review of D1–D3; implementation plan/build follows approval.
+- [x] Owner approved D1–D3 including implementation on 2026-11-26 (Europe/Athens).
+- [x] Record sequential plan, extend #229 against main and preserve earlier open work.
+- [x] U2-A: additive frozen preparation result and compatibility proof.
+  - Acceptance: old tuple/report bytes unchanged, one cohort read/two read-only connections.
+  - Verify: failing native known answer/API test first, existing CPV tests unchanged.
+  - Files: producer and focused preparation tests; small, no new dependency.
+  - Observed: failing missing-API test first, then 40 preparation/existing CPV
+    cases pass with owned native PostgreSQL/originals; old tuple bytes preserved.
+- [ ] U2-B: measured ten-counter consumer and bounded private sidecar.
+  - Acceptance: pre-filter unknowns, distinct cancellation/ambiguity, strict bindings;
+    no copied selection/source details, unchanged policy.
+  - Verify: test-first mapping/failure/native cases; 1 MiB subject / 64 KiB sidecar.
+  - Files: adapter and focused sample/mapping/failure tests; medium, depends on U2-A.
+- [ ] U2-C: CLI and native publication/refusal/recovery proof.
+  - Acceptance: fresh retry/relocation, no HTTP/source writes, closed SQL at publication.
+  - Verify: native SQL/raw/path/binding negatives, CLI and process interruption.
+  - Files: existing CLIs and focused CLI/native/crash tests; medium, depends on U2-A/B.
+- [ ] U2-D: delivery gates and reviewable PR.
+  - Acceptance: 100% new-code line/branch, meaningful mutations rejected/restored,
+    unchanged pins, full gate/audit, installed wheel and exact-head hosted jobs.
+  - Verify: cheap preflight first, source stable during gates; no redundant unchanged full run.
+  - Files: runbook/proof and current status/spec records; medium, depends on U2-A/B/C.
 
 U3/U4, durable acceptance history, actual four-positive reconciliation, metric
 review/certification and investigator task proof remain open.

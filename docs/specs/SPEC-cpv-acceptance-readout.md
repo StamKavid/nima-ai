@@ -1,9 +1,9 @@
 # Spec: CPV/month data-fitness readout
 
-Module ID: `cpv-acceptance-readout` (V1-08). Status: **proposed for owner review**,
-2026-11-26 (Europe/Athens). Baseline: #228 merged at `e6f48b4`.
+Module ID: `cpv-acceptance-readout` (V1-08). Status: **owner approved D1–D3,
+including implementation, on 2026-11-26 (Europe/Athens)**. Baseline: #228 merged at `e6f48b4`.
 Extends [A3](SPEC-dataset-acceptance.md#owner-decisions) after the citation and U1
-consumers. This contract covers U2 only; implementation awaits approval of D1–D3.
+consumers. This contract covers U2 only.
 
 ## Objective and assumptions
 
@@ -200,7 +200,7 @@ open. No journal persistence, U3/U4, source activation or release in this scope.
 
 ## Owner decisions
 
-Recommendations, awaiting review:
+Owner approved all three recommended decisions, including implementation:
 
 - **D1 — scope:** one U2 acceptance command/sidecar, reusing the existing verifier
   through an additive frozen preparation result; preserve the old tuple API/bytes.

@@ -1,12 +1,43 @@
 # Delivery plan
 
-## Active V1-08: U2 contract review
+## Active V1-08: approved U2 acceptance consumer
 
 The [CPV/month acceptance contract](../docs/specs/SPEC-cpv-acceptance-readout.md)
-is proposed for D1–D3 review. It reuses the existing U2 verifier with an additive
-frozen preparation result, ten pre-filter counters and a private acceptance sidecar.
-No U2 implementation plan or application change is included before owner approval.
-U3/U4, durable history and actual source/investigator proof remain open.
+was approved under D1–D3 on 2026-11-26 (Europe/Athens), including implementation.
+Extend the unmerged #229 contract branch into its implementation PR against main;
+do not create a feature-base delivery or merge it automatically. Earlier incomplete
+work stays open. U3/U4, durable history and actual source/investigator proof remain open.
+
+Dependency direction: DataOps CLI → U2 consumer → existing public preparation
+and unchanged pure acceptance policy. No new verifier or generic adapter framework.
+
+U2-A: failing native known-answer/API compatibility test first, then expose the
+existing preparation as a frozen result. Preserve the old tuple API and report
+bytes; prove one source-cohort read and the existing two sequential SELECT-only
+connections. Files: CPV producer and preparation tests (small).
+
+U2-B: test-first ten-counter adapter, strict fresh producer/request/cohort/typed
+bindings and private sidecar publication. Include pre-filter diagnostics,
+overlapping CPV/cancellation cells and unknown/ambiguous/empty decisions before
+the full gate. Files: adapter and focused mapping/failure/native tests (medium).
+
+U2-C: add command routing and native retry/relocation/refusal/publication tests.
+Prove no HTTP or source writes, fresh verification on every retry, private errors
+and both SQL sessions closed at publication. Files: existing CLIs and focused
+CLI/native/crash tests (medium). Depends on U2-A/B.
+
+U2-D: front-load lint/type/security, then meaningful behavior mutations, 100%
+new-code line/branch, unchanged policy/semantic/artifact/ODCS pins, full check/audit,
+isolated-wheel/native proof and all exact-head hosted jobs. Hold source stable
+during tests; overlap independent local/hosted gates on the draft final candidate.
+Record late results on the PR, without another source/doc-only check cycle.
+Files: runbook/verification and status/spec records (medium). Depends on U2-A/B/C.
+
+Risks: summing overlapping cells (use typed record decisions); changing diagnostic
+scope under filters (use existing pre-filter coverage); inferred zeros/run versions
+(return frozen producer facts); duplicate verifier/SQL reads (one additive result);
+cached success or copied source detail (fresh byte equality, hash-only selection).
+End checkpoint: review-ready U2 consumer PR; V1-08 and real-data acceptance stay open.
 
 ## Delivered V1-08: verified U1 acceptance consumer
 
