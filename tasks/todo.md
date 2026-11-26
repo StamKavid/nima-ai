@@ -1,6 +1,19 @@
 # Tasks
 
-## Active V1-08 — approved buyer-concentration acceptance consumer
+## Active — CI runtime headroom and timing evidence
+
+- [x] Verify #231 reaches main with an identical tested tree; post-merge CI passed.
+- [x] Compare PR/main timings: same code, quality 19m53s / 15m06s; pytest
+  1,111.57s / 839.10s. Cause of the variance is unproven.
+- [x] Keep every gate and test; add a 30-minute quality bound and built-in pytest
+  timing/JUnit evidence to the existing seven-day artifact.
+- [ ] Validate workflow/options, full local check/audit and all exact-head hosted
+  jobs. Record final evidence on the delivery PR before review readiness.
+
+No runtime speedup, real-data acceptance or release is claimed. U4 is next
+application work; durable history and actual cohort proof remain open.
+
+## Delivered V1-08 — approved buyer-concentration acceptance consumer
 
 - [x] Verify #229 merged at `c78eb72`, reviewed `5e035d9` reachable with identical tree;
   all three exact-head PR jobs passed in run 45818830229.
@@ -33,16 +46,12 @@
     for adapter (219 statements/92 branches), producer (76/4), shared CLI (44/2).
     Twenty U3 native/process cases plus one preparation case use actual synthetic
     originals and restricted readers. Empty-denominator shares explicitly refuse.
-- [x] U3-D candidate assembled; final delivery gates are recorded on its implementation PR.
-  - Acceptance: 100% new-code line/branch, mutations rejected/restored, unchanged pins,
-    full gate/audit, isolated wheel/baseline parity and all exact-head hosted jobs.
-  - Verify: cheap preflight first; source stable during gates, no redundant unchanged full run.
-  - Files: runbook/proof and current status/spec records; medium, depends on U3-A/B/C.
-  - Focused proof: 236 cases, 100% adapter/producer/CLI line/branch; 28 behavior
-    mutations rejected with source restored. Cheap lint/types/security pass.
-  - Before merge readiness require full local check/audit, final isolated-wheel/
-    native/baseline-byte proof and all three exact-head hosted jobs. Verify the
-    live implementation PR; focused proof is not hosted or real-data acceptance.
+- [x] U3-D delivered in #231 at `d81f89b`, identical reviewed `c390c2a` tree.
+  - Full local check: 5,049 tests / 95.32%; 236 focused cases and 100% changed-
+    module line/branch coverage; all 28 mutations rejected and source restored.
+  - Audit and isolated-wheel/native/pre-change-byte proofs pass. All three
+    exact-head PR jobs passed in run 45861771247; all three post-merge jobs
+    passed in run 45863343061. This is software proof, not real-data acceptance.
 
 U4, durable history, actual four-positive reconciliation, metric certification
 and investigator task proof remain open.

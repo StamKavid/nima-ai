@@ -28,13 +28,21 @@ verifier, measures ten pre-filter counters and avoids treating overlapping CPV o
 cancellation cells as distinct records. [Proof](verification/cpv-acceptance-readout.md).
 
 The [U3 buyer-concentration consumer](specs/SPEC-buyer-acceptance-readout.md) was
-approved under E1–E3 on 2026-11-26 and is implemented in a separate candidate
-after contract #230 merged at `0665eb7`. Focused proof: 236 cases, 100% adapter/
-producer/CLI line and branch coverage, 28 rejected behavior mutations and native
-original/SQL/recovery proof. It measures fourteen counters with explicit whole-
-cohort versus buyer scopes and preserves sparse evidence and exact shares.
-Final full local/package/audit and exact-head hosted gates are on its delivery PR.
-[Proof](verification/buyer-acceptance-readout.md). U4 and durable history remain open.
+approved under E1–E3 on 2026-11-26 and is delivered in #231 at `d81f89b`.
+Reviewed `c390c2a` reaches main with an identical tree. Full local proof: 5,049
+cases / 95.32%; hosted: 5,049 / 95.31%; 236 focused cases, 100% changed-module
+line/branch coverage, 28 rejected mutations, clean audit and isolated-wheel/
+native/baseline-byte proof. All three PR jobs passed in run 45861771247 and all
+three post-merge jobs passed in run 45863343061. It measures fourteen counters
+with explicit whole-cohort versus buyer scopes and preserves sparse evidence
+and exact shares. [Proof](verification/buyer-acceptance-readout.md).
+
+Current maintenance checkpoint: [CI runtime headroom and timing evidence](verification/ci-runtime-headroom.md).
+Identical-tree quality jobs took 19m53s and 15m06s against a 20-minute limit.
+The candidate raises that bound to 30 minutes and records built-in pytest phase
+and JUnit timings, preserving every gate. This improves the time allowance and
+visibility; no execution speedup or cause of variance is claimed. Final gates
+are tracked on its delivery PR. U4 and durable history remain open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the
