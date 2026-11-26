@@ -1,14 +1,47 @@
 # Tasks
 
-## Active — CI runtime headroom and timing evidence
+## Active — approved U4 observed-change acceptance
+
+- [x] Verify #232 reaches main at `003680b` with the identical reviewed tree;
+  all three exact-head PR jobs passed and the timing artifact was verified.
+- [x] Check the existing two-capture provider, SQL-parity/readout path and policy;
+  exercise fifteen pure synthetic scenarios without archive, SQL or source access.
+- [x] Draft [U4 contract](../docs/specs/SPEC-change-acceptance-readout.md): six
+  comparable-path counters, SQL-only blocked abstention and explicit missing proof.
+- [x] Owner approved F1–F3 including implementation on 2026-11-26 (Europe/Athens).
+- [x] Record sequential U4-A/B/C/D plan, extending #233 against main.
+- [x] U4-A: frozen public preparation and old tuple/report compatibility.
+  - Verify: failing native test, two read-only connections and both paths.
+  - Files: producer and preparation test; small.
+- [x] U4-B: six measured counters and honest SQL-only blocked abstention.
+  - Verify: hand answers, strict bindings, unions, all reasons and missing proof.
+  - Files: adapter and focused mapping/native/failure tests; medium; depends A.
+- [x] U4-C: CLI and native refusal/retry/relocation/process-publication proof.
+  - Verify: no HTTP/writes, SQL closed, SIGKILL/SIGINT and preserved originals.
+  - Files: two CLIs and CLI/native/crash tests; medium; depends B.
+- [x] U4-D candidate assembled; final delivery gates are recorded on #233.
+  - Verify: 100% new line/branch, restored mutations, unchanged pins/old bytes.
+  - Files: runbook/proof/status; medium; depends A–C. Final results on PR.
+  - Focused proof: 228 cases; 100% adapter (236 statements/102 branches),
+    producer (106/8) and shared CLI (45/2) line/branch coverage. All 25 meaningful
+    mutations rejected with source SHA-256 restored. Native/process cases prove
+    both paths, two closed connections, retry/relocation, refusal and interruption.
+  - Before review readiness require full local check/audit, final isolated-wheel/
+    native/baseline-byte proof and all exact-head hosted jobs. No real-data claim.
+
+Durable acceptance history, actual cohort proof and metric certification remain open.
+
+## Delivered — CI runtime headroom and timing evidence
 
 - [x] Verify #231 reaches main with an identical tested tree; post-merge CI passed.
 - [x] Compare PR/main timings: same code, quality 19m53s / 15m06s; pytest
   1,111.57s / 839.10s. Cause of the variance is unproven.
 - [x] Keep every gate and test; add a 30-minute quality bound and built-in pytest
   timing/JUnit evidence to the existing seven-day artifact.
-- [ ] Validate workflow/options, full local check/audit and all exact-head hosted
-  jobs. Record final evidence on the delivery PR before review readiness.
+- [x] Workflow/options, full local check/audit and all exact-head hosted jobs
+  passed on `967d7ef`; #232 records final evidence. Verified both artifact XMLs
+  and 5,049 timed cases with zero failures/errors/skips; merge `003680b` has the
+  identical tree. Post-merge run 45871703704 was still running at verification.
 
 No runtime speedup, real-data acceptance or release is claimed. U4 is next
 application work; durable history and actual cohort proof remain open.

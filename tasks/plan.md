@@ -1,6 +1,51 @@
 # Delivery plan
 
-## Active: CI runtime headroom and timing evidence
+## Active: approved U4 observed-change acceptance consumer
+
+Owner approved F1–F3, including implementation, on 2026-11-26 (Europe/Athens).
+Extend the approved #233 contract branch into its implementation PR against main;
+no prerequisite merge is claimed. Preserve all earlier incomplete work below.
+
+Dependency direction: DataOps CLI → U4 consumer → existing public preparation
+and unchanged pure policy. No new verifier, run-facts query or generic registry.
+
+U4-A (small): failing native compatibility test first, then expose the existing
+preparation as a frozen result. Preserve tuples/report bytes and both paths'
+two sequential read-only connections. Files: producer and preparation tests.
+
+U4-B (medium, depends A): test-first comparable and SQL-only consumer. Validate
+six counter grains, capture roles/evidence and category accounting; preserve
+missing proof and all reasons on blocked abstention. Files: adapter and focused
+mapping/native/failure tests. Checkpoint: actual SQL/original known answers,
+no HTTP/writes, explicit scopes, strict producer bindings and exact retries.
+
+U4-C (medium, depends B): extend CLI and native refusal/relocation/publication
+proof. Files: existing two CLIs plus CLI/native/crash tests. Prove SQL closed
+at publication, all decisions, missing originals after positive publication,
+SQL-only refusal without archive reads and real SIGKILL/SIGINT recovery.
+
+U4-D (medium, depends A–C): cheap lint/types/security; 100% new line/branch,
+meaningful restored mutations, old bytes/semantic/policy pins, full check/audit,
+installed-wheel/native proof and all exact-head hosted jobs. Add runbook/proof
+and status. Hold source stable during verification; overlap local/hosted gates
+and record late results on the PR without repeating unchanged full tests.
+
+Risks: inventing zeros for abstention; counting both capture occurrences as
+records; counting ambiguity twice; inferring deletion; inventing run profiles;
+using observation rather than page clock; cached verification. Mitigate with
+hand-calculated native/controlled frames and independent failure mutations.
+End checkpoint: review-ready U4 consumer PR. History, certification and actual
+cohort/investigator proof remain open; no source activation or automatic merge.
+
+## Delivered: CI runtime headroom and timing evidence
+
+#232 is merged at `003680b`; reviewed `967d7ef` reaches main with identical
+tree `22146c8a4e2678127ec7f5fc39973770ddb0a976`. All three exact-head PR jobs
+passed in run 45867107317. Local check: 5,049 / 95.32%; hosted: 5,049 / 95.31%.
+Audit passed; downloaded coverage/JUnit artifact SHA-256 and all 5,049 timed
+cases were verified. Quality elapsed 19m52s under the new 30-minute bound.
+Post-merge run 45871703704 was still in progress when delivery was checked.
+The completed maintenance scope follows; no runtime speedup is claimed.
 
 Owner continued after the U3 delivery and runtime-headroom finding. This is a
 CI reliability change, with no new application feature or speedup claim.

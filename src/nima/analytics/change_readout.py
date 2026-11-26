@@ -1,6 +1,7 @@
 """Read two stored captures, decide comparability from counters, verify and publish the change."""
 
-from dataclasses import asdict, dataclass
+import json
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import cast
@@ -44,6 +45,16 @@ class ChangeExport:
     changed: int
     missing_from_later_capture: int
     unchanged: int
+
+
+@dataclass(frozen=True)
+class PreparedChangeReadout:
+    body: bytes = field(repr=False)
+    metric: MetricResult
+    cohort_json: str | None = field(repr=False)
+    earlier: Capture
+    later: Capture
+    pages: tuple[VerifiedPage, ...]
 
 
 @dataclass(frozen=True)
@@ -156,7 +167,7 @@ def _fact(fact: RunFacts) -> dict[str, object]:
     }
 
 
-def prepare_change_readout(dsn: str, request: ChangeRequest) -> tuple[bytes, MetricResult]:
+def prepare_change_result(dsn: str, request: ChangeRequest) -> PreparedChangeReadout:
     """Reconstruct and validate without publishing or writing SQL/source evidence."""
     try:
         read = connected(dsn, lambda connection: _read(connection, request))
@@ -167,7 +178,20 @@ def prepare_change_readout(dsn: str, request: ChangeRequest) -> tuple[bytes, Met
         result = evaluate(earlier, later)
         runs, versions = sql_rows(earlier, later)
         require_parity(dsn, reference_sql(), (Jsonb(runs), Jsonb(versions)), result.payload())
-        return _body(request, read, result, cited, pages), result
+        cohort_json = (
+            None
+            if read.cohort is None
+            else json.dumps(
+                read.cohort.document,
+                ensure_ascii=False,
+                sort_keys=True,
+                allow_nan=False,
+                separators=(",", ":"),
+            )
+        )
+        return PreparedChangeReadout(
+            _body(request, read, result, cited, pages), result, cohort_json, earlier, later, pages
+        )
     except ReadoutError:
         raise
     except (SnapshotError, ReconciliationError, RequestError) as error:
@@ -180,6 +204,12 @@ def prepare_change_readout(dsn: str, request: ChangeRequest) -> tuple[bytes, Met
         raise ReadoutError("analytics_evidence") from None
     except OSError:
         raise ReadoutError("analytics_output") from None
+
+
+def prepare_change_readout(dsn: str, request: ChangeRequest) -> tuple[bytes, MetricResult]:
+    """Preserve the original tuple API over the same single preparation sequence."""
+    prepared = prepare_change_result(dsn, request)
+    return prepared.body, prepared.metric
 
 
 def export_change_readout(dsn: str, request_file: Path, output_directory: Path) -> ChangeExport:
