@@ -1148,3 +1148,9 @@ Citation consumer R1/R2 and R3 local proof are complete: 4,598 tests / 95.12%,
 and native isolated-wheel proof. Post-push exact-head hosted checks remain the
 merge gate and are recorded on the implementation PR. No second feature begins
 until this delivery is reviewable.
+
+U1-A/B/C and the delivery candidate are implemented in #227: 276 focused cases,
+100% U1/shared-file/CLI line and branch coverage, 22 rejected/restored mutations,
+and early lint/type/security clean. Full local/audit/package and all exact-head
+hosted results are recorded on the PR before review readiness. Main delivery,
+real-source reconciliation and the wider V1-08 remain separate checks.

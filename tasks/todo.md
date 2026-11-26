@@ -6,25 +6,30 @@
   passed in run 45762240723. #226 and #227 remain open; no merge is assumed.
 - [x] Owner approved C1–C3 on 2026-11-26 (Europe/Athens), including implementation.
 - [x] Record the sequential implementation plan and preserve earlier open work.
-- [ ] U1-A: extract only shared private subject/path/error primitives.
+- [x] U1-A: extract only shared private subject/path/error primitives.
   - Acceptance: citation behavior/exports/bytes preserved, separate 1/8 MiB bounds.
   - Verify: failing helper cases then all existing citation cases; strict types/security.
   - Files: helper, citation adapter, helper tests; small/medium, no prior dependency.
-- [ ] U1-B: verified U1 prepare/export and eleven explicit measured counters.
+- [x] U1-B: verified U1 prepare/export and eleven explicit measured counters.
   - Acceptance: native known answer, ambiguity/country/union/cancellation semantics,
     strict fresh producer bindings and tax-number-free bounded sidecar.
   - Verify: test-first mapping/failure/native cases, no HTTP/source writes.
   - Files: adapter and mapping/sample/failure tests; medium, depends on U1-A.
-- [ ] U1-C: CLI and native publication/recovery path.
+- [x] U1-C: CLI and native publication/recovery path.
   - Acceptance: actual one-connection retry/relocation, closed errors, all decisions,
     process interruption with SQL closed, preserved source bytes/state.
   - Verify: CLI/native/crash tests; three paths absolute and shared bounds enforced.
   - Files: existing CLIs and focused CLI/native/crash tests; medium, depends on U1-B.
-- [ ] U1-D: final delivery verification and review.
+- [x] U1-D candidate assembled; final local/hosted gates recorded on #227.
   - Acceptance: 100% new-code line/branch, mutations rejected/restored, unchanged
     legacy/policy pins, full gates/audit, isolated wheel and all exact-head CI green.
   - Verify: `just check`, `just audit`, mutation/wheel proof and live PR job results.
   - Files: runbook/proof and current status/spec records; depends on U1-A/B/C.
+  - Focused proof: 276 cases, 100% U1/shared-file/CLI line and branch coverage,
+    strict types/security clean; all 22 mutations rejected and source restored.
+  - Merge gate: require full local check/audit, final isolated wheel and all three
+    exact-head hosted jobs. Verify the live #227 results before marking main
+    delivery; local/focused proof alone is not hosted or real-data acceptance.
 
 U2–U4, durable history, source activation, metric certification and actual
 investigator/cohort proof remain open. Approval of this consumer covers none of them.

@@ -28,7 +28,7 @@ existing output-contract validation. Its SQL connection closes before archive
 reconciliation. Use the frozen snapshot it returns; do not open another connection
 or rebuild the metric to assemble the assessment.
 
-Approved command to implement:
+Approved command:
 
 ```sh
 uv run --frozen python -m nima dataops assess-participation \
@@ -235,3 +235,7 @@ Owner approved all three recommended decisions on 2026-11-26 (Europe/Athens):
 Execute the approved bounded consumer under `tasks/plan.md` and `tasks/todo.md`.
 The earlier citation correction remains separately approved; no U2–U4 consumer,
 journal evolution, source activation or metric certification follows from C1–C3.
+
+Implemented in the #227 candidate; see the [runbook](../runbooks/participation-acceptance.md)
+and [local verification record](../verification/participation-acceptance-readout.md).
+Post-push gates and main-delivery state are tracked on the PR.
