@@ -11,6 +11,7 @@ from typing import Never
 
 from nima.dataops.acceptance_files import AcceptanceError
 from nima.dataops.buyer_acceptance import BuyerAcceptanceExport, export_buyer_acceptance
+from nima.dataops.change_acceptance import ChangeAcceptanceExport, export_change_acceptance
 from nima.dataops.citation_acceptance import CitationAcceptanceExport, export_citation_acceptance
 from nima.dataops.cpv_acceptance import CpvAcceptanceExport, export_cpv_acceptance
 from nima.dataops.participation_acceptance import (
@@ -40,13 +41,15 @@ def run(argv: list[str]) -> int:
                 CitationAcceptanceExport
                 | ParticipationAcceptanceExport
                 | CpvAcceptanceExport
-                | BuyerAcceptanceExport,
+                | BuyerAcceptanceExport
+                | ChangeAcceptanceExport,
             ],
         ] = {
             "assess-citations": export_citation_acceptance,
             "assess-participation": export_participation_acceptance,
             "assess-cpv": export_cpv_acceptance,
             "assess-buyer": export_buyer_acceptance,
+            "assess-changes": export_change_acceptance,
         }
         for command in exporters:
             inspect = operations.add_parser(command, allow_abbrev=False)

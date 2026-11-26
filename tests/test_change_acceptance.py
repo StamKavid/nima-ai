@@ -54,10 +54,15 @@ def test_native_six_counters_or_sql_only_blocked_without_fabricated_proof(
         assert data["subject"]["capture_end"] == day(2).isoformat()
         assert data["subject"]["time_basis"] == "stored_capture_end"
         assert data["subject"]["metric"]["status"] == "draft"
+        assert data["subject"]["diagnostic_scope"] == {
+            "selected_records": "distinct_category_union",
+            "ambiguous_records": "distinct_ambiguity_union",
+        }
         expected = {"quarantined": 0}
         if incomparable:
             assert result.assessment.status == "blocked"
             assert data["subject"]["verification_scope"] == "sql_comparability_only"
+            assert data["subject"]["evidence_scope"] == "not_performed_incomparable"
             assert data["subject"]["run_profiles"] == []
             assert result.assessment.cohort_sha256 is None
             assert data["subject"]["reasons"] == ["run_incomplete"]

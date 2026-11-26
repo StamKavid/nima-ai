@@ -11,12 +11,130 @@ import pytest
 
 from nima.analytics.metric_readout import cohort_hash, definition_hash
 from nima.analytics.result import MAX_RESULT_BYTES, ReadoutError
+from nima.analytics.snapshot import MAX_INPUT_BYTES
 from nima.contracts import acceptance as policy
 from nima.dataops import change_acceptance as adapter
 from nima.dataops.change_acceptance import ChangeAcceptanceError
 from nima.identity.artifacts import encode
 from tests.change_acceptance_samples import captures, producer, request_file
 from tests.test_citation_acceptance import subject
+
+
+@pytest.mark.parametrize(
+    "fault",
+    [
+        "fresh_type",
+        "body_type",
+        "fresh_limit",
+        "metric_type",
+        "pages_type",
+        "cohort_type",
+        "cohort_limit",
+        "reasons_definition",
+        "unknown_reason",
+        "run_selection",
+        "run_facts",
+        "incomparable_evidence",
+        "added_existing",
+        "missing_existing",
+        "changed_equal",
+        "unchanged_different",
+        "count_drift",
+        "duplicate_category",
+        "omitted_category",
+    ],
+)
+def test_protocol_rejects_missing_or_contradictory_fresh_proof(
+    fault: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    a, b = captures()
+    if fault == "incomparable_evidence":
+        b = replace(b, runs=(replace(b.runs[0], collection_complete=False),))
+    request, fresh = producer(a, b)
+    body = json.loads(fresh.body)
+    expected = "acceptance_contract"
+    if fault == "fresh_type":
+        fresh = cast(Any, None)
+    elif fault == "body_type":
+        fresh = replace(fresh, body=cast(Any, "wrong"))
+    elif fault == "fresh_limit":
+        fresh = replace(fresh, body=b"x" * (MAX_RESULT_BYTES + 1))
+        expected = "acceptance_limit"
+    elif fault == "metric_type":
+        fresh = replace(fresh, metric=cast(Any, None))
+    elif fault == "pages_type":
+        fresh = replace(fresh, pages=cast(Any, None))
+    elif fault == "cohort_type":
+        fresh = replace(fresh, cohort_json=cast(Any, 42))
+    elif fault == "cohort_limit":
+        fresh = replace(fresh, cohort_json=" " * (MAX_INPUT_BYTES + 1))
+        expected = "acceptance_limit"
+    elif fault == "reasons_definition":
+        body["metric"]["definition"]["reasons"] = []
+        body["metric"]["definition_sha256"] = definition_hash(body["metric"]["definition"])
+    elif fault == "run_selection":
+        fresh = replace(
+            fresh,
+            earlier=replace(
+                fresh.earlier,
+                runs=(
+                    replace(fresh.earlier.runs[0], run_id="00000000-0000-4000-8000-000000000003"),
+                ),
+            ),
+        )
+    elif fault == "run_facts":
+        body["run_facts"]["earlier"][0]["collection_complete"] = 1
+    elif fault == "incomparable_evidence":
+        body["evidence"] = [{}]
+    else:
+        result = fresh.metric
+        if fault == "unknown_reason":
+            result = replace(result, reasons=("PRIVATE",))
+        elif fault == "added_existing":
+            result = replace(result, added=(replace(result.added[0], source_id="kimdis:X"),))
+        elif fault == "missing_existing":
+            result = replace(
+                result,
+                missing_from_later_capture=(
+                    replace(result.missing_from_later_capture[0], source_id="kimdis:X"),
+                ),
+            )
+        elif fault == "changed_equal":
+            result = replace(
+                result,
+                changed=(
+                    replace(result.changed[0], earlier_version=result.changed[0].later_version),
+                ),
+            )
+        elif fault == "unchanged_different":
+            result = replace(result, unchanged=("kimdis:Y",))
+        elif fault == "count_drift":
+            result = replace(result, counts=replace(result.counts, added=2))
+        elif fault == "duplicate_category":
+            result = replace(
+                result, added=(*result.added, *result.added), counts=replace(result.counts, added=2)
+            )
+        elif fault == "omitted_category":
+            result = replace(result, added=(), counts=replace(result.counts, added=0))
+        fresh = replace(fresh, metric=result)
+        body["metric"]["result"] = result.payload()
+    if fault not in {
+        "fresh_type",
+        "body_type",
+        "fresh_limit",
+        "metric_type",
+        "pages_type",
+        "cohort_type",
+        "cohort_limit",
+    }:
+        fresh = replace(fresh, body=encode(body))
+    monkeypatch.setattr(adapter, "prepare_change_result", lambda *_: fresh)
+    report = subject(
+        tmp_path / "reports",
+        fresh.body if fault not in {"fresh_type", "body_type", "fresh_limit"} else encode(body),
+    )
+    with pytest.raises(ChangeAcceptanceError, match=f"^{expected}$"):
+        adapter.prepare_change_acceptance("fixture", request, report)
 
 
 @pytest.mark.parametrize("fault", ["witness", "summary", "ambiguous", "categories"])

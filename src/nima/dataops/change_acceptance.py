@@ -493,8 +493,13 @@ def _compose(
                 else "verified_against_archived_bytes",
                 "reasons": list(prepared.metric.reasons),
                 "run_profiles": [asdict(r) for r in facts.binding.runs],
-                "evidence_scope": "all_admitted_pages",
-                "diagnostic_scope": "selected_unambiguous_before_observed_change_filters",
+                "evidence_scope": "not_performed_incomparable"
+                if prepared.cohort_json is None
+                else "all_admitted_pages",
+                "diagnostic_scope": {
+                    "selected_records": "distinct_category_union",
+                    "ambiguous_records": "distinct_ambiguity_union",
+                },
                 "metric": {
                     "id": definition["metric"],
                     "status": definition["status"],

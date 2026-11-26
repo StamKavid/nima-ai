@@ -20,6 +20,7 @@ def run(argv: list[str]) -> int:
                 "assess-participation",
                 "assess-cpv",
                 "assess-buyer",
+                "assess-changes",
             ),
         )
         parser.print_help()
@@ -29,6 +30,7 @@ def run(argv: list[str]) -> int:
         "assess-participation",
         "assess-cpv",
         "assess-buyer",
+        "assess-changes",
     }:
         from nima.dataops.acceptance_cli import run as acceptance_run
 
