@@ -1,6 +1,20 @@
 # Tasks
 
-## Active — approved U4 observed-change acceptance
+## Awaiting review — acceptance history
+
+- [x] Verify #233 on main `2f78f37`, identical reviewed `47d3e47` tree; all three
+  exact-head PR jobs passed in run 45878258204.
+- [x] Inspect legacy intent/outcome, 4 KiB migration constraints, current adapters
+  and explicit access profiles. Legacy identities cannot represent new acceptance.
+- [x] Probe canonical identity/size boundaries and the existing legacy decoder
+  refusal without source, archive or SQL access.
+- [x] Draft [history contract](../docs/specs/SPEC-acceptance-history.md), first
+  citation-only record/inspect slice; no generic dispatcher or new schema applied.
+- [ ] Owner decisions G1–G3, including proposed migration and implementation.
+
+Other history adapters, actual cohort proof and certification remain open.
+
+## Delivered — approved U4 observed-change acceptance
 
 - [x] Verify #232 reaches main at `003680b` with the identical reviewed tree;
   all three exact-head PR jobs passed and the timing artifact was verified.
@@ -26,8 +40,11 @@
     producer (106/8) and shared CLI (45/2) line/branch coverage. All 25 meaningful
     mutations rejected with source SHA-256 restored. Native/process cases prove
     both paths, two closed connections, retry/relocation, refusal and interruption.
-  - Before review readiness require full local check/audit, final isolated-wheel/
-    native/baseline-byte proof and all exact-head hosted jobs. No real-data claim.
+  - Delivered #233 at `2f78f37`, identical `47d3e47` tree. Full check: 5,193 /
+    95.38%; hosted: 5,193 / 95.36%, all three jobs in run 45878258204. Audit,
+    isolated wheel on both paths and independent old-byte/tuple proof pass.
+    Downloaded artifact hash and 5,193 zero-failure/error/skip cases inspected.
+    This proves software, not actual-cohort fitness.
 
 Durable acceptance history, actual cohort proof and metric certification remain open.
 

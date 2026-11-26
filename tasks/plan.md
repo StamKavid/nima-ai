@@ -1,6 +1,25 @@
 # Delivery plan
 
-## Active: approved U4 observed-change acceptance consumer
+## Awaiting review: additive acceptance history contract
+
+All five acceptance consumers are delivered as software. Under the existing A3
+boundary, propose [durable acceptance history](../docs/specs/SPEC-acceptance-history.md)
+with a first citation-only vertical slice, separate from the legacy validator.
+The contract distinguishes execution state from data fitness, fresh attempts
+from historical reuse, and canonical sidecar bytes from bounded SQL metadata.
+A pure arithmetic/legacy-refusal probe supports the proposal; it is no journal,
+migration, SQL or actual-cohort proof. Await owner G1–G3 before implementation
+planning or code. Preserve all earlier incomplete work below.
+
+## Delivered: approved U4 observed-change acceptance consumer
+
+#233 is merged at `2f78f37`; reviewed `47d3e47` reaches main with identical
+`2bfb14c3f0a0db488e98b9bf1a43537f1191a349` tree. All three exact-head PR jobs
+passed in run 45878258204. Local: 5,193 / 95.38%; hosted: 5,193 / 95.36%;
+228 focused cases / 100% changed-module line/branch and 25 rejected/restored
+mutations. Audit, both-path isolated-wheel/native and independent old-byte proofs
+pass; coverage/JUnit artifact hash and all 5,193 timed cases were inspected.
+The completed scope follows as history; no real-cohort acceptance is claimed.
 
 Owner approved F1–F3, including implementation, on 2026-11-26 (Europe/Athens).
 Extend the approved #233 contract branch into its implementation PR against main;

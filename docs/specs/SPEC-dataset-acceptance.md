@@ -9,10 +9,10 @@ complete V1-08's durable-history or real-cohort acceptance requirements.
 Pure-policy delivery: #223, main `a4eb99d`, tested `d2d94db` reachable with an
 identical tree; all three main jobs passed in run 45639919348. The
 [citation consumer](SPEC-citation-acceptance-readout.md) is delivered separately
-in #225 at `e6c869d`, under B1–B3. The next
-[U1 consumer contract](SPEC-participation-acceptance-readout.md) is a draft under
-A3. The first-slice wording below describes the pure policy; durable history
-and real-data acceptance remain open.
+in #225 at `e6c869d`, under B1–B3. Citation/U1/U2/U3/U4 verified consumers are delivered in #225/#228/#229/#231/#233.
+The [additive history contract](SPEC-acceptance-history.md) is proposed under G1–G3,
+starting with citation recording/inspection. The first-slice wording below describes
+the pure policy; durable history and real-data acceptance remain open.
 
 ## Objective and assumptions
 
