@@ -10,13 +10,18 @@ overall, 135 focused cases / 100% new-module line/branch, 22 rejected mutations,
 clean audit and isolated-wheel/native proof.
 [Delivery record](verification/citation-acceptance-readout.md).
 
-Main now includes #226 at `fcfa11d` and the #227 contract at `e3839c0`. The
-approved U1 acceptance consumer is implemented in a separate candidate. C1–C3 were approved on 2026-11-26. Its candidate
-has 276 focused cases, 100% U1/shared-file/CLI line and branch coverage and 22
-rejected mutations; full local/package/audit and exact-head hosted results are
-recorded on the implementation PR. It measures eleven counters, preserves provider status and
-hash-binds the private supplier selection without copying its tax number.
-[Proof](verification/participation-acceptance-readout.md). U2–U4 consumers and durable history remain open.
+The U1 acceptance consumer is delivered in #228 at `e6f48b4`, after #226/#227.
+Reviewed `f843f56` is reachable with an identical tree; all three exact-head PR
+jobs passed in run 45805461376. Proof: 4,739 tests / 95.19% overall, 276 focused
+cases / 100% new-code line/branch, 22 rejected mutations, clean audit and final
+isolated-wheel/native operation. It measures eleven counters, preserves provider
+status and hash-binds supplier selection without copying its tax number.
+[Proof](verification/participation-acceptance-readout.md).
+
+Next: [U2 CPV/month acceptance contract](specs/SPEC-cpv-acceptance-readout.md),
+D1–D3 proposed for review. Existing-provider probes confirm pre-filter diagnostics
+and overlapping CPV cells; no U2 consumer is implemented. U3/U4 and durable history
+remain open. No unchanged full local gate is repeated for this documentation update.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the

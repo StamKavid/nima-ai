@@ -1,6 +1,20 @@
 # Delivery plan
 
-## Active V1-08: verified U1 acceptance consumer
+## Active V1-08: U2 contract review
+
+The [CPV/month acceptance contract](../docs/specs/SPEC-cpv-acceptance-readout.md)
+is proposed for D1–D3 review. It reuses the existing U2 verifier with an additive
+frozen preparation result, ten pre-filter counters and a private acceptance sidecar.
+No U2 implementation plan or application change is included before owner approval.
+U3/U4, durable history and actual source/investigator proof remain open.
+
+## Delivered V1-08: verified U1 acceptance consumer
+
+#228 is merged at `e6f48b4`; reviewed `f843f56` is reachable from main with
+an identical tree. All three exact-head PR jobs passed in run 45805461376.
+Local proof: 4,739 tests / 95.19% overall, 276 focused cases / 100% new-code
+line/branch, 22 rejected mutations, clean audit and isolated-wheel/native proof.
+The completed approved implementation scope follows; it is no longer active work.
 
 Owner approved [C1–C3](../docs/specs/SPEC-participation-acceptance-readout.md) on
 2026-11-26 (Europe/Athens), including implementation. The owner merged #226 at `fcfa11d` and the #227 contract at `e3839c0`; both

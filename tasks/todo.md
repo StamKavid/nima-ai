@@ -1,6 +1,18 @@
 # Tasks
 
-## Active V1-08 — approved U1 acceptance consumer
+## Active V1-08 — CPV/month acceptance contract
+
+- [x] Verify #228 merged at `e6f48b4`, reviewed `f843f56` reachable with identical tree;
+  all three exact-head PR jobs passed in run 45805461376.
+- [x] Draft [U2 contract](../docs/specs/SPEC-cpv-acceptance-readout.md), checking
+  existing preparation/SQL behavior and ten counter grains against code and a
+  pure-provider probe. No application implementation or real-data claim.
+- [ ] Owner review of D1–D3; implementation plan/build follows approval.
+
+U3/U4, durable acceptance history, actual four-positive reconciliation, metric
+review/certification and investigator task proof remain open.
+
+## Delivered V1-08 — approved U1 acceptance consumer
 
 - [x] Verify #225 on main `e6c869d`, identical reviewed tree; all three main jobs
   passed in run 45762240723. #226/#227 are now merged at `fcfa11d`/`e3839c0`;
@@ -28,9 +40,10 @@
   - Files: runbook/proof and current status/spec records; depends on U1-A/B/C.
   - Focused proof: 276 cases, 100% U1/shared-file/CLI line and branch coverage,
     strict types/security clean; all 22 mutations rejected and source restored.
-  - Merge gate: require full local check/audit, final isolated wheel and all three
-    exact-head hosted jobs. Verify the live implementation PR results before marking main
-    delivery; local/focused proof alone is not hosted or real-data acceptance.
+  - Delivered #228 at `e6f48b4`, identical reviewed `f843f56` tree. Full local
+    check: 4,739 tests / 95.19%; audit and final isolated-wheel/native proof pass.
+    All three exact-head PR jobs passed in run 45805461376. This is software
+    verification; actual source-cohort acceptance remains open.
 
 U2–U4, durable history, source activation, metric certification and actual
 investigator/cohort proof remain open. Approval of this consumer covers none of them.

@@ -16,9 +16,10 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | [SPEC-diavgeia-commitments](SPEC-diavgeia-commitments.md) | Second Diavgeia pilot: do KIMDIS citations point at Β.1.3 commitments (V1-06) | Decided (C1 to C5 as recommended); C0 to C3 not started |
 | [SPEC-archive-replay-sources](SPEC-archive-replay-sources.md) | Source-aware `archive replay` and `promote` for the Diavgeia pilots | Delivered (R1, R2); promotion awaits an owner-selected digest |
 | [SPEC-cross-source-citations](SPEC-cross-source-citations.md) | Exact KIMDIS–Diavgeia citations with two-sided evidence (V1-07) | Model/SQL #221 and verified readout #222 delivered; real reconciliation open |
-| [SPEC-dataset-acceptance](SPEC-dataset-acceptance.md) | Per-use data fitness and check policy (first V1-08 slice) | Pure policy #223 and citation consumer #225 delivered; U1 contract drafted; history/real acceptance open |
+| [SPEC-dataset-acceptance](SPEC-dataset-acceptance.md) | Per-use data fitness and check policy (first V1-08 slice) | Pure policy #223, citation #225 and U1 #228 delivered; U2 proposed; history/real acceptance open |
 | [SPEC-citation-acceptance-readout](SPEC-citation-acceptance-readout.md) | Verified citation-report acceptance sidecar (V1-08 first consumer) | Delivered #225; B1–B3 approved 2026-11-26 |
-| [SPEC-participation-acceptance-readout](SPEC-participation-acceptance-readout.md) | Supplier–buyer (U1) data-fitness sidecar | C1–C3 approved 2026-11-26; contract #227 merged; implementation candidate, delivery gates on PR |
+| [SPEC-participation-acceptance-readout](SPEC-participation-acceptance-readout.md) | Supplier–buyer (U1) data-fitness sidecar | Delivered #228; C1–C3 approved 2026-11-26 |
+| [SPEC-cpv-acceptance-readout](SPEC-cpv-acceptance-readout.md) | CPV/month (U2) data-fitness sidecar | D1–D3 proposed; no implementation |
 | [SPEC-metric-readouts](SPEC-metric-readouts.md) | Readout commands for U2-U4 over stored runs | Approved; S8a next |
 | [SPEC-semantic-layer](SPEC-semantic-layer.md) | First shared metric definition | Provider implemented; metric draft |
 | [SPEC-market-analytics](SPEC-market-analytics.md) | Cited supplier-buyer readout | CLI implemented; human validation open |

@@ -237,6 +237,7 @@ The earlier citation correction remains separately approved; no U2–U4 consumer
 journal evolution, source activation or metric certification follows from C1–C3.
 
 Contract #227 and prerequisite #226 are merged at `e3839c0`/`fcfa11d`.
-Implemented in a separate consumer candidate; see the [runbook](../runbooks/participation-acceptance.md)
-and [local verification record](../verification/participation-acceptance-readout.md).
-Post-push gates and main-delivery state are tracked on the PR.
+Delivered in #228 at `e6f48b4`; reviewed `f843f56` is reachable from main with an
+identical tree. All three exact-head jobs passed in run 45805461376. See the
+[runbook](../runbooks/participation-acceptance.md) and
+[verification record](../verification/participation-acceptance-readout.md).

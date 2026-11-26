@@ -5,8 +5,9 @@ Date: 2026-11-26 (Europe/Athens). Owner approved C1–C3 of the
 Contract #227 is merged at `e3839c0` and prerequisite #226 at `fcfa11d`. Both
 reviewed heads are reachable from main and their combined tree matches the
 composed prerequisite. Main baseline for this candidate is `e3839c0`; the prior
-#225 baseline also has all three main jobs passed in run 45762240723. This record describes the candidate's local proof;
-post-push exact-head results are recorded on its implementation PR.
+#225 baseline also has all three main jobs passed in run 45762240723.
+#228 is now merged at `e6f48b4`; reviewed `f843f56` is reachable from main with
+the identical tree `0ed559f3a0055062358a519ed45e7ee3680aa691`.
 
 ## Boundary and meaning
 
@@ -68,11 +69,15 @@ These tests fail on behavior, not a changed policy-definition pin.
 
 ## Delivery gates
 
-Full `just check`, `just audit`, final isolated-wheel operation and all three
-exact-head hosted jobs are required before review readiness. Their post-push
-results are recorded on the implementation PR so this immutable pre-push record does not claim
-its own future hosted outcome. Application code stays frozen during those runs;
-no second full local suite is run solely to update documentation status.
+Full `just check` passed **4,739 tests**, 95.19% overall coverage; `just audit`
+passed. Final isolated-wheel/native operation used wheel SHA-256
+`debdc6b4b0740ead642f7121536c8073d9326a5489cd4d8d84bfb9ebc63c04d6`,
+loaded outside the checkout, and proved the eleven counters, exact parent bytes,
+identical retry, relative-path refusal and no copied tax number. All three
+exact-head jobs passed in [run 45805461376](https://github.com/StamKavid/nima-ai/actions/runs/45805461376)
+at `f843f567bd11b5ed82fd1e4f342dd3512e9092f7`: quality (4,739 tests),
+orchestration-compose and source-worker-egress. Application code stayed frozen
+during verification. No second full local suite was run solely to record delivery.
 
 Private logs, owned fixtures and mutation/wheel proofs remain outside Git in
 `/workspace/work/nima-participation-acceptance-proof`. The checkpoint is software
