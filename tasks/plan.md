@@ -1,6 +1,33 @@
 # Delivery plan
 
-## Active V1-08: approved U3 acceptance consumer
+## Active: CI runtime headroom and timing evidence
+
+Owner continued after the U3 delivery and runtime-headroom finding. This is a
+CI reliability change, with no new application feature or speedup claim.
+
+1. Compare completed exact-tree PR/main job and test timings; preserve the
+   measurements and uncertainty in the [verification note](../docs/verification/ci-runtime-headroom.md).
+2. Keep `just check`, all three jobs, PostgreSQL isolation and the 90% coverage
+   floor intact. Increase only the quality job bound from 20 to 30 minutes;
+   collect slow setup/call/teardown durations and JUnit timings using pytest.
+   Extend the existing seven-day coverage artifact with the timing XML.
+3. Validate workflow syntax/options and unchanged gate composition; run full
+   `just check`/`just audit` and require all exact-head hosted jobs. Keep the
+   candidate stable; record late results on the PR. Do not claim faster tests.
+
+End checkpoint: review-ready CI PR with timing evidence. Use actual phase timings
+for the next performance decision; then return to U4 acceptance. Do not add
+sharding, reuse test databases, disable durability or change application code.
+Preserve all incomplete roadmap work below.
+
+## Delivered V1-08: approved U3 acceptance consumer
+
+#231 is merged at `d81f89b`; reviewed `c390c2a` is reachable from main with
+an identical tree. All three PR jobs passed in run 45861771247 and all three
+post-merge jobs passed in run 45863343061. Local proof: 5,049 tests / 95.32%,
+236 focused cases / 100% changed-module line/branch, 28 rejected mutations,
+clean audit and isolated-wheel/native/baseline-byte proof.
+The completed approved scope follows; U4/history/actual cohort proof remain open.
 
 The [buyer-concentration acceptance contract](../docs/specs/SPEC-buyer-acceptance-readout.md)
 was approved under E1–E3 on 2026-11-26 (Europe/Athens), including implementation.

@@ -19,7 +19,9 @@ jobs:
     name: quality
     if: github.event_name != 'push' || github.event.deleted != true
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Identical-tree runs took 15m06s and 19m53s; retain a bounded safety margin.
+    # See docs/verification/ci-runtime-headroom.md; this is not a speed claim.
+    timeout-minutes: 30
     services:
       postgres:
         image: postgres:17-bookworm@sha256:665dc7b37ac52a17e298511414c21d23ffa4e6a6ef6225b3e5d59c7afb35e994
@@ -60,14 +62,18 @@ jobs:
         run: uv run --frozen python scripts/check_contracts.py --ci
       - name: Verify skills, lint, types, tests, build, and source security
         run: just check
+        env:
+          PYTEST_ADDOPTS: --durations=30 --durations-min=1.0 --junitxml=work/test-results.xml
       - name: Audit Python dependencies
         run: just audit
-      - name: Upload coverage evidence
+      - name: Upload coverage and test timing evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage
-          path: coverage.xml
+          path: |
+            coverage.xml
+            work/test-results.xml
           if-no-files-found: ignore
           retention-days: 7
 
