@@ -458,3 +458,25 @@ def test_internal_protocol_and_share_accounting_are_closed(
         adapter.prepare_buyer_acceptance(
             "fixture", request, subject(tmp_path / "reports", inspected)
         )
+
+
+@pytest.mark.parametrize("field", ["top_share", "unresolved_share"])
+def test_empty_denominator_cannot_publish_a_share(
+    field: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from nima.semantics.buyer_concentration import Share
+
+    request, fresh = producer(())
+    result = (
+        replace(fresh.metric, top_share=Share(0, 0))
+        if field == "top_share"
+        else replace(fresh.metric, unresolved_share=Share(0, 0))
+    )
+    body = json.loads(fresh.body)
+    body["metric"]["result"] = result.payload()
+    fresh = replace(fresh, body=encode(body), metric=result)
+    monkeypatch.setattr(adapter, "prepare_buyer_result", lambda *_: fresh)
+    with pytest.raises(BuyerAcceptanceError, match="^acceptance_contract$"):
+        adapter.prepare_buyer_acceptance(
+            "fixture", request, subject(tmp_path / "reports", fresh.body)
+        )

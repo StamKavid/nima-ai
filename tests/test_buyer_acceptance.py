@@ -29,6 +29,9 @@ def offline(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_native_fourteen_counters_use_one_cohort_and_preserve_private_inputs(
     pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from nima.dataops import buyer_acceptance as adapter
+    from nima.semantics.selection import select_latest
+
     root = tmp_path / "originals"
     request = request_for(seed(pg_dsn, root, RECORDS), root)
     with reader(pg_dsn) as (dsn, _):
@@ -37,6 +40,7 @@ def test_native_fourteen_counters_use_one_cohort_and_preserve_private_inputs(
         before, files = state(pg_dsn), archive_state(tmp_path)
         connections: list[Any] = []
         cohorts = 0
+        selections = 0
         read_cohort = snapshot.read_cohort
 
         def counted(value: str) -> Any:
@@ -49,11 +53,17 @@ def test_native_fourteen_counters_use_one_cohort_and_preserve_private_inputs(
             cohorts += 1
             return read_cohort(*args)
 
+        def selected(*args: Any) -> Any:
+            nonlocal selections
+            selections += 1
+            return select_latest(*args)
+
         monkeypatch.setattr(snapshot, "connect", counted)
         monkeypatch.setattr(buyer_readout, "read_cohort", cohort)
+        monkeypatch.setattr(adapter, "select_latest", selected)
         prepared = prepare_buyer_acceptance(dsn, request, report)
         assert len(connections) == 2 and all(c.closed for c in connections)
-        assert cohorts == 1
+        assert cohorts == selections == 1
         data = json.loads(prepared.body)
         assert data["version"] == "nima-buyer-acceptance-v1"
         assert data["subject"]["artifact_sha256"] == report.stem
@@ -86,7 +96,7 @@ def test_native_fourteen_counters_use_one_cohort_and_preserve_private_inputs(
         for value in ("012345678", "kimdis:A", "kimdis.buyer-key:B1", "Synthetic", str(tmp_path)):
             assert value.encode() not in prepared.body
         assert prepare_buyer_acceptance(dsn, request, report).body == prepared.body
-        assert len(connections) == 4 and cohorts == 2
+        assert len(connections) == 4 and cohorts == selections == 2
     assert state(pg_dsn) == before
     assert archive_state(tmp_path) == files
 

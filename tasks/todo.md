@@ -25,10 +25,14 @@
   - Observed: 131 native/mapping/protocol cases pass; strict focused mypy and
     lint pass. Includes exact shares, changed buyers, joint/partial/unresolved
     suppliers, sparse evidence and all fourteen measured counters.
-- [ ] U3-C: CLI and native refusal/recovery/publication proof.
+- [x] U3-C: CLI and native refusal/recovery/publication proof.
   - Acceptance: fresh retry/relocation, no HTTP or source writes, closed SQL at publication.
   - Verify: native raw/SQL/projection/principal/incomplete refusal and process interruptions.
   - Files: existing CLIs and CLI/native/crash tests; medium, depends on U3-A/B.
+  - Observed: 236 focused/compatibility cases pass at 100% line/branch coverage
+    for adapter (219 statements/92 branches), producer (76/4), shared CLI (44/2).
+    Twenty U3 native/process cases plus one preparation case use actual synthetic
+    originals and restricted readers. Empty-denominator shares explicitly refuse.
 - [ ] U3-D: delivery gates and reviewable implementation PR.
   - Acceptance: 100% new-code line/branch, mutations rejected/restored, unchanged pins,
     full gate/audit, isolated wheel/baseline parity and all exact-head hosted jobs.
