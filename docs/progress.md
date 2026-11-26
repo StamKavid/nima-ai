@@ -19,13 +19,18 @@ status and hash-binds supplier selection without copying its tax number.
 [Proof](verification/participation-acceptance-readout.md).
 
 The [U2 CPV/month consumer](specs/SPEC-cpv-acceptance-readout.md) was approved
-under D1–D3 on 2026-11-26 and is implemented in the #229 candidate. Its 211
-focused/compatibility cases pass at 100% line/branch coverage for the adapter,
-changed producer and shared CLI; 22 behavior mutations are rejected. It reuses
-the original verifier, measures ten pre-filter counters and avoids counting
-overlapping CPV/cancellation cells as distinct records. Final local/package/audit
-and exact-head hosted gates are on the implementation PR.
-[Proof](verification/cpv-acceptance-readout.md). U3/U4 and durable history remain open.
+under D1–D3 on 2026-11-26 and is delivered in #229 at `c78eb72`. Reviewed
+`5e035d9` is reachable with an identical tree; all three PR jobs passed in run
+45818830229. Full local proof: 4,882 / 95.25%; hosted: 4,882 / 95.23%; changed
+modules have 100% line/branch coverage. The 211 focused cases, 22 rejected mutations,
+audit and isolated-wheel/native/baseline-byte proofs pass. It reuses the original
+verifier, measures ten pre-filter counters and avoids treating overlapping CPV or
+cancellation cells as distinct records. [Proof](verification/cpv-acceptance-readout.md).
+
+Next: [U3 buyer-concentration acceptance contract](specs/SPEC-buyer-acceptance-readout.md),
+E1–E3 proposed for review. Existing-model probes establish fourteen counter scopes
+and sparse evidence membership; no U3 consumer is implemented. U4 and durable
+history remain open. No unchanged full local gate is repeated for this doc-only update.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the

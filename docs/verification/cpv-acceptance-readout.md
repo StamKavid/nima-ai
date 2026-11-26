@@ -3,8 +3,8 @@
 Date: 2026-11-26 (Europe/Athens). Owner approved D1–D3 of the
 [contract](../specs/SPEC-cpv-acceptance-readout.md), including implementation.
 Baseline #228 is merged at `e6f48b4`; all three main jobs passed in run 45812543064.
-This records focused proof for the implementation candidate. Final full local,
-package/audit and exact-head hosted results are recorded on its delivery PR.
+#229 is merged at `c78eb72`; reviewed `5e035d9` is reachable with identical
+tree `215d8151ec92d8d8b43d5967cfb7672ee685231f`.
 
 ## Boundary
 
@@ -27,13 +27,14 @@ cutoff, profiles and policy without copying selections or source detail.
 ## Focused and adversarial proof
 
 **211 cases pass**, including 143 new preparation/consumer cases and existing
-CPV/acceptance CLI compatibility cases. Line and branch coverage is 100% for:
+CPV/acceptance CLI compatibility cases. Final full-gate line and branch coverage
+is also 100% for these modules (the CLI gained one typing import after the focused run):
 
 | Module | Statements | Branches |
 |---|---:|---:|
 | U2 acceptance adapter | 175 | 64 |
 | CPV producer including new preparation API | 91 | 6 |
-| Shared acceptance CLI | 42 | 2 |
+| Shared acceptance CLI | 43 | 2 |
 
 Initial tests failed for the missing API/consumer/command. A later failing
 record-pointer disagreement test drove the corresponding binding check. Strict
@@ -70,10 +71,18 @@ failures, not changed-definition-pin failures.
 
 ## Delivery and remaining scope
 
-Require full `just check`/`just audit`, isolated built-wheel/native CLI proof and
-all three exact-head hosted jobs before merge readiness. Source stays frozen during
-these gates; post-push results go on the PR without another documentation-only
-full run. Private logs/fixtures/mutation proofs stay outside Git under
+Full `just check` passed **4,882 tests / 95.25% overall**; `just audit` passed.
+All three exact-head hosted jobs passed in
+[run 45818830229](https://github.com/StamKavid/nima-ai/actions/runs/45818830229)
+at `5e035d971513a670254b03d2ee0d51b9c1215054`: quality (4,882 / 95.23%),
+orchestration-compose and source-worker-egress. Final wheel SHA-256
+`7f2ae5e9d87d8af85f87057852e28a6795249eb106581df6c8576b35fbb1bacc`
+loaded outside the checkout under isolated Python and passed native SQL/original,
+ten-counter, exact-parent-byte, retry, relative-input and privacy checks. Independent
+execution of the trusted pre-change main producer on the same cohort produced
+identical legacy report bytes/tuple values. Source stayed frozen during these
+gates; no unchanged full local suite was repeated to record delivery.
+Private logs/fixtures/mutation proofs stay outside Git under
 `/workspace/work/nima-cpv-acceptance-proof`.
 
 This is software verification using synthetic originals, not actual market-data
