@@ -1,11 +1,26 @@
 # Delivery plan
 
-## Active V1-08: approved U2 acceptance consumer
+## Active V1-08: U3 contract review
+
+The [buyer-concentration acceptance contract](../docs/specs/SPEC-buyer-acceptance-readout.md)
+is proposed for E1–E3 review. It defines fourteen counters, whole-cohort versus
+buyer-specific scopes, sparse report evidence and a bounded private sidecar.
+No U3 implementation plan or application change precedes owner approval.
+U4, durable history and actual source/investigator proof remain open.
+
+## Delivered V1-08: approved U2 acceptance consumer
+
+#229 is merged at `c78eb72`; reviewed `5e035d9` is reachable from main with
+identical tree `215d8151ec92d8d8b43d5967cfb7672ee685231f`.
+All three exact-head PR jobs passed in run 45818830229. Full local proof:
+4,882 tests / 95.25%; hosted quality: 4,882 / 95.23%; changed modules have
+100% line/branch coverage. Audit, 22 mutations, isolated wheel and independent
+pre-change report-byte/tuple parity pass. The completed scope follows as history.
 
 The [CPV/month acceptance contract](../docs/specs/SPEC-cpv-acceptance-readout.md)
 was approved under D1–D3 on 2026-11-26 (Europe/Athens), including implementation.
-Extend the unmerged #229 contract branch into its implementation PR against main;
-do not create a feature-base delivery or merge it automatically. Earlier incomplete
+The #229 contract branch was extended into its implementation PR against main;
+no agent merge or feature-base delivery was performed. Earlier incomplete
 work stays open. U3/U4, durable history and actual source/investigator proof remain open.
 
 Dependency direction: DataOps CLI → U2 consumer → existing public preparation

@@ -212,7 +212,7 @@ Owner approved all three recommended decisions, including implementation:
 Approval concerns this bounded consumer. U3/U4, durable acceptance history,
 metric certification and actual product/source proof remain separate work.
 
-Implemented in the #229 candidate under the approved scope. See the
+Delivered in #229 at `c78eb72`; reviewed `5e035d9` is reachable with an identical
+tree and all three exact-head PR jobs passed in run 45818830229. See the
 [operator runbook](../runbooks/cpv-acceptance.md) and
-[focused verification](../verification/cpv-acceptance-readout.md); full local,
-package/audit and exact-head hosted gates are tracked on the implementation PR.
+[verification record](../verification/cpv-acceptance-readout.md).

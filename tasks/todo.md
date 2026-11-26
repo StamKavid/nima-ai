@@ -1,6 +1,19 @@
 # Tasks
 
-## Active V1-08 — approved CPV/month acceptance consumer
+## Active V1-08 — buyer-concentration acceptance contract
+
+- [x] Verify #229 merged at `c78eb72`, reviewed `5e035d9` reachable with identical tree;
+  all three exact-head PR jobs passed in run 45818830229.
+- [x] Draft [U3 contract](../docs/specs/SPEC-buyer-acceptance-readout.md) against
+  existing provider/SQL/request/policy code. A synthetic pure-provider probe checks
+  cohort versus buyer scopes, sparse evidence, overlapping participation/cancellation
+  and partial-record versus invalid-occurrence counts. No source or SQL access.
+- [ ] Owner review of E1–E3; implementation plan/build follows approval.
+
+U4, durable history, actual four-positive reconciliation, metric certification
+and investigator task proof remain open.
+
+## Delivered V1-08 — approved CPV/month acceptance consumer
 
 - [x] Verify #228 merged at `e6f48b4`, reviewed `f843f56` reachable with identical tree;
   all three exact-head PR jobs passed in run 45805461376.
@@ -38,9 +51,10 @@
   - Files: runbook/proof and current status/spec records; medium, depends on U2-A/B/C.
   - Focused proof: 211 cases, 100% adapter/producer/CLI line and branch coverage;
     all 22 targeted mutations rejected and source restored. Cheap types/security pass.
-  - Before merge readiness require full local check/audit, final isolated-wheel/native
-    proof and all three exact-head hosted jobs. Verify their live #229 results;
-    focused proof alone is not full-gate, hosted or actual market-data acceptance.
+  - Delivered #229 at `c78eb72`, identical reviewed `5e035d9` tree. Full local
+    check: 4,882 / 95.25%; all three exact-head PR jobs passed in run 45818830229
+    (hosted quality 4,882 / 95.23%). Audit and isolated-wheel/native/baseline-byte
+    proofs pass. This is software verification; actual market-data acceptance stays open.
 
 U3/U4, durable acceptance history, actual four-positive reconciliation, metric
 review/certification and investigator task proof remain open.
