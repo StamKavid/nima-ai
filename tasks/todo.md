@@ -1,6 +1,6 @@
 # Tasks
 
-## Awaiting review — U4 observed-change acceptance
+## Active — approved U4 observed-change acceptance
 
 - [x] Verify #232 reaches main at `003680b` with the identical reviewed tree;
   all three exact-head PR jobs passed and the timing artifact was verified.
@@ -8,7 +8,20 @@
   exercise fifteen pure synthetic scenarios without archive, SQL or source access.
 - [x] Draft [U4 contract](../docs/specs/SPEC-change-acceptance-readout.md): six
   comparable-path counters, SQL-only blocked abstention and explicit missing proof.
-- [ ] Owner decisions F1–F3, including implementation scope. No U4 code yet.
+- [x] Owner approved F1–F3 including implementation on 2026-11-26 (Europe/Athens).
+- [x] Record sequential U4-A/B/C/D plan, extending #233 against main.
+- [ ] U4-A: frozen public preparation and old tuple/report compatibility.
+  - Verify: failing native test, two read-only connections and both paths.
+  - Files: producer and preparation test; small.
+- [ ] U4-B: six measured counters and honest SQL-only blocked abstention.
+  - Verify: hand answers, strict bindings, unions, all reasons and missing proof.
+  - Files: adapter and focused mapping/native/failure tests; medium; depends A.
+- [ ] U4-C: CLI and native refusal/retry/relocation/process-publication proof.
+  - Verify: no HTTP/writes, SQL closed, SIGKILL/SIGINT and preserved originals.
+  - Files: two CLIs and CLI/native/crash tests; medium; depends B.
+- [ ] U4-D: coverage/mutations, full check/audit, installed wheel and all hosted jobs.
+  - Verify: 100% new line/branch, restored mutations, unchanged pins/old bytes.
+  - Files: runbook/proof/status; medium; depends A–C. Final results on PR.
 
 Durable acceptance history, actual cohort proof and metric certification remain open.
 

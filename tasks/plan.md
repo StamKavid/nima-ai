@@ -1,17 +1,41 @@
 # Delivery plan
 
-## Awaiting review: U4 observed-change acceptance contract
+## Active: approved U4 observed-change acceptance consumer
 
-Return to V1-08 after verified #232 delivery. The proposed
-[U4 contract](../docs/specs/SPEC-change-acceptance-readout.md) addresses the two
-existing preparation paths: verified comparable captures and SQL-only
-`incomparable` abstention. Fifteen pure synthetic model/policy probes support
-the proposed counter scopes and blocked-with-unavailable-proof behavior.
-They establish no archive/SQL or actual market-data acceptance.
+Owner approved F1–F3, including implementation, on 2026-11-26 (Europe/Athens).
+Extend the approved #233 contract branch into its implementation PR against main;
+no prerequisite merge is claimed. Preserve all earlier incomplete work below.
 
-This checkpoint is contract review under A3. No U4 implementation plan or code
-is introduced before owner decisions F1–F3; all earlier incomplete work below
-is preserved. U4, durable history, actual cohort proof and certification stay open.
+Dependency direction: DataOps CLI → U4 consumer → existing public preparation
+and unchanged pure policy. No new verifier, run-facts query or generic registry.
+
+U4-A (small): failing native compatibility test first, then expose the existing
+preparation as a frozen result. Preserve tuples/report bytes and both paths'
+two sequential read-only connections. Files: producer and preparation tests.
+
+U4-B (medium, depends A): test-first comparable and SQL-only consumer. Validate
+six counter grains, capture roles/evidence and category accounting; preserve
+missing proof and all reasons on blocked abstention. Files: adapter and focused
+mapping/native/failure tests. Checkpoint: actual SQL/original known answers,
+no HTTP/writes, explicit scopes, strict producer bindings and exact retries.
+
+U4-C (medium, depends B): extend CLI and native refusal/relocation/publication
+proof. Files: existing two CLIs plus CLI/native/crash tests. Prove SQL closed
+at publication, all decisions, missing originals after positive publication,
+SQL-only refusal without archive reads and real SIGKILL/SIGINT recovery.
+
+U4-D (medium, depends A–C): cheap lint/types/security; 100% new line/branch,
+meaningful restored mutations, old bytes/semantic/policy pins, full check/audit,
+installed-wheel/native proof and all exact-head hosted jobs. Add runbook/proof
+and status. Hold source stable during verification; overlap local/hosted gates
+and record late results on the PR without repeating unchanged full tests.
+
+Risks: inventing zeros for abstention; counting both capture occurrences as
+records; counting ambiguity twice; inferring deletion; inventing run profiles;
+using observation rather than page clock; cached verification. Mitigate with
+hand-calculated native/controlled frames and independent failure mutations.
+End checkpoint: review-ready U4 consumer PR. History, certification and actual
+cohort/investigator proof remain open; no source activation or automatic merge.
 
 ## Delivered: CI runtime headroom and timing evidence
 

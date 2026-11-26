@@ -1,7 +1,7 @@
 # Spec: observed-change data-fitness readout
 
-Module ID: `change-acceptance-readout` (V1-08). Status: **proposed F1–F3;
-contract review only**. Baseline: main `003680b` after #232, identical reviewed
+Module ID: `change-acceptance-readout` (V1-08). Status: **owner approved F1–F3,
+including implementation, on 2026-11-26 (Europe/Athens)**. Baseline: main `003680b` after #232, identical reviewed
 `967d7ef` tree. Extends [A3](SPEC-dataset-acceptance.md#owner-decisions), after
 citation/U1/U2/U3 consumers. Date: 2026-11-26 (Europe/Athens).
 
@@ -217,7 +217,7 @@ weaken checks, copy sensitive source detail, merge or deploy automatically.
 V1-08 remains open for durable history and actual cohort reconciliation; metric
 review/certification and investigator task proof are separate release gates.
 
-## Owner decisions requested
+## Owner decisions
 
 - **F1 — scope (recommended):** additive frozen preparation result and one
   `assess-changes` consumer; preserve the existing two-path/two-connection sequence,
@@ -229,5 +229,5 @@ review/certification and investigator task proof are separate release gates.
   1 MiB subject/64 KiB sidecar, explicit capture-end binding, unchanged native
   verification/permission boundaries and the test/installed-wheel gates above.
 
-No further product assumption is needed for this bounded contract. Approving it
+Owner approved all three recommended decisions, including implementation. This approval
 does not approve durable history, collection, certification, deployment or release.
