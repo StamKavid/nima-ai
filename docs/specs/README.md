@@ -22,7 +22,7 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | [SPEC-cpv-acceptance-readout](SPEC-cpv-acceptance-readout.md) | CPV/month (U2) data-fitness sidecar | Delivered #229; D1–D3 approved 2026-11-26 |
 | [SPEC-buyer-acceptance-readout](SPEC-buyer-acceptance-readout.md) | Buyer-concentration (U3) data-fitness sidecar | Delivered #231; E1–E3 approved 2026-11-26 |
 | [SPEC-change-acceptance-readout](SPEC-change-acceptance-readout.md) | Observed-change (U4) data-fitness sidecar | Delivered #233; F1–F3 approved 2026-11-26 |
-| [SPEC-acceptance-history](SPEC-acceptance-history.md) | Append-only data-fitness history, first citation record/inspect slice | Proposed G1–G3; schema/contract review only |
+| [SPEC-acceptance-history](SPEC-acceptance-history.md) | Append-only data-fitness history, first citation record/inspect slice | G1–G3 approved; implementation candidate, final gates on delivery PR |
 | [SPEC-metric-readouts](SPEC-metric-readouts.md) | Readout commands for U2-U4 over stored runs | Approved; S8a next |
 | [SPEC-semantic-layer](SPEC-semantic-layer.md) | First shared metric definition | Provider implemented; metric draft |
 | [SPEC-market-analytics](SPEC-market-analytics.md) | Cited supplier-buyer readout | CLI implemented; human validation open |

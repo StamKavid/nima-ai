@@ -16,6 +16,8 @@ For offline contract-to-decision references, use the
 It checks stored runs against both archives and exports private evidence with
 explicit conflicts and coverage limits. Assess an existing report with the
 [offline citation data-fitness command](docs/runbooks/citation-acceptance.md).
+The [citation history commands](docs/runbooks/acceptance-history.md) record and
+inspect durable attestations with explicit fresh versus historical scope.
 Its model remains draft. For supplier–buyer reports, the
 [U1 data-fitness readout](docs/runbooks/participation-acceptance.md) binds the
 existing private evidence to eleven measured acceptance counters.

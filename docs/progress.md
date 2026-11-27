@@ -1,4 +1,4 @@
-# Capability progress: 2026-11-26
+# Capability progress: 2026-11-27
 
 ## Current project and chapter position
 
@@ -55,13 +55,16 @@ Coverage/JUnit archive hash and all 5,193 timed cases were inspected. It preserv
 all refusal reasons and never invents counts or version profiles on abstention.
 [Proof](verification/change-acceptance-readout.md).
 
-All five acceptance consumers now have software proof. The next proposed bounded
-slice is [durable acceptance history](specs/SPEC-acceptance-history.md), beginning
-with citation recording/inspection; G1–G3 need review. The existing journal's
-validator identity and 4 KiB limits stay intact. Execution refusal is distinct
-from an assessed data-fitness decision, and historical reuse is not fresh checking.
-No new history implementation, migration, actual-cohort proof or certification
-is claimed. V1-08 remains open.
+All five acceptance consumers have software proof. G1–G3 for
+[durable acceptance history](specs/SPEC-acceptance-history.md) are owner approved;
+#234 is merged at `62d03e1`, identical reviewed `3bd1cca` tree. The citation-only
+implementation candidate passes 272 focused/compatibility cases with 100% new
+line/branch coverage. It adds migration 0015, dedicated journal roles and record/
+inspect commands; the legacy journal's identities and limits stay intact.
+Execution refusal is distinct from assessed fitness, and historical reuse is
+explicit. Final full/local/wheel/hosted gate results belong to the delivery PR;
+the candidate is not marked delivered here. [Proof](verification/acceptance-history.md). Actual-cohort proof,
+certification, other history adapters and V1-08 acceptance remain open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the

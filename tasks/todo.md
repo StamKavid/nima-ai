@@ -1,6 +1,6 @@
 # Tasks
 
-## Awaiting review — acceptance history
+## Active — approved citation acceptance history
 
 - [x] Verify #233 on main `2f78f37`, identical reviewed `47d3e47` tree; all three
   exact-head PR jobs passed in run 45878258204.
@@ -10,7 +10,17 @@
   refusal without source, archive or SQL access.
 - [x] Draft [history contract](../docs/specs/SPEC-acceptance-history.md), first
   citation-only record/inspect slice; no generic dispatcher or new schema applied.
-- [ ] Owner decisions G1–G3, including proposed migration and implementation.
+- [x] Owner approved G1–G3 including migration/implementation; #234 verified
+  on main at `62d03e1`, identical reviewed `3bd1cca` tree.
+- [x] Record sequential H1/H2a/H2b/H3a/H3b/H4 plan; preserve open work below.
+- [x] H1: pure immutable identities/state/body codecs; red-first canonical/binding tests.
+- [x] H2a: additive migration 0015; real SQL immutability/FK/stamp/byte limits.
+- [x] H2b: dedicated profiles and journal; role ceilings, lock/intent/retry/inspection.
+- [x] H3a: public-preparation recorder; native assessed/refused/fresh/cached proof.
+- [x] H3b: CLI and actual SIGKILL/SIGINT/concurrent recovery, no source writes.
+  - 272 focused/compatibility cases pass; all four new modules have 100% line/branch.
+- [x] H4 candidate assembled: 100% new coverage and 26 rejected/restored mutations;
+  full check/audit, wheel and exact-head hosted outcomes are recorded on delivery PR.
 
 Other history adapters, actual cohort proof and certification remain open.
 

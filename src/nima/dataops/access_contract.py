@@ -61,7 +61,7 @@ def _control(*names: str) -> tuple[TableRule, ...]:
     return tuple(TableRule(n, TableKind.CONTROL) for n in names)
 
 
-# Classification mirrors migrations 0001-0014 plus the runner-created schema_migrations.
+# Classification mirrors migrations 0001-0015 plus the runner-created schema_migrations.
 # Every evidence table blocks UPDATE/DELETE with row triggers and TRUNCATE with a
 # statement trigger (0013 added the guard to the fifteen tables from 0001-0007).
 _TABLES: tuple[TableRule, ...] = (
@@ -92,6 +92,8 @@ _TABLES: tuple[TableRule, ...] = (
         "nima_processing.metadata_snapshots",
         "nima_validation.attempts",
         "nima_validation.outcomes",
+        "nima_validation.acceptance_attempts",
+        "nima_validation.acceptance_outcomes",
         truncate_guarded=True,
     ),
     *_control(
@@ -246,6 +248,24 @@ _PROFILES: tuple[Profile, ...] = (
         ),
         column_updates=(("nima.refresh_policies", "state"),),
         sequence_usage=_EVENTS_SEQ,
+    ),
+    Profile(
+        "acceptance-writer",
+        frozenset({"nima", "nima_validation"}),
+        (
+            ("nima.schema_migrations", _S),
+            ("nima_validation.acceptance_attempts", _SI),
+            ("nima_validation.acceptance_outcomes", _SI),
+        ),
+    ),
+    Profile(
+        "acceptance-reader",
+        frozenset({"nima", "nima_validation"}),
+        (
+            ("nima.schema_migrations", _S),
+            ("nima_validation.acceptance_attempts", _S),
+            ("nima_validation.acceptance_outcomes", _S),
+        ),
     ),
     Profile(
         "successor-operator",

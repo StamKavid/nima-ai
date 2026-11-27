@@ -21,10 +21,16 @@ def run(argv: list[str]) -> int:
                 "assess-cpv",
                 "assess-buyer",
                 "assess-changes",
+                "record-citation-acceptance",
+                "acceptance-show",
             ),
         )
         parser.print_help()
         return 0
+    if argv and argv[0] in {"record-citation-acceptance", "acceptance-show"}:
+        from nima.dataops.acceptance_history_cli import run as history_run
+
+        return history_run(argv)
     if argv and argv[0] in {
         "assess-citations",
         "assess-participation",
