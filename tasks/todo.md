@@ -1,6 +1,19 @@
 # Tasks
 
-## Active — approved citation pilot: source-failure verdict
+## Active — first U3 insight specification (design only)
+
+- [x] Verify #239 on main `5c07c2b`, identical reviewed `7331852` tree; all three
+  exact-head jobs passed in run 46054001330, 5,375 / 95.49%, artifact inspected.
+- [x] Read current U3/provider/fitness/release contracts; probe fictional ties,
+  joint overlap, unknown share and status/hash compatibility using existing code.
+  No database, source request, new implementation or metric promotion.
+- [x] Draft [bounded contract](../docs/specs/SPEC-buyer-participation-insight.md)
+  and link current roadmap; I1–I3 remain proposed.
+- [ ] Documentation/security/audit and exact-head hosted delivery proof.
+- [ ] Owner contract review; implementation planning starts in a later approved
+  phase. Human certification and compatible policy evolution remain separate.
+
+## Delivered — approved citation pilot: source-failure verdict
 
 - [x] Verify #238 on main `d1188e8`, identical reviewed `6d98c67` tree; all three
   jobs passed in run 46021474302, 5,375 / 95.49%, downloaded artifact verified.
@@ -21,8 +34,10 @@
   and 25 body hashes reconcile; journal assessed/limited, retries/inspection and
   native report/sidecar/history restore pass. Owned scratch resources removed.
 - [ ] Positive two-source reconciliation: not achieved by the failed request.
-- [ ] Delivery: document/security/audit and all three exact-head hosted jobs;
-  human review, certification and release stay separate.
+- [x] Delivered #239: document/security/audit and all three exact-head hosted
+  jobs passed; 5,375 / 95.49%, coverage/JUnit digest and XMLs inspected. Main
+  `5c07c2b` has the identical reviewed tree. Human review, certification and
+  release stay separate.
 
 ## Delivered — approved same-query observed-change pilot
 

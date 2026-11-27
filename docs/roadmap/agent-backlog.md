@@ -244,7 +244,11 @@ DataOps result queries and real SQL tests. No single opaque trust score.
 ## V1-09 — deterministic insight layer
 
 Freeze four insight result contracts supporting U1–U4, using only reviewed metric
-definitions. Include snapshot/cutoff, baseline, observed change, reason/eligibility,
+definitions during design; numerical release insights require certified definitions
+under R6 and explicitly compatible acceptance profiles. The first bounded
+[U3 contract](../specs/SPEC-buyer-participation-insight.md) is proposed for owner
+review; it implements nothing and does not close the other families.
+Include snapshot/cutoff, baseline, observed change, reason/eligibility,
 denominator, exclusions and evidence. Distinguish new observation, changed source
 content and source-declared effective event; missing in a later capture is not
 deletion. Use thresholds/peer groups only after eligibility is defined.
