@@ -1,6 +1,26 @@
 # Tasks
 
-## Active — retained real-cohort validation
+## Active — supported METLEN buyer/day capture
+
+- [x] Verify #236 main merge `57ffdf9`, identical reviewed `3733d76` tree and
+  all three exact-head jobs in run 45971023612.
+- [x] CB1: owner approved managed-cloud proxy scope; unchanged fingerprints,
+  explicit proxy/no direct fallback, TLS and two-request guards verified.
+  Capture complete in one request: 16 publications, zero quarantine, target key
+  in one publication; all source buyer/day values match. No database credentials.
+- [x] CB2: owned SQL reconstruction; scope-correct U1/U2/U3 readouts/fitness.
+  - All three ready for their declared use; U1 selects one company publication,
+    U2/U3 cover all 16. All metrics draft; U4 not run without a comparable pair.
+- [x] CB3: independent raw arithmetic, preserved dump and isolated restore parity.
+  - 160 field comparisons, zero unexplained differences; three restored reports
+    byte-identical. Six joint records/24 participations, top share 4/16. Company
+    publication overlaps the earlier nine. Older HTTP Date: freshness unresolved.
+- [x] CB4 candidate: public/private verdict and current roadmap update; final
+  document/security and exact-head hosted results belong on the delivery PR.
+
+The unused request slot remains unused. Human review/certification remain open.
+
+## Delivered — retained real-cohort validation
 
 - [x] Verify #235 on main `65887b9`, identical reviewed `ff2ea60` tree; all three
   PR jobs passed in run 45963960528, with final artifact/report inspection.

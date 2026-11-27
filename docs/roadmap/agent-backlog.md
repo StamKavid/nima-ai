@@ -210,9 +210,14 @@ installed-wheel/migration proof. Later U1–U4 history adapters remain separate.
 The [2026-11-27 retained-cohort validation](../verification/retained-real-cohort.md)
 reproduces real KIMDIS U1–U4 bytes and measures fitness limited/ready/limited/blocked.
 The separate METLEN archive normalizes correctly but its historical supplier-filter
-query is not admitted by the current saved-query contract. Positive two-source,
-numeric-change, human review and certification gates remain open. Prioritize the
-bounded protected company-cohort proposal over extending history adapters.
+query is not admitted by the current saved-query contract. Its separate approved
+[supported buyer/day follow-up](../verification/metlen-buyer-day-capture.md) proves
+a company-key SQL path: one match in 16 publications, U1/U2/U3 ready for their
+declared scopes, independent raw parity and three restored reports byte-identical.
+U2/U3 cover the whole buyer/day; the company publication overlaps the earlier nine.
+An older HTTP Date leaves current freshness unestablished. Positive two-source,
+numeric-change, human review and certification gates remain open. Prioritize these
+real-data/product proofs over extending history adapters or new infrastructure.
 No generic history/acceptance framework or full dataset acceptance is claimed.
 V1-01's current journal admits only its original readout validator: general
 acceptance results cannot be inserted without an explicit evolution contract.

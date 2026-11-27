@@ -1,6 +1,55 @@
 # Delivery plan
 
-## Active: retained real-cohort validation
+## Active: approved supported METLEN buyer/day capture
+
+Owner explicitly approved the previously used managed-cloud proxy route for the
+prepared two-request capture on 2026-11-27 (Europe/Athens), after #236 merged.
+This is not a verified VPN/isolated-worker claim. Direct fallback, redirects,
+source scope changes, retries beyond one attempt/page and budget extensions are
+excluded. Worker collection receives no database credentials.
+
+CB1: validate unchanged query/proxy/CA fingerprints and record explicit route
+approval privately; execute the existing collector, archive first, with two pages/
+requests maximum and 120 seconds. Stop on completion/failure. Observed: one HTTP
+200 response, one complete page, 16 unique publications, zero quarantine; one
+reported target-supplier match and 15 other publications. All buyer/day fields
+match the declared query. The unused request slot is not another authorization.
+
+CB2 (CB1): copy frozen originals and reconstruct the supported run into an owned
+PostgreSQL 17 scratch database with actual observation times and explicit new
+processing times. Run U1 for the declared reported company key; U2/U3 describe the
+whole 16-record buyer/day cohort. Preserve these scopes, all unknowns and draft
+status. No U4 numeric result or citation join without its required second capture.
+
+CB3 (CB2): independently compare raw fields/memberships/CPV cells/denominators,
+record exact per-use fitness and provenance, verify repeat bytes and unchanged
+source tables. Preserve a trusted native dump and prove isolated restore with
+relocated archive bindings; never modify an operational database or original.
+
+CB4 (CB3): publish scoped aggregate findings and update the current roadmap,
+separating a real supported company-key path from national coverage, legal identity,
+certification and analyst usefulness. Keep source data, credentials and full proofs
+private. Existing application/dependency/test/CI code remains unchanged; use the
+verified local baseline plus document/security checks and exact-head hosted gates.
+
+Checkpoint: evidence-backed supported company-key readout and reviewable handoff.
+No further government requests, new libraries, source-parser/schema changes,
+schedules, application deployment or automatic merge.
+
+Observed CB2/CB3: U1/U2/U3 ready within their declared scopes; 160 independent
+field checks, zero unexplained differences and three byte-identical restored
+reports. The target publication overlaps the older archive; no distinct-record
+inflation or U4 comparison. HTTP Date precedes observation; freshness remains
+unknown. All metrics draft. Scratch databases/roles removed, owned cluster stopped.
+Private pack preserves originals, requests, dump, proofs and hash inventory;
+CB4's final local/hosted delivery evidence belongs on the PR.
+
+## Delivered: retained real-cohort validation
+
+#236 is owner-merged at `57ffdf9`, identical reviewed `3733d76` tree. All three
+PR jobs passed in run 45971023612; 5,375 cases / 95.46% hosted coverage, clean
+security/audit and downloaded coverage/timing archive verified. Its private real-data
+checks are separate from CI fixtures; no metric certification was claimed.
 
 Owner continued after verified #235 delivery on 2026-11-27 (Europe/Athens).
 Use preserved real bytes and existing commands first. No application feature,

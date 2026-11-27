@@ -62,20 +62,32 @@ The four new modules have 100% line/branch coverage; 26 rejected/restored mutati
 audit, installed-wheel and downloaded coverage/timing artifact checks passed.
 [Proof](verification/acceptance-history.md).
 
-The next [retained real-cohort checkpoint](verification/retained-real-cohort.md)
+The [retained real-cohort checkpoint](verification/retained-real-cohort.md),
+delivered in #236 at `57ffdf9`, identical reviewed `3733d76` tree,
 reproduces all four preserved KIMDIS report bytes. Independent raw arithmetic and
 770 field comparisons pass. Actual fitness is U1 limited, U2 ready, U3 limited and
 U4 blocked; two US supplier occurrences are outside the Greek key format, and the
 U4 pair has different queries/incomplete capture. Separate METLEN normalization
 matches nine historical publications, but its supplier-filter query is unsupported
 by the saved-query contract and it has no Diavgeia citation. No commercial SQL or
-two-source acceptance is fabricated. A bounded protected buyer/day capture proposal
-is private and unexecuted. Human review, positive citation/change cases, other
-history adapters, certification and V1-08/release acceptance remain open.
+two-source acceptance was fabricated in that checkpoint. All three #236 PR jobs
+passed in run 45971023612: 5,375 cases / 95.46% hosted coverage, artifact verified.
+
+The separately approved [supported buyer/day capture](verification/metlen-buyer-day-capture.md)
+used one managed-cloud proxy request: 16 publications, one matching the reported
+METLEN key, zero quarantine. Restricted scratch SQL U1/U2/U3 are ready for their
+declared uses; U2/U3 describe the whole buyer/day. Independent checking found zero
+unexplained differences in 160 original field comparisons. A trusted native dump
+and relocated archive reproduced all three reports byte for byte. The company
+publication overlaps the earlier nine and its normalized fields are unchanged.
+An older HTTP Date leaves current-source freshness unknown. All metrics stay
+draft; U4 was not run without an independent same-query pair. Human review,
+positive citation/change cases, other history adapters, certification and
+V1-08/release acceptance remain open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
-task proof remain pending. No new source acquisition, release or rescore of the
-historical rubric below follows from this checkpoint.
+task proof remain pending. This bounded capture activates no schedule or further
+source budget, release or rescore of the historical rubric below.
 Since #161: the Diavgeia award pilot and its Β.1.3 commitment pilot
 (collect, replay, three live runs; [records](verification/diavgeia-c2-commitments.md)), source-aware archive replay
 and promotion, and the GEMI AFM lookup end to end (search collector, offline verification, SQL import,
