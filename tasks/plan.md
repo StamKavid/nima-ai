@@ -1,6 +1,62 @@
 # Delivery plan
 
-## Active: approved same-query observed-change pilot
+## Active: positive two-source pilot preparation
+
+#238 is owner-merged at `d1188e8`, identical reviewed `6d98c67` tree. All three
+jobs passed in run 46021474302: 5,375 timed cases, zero failures/errors/skips,
+95.49% hosted coverage; downloaded artifact digest and both XMLs verified.
+
+PC1 (small): reuse the complete retained 1,118-record KIMDIS capture, including
+its four explicit references, and select the three previously documented Diavgeia
+commitment windows. Verify retained originals and current normalization; validate
+exact fresh query payloads with existing adapters. Preserve historical observation
+times, convenience selection and target expectations; no current match is assumed.
+
+PC2 (small, PC1): prepare a private collector using the existing engine/adapters
+and explicit managed-cloud proxy. Budget proposal: three total HTTP requests,
+one attempt/page, one page per Diavgeia window; no fresh KIMDIS request. Enforce
+a persistent global ceiling, 20 requests/minute, 120 seconds
+per query, no redirects/direct fallback, no database/API credentials, archive first
+and stop the whole pilot on first failure/incomplete run. Offline scope, quota,
+proxy-failure and missing/fresh-approval tests precede any request. This is not
+a verified isolated-worker/VPN/anonymity claim.
+
+PC3 (fresh explicit budget/route authority, PC2): execute the three exact queries
+once; preserve actual receipts and stop on completion/failure. Historical counts
+or targets are expectations, not success criteria to pursue with more requests.
+
+PC4 (PC3): reconstruct actual evidence into owned PostgreSQL 17 only; run existing
+source-citations, acceptance and citation-history paths with narrow roles. Reconcile
+raw target IDs/types/statuses and edge/counter grains independently; preserve
+unknowns, source stages and every original. Verify retry/invariance and native
+restore with relocated archives. Report actual unresolved/limited/blocked outcomes;
+do not infer company identity, paid spending or current freshness. No new schema,
+application feature, model, schedule, certification, release or automatic merge.
+
+Checkpoint: finish PC1/PC2 and request only the fresh three-request pilot scope.
+PC3 waits for that authority. The prior U4 allowance ended with its one completed
+request. Keep human metric/source review, analyst tasks and operations gaps open.
+
+PC1/PC2 observed: all three payloads validate through the existing adapters. The
+private runner and approval packet are prepared at
+`/workspace/work/nima-citation-pilot-20261127/APPROVAL.private.md`. Offline checks
+prove the global fourth/per-query excess refusal, exact request and header scope,
+all three proxy-failure paths without direct fallback, fresh-plan approval binding,
+and actual main's pre-network missing-approval refusal. Controlled temporary
+simulations prove stopping on failure/partial/quarantine; they are not source
+evidence. Proxy/CA fingerprints match the prior route. Zero government requests;
+no new authority, attempt ledger, execution marker or archive exists.
+
+The initial five-request proposal was narrowed after checking the citation reader's
+actual limits: 5,000 observations/500 pages, unlike the smaller metric-readout
+boundary. All 24 retained KIMDIS attempt bodies verify (one old 429 is retained,
+not retried); all 1,118 records normalize with zero quarantine and about 1.35 MB
+of normalized JSON before SQL overhead. Reusing the complete historical run saves
+two proposed KIMDIS calls. The pending five-request approval question is an upper
+bound; any execution uses only the narrower three Diavgeia queries. Superseded
+unexecuted preparation is retained privately; no original evidence is rewritten.
+
+## Delivered: approved same-query observed-change pilot
 
 #237 is owner-merged at `7e0586e`, identical reviewed `213e7b5` tree. All three
 jobs passed in run 46008277708: 5,375 timed cases, zero failures/errors/skips,

@@ -1,6 +1,24 @@
 # Tasks
 
-## Active — approved same-query observed-change pilot
+## Active — positive two-source pilot preparation
+
+- [x] Verify #238 on main `d1188e8`, identical reviewed `6d98c67` tree; all three
+  jobs passed in run 46021474302, 5,375 / 95.49%, downloaded artifact verified.
+- [x] PC1: all 24 retained KIMDIS attempt bodies verify; 1,118 records normalize
+  with zero quarantine. Reuse that complete historical run and validate the three
+  documented commitment windows; old explicit targets stay private.
+- [x] PC2: private guarded three-request runner; offline budget/scope/header,
+  all three proxy-failure paths, fresh-approval binding and pre-network refusal
+  pass. Temporary fixtures prove stopping on failure/partial/quarantine, not
+  source acceptance. Same proxy/CA fingerprints; zero government requests.
+  Packet: `/workspace/work/nima-citation-pilot-20261127/APPROVAL.private.md`.
+- [ ] Fresh explicit pilot authority; execute only three Diavgeia requests under
+  the narrowed scope, with no fresh KIMDIS call. Closed allowances are not reused.
+  No database/API credentials on collection.
+- [ ] PC3/PC4 after approval: actual two-source capture/readout/acceptance/history,
+  independent raw reconciliation, retry and isolated native restore proof.
+
+## Delivered — approved same-query observed-change pilot
 
 - [x] Verify #237 on main `7e0586e`, identical reviewed `213e7b5` tree; all three
   jobs passed in run 46008277708, 5,375 cases / 95.49%, artifact inspected.
@@ -19,8 +37,9 @@
   differences, two also reorder suppliers. U1–U3 analytical results stay equal.
   All four reports/sidecars repeat and restore byte-identically; SQL/archives
   unchanged by readouts. Scratch resources removed; owned cluster stopped.
-- [ ] Delivery: document/security/audit and all three exact-head hosted gates;
-  no human metric review, certification or release is inferred.
+- [x] Delivered #238: document/security/audit and all three exact-head hosted
+  jobs pass; 5,375 / 95.49%, coverage/JUnit digest and XMLs verified. Main `d1188e8`
+  has the identical reviewed tree. No human review/certification is inferred.
 - Offline follow-up: four explicit citation candidates recovered from 23 verified
   original pages of an older 1,118-record capture; corresponding Diavgeia originals
   remain unavailable. This is input readiness, not cross-source reconciliation.
