@@ -1,7 +1,7 @@
 # Spec: durable acceptance history, first citation slice
 
-Module ID: `acceptance-history` (V1-08). Status: **proposed G1–G3; schema/contract
-review only**. Baseline: main `2f78f37` after #233, identical reviewed `47d3e47`
+Module ID: `acceptance-history` (V1-08). Status: **owner approved G1–G3, including schema/implementation,
+on 2026-11-26 (Europe/Athens)**. Baseline: main `2f78f37` after #233, identical reviewed `47d3e47`
 tree. Date: 2026-11-26 (Europe/Athens). Extends the separately reviewed journal
 boundary in [A3](SPEC-dataset-acceptance.md#owner-decisions).
 
@@ -216,7 +216,7 @@ a metric or automatically merge/deploy. This checkpoint ends at a verified
 citation record/inspect slice; revisit actual-cohort proof before expanding
 history adapters. V1-08 and release acceptance remain open.
 
-## Owner decisions requested
+## Owner decisions
 
 - **G1 — storage/scope (recommended):** additive migration/two tables in
   `nima_validation`, bounded bytea sidecar plus small envelopes; keep legacy
@@ -228,5 +228,6 @@ history adapters. V1-08 and release acceptance remain open.
   explicit writer/reader profiles and no automatic grants/source writes; implement
   this slice after approval with the native/kill/byte/role gates above.
 
-Approval includes implementation of this bounded schema/command slice only;
+Owner approved all three recommended decisions, including implementation.
+Approval covers this bounded schema/command slice only;
 U1–U4 history, actual data acceptance, deployment and certification stay separate.

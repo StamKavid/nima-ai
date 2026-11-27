@@ -1,15 +1,41 @@
 # Delivery plan
 
-## Awaiting review: additive acceptance history contract
+## Active: approved citation acceptance history
 
-All five acceptance consumers are delivered as software. Under the existing A3
-boundary, propose [durable acceptance history](../docs/specs/SPEC-acceptance-history.md)
-with a first citation-only vertical slice, separate from the legacy validator.
-The contract distinguishes execution state from data fitness, fresh attempts
-from historical reuse, and canonical sidecar bytes from bounded SQL metadata.
-A pure arithmetic/legacy-refusal probe supports the proposal; it is no journal,
-migration, SQL or actual-cohort proof. Await owner G1–G3 before implementation
-planning or code. Preserve all earlier incomplete work below.
+Owner approved G1–G3 including schema/implementation on 2026-11-26; work
+resumed 2026-11-27 (Europe/Athens). #234 is merged at `62d03e1`; reviewed
+`3bd1cca` reaches main with identical `62c13a4c82a5a72654cd25a9444932485cb188c4`
+tree. Preserve earlier incomplete work. Deliver a new PR to main; no agent merge.
+
+Dependency direction: CLI → citation recorder → public citation preparation;
+recorder → journal adapter → pure history identities. No adapter imports CLI or
+source connectors. The existing access registry supplies operator role profiles;
+SQL runtime guards enforce the same narrow journal capabilities without cycles.
+
+H1 (small): failing pure identity/state/body-binding tests; add immutable intent,
+outcome and record codecs. Test canonical order/bounds, recorded-profile survival,
+refusal-versus-fitness and malformed/tampered sidecar bindings. Two source/test files.
+H2a (medium, H1): failing owned SQL tests; add migration 0015 only, register it and
+classify two immutable evidence tables. Prove built-in body hash, composite FK,
+DB stamping, append-only/TRUNCATE and old migration/history compatibility.
+H2b (medium, H2a): new dedicated reader/writer profiles and journal adapter;
+explicit role ceilings, session locking, committed intent, terminal transaction,
+read-only inspection, concurrent busy and completed/pending identity behavior.
+H3a (medium, H2b): failing native recorder tests, then reuse existing preparation
+once; commit actual assessment or closed refusal, preserve source/parent bytes,
+keep completed-ID reuse historical and fresh-ID checks real. No filesystem output.
+H3b (medium, H3a): CLI/read-only inspection and process/crash/concurrency tests;
+fixed codes, limited JSON, source/journal separation and refusal-versus-fitness.
+H4 (medium, all): cheap gates, 100% new line/branch, restored behavior mutations,
+full check/audit, isolated-wheel/migration/native proof and every exact-head hosted
+job. Hold source stable; overlap local/hosted gates, final results on delivery PR.
+
+Risks: uncommitted intent at crash; cached output passed off as new evidence;
+refusal fabricated as blocked fitness; version constants stranding old records;
+JSONB text growth; journal privilege spillover. Exercise actual transactions,
+process death, historical codecs, size edges and native role excess checks.
+Checkpoint ends at review-ready first citation-history PR; then revisit actual
+cohort proof. U1–U4 history adapters, certification and release remain separate.
 
 ## Delivered: approved U4 observed-change acceptance consumer
 
