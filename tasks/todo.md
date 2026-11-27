@@ -1,6 +1,6 @@
 # Tasks
 
-## Active — same-query observed-change pilot preparation
+## Active — approved same-query observed-change pilot
 
 - [x] Verify #237 on main `7e0586e`, identical reviewed `213e7b5` tree; all three
   jobs passed in run 46008277708, 5,375 cases / 95.49%, artifact inspected.
@@ -11,10 +11,16 @@
   offline budget/scope/header/no-direct-fallback checks passed. Actual driver
   refuses missing approval before client construction/network or archive execution.
   Private packet: `/workspace/work/nima-change-pilot-20261127/APPROVAL.private.md`.
-- [ ] Fresh explicit source budget: two requests/pages maximum, exact same query
-  and managed-cloud proxy route; previous capture's allowance is closed.
-- [ ] UC3 after approval: actual U4/acceptance, independent categories, repeat and
-  isolated restore proof. No human metric review/certification is inferred.
+- [x] Fresh explicit source budget approved 2026-11-27: two requests/pages maximum,
+  exact same query/managed-cloud proxy. Used one request, 16 complete publications,
+  zero quarantine; stopped. Previous allowance was not reused.
+- [x] UC3: actual U4 ready, 0 added / 9 changed / 0 missing / 7 unchanged.
+  Independent 32 content hashes and 160 later fields match; nine CPV-list order
+  differences, two also reorder suppliers. U1–U3 analytical results stay equal.
+  All four reports/sidecars repeat and restore byte-identically; SQL/archives
+  unchanged by readouts. Scratch resources removed; owned cluster stopped.
+- [ ] Delivery: document/security/audit and all three exact-head hosted gates;
+  no human metric review, certification or release is inferred.
 - Offline follow-up: four explicit citation candidates recovered from 23 verified
   original pages of an older 1,118-record capture; corresponding Diavgeia originals
   remain unavailable. This is input readiness, not cross-source reconciliation.

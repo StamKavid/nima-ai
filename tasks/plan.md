@@ -1,6 +1,6 @@
 # Delivery plan
 
-## Active: prepare the same-query observed-change pilot
+## Active: approved same-query observed-change pilot
 
 #237 is owner-merged at `7e0586e`, identical reviewed `213e7b5` tree. All three
 jobs passed in run 46008277708: 5,375 timed cases, zero failures/errors/skips,
@@ -27,8 +27,9 @@ capture must abstain. Acceptance: actual scoped U4 outcome and evidence, not a
 promise of changed records. No operational migration, source-budget extension,
 certification, model, application feature or automatic merge.
 
-Checkpoint: finish UC1/UC2 and request only the new bounded capture authority;
-UC3 waits for it. Keep earlier incomplete human, cross-source and operations work.
+Checkpoint: review-ready actual U4 outcome, independent source reconciliation and
+native restore proof. Keep earlier incomplete human, cross-source and operations
+work. No additional government requests or automatic merge.
 
 UC1/UC2 observed: 31 retained manifest paths, seven distinct runs, 24 copies;
 no complete supported same-query candidate pair. Earlier selected page/manifest/
@@ -36,7 +37,15 @@ native-dump hashes verified. Existing guarded collection is prepared privately;
 offline tests pass and actual driver execution without approval stops before
 constructing a client or using a network. Zero government requests. Concrete
 scope and command: `/workspace/work/nima-change-pilot-20261127/APPROVAL.private.md`.
-No approval is recorded, and UC3 has not started.
+The owner subsequently approved the fresh two-request scope on 2026-11-27
+(Europe/Athens). UC3 used one request: 16 publications, complete, zero quarantine.
+Actual U4 is ready: added 0, changed 9, missing 0, unchanged 7. Independent checks
+reconcile 32 record hashes and 160 later-source fields with zero unexplained
+discrepancies. All nine content differences are CPV ordering; two also reorder
+suppliers. U1–U3 analytics remain unchanged, preserving distinct provenance.
+Four reports/four sidecars reproduce after isolated native restore. Scratch SQL
+resources removed and owned cluster stopped. All metrics draft; current-source
+freshness remains unestablished. Final local/hosted delivery gates belong on PR.
 
 Additional offline source readiness: the older 1,118-record KIMDIS capture retains
 23 hash-verified original pages and four explicit Diavgeia target strings. The

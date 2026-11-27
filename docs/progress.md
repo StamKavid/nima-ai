@@ -73,7 +73,8 @@ by the saved-query contract and it has no Diavgeia citation. No commercial SQL o
 two-source acceptance was fabricated in that checkpoint. All three #236 PR jobs
 passed in run 45971023612: 5,375 cases / 95.46% hosted coverage, artifact verified.
 
-The separately approved [supported buyer/day capture](verification/metlen-buyer-day-capture.md)
+The [supported buyer/day capture](verification/metlen-buyer-day-capture.md), delivered
+in #237 at `7e0586e`, identical reviewed `213e7b5` tree,
 used one managed-cloud proxy request: 16 publications, one matching the reported
 METLEN key, zero quarantine. Restricted scratch SQL U1/U2/U3 are ready for their
 declared uses; U2/U3 describe the whole buyer/day. Independent checking found zero
@@ -81,9 +82,21 @@ unexplained differences in 160 original field comparisons. A trusted native dump
 and relocated archive reproduced all three reports byte for byte. The company
 publication overlaps the earlier nine and its normalized fields are unchanged.
 An older HTTP Date leaves current-source freshness unknown. All metrics stay
-draft; U4 was not run without an independent same-query pair. Human review,
-positive citation/change cases, other history adapters, certification and
-V1-08/release acceptance remain open.
+draft; U4 was not run in that first capture. All three #237 PR jobs passed in
+run 46008277708: 5,375 / 95.49%, downloaded coverage/timing artifact verified.
+
+The separately approved [same-query U4 pilot](verification/same-query-change-pilot.md)
+used one later request, again 16 complete publications and zero quarantine. U4
+is ready: 0 added / 9 changed / 0 missing / 7 unchanged. Independent checking
+reconciles 32 original content hashes and 160 later fields. All nine differences
+are CPV-list ordering; two also reorder suppliers. A separate multiset diagnostic
+finds no remaining value/membership differences; the immutable hash and metric
+definitions are unchanged. U1–U3 analytical payloads stay equal, preserving distinct
+observation/version provenance. All four reports and sidecars reproduce from a
+trusted native dump and relocated archives. Human review, positive two-source,
+remaining value/missing/conflict cases, other history adapters, certification and
+V1-08/release acceptance remain open. No economic change or current freshness is
+inferred from this observed source-content comparison.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. This bounded capture activates no schedule or further
