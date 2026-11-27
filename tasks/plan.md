@@ -1,6 +1,6 @@
 # Delivery plan
 
-## Active: positive two-source pilot preparation
+## Active: approved two-source pilot — actual source-failure verdict
 
 #238 is owner-merged at `d1188e8`, identical reviewed `6d98c67` tree. All three
 jobs passed in run 46021474302: 5,375 timed cases, zero failures/errors/skips,
@@ -33,9 +33,9 @@ restore with relocated archives. Report actual unresolved/limited/blocked outcom
 do not infer company identity, paid spending or current freshness. No new schema,
 application feature, model, schedule, certification, release or automatic merge.
 
-Checkpoint: finish PC1/PC2 and request only the fresh three-request pilot scope.
-PC3 waits for that authority. The prior U4 allowance ended with its one completed
-request. Keep human metric/source review, analyst tasks and operations gaps open.
+Checkpoint: deliver the actual source-failure/readout/history verdict with independent
+reconciliation and restore proof. The positive-pair gate remains open. No more
+government requests from this execution; keep human and operations gaps open.
 
 PC1/PC2 observed: all three payloads validate through the existing adapters. The
 private runner and approval packet are prepared at
@@ -44,17 +44,29 @@ prove the global fourth/per-query excess refusal, exact request and header scope
 all three proxy-failure paths without direct fallback, fresh-plan approval binding,
 and actual main's pre-network missing-approval refusal. Controlled temporary
 simulations prove stopping on failure/partial/quarantine; they are not source
-evidence. Proxy/CA fingerprints match the prior route. Zero government requests;
-no new authority, attempt ledger, execution marker or archive exists.
+evidence. Proxy/CA fingerprints matched the prior route. At preparation, there
+were zero government requests and no new authority, attempt ledger or archive.
 
 The initial five-request proposal was narrowed after checking the citation reader's
 actual limits: 5,000 observations/500 pages, unlike the smaller metric-readout
 boundary. All 24 retained KIMDIS attempt bodies verify (one old 429 is retained,
 not retried); all 1,118 records normalize with zero quarantine and about 1.35 MB
 of normalized JSON before SQL overhead. Reusing the complete historical run saves
-two proposed KIMDIS calls. The pending five-request approval question is an upper
-bound; any execution uses only the narrower three Diavgeia queries. Superseded
+two proposed KIMDIS calls. The earlier five-request approval question was an upper
+bound; execution was narrowed to the three Diavgeia queries. Superseded
 unexecuted preparation is retained privately; no original evidence is rewritten.
+
+Owner approved the narrowed three-request scope on 2026-11-27 (Europe/Athens).
+PC3's first HTTP response was 503; body archived, whole pilot stopped. Only one
+request was used; the other two queries were not sent and the allowance is closed.
+PC4 reconstructed 1,118 retained KIMDIS records plus the actual failed Diavgeia run.
+Readout: four unresolved citations, partial capture; existing policy fitness limited
+with partial/unresolved/cancelled warnings, not ready or a positive match. Four
+reported cancelled records are separate from the four citing records. Independent
+1,118 content digests/reference fields and all 25 attempt-body hashes reconcile.
+Journal assessed/limited, retry/inspection and native report/sidecar/history restore
+pass; source/processing rows and originals preserved. Scratch resources removed,
+owned instance stopped. Final delivery gates belong on the PR; no policy change.
 
 ## Delivered: approved same-query observed-change pilot
 

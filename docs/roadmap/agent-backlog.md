@@ -223,6 +223,11 @@ reports/sidecars reproduce after restore. Four older explicit Diavgeia candidate
 are retained, but matching originals are unavailable. Positive two-source, real
 value/missing/conflict cases, human review and certification remain open. Prioritize
 these product proofs over extending history adapters or new infrastructure.
+The [fresh citation pilot](../verification/citation-pilot-source-failure.md) stopped
+on HTTP 503 after one request. Existing readout/history correctly retain limited
+inspection of four unresolved citations over the 1,118-record historical KIMDIS
+cohort. Native restore and independent raw checks pass; no positive target proof
+or current-source freshness was obtained. A future capture needs its own scope.
 No generic history/acceptance framework or full dataset acceptance is claimed.
 V1-01's current journal admits only its original readout validator: general
 acceptance results cannot be inserted without an explicit evolution contract.

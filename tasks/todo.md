@@ -1,6 +1,6 @@
 # Tasks
 
-## Active — positive two-source pilot preparation
+## Active — approved citation pilot: source-failure verdict
 
 - [x] Verify #238 on main `d1188e8`, identical reviewed `6d98c67` tree; all three
   jobs passed in run 46021474302, 5,375 / 95.49%, downloaded artifact verified.
@@ -12,11 +12,17 @@
   pass. Temporary fixtures prove stopping on failure/partial/quarantine, not
   source acceptance. Same proxy/CA fingerprints; zero government requests.
   Packet: `/workspace/work/nima-citation-pilot-20261127/APPROVAL.private.md`.
-- [ ] Fresh explicit pilot authority; execute only three Diavgeia requests under
-  the narrowed scope, with no fresh KIMDIS call. Closed allowances are not reused.
-  No database/API credentials on collection.
-- [ ] PC3/PC4 after approval: actual two-source capture/readout/acceptance/history,
-  independent raw reconciliation, retry and isolated native restore proof.
+- [x] Fresh three-request scope approved 2026-11-27; no database/API credentials.
+  First response HTTP 503 archived; one request used, whole pilot stopped, other
+  two queries not sent. No fresh KIMDIS request; allowance now closed.
+- [x] PC3/PC4 actual failure path: 1,118 retained KIMDIS records, zero admitted
+  Diavgeia decisions, four unresolved edges. Policy fitness limited with explicit
+  partial/unresolved/cancelled warnings. Independent 1,118 digests/reference fields
+  and 25 body hashes reconcile; journal assessed/limited, retries/inspection and
+  native report/sidecar/history restore pass. Owned scratch resources removed.
+- [ ] Positive two-source reconciliation: not achieved by the failed request.
+- [ ] Delivery: document/security/audit and all three exact-head hosted jobs;
+  human review, certification and release stay separate.
 
 ## Delivered — approved same-query observed-change pilot
 

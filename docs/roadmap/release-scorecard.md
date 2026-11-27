@@ -3,12 +3,13 @@
 Check the [release contract](../specs/SPEC-release-v1.0.md) against evidence, not
 PR counts or test coverage. No gate is Passed and the package remains `0.0.1`.
 
-**Snapshot: 2026-11-27 (Europe/Athens), main `7e0586e` after #237.** Its reviewed
-`213e7b5` tree is identical; all three PR jobs passed in run 46008277708, hosted
+**Snapshot: 2026-11-27 (Europe/Athens), main `d1188e8` after #238.** Its reviewed
+`6d98c67` tree is identical; all three PR jobs passed in run 46021474302, hosted
 5,375 / 95.49%. Application code is unchanged since the full local #235 gate:
-5,375 / 95.50%. The [retained-cohort verdict](../verification/retained-real-cohort.md)
-and [supported company-key capture](../verification/metlen-buyer-day-capture.md)
-are delivered. The additional [same-query U4 pilot](../verification/same-query-change-pilot.md)
+5,375 / 95.50%. The [retained-cohort verdict](../verification/retained-real-cohort.md),
+[supported company-key capture](../verification/metlen-buyer-day-capture.md)
+and [same-query U4 pilot](../verification/same-query-change-pilot.md) are delivered.
+The additional [HTTP 503 citation-pilot verdict](../verification/citation-pilot-source-failure.md)
 is evidence in this update, subject to this PR's review. Metric status and
 operational configuration are unchanged; no release gate is upgraded.
 
@@ -27,7 +28,7 @@ outcome, internal metric certification and analyst usefulness are different clai
 | R1 Acquisition | Partial | KIMDIS bounded collector and adapter, approved 16-publication buyer/day capture including one company-key match; Diavgeia award/commitment adapters and [prior real pilots](../verification/diavgeia-r2-replay.md); GEMI profile/AFM paths and prior live proof | Reproducible current two-source cohort; retained positive Diavgeia pair is unavailable. Broader registry/company coverage and current freshness remain unmeasured |
 | R2 Evidence and lineage | Mostly | Immutable originals/versions, hash/pointer verification, archive replay, preserved 77-record pilot pack and current isolated SQL-plus-archive reproduction | Off-host restore and declared recovery objectives; lost originals for older runs cannot be inferred from their SQL hashes |
 | R3 Quality and deduplication | Partial | Five per-use acceptance consumers, injected-failure proof, citation history #235; retained and company-key raw reconciliation; real U4 pair with 32 occurrences/16 source IDs, nine ordering-only content changes | Positive two-source reconciliation and real value/missing/conflict cases; do not turn foreign identifier exclusions into source-error claims |
-| R4 DataOps | Partial | Legacy journal/health, bounded refresh recovery, diagnostics/access controls, citation acceptance journal; real legacy U1 record/retry/inspection on an owned restored copy | Seven observed daily cycles per activated feed, freshness/late-change evidence and operational recovery observation |
+| R4 DataOps | Partial | Legacy journal/health, bounded refresh recovery, diagnostics/access controls; real legacy U1 history and actual assessed/limited citation journal after HTTP 503, with retry/inspection/restore | Seven observed daily cycles per activated feed, freshness/late-change evidence and operational recovery observation |
 | R5 Four certified metrics | Partial | U1-U4 draft providers, reference SQL and readouts; real U1-U3 arithmetic, U4 negative control and actual same-query 0/9/0/7 comparison reconciled; [catalogue](../semantics/metric-catalogue.md) | All four remain draft: human definition review, remaining case reconciliation and recorded certification. Content changes here are ordering diagnostics, not economic events |
 | R6 Insights | Not started | Descriptive metrics and acceptance are prerequisites, not an implemented insight layer | Versioned insight contracts over reviewed metrics and explicit insufficient-evidence outcomes |
 | R7 Serving | Partial | Bounded CLI/export for U1-U4 and exact source citations; evidence and private reproducible artifacts | Typed read-only query API and minimal local analyst view; actual task navigation |
@@ -77,6 +78,8 @@ KAD, TED and data.gov.gr are not acquired by this checkpoint.
    each; unused slots stay unused. Automated data fitness is not certification.
 2. Recover or separately arrange an approved positive two-source pair; four old
    KIMDIS reference candidates are retained but their Diavgeia originals are not.
+   The approved fresh pilot stopped on its first HTTP 503: no decision pages,
+   four unresolved citations and limited inspection; positive acceptance stays open.
    Broaden actual value/missing/conflict cases without inventing source changes.
    The first real same-query comparison is complete; do not extend its budget.
 3. Complete human metric/source review and consenting analyst tasks. Prior answer
