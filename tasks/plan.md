@@ -1,6 +1,50 @@
 # Delivery plan
 
-## Active: approved supported METLEN buyer/day capture
+## Active: prepare the same-query observed-change pilot
+
+#237 is owner-merged at `7e0586e`, identical reviewed `213e7b5` tree. All three
+jobs passed in run 46008277708: 5,375 timed cases, zero failures/errors/skips,
+95.49% hosted coverage, downloaded artifact verified. Human review is still open.
+
+UC1 (small): inspect retained capture identities/query/completeness without source
+requests; copies of one run are not independent captures. Verify original hashes
+before selecting an earlier capture. Acceptance: explicit same-query-pair verdict.
+
+UC2 (small, UC1): prepare one later capture of the exact supported buyer/day query,
+using existing guarded proxy collection, new private archive/budget and no database
+credentials. Maximum two pages/requests, one attempt/page, 120 seconds. Offline
+scope/budget/no-direct-fallback tests and missing-approval refusal must pass. Do
+not execute or reuse the old approval. Acceptance: concrete private proposal and
+guarded ready-to-run command with zero government requests during preparation.
+
+UC3 (UC2, explicit fresh capture authority): collect once, then restore the trusted
+earlier dump into an owned PostgreSQL 17 scratch database. Preserve actual earlier/
+later observation times and disclose new processing times. Use existing U4 readout
+and acceptance, independently compare source-ID/hash sets, preserve retries and
+prove restore. Zero changes is legitimate; missing is not deletion, and the older
+HTTP Date cannot be treated as source freshness. A failed/incomplete/nonlater
+capture must abstain. Acceptance: actual scoped U4 outcome and evidence, not a
+promise of changed records. No operational migration, source-budget extension,
+certification, model, application feature or automatic merge.
+
+Checkpoint: finish UC1/UC2 and request only the new bounded capture authority;
+UC3 waits for it. Keep earlier incomplete human, cross-source and operations work.
+
+UC1/UC2 observed: 31 retained manifest paths, seven distinct runs, 24 copies;
+no complete supported same-query candidate pair. Earlier selected page/manifest/
+native-dump hashes verified. Existing guarded collection is prepared privately;
+offline tests pass and actual driver execution without approval stops before
+constructing a client or using a network. Zero government requests. Concrete
+scope and command: `/workspace/work/nima-change-pilot-20261127/APPROVAL.private.md`.
+No approval is recorded, and UC3 has not started.
+
+Additional offline source readiness: the older 1,118-record KIMDIS capture retains
+23 hash-verified original pages and four explicit Diavgeia target strings. The
+loose retained decision probe matches none of them. Candidates are preserved
+privately for a later separately scoped two-source pilot; no joined source pair,
+current-source observation or positive acceptance is claimed.
+
+## Delivered: approved supported METLEN buyer/day capture
 
 Owner explicitly approved the previously used managed-cloud proxy route for the
 prepared two-request capture on 2026-11-27 (Europe/Athens), after #236 merged.
