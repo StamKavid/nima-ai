@@ -1,6 +1,49 @@
 # Delivery plan
 
-## Active: approved citation acceptance history
+## Active: retained real-cohort validation
+
+Owner continued after verified #235 delivery on 2026-11-27 (Europe/Athens).
+Use preserved real bytes and existing commands first. No application feature,
+new source request, operational migration, schedule, model promotion or contact
+with analysts is authorized by this slice. Keep all source values/private proof
+outside Git; public notes contain scoped aggregate findings only.
+
+CO1 (small): inventory retained originals, manifests, SQL backup and private
+configuration without exposing credentials. Classify independent captures versus
+backup copies, supported source/query profiles and real missing case coverage.
+Verify the #235 merge/tree and update its delivery status without discarding
+older open tasks. Acceptance: evidence inventory and an executable offline plan.
+
+CO2 (medium, CO1): restore the trusted pilot dump into a newly created owned
+PostgreSQL 17 database, migrate that copy explicitly, relocate archive bindings
+and run the existing U1-U4 readouts and acceptance consumers with a restricted
+reader. Independently reconcile raw-record counts/membership/denominators.
+Acceptance: preserved input/dump hashes, exact report retry bytes, actual fitness
+states and unchanged source SQL; U4 abstention remains honest.
+
+CO3 (small, CO1): inspect the preserved nine-record METLEN capture as a separate
+commercial-company case. Verify raw/manifest integrity and current normalization;
+measure reported buyer/sector/date/amount/reference coverage from raw records.
+Do not manufacture an SQL ledger, observations, linked Diavgeia targets or legal
+identity to fill a gap. Acceptance: an explicit usable/blocked boundary with evidence.
+
+CO4 (small, CO2/CO3): publish a concise verification verdict and update the active
+roadmap from observed evidence, separating automated source checks, missing
+positive/two-source/change cases, human reconciliation and analyst tasks. Prepare
+the smallest concrete next capture/review action if missing inputs block a gate.
+Acceptance: reviewable PR, private evidence handoff and no certification/release claim.
+
+Re-use verified unchanged application gates where applicable; check new documents,
+secrets and exact-head hosted CI. No new tests that merely mirror documentation.
+This checkpoint ends at an evidence-backed real-cohort verdict and next action.
+
+## Delivered: approved citation acceptance history
+
+#235 is owner-merged at `65887b9`; reviewed `ff2ea60` is reachable with identical
+`6134b80272cd422e471baf4c77149b0791699d8a` tree. All three PR jobs passed in run
+45963960528. Local: 5,375 / 95.50%; hosted: 5,375 / 95.46%; 100% new-module
+line/branch, 26 rejected/restored mutations, clean audit and installed-wheel proof.
+Coverage/timing ZIP SHA-256 and all 5,375 zero-failure/error/skip cases verified.
 
 Owner approved G1–G3 including schema/implementation on 2026-11-26; work
 resumed 2026-11-27 (Europe/Athens). #234 is merged at `62d03e1`; reviewed

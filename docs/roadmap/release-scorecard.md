@@ -1,71 +1,85 @@
 # Release scorecard (v1.0 gates R1-R10)
 
-Where the project stands against the [v1.0 release contract](../specs/SPEC-release-v1.0.md), with the
-evidence for each claim. It exists so progress is checked against gates and proof, not against a
-count of merged pull requests; the contract itself says a percentage, a test count or a merged PR is
-not a substitute. Nothing here is a release claim.
+Check the [release contract](../specs/SPEC-release-v1.0.md) against evidence, not
+PR counts or test coverage. No gate is Passed and the package remains `0.0.1`.
 
-**Snapshot: 2026-11-21, main `97c21e1`.** Last fully green hosted run on main: run 44952459635
-(`97c21e1`, all three jobs; it contains the semantic model S1 to S7, the readout commands for U1
-to U4 and the Diavgeia adapter). The
-package still declares `0.0.1`.
+**Snapshot: 2026-11-27 (Europe/Athens), main `65887b9` after #235.** Its reviewed
+`ff2ea60` tree is identical; all three PR jobs passed in run 45963960528. Full
+local proof: 5,375 / 95.50%; hosted: 5,375 / 95.46%. The additional
+[retained real-cohort verdict](../verification/retained-real-cohort.md) is evidence
+in this update; its publication is subject to this PR's review. Application code,
+metric status and operational configuration are unchanged.
 
-## How to read it
+## Status meanings
 
-| Status | Meaning |
-|---|---|
-| Not started | No code or measurement toward the gate |
-| Started | Some code or measurement; the gate's proof is far off |
-| Partial | Working code with tests, but a required piece of the gate is missing |
-| Mostly | The gate's own proof exists except a named item, usually an owner action |
-| Passed | Every proof in the contract is recorded (none yet) |
+Started means some evidence exists but substantial gate proof is missing. Partial
+means working capability lacks required proof. Mostly means a named final item
+remains. Passed requires every proof in the contract; none meets that bar yet.
+Gate updates require evidence in a merged change. Source coverage, a data-fitness
+outcome, internal metric certification and analyst usefulness are different claims.
 
-Each row names the evidence (a document, test or merged change that can be opened) and the missing
-piece. A status moves only when a merged change adds evidence, and the row is updated in that change.
+## Gates and the next evidence
 
-## The gates
-
-| Gate | Status | Evidence now | Still missing | Next evidence |
-|---|---|---|---|---|
-| R1 Acquisition: two validated source adapters | Started | KIMDIS collector (real, bounded, archive-first); the `SourceAdapter` boundary with two synthetic adapters (V1-04, #154-#159); GEMI profile collector proven live on one company, with two bugs found and fixed ([pilot record](../verification/gemi-live-pilot.md)); GEMI search parser (#172); Diavgeia acceptance dossier and link census ([dossier](../sources/diavgeia-acceptance.md)) | A second real feed: no Diavgeia adapter or cohort; GEMI collection beyond one company; search by tax number is a parser only | Owner chooses the Diavgeia pilot shape; adapter spec (V1-06) |
-| R2 Evidence and lineage | Mostly | Original bytes archived before parsing, content hashes and JSON pointers, immutable SQL evidence, replay, archive verification, local restore drill; the first metric's result bytes pinned across a refactor (#175) | Off-host restore rehearsal (owner); archives of local runs 2 to 5 were lost with temporary containers, so real-data metadata snapshots cannot yet be rebuilt from them | A capture whose archive is preserved, then a reconciliation |
-| R3 Quality and deduplication | Partial | Quarantine with reasons, exact decimal money, revision and tie handling, measured real formats and identifier classes ([measurements](../semantics/date-format-measurements.md)): 1,317 records, no placeholder tax IDs, about 1.2 percent irregular lengths | Versioned dataset acceptance checks (key uniqueness, referential integrity, expected totals): V1-08 | V1-08 once two feeds exist |
-| R4 DataOps | Partial | Durable validation history and health (#141-#143), bounded refresh recovery (#144-#146), stage diagnostics and policy health (#147-#148), access audit (#149) | No observed schedules; the seven daily observed cycles per feed are not started | Schedules and an observation period (V1-13) |
-| R5 Semantic layer: four certified metrics | Partial | Shared record selection and reported party keys (#175); measured time model (#174); metrics U1 (draft), U2 (#176), U3 (#178) and U4 (#180), each a pure provider plus reference SQL with full-result parity on PostgreSQL; hierarchy dimension specified (#177); lifecycle references model (#181); the metric catalogue with published definition hashes and tests that refuse a silent promotion ([catalogue](../semantics/metric-catalogue.md)) | The owner's review of each definition (checklist in the catalogue); **no metric is reviewed or certified**, and certification needs the owner's real-data reconciliation on a capture with its archive preserved (readout commands for U1 to U4 now exist); the lifecycle references model (S6b, #181) is merged but is a model, not a metric | Owner review records; a preserved real capture to reconcile |
-| R6 Insights | Not started | None | Insight contracts over certified metrics | V1-09 |
-| R7 Serving: API, export and a minimal view | Started | One bounded readout command for the first metric; U2 and U3 exist as providers only | Readout commands for U2 and U3, a typed query API, export, a local view | V1-10, V1-11 |
-| R8 Operations and security | Partial | Scoped runtime roles, TRUNCATE guards (#151), collector and projector profiles (#150, #152), private archives outside Git, secret scanning, a line-ending fix that made hosted and local checks comparable (#169) | Migration 0013 on the pilot database, off-host restore, effective branch protection, a commit-signing decision: all owner actions | Owner actions below |
-| R9 Performance and product proof | Not started | The measurement census only | Workload envelope, observed analyst tasks, a private real-data audit | V1-12, V1-13 |
-| R10 Release reproducibility | Not started | Hosted CI is green on main; the build produces a wheel containing the packaged SQL | Release manifest, clean-host install, upgrade and restore instructions, owner go or no-go | V1-14 |
+| Gate | Status | Evidence now | Missing proof / next action |
+|---|---|---|---|
+| R1 Acquisition | Partial | KIMDIS bounded collector and adapter; Diavgeia award/commitment adapters and [prior real pilots](../verification/diavgeia-r2-replay.md); GEMI profile/AFM paths and prior live proof | Reproducible current two-source cohort; retained positive Diavgeia pair is unavailable. Broader registry/company coverage remains unmeasured |
+| R2 Evidence and lineage | Mostly | Immutable originals/versions, hash/pointer verification, archive replay, preserved 77-record pilot pack and current isolated SQL-plus-archive reproduction | Off-host restore and declared recovery objectives; lost originals for older runs cannot be inferred from their SQL hashes |
+| R3 Quality and deduplication | Partial | Five per-use acceptance consumers, injected-failure proof, citation history #235; current raw reconciliation of all 77 records and measured limited/ready/limited/blocked outcomes | Positive two-source reconciliation and real missing/conflict/revision cases; do not turn foreign identifier exclusions into source-error claims |
+| R4 DataOps | Partial | Legacy journal/health, bounded refresh recovery, diagnostics/access controls, citation acceptance journal; real legacy U1 record/retry/inspection on an owned restored copy | Seven observed daily cycles per activated feed, freshness/late-change evidence and operational recovery observation |
+| R5 Four certified metrics | Partial | U1-U4 draft providers, reference SQL and readouts; current real U1-U3 arithmetic and U4 abstention control; [catalogue](../semantics/metric-catalogue.md) | All four remain draft: human definition review, real case reconciliation and recorded certification. No same-query numeric-change pair is retained |
+| R6 Insights | Not started | Descriptive metrics and acceptance are prerequisites, not an implemented insight layer | Versioned insight contracts over reviewed metrics and explicit insufficient-evidence outcomes |
+| R7 Serving | Partial | Bounded CLI/export for U1-U4 and exact source citations; evidence and private reproducible artifacts | Typed read-only query API and minimal local analyst view; actual task navigation |
+| R8 Operations/security | Partial | Narrow role profiles, immutable/TRUNCATE guards, migrations/upgrade checks, private originals and secret scanning | Off-host restore, operational rollout review, effective branch-protection verification and signing decision. Last recorded branch-rule check is 2026-11-14, not a current protection claim |
+| R9 Product/performance | Started | Automated retained-source audit and a separate nine-publication commercial archive check; limitations measured and no speedup claimed | Representative two-feed audit, declared performance envelope, three consenting analysts and manual baselines; current tasks are not observed |
+| R10 Release reproducibility | Started | Wheel/sdist, isolated installed-wheel/native checks, migration and same-host restore proof, exact-head hosted CI | Versioned release manifest, clean-host end-to-end rehearsal, release upgrade/restore instructions and explicit owner release approval |
 
 ## Acceptance scenarios U1-U5
 
-| Scenario | State |
+| Scenario | Current evidence |
 |---|---|
-| U1 which buyers repeatedly appear with a supplier | Working bounded readout, human review pending |
-| U2 captured activity by CPV and period | Provider and SQL reference; no readout; no CPV release or hierarchy yet |
-| U3 buyer concentration of captured supplier participation | Provider and SQL reference; no readout |
-| U4 change between two captures | Not started (S6) |
-| U5 evidence and reproducible export | Evidence lists exist in every result; no export command for U2 and U3 |
+| U1 repeat reported participation | Existing report reproduced byte for byte: nine selected publications, one buyer in a declared 77-record buyer/day cohort; fitness limited |
+| U2 reported CPV/month | Existing report reproduced: 74 cells / 90 memberships across 77 publications; fitness ready for that use only |
+| U3 buyer concentration | Existing report reproduced: 75 resolved / two unresolved publications; 57 supplier keys, five joint records, 80 participations; top share 9/75; fitness limited |
+| U4 observed change | Readout and acceptance exist; current real negative-control pair correctly blocks on query mismatch/incomplete capture; numeric change is unvalidated |
+| U5 evidence/export | Four private reports retain provenance and reproduce with relocated archives; independent raw checks pass; human retrieval/usefulness remains open |
 
-## Sources
+Overlapping CPV cells and joint participations cannot be summed as distinct
+contracts. The 77-record selection has one buyer by design and is not a national
+market or competitor sample. All four metric definitions remain draft.
 
-| Source | State |
-|---|---|
-| KIMDIS contracts | Live, bounded; 1,317 real records measured locally |
-| Diavgeia decisions | Dossier decided, link census run: 4 of 1,317 records cite a decision, so the explicit key is sparse; the `diavgeia` adapter (award decisions by organisation and window, #197) passes the shared conformance suites on synthetic pages; no live request yet |
-| GEMI profiles | One company proven live; search by tax number specified, parser merged, collector not built |
-| CPV 2008 | Reference reader merged; release selection waits for the hierarchy slice |
-| KAD, TED, data.gov.gr | Not started (KAD optional for v1.0; TED and data.gov.gr are v1.1 or later) |
+## Commercial-company case and sources
 
-## Owner-only actions that block gates
+The retained METLEN archive has nine publication IDs, six buyer keys and six
+award references; four publications share one award reference. All nine rows
+match current normalization, with no unexplained discrepancy. It reports no
+Diavgeia citation and its historical `vatNumber` query is outside the current
+saved-query contract. No company SQL cohort, legal identity, revenue total or
+positive cross-source relation was invented.
 
-1. Apply migration 0013 to the pilot database; run the off-host restore rehearsal (R2, R8).
-2. Enable branch protection; decide commit signing (R8).
-3. Choose the Diavgeia organisation and window (decision P2), then approve the first live request (R1).
-4. Approve any further live captures; preserve the archive of the next one (R2, R5).
+KIMDIS is reproducible for the retained scope. Prior Diavgeia award and commitment
+pilots remain documented historical evidence; no Diavgeia capture manifest was
+found in the bounded retained-workspace inventory. GEMI has prior profile/AFM pilot
+proof; this checkpoint does not exercise registry access. CPV is reported
+procurement classification, not exhaustive company-sector/KAD classification.
+KAD, TED and data.gov.gr are not acquired by this checkpoint.
 
-## Foundation rubric, re-scored
+## Next actions
+
+1. Review the private proposal for one supported METLEN buyer/day capture: at most
+   two pages/HTTP requests, one attempt per page and 120 seconds. It is proposed,
+   not executed; an explicitly approved protected route is required. The worker
+   gets no database credentials; later reconstruction stays offline and owned.
+2. Recover or separately arrange an approved positive two-source pair and complete
+   same-query change pair. Do not expand source budgets or invent missing originals.
+3. Complete human metric/source review and consenting analyst tasks. Prior answer
+   exposure and builder familiarity must be disclosed; no speedup is measured.
+4. Observe schedules/performance and off-host recovery before release acceptance.
+   Keep other history adapters behind this real-data/product checkpoint.
+
+## Historical foundation rubric — 2026-11-21
+
+This historical score has **not** been re-scored for the 2026-11-27 checkpoint;
+it is not current release completion. Use the gate evidence above.
 
 The [older rubric](analytics-readiness.md) is a planning judgement of the single-operator analytics
 foundation with fixed weights. It stood at about 65 out of 100 at #147 and was pending re-scoring.
