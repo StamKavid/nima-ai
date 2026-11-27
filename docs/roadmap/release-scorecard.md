@@ -3,12 +3,13 @@
 Check the [release contract](../specs/SPEC-release-v1.0.md) against evidence, not
 PR counts or test coverage. No gate is Passed and the package remains `0.0.1`.
 
-**Snapshot: 2026-11-27 (Europe/Athens), main `65887b9` after #235.** Its reviewed
-`ff2ea60` tree is identical; all three PR jobs passed in run 45963960528. Full
-local proof: 5,375 / 95.50%; hosted: 5,375 / 95.46%. The additional
-[retained real-cohort verdict](../verification/retained-real-cohort.md) is evidence
-in this update; its publication is subject to this PR's review. Application code,
-metric status and operational configuration are unchanged.
+**Snapshot: 2026-11-27 (Europe/Athens), main `57ffdf9` after #236.** Its reviewed
+`3733d76` tree is identical; all three PR jobs passed in run 45971023612, hosted
+5,375 / 95.46%. Application code is unchanged since the full local #235 gate:
+5,375 / 95.50%. The [retained-cohort verdict](../verification/retained-real-cohort.md)
+is delivered. The additional [supported company-key capture](../verification/metlen-buyer-day-capture.md)
+is evidence in this update, subject to this PR's review. Metric status and
+operational configuration are unchanged; no release gate is upgraded.
 
 ## Status meanings
 
@@ -22,26 +23,26 @@ outcome, internal metric certification and analyst usefulness are different clai
 
 | Gate | Status | Evidence now | Missing proof / next action |
 |---|---|---|---|
-| R1 Acquisition | Partial | KIMDIS bounded collector and adapter; Diavgeia award/commitment adapters and [prior real pilots](../verification/diavgeia-r2-replay.md); GEMI profile/AFM paths and prior live proof | Reproducible current two-source cohort; retained positive Diavgeia pair is unavailable. Broader registry/company coverage remains unmeasured |
+| R1 Acquisition | Partial | KIMDIS bounded collector and adapter, approved 16-publication buyer/day capture including one company-key match; Diavgeia award/commitment adapters and [prior real pilots](../verification/diavgeia-r2-replay.md); GEMI profile/AFM paths and prior live proof | Reproducible current two-source cohort; retained positive Diavgeia pair is unavailable. Broader registry/company coverage and current freshness remain unmeasured |
 | R2 Evidence and lineage | Mostly | Immutable originals/versions, hash/pointer verification, archive replay, preserved 77-record pilot pack and current isolated SQL-plus-archive reproduction | Off-host restore and declared recovery objectives; lost originals for older runs cannot be inferred from their SQL hashes |
-| R3 Quality and deduplication | Partial | Five per-use acceptance consumers, injected-failure proof, citation history #235; current raw reconciliation of all 77 records and measured limited/ready/limited/blocked outcomes | Positive two-source reconciliation and real missing/conflict/revision cases; do not turn foreign identifier exclusions into source-error claims |
+| R3 Quality and deduplication | Partial | Five per-use acceptance consumers, injected-failure proof, citation history #235; raw reconciliation of 77 retained and 16 newly captured records, scoped fitness and cross-archive company-publication overlap checked | Positive two-source reconciliation and real missing/conflict/revision cases; do not turn foreign identifier exclusions into source-error claims |
 | R4 DataOps | Partial | Legacy journal/health, bounded refresh recovery, diagnostics/access controls, citation acceptance journal; real legacy U1 record/retry/inspection on an owned restored copy | Seven observed daily cycles per activated feed, freshness/late-change evidence and operational recovery observation |
-| R5 Four certified metrics | Partial | U1-U4 draft providers, reference SQL and readouts; current real U1-U3 arithmetic and U4 abstention control; [catalogue](../semantics/metric-catalogue.md) | All four remain draft: human definition review, real case reconciliation and recorded certification. No same-query numeric-change pair is retained |
+| R5 Four certified metrics | Partial | U1-U4 draft providers, reference SQL and readouts; real U1-U3 arithmetic on retained and supported company-key cohorts, U4 negative control; [catalogue](../semantics/metric-catalogue.md) | All four remain draft: human definition review, remaining case reconciliation and recorded certification. No same-query numeric-change pair is retained |
 | R6 Insights | Not started | Descriptive metrics and acceptance are prerequisites, not an implemented insight layer | Versioned insight contracts over reviewed metrics and explicit insufficient-evidence outcomes |
 | R7 Serving | Partial | Bounded CLI/export for U1-U4 and exact source citations; evidence and private reproducible artifacts | Typed read-only query API and minimal local analyst view; actual task navigation |
 | R8 Operations/security | Partial | Narrow role profiles, immutable/TRUNCATE guards, migrations/upgrade checks, private originals and secret scanning | Off-host restore, operational rollout review, effective branch-protection verification and signing decision. Last recorded branch-rule check is 2026-11-14, not a current protection claim |
-| R9 Product/performance | Started | Automated retained-source audit and a separate nine-publication commercial archive check; limitations measured and no speedup claimed | Representative two-feed audit, declared performance envelope, three consenting analysts and manual baselines; current tasks are not observed |
+| R9 Product/performance | Started | Automated retained-source audit, nine-publication commercial archive check and supported one-publication company-key SQL readout; limitations measured and no speedup claimed | Representative two-feed audit, declared performance envelope, three consenting analysts and manual baselines; current tasks are not observed |
 | R10 Release reproducibility | Started | Wheel/sdist, isolated installed-wheel/native checks, migration and same-host restore proof, exact-head hosted CI | Versioned release manifest, clean-host end-to-end rehearsal, release upgrade/restore instructions and explicit owner release approval |
 
 ## Acceptance scenarios U1-U5
 
 | Scenario | Current evidence |
 |---|---|
-| U1 repeat reported participation | Existing report reproduced byte for byte: nine selected publications, one buyer in a declared 77-record buyer/day cohort; fitness limited |
-| U2 reported CPV/month | Existing report reproduced: 74 cells / 90 memberships across 77 publications; fitness ready for that use only |
-| U3 buyer concentration | Existing report reproduced: 75 resolved / two unresolved publications; 57 supplier keys, five joint records, 80 participations; top share 9/75; fitness limited |
+| U1 repeat reported participation | Retained cohort: nine selected publications/one buyer in 77, limited. New buyer/day: one reported company-key publication/one buyer in 16, ready for that use |
+| U2 reported CPV/month | Retained: 74 cells / 90 memberships / 77 publications, ready. New whole buyer/day: 32 cells / 74 memberships / 16 publications, ready |
+| U3 buyer concentration | Retained: 75 resolved/two unresolved, top share 9/75, limited. New whole buyer/day: 16 resolved/zero unresolved, 16 supplier keys, six joint records, 24 participations, top share 4/16, ready |
 | U4 observed change | Readout and acceptance exist; current real negative-control pair correctly blocks on query mismatch/incomplete capture; numeric change is unvalidated |
-| U5 evidence/export | Four private reports retain provenance and reproduce with relocated archives; independent raw checks pass; human retrieval/usefulness remains open |
+| U5 evidence/export | Retained four-report parity plus all three new reports reproduced from native dump/relocated archives; independent raw checks pass; human retrieval/usefulness remains open |
 
 Overlapping CPV cells and joint participations cannot be summed as distinct
 contracts. The 77-record selection has one buyer by design and is not a national
@@ -53,8 +54,13 @@ The retained METLEN archive has nine publication IDs, six buyer keys and six
 award references; four publications share one award reference. All nine rows
 match current normalization, with no unexplained discrepancy. It reports no
 Diavgeia citation and its historical `vatNumber` query is outside the current
-saved-query contract. No company SQL cohort, legal identity, revenue total or
-positive cross-source relation was invented.
+saved-query contract. The separate approved supported buyer/day capture now proves
+a real company-key SQL path: one matching publication among 16. Its 160 raw field
+comparisons pass and all three reports reproduce after isolated restore. That
+company publication overlaps the earlier nine and has unchanged normalized fields;
+do not add it as a tenth distinct publication. U2/U3 cover the whole buyer/day.
+The response HTTP Date precedes observation; current freshness is unestablished.
+No legal identity, revenue total or positive cross-source relation was inferred.
 
 KIMDIS is reproducible for the retained scope. Prior Diavgeia award and commitment
 pilots remain documented historical evidence; no Diavgeia capture manifest was
@@ -65,10 +71,9 @@ KAD, TED and data.gov.gr are not acquired by this checkpoint.
 
 ## Next actions
 
-1. Review the private proposal for one supported METLEN buyer/day capture: at most
-   two pages/HTTP requests, one attempt per page and 120 seconds. It is proposed,
-   not executed; an explicitly approved protected route is required. The worker
-   gets no database credentials; later reconstruction stays offline and owned.
+1. Review metric definitions and the actual supported company-key evidence with
+   a human. The approved managed-cloud proxy capture completed in one request;
+   the remaining slot stays unused. Automated data fitness is not certification.
 2. Recover or separately arrange an approved positive two-source pair and complete
    same-query change pair. Do not expand source budgets or invent missing originals.
 3. Complete human metric/source review and consenting analyst tasks. Prior answer

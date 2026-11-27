@@ -10,6 +10,11 @@ identical. This is automated builder-agent verification, not independent human
 review, analyst usefulness or certification. The data is historical captured
 evidence, not a current-source refresh.
 
+Follow-up: #236 was owner-merged at `57ffdf9`, identical reviewed `3733d76` tree.
+The separately approved [supported buyer/day capture](metlen-buyer-day-capture.md)
+subsequently established a narrow company-key SQL path. The unexecuted proposal
+and commercial SQL boundary below describe this earlier checkpoint.
+
 ## Preserved metric cohort
 
 Verified all 40 integrity-listed files in the existing private evidence pack.
