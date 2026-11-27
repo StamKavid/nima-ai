@@ -201,8 +201,9 @@ just check
 just audit
 ```
 
-These are implementation verification commands; no history test/module/migration
-exists from this draft. A private pure probe confirmed legacy other-contract
+These are implementation verification commands. The implementation candidate's
+[proof record](../verification/acceptance-history.md) distinguishes focused proof
+from full delivery gates. A prior private pure probe confirmed legacy other-contract
 refusal, order-stable hash/identity boundaries, null fitness/body for refusal and
 the 64 KiB byte-versus-JSON-text representation difference. It performed no SQL/
 archive/source access and proves no journal behavior. Probe:

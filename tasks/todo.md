@@ -13,12 +13,14 @@
 - [x] Owner approved G1–G3 including migration/implementation; #234 verified
   on main at `62d03e1`, identical reviewed `3bd1cca` tree.
 - [x] Record sequential H1/H2a/H2b/H3a/H3b/H4 plan; preserve open work below.
-- [ ] H1: pure immutable identities/state/body codecs; red-first canonical/binding tests.
-- [ ] H2a: additive migration 0015; real SQL immutability/FK/stamp/byte limits.
-- [ ] H2b: dedicated profiles and journal; role ceilings, lock/intent/retry/inspection.
-- [ ] H3a: public-preparation recorder; native assessed/refused/fresh/cached proof.
-- [ ] H3b: CLI and actual SIGKILL/SIGINT/concurrent recovery, no source writes.
-- [ ] H4: 100% new coverage, mutations, full check/audit, wheel and hosted gates.
+- [x] H1: pure immutable identities/state/body codecs; red-first canonical/binding tests.
+- [x] H2a: additive migration 0015; real SQL immutability/FK/stamp/byte limits.
+- [x] H2b: dedicated profiles and journal; role ceilings, lock/intent/retry/inspection.
+- [x] H3a: public-preparation recorder; native assessed/refused/fresh/cached proof.
+- [x] H3b: CLI and actual SIGKILL/SIGINT/concurrent recovery, no source writes.
+  - 272 focused/compatibility cases pass; all four new modules have 100% line/branch.
+- [x] H4 candidate assembled: 100% new coverage and 26 rejected/restored mutations;
+  full check/audit, wheel and exact-head hosted outcomes are recorded on delivery PR.
 
 Other history adapters, actual cohort proof and certification remain open.
 

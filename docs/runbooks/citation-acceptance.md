@@ -71,7 +71,8 @@ to make a check pass. A conflicting final file is not overwritten. Publication
 and SQL/filesystem inspection are not one atomic transaction; a sidecar attests
 only the inspected bytes and cohort, not future availability or source truth.
 
-This consumer has no durable attempt history. U1–U4 acceptance adapters, journal
-evolution, actual four-positive cohort reconciliation and metric certification
+Publishing this sidecar does not record a journal attempt. Use the separate
+[citation history commands](acceptance-history.md) for durable recording and
+inspection. U1–U4 history, actual cohort reconciliation and metric certification
 remain separate work. Existing citation v1 bytes and their
 `metric_eligibility: not_assessed_v1_08` field remain unchanged.
