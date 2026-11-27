@@ -55,16 +55,23 @@ Coverage/JUnit archive hash and all 5,193 timed cases were inspected. It preserv
 all refusal reasons and never invents counts or version profiles on abstention.
 [Proof](verification/change-acceptance-readout.md).
 
-All five acceptance consumers have software proof. G1–G3 for
-[durable acceptance history](specs/SPEC-acceptance-history.md) are owner approved;
-#234 is merged at `62d03e1`, identical reviewed `3bd1cca` tree. The citation-only
-implementation candidate passes 272 focused/compatibility cases with 100% new
-line/branch coverage. It adds migration 0015, dedicated journal roles and record/
-inspect commands; the legacy journal's identities and limits stay intact.
-Execution refusal is distinct from assessed fitness, and historical reuse is
-explicit. Final full/local/wheel/hosted gate results belong to the delivery PR;
-the candidate is not marked delivered here. [Proof](verification/acceptance-history.md). Actual-cohort proof,
-certification, other history adapters and V1-08 acceptance remain open.
+All five acceptance consumers have software proof. Citation record/inspect history
+is delivered in #235 at `65887b9`, identical reviewed `ff2ea60` tree. Local full
+check: 5,375 / 95.50%; hosted: 5,375 / 95.46%, all three jobs in run 45963960528.
+The four new modules have 100% line/branch coverage; 26 rejected/restored mutations,
+audit, installed-wheel and downloaded coverage/timing artifact checks passed.
+[Proof](verification/acceptance-history.md).
+
+The next [retained real-cohort checkpoint](verification/retained-real-cohort.md)
+reproduces all four preserved KIMDIS report bytes. Independent raw arithmetic and
+770 field comparisons pass. Actual fitness is U1 limited, U2 ready, U3 limited and
+U4 blocked; two US supplier occurrences are outside the Greek key format, and the
+U4 pair has different queries/incomplete capture. Separate METLEN normalization
+matches nine historical publications, but its supplier-filter query is unsupported
+by the saved-query contract and it has no Diavgeia citation. No commercial SQL or
+two-source acceptance is fabricated. A bounded protected buyer/day capture proposal
+is private and unexecuted. Human review, positive citation/change cases, other
+history adapters, certification and V1-08/release acceptance remain open.
 
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. No new source acquisition, release or rescore of the

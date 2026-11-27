@@ -6,6 +6,13 @@ reviewed `3bd1cca` tree. This candidate adds only the first citation record/insp
 slice; the existing policy, five acceptance consumers and legacy journal remain
 unchanged. No dependency, CI, source acquisition or deployment change.
 
+#235 is owner-merged at `65887b9`, with the identical reviewed `ff2ea60` tree.
+Local full check: 5,375 / 95.50%; hosted: 5,375 / 95.46%, all three jobs in run
+45963960528. Audit and installed-wheel proof pass. Downloaded coverage/timing ZIP
+SHA-256 `ce0860a71274fcf6c3dd016b8a963ee9cdb3370c277303774d1be69181a6a6e1`
+and both XMLs were verified, with 5,375 timed cases and zero failures/errors/skips.
+The [retained real-cohort checkpoint](retained-real-cohort.md) follows separately.
+
 ## Focused proof
 
 Missing identity, journal, recorder and CLI APIs failed before implementation.

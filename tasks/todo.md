@@ -1,6 +1,25 @@
 # Tasks
 
-## Active — approved citation acceptance history
+## Active — retained real-cohort validation
+
+- [x] Verify #235 on main `65887b9`, identical reviewed `ff2ea60` tree; all three
+  PR jobs passed in run 45963960528, with final artifact/report inspection.
+- [x] CO1: locate retained 77-record pilot/SQL dump and separate METLEN archive;
+  existing private credentials/configuration stay outside Git; no live requests.
+- [x] CO2: owned restore/current readouts and per-use fitness; raw reconciliation.
+  - Four prior reports byte-identical; actual fitness limited/ready/limited/blocked.
+    770 original field checks; real U1 validation journal/retry/inspection passed.
+- [x] CO3: METLEN raw integrity and nine historical/current normalized rows match.
+  - Six buyer keys/six award references; four publications share one reference.
+    Its supplier-filter query is unsupported by the current saved-query contract;
+    zero Diavgeia citations. No SQL cohort/identity or acceptance was invented.
+- [x] CO4 candidate: scoped public/private verdict, evidence-based scorecard and
+  unexecuted protected buyer/day proposal. Final document/security and exact-head
+  hosted gates are recorded on the delivery PR.
+
+Human review, analyst observations and unsupported positive cases remain open.
+
+## Delivered — approved citation acceptance history
 
 - [x] Verify #233 on main `2f78f37`, identical reviewed `47d3e47` tree; all three
   exact-head PR jobs passed in run 45878258204.

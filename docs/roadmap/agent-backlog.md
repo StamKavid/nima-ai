@@ -140,11 +140,12 @@ generated ontology. Internal metric certification needs recorded review.
 
 ## V1-06 — Diavgeia source acceptance and connector
 
-Status 2026-11-20: step 1 (acceptance dossier) is drafted in
-[`docs/sources/diavgeia-acceptance.md`](../sources/diavgeia-acceptance.md) and awaits the owner's
-decisions; no connector code until they are made.
-The pilot spec is [`SPEC-diavgeia-pilot.md`](../specs/SPEC-diavgeia-pilot.md) (draft; the census found the
-explicit key sparse, so the pilot shape is Δ.2.2 by organisation and window).
+Status 2026-11-27: award/commitment adapters and prior live pilots are documented
+in the [award record](../verification/diavgeia-pilot-run.md) and
+[commitment replay record](../verification/diavgeia-r2-replay.md).
+The acceptance dossier is [here](../sources/diavgeia-acceptance.md).
+The current retained-cohort checkpoint has no Diavgeia capture manifest; do not
+treat historical pilot documentation as reproducible current two-source proof.
 
 Inspect current official API/schema/access/reuse/rate documentation before code;
 no dated API assumptions are authoritative. Freeze namespace/ADA identity,
@@ -201,9 +202,18 @@ After CI headroom #232 (`003680b`), the
 `2f78f37`, identical reviewed `47d3e47` tree; all three exact-head PR jobs passed
 in run 45878258204. Local 5,193 / 95.38%, 228 focused cases / 100% changed-module
 line/branch, 25 rejected mutations and both-path isolated-wheel/native proofs pass.
-The proposed [additive history contract](../specs/SPEC-acceptance-history.md)
-starts with citation record/inspect and awaits G1–G3; later U1–U4 adapters remain
-separate. No generic history/acceptance framework or real-data acceptance is claimed.
+The [additive history contract](../specs/SPEC-acceptance-history.md) was approved
+under G1–G3 and delivered in #235 at `65887b9`, identical reviewed `ff2ea60` tree.
+All three PR jobs passed in run 45963960528; local 5,375 / 95.50%, hosted
+5,375 / 95.46%, 100% new-module coverage, 26 rejected/restored mutations and
+installed-wheel/migration proof. Later U1–U4 history adapters remain separate.
+The [2026-11-27 retained-cohort validation](../verification/retained-real-cohort.md)
+reproduces real KIMDIS U1–U4 bytes and measures fitness limited/ready/limited/blocked.
+The separate METLEN archive normalizes correctly but its historical supplier-filter
+query is not admitted by the current saved-query contract. Positive two-source,
+numeric-change, human review and certification gates remain open. Prioritize the
+bounded protected company-cohort proposal over extending history adapters.
+No generic history/acceptance framework or full dataset acceptance is claimed.
 V1-01's current journal admits only its original readout validator: general
 acceptance results cannot be inserted without an explicit evolution contract.
 
