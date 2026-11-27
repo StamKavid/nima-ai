@@ -53,7 +53,7 @@ def test_printed_grants_applied_to_a_real_role_audit_clean(pg_dsn: str, profile:
     migrate(pg_dsn)
     with roles(pg_dsn, profile) as role:
         snapshot = store.read_snapshot(pg_dsn, role)
-        assert len(snapshot.tables) == 37 and len(snapshot.sequences) == 3
+        assert len(snapshot.tables) == 39 and len(snapshot.sequences) == 3
         assert aa.assess(snapshot, profile).passed
 
 

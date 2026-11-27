@@ -31,6 +31,8 @@ EXPECTED_EVIDENCE = {
     "nima_processing.metadata_snapshots",
     "nima_validation.attempts",
     "nima_validation.outcomes",
+    "nima_validation.acceptance_attempts",
+    "nima_validation.acceptance_outcomes",
 }
 EXPECTED_CONTROL = {
     "nima.schema_migrations",
@@ -55,7 +57,7 @@ def test_classification_is_pinned_explicitly() -> None:
     rules = ac.table_rules()
     assert {n for n, r in rules.items() if r.kind is ac.TableKind.EVIDENCE} == EXPECTED_EVIDENCE
     assert {n for n, r in rules.items() if r.kind is ac.TableKind.CONTROL} == EXPECTED_CONTROL
-    assert len(rules) == 37
+    assert len(rules) == 39
     assert {n for n, r in rules.items() if r.truncate_guarded} == EXPECTED_TRUNCATE_GUARDED
 
 
@@ -73,6 +75,8 @@ def test_documented_and_proven_profiles_exist() -> None:
         "refresh-health-reader",
         "validation-writer",
         "validation-reader",
+        "acceptance-writer",
+        "acceptance-reader",
         "retirement-operator",
         "successor-operator",
     }
