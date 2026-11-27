@@ -73,8 +73,10 @@ A bounded manifest scan under the shared workspace inspected 65 manifests,
 including 30 capture manifests and no Diavgeia capture manifest. Code environments,
 caches and PostgreSQL storage were excluded. Backup copies are not additional
 observations. This is not a search of other machines or unrelated personal files.
-Earlier documented Diavgeia pilots are historical evidence; their original
-positive source pair is unavailable for this checkpoint.
+A loose single-decision probe was also found; it is not a selected source pair
+in the restored cohort and was not used as a substitute. Earlier documented
+Diavgeia pilots are historical evidence; their original positive source pair is
+unavailable for this checkpoint.
 
 ## Next concrete action
 
