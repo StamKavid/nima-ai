@@ -98,6 +98,16 @@ remaining value/missing/conflict cases, other history adapters, certification an
 V1-08/release acceptance remain open. No economic change or current freshness is
 inferred from this observed source-content comparison.
 
+The [U4 delivery](verification/same-query-change-pilot.md) is owner-merged in #238
+at `d1188e8`, identical reviewed `6d98c67` tree. All three PR jobs passed in run
+46021474302: 5,375 / 95.49%, downloaded coverage/timing artifact verified.
+The next [citation pilot](verification/citation-pilot-source-failure.md) stopped
+after its first request returned HTTP 503; the two remaining queries were not sent.
+Retained 1,118-record KIMDIS evidence supports limited inspection of four unresolved
+citations, with explicit partial-capture and cancellation warnings. Its actual
+assessed/limited journal, retries/inspection and native restore pass; independent
+raw checks agree. No positive Diavgeia match or fresh decision data was acquired.
+
 Actual four-positive reconciliation, metric review/certification and investigator
 task proof remain pending. This bounded capture activates no schedule or further
 source budget, release or rescore of the historical rubric below.
