@@ -11,6 +11,11 @@ tree; all three PR jobs passed in run 45971023612. This follows the
 [retained-cohort verdict](retained-real-cohort.md) without altering its originals
 or treating its historical unsupported supplier-filter query as a supported one.
 
+Follow-up: #237 was owner-merged at `7e0586e` with the identical reviewed tree.
+A separately approved [later same-query capture](same-query-change-pilot.md)
+subsequently supplies U4 comparison proof; the U4 input boundary below describes
+this earlier checkpoint.
+
 ## Acquisition and clocks
 
 The owner explicitly approved the prepared managed-cloud proxy route, capped at

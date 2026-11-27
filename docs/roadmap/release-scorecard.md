@@ -3,11 +3,12 @@
 Check the [release contract](../specs/SPEC-release-v1.0.md) against evidence, not
 PR counts or test coverage. No gate is Passed and the package remains `0.0.1`.
 
-**Snapshot: 2026-11-27 (Europe/Athens), main `57ffdf9` after #236.** Its reviewed
-`3733d76` tree is identical; all three PR jobs passed in run 45971023612, hosted
-5,375 / 95.46%. Application code is unchanged since the full local #235 gate:
+**Snapshot: 2026-11-27 (Europe/Athens), main `7e0586e` after #237.** Its reviewed
+`213e7b5` tree is identical; all three PR jobs passed in run 46008277708, hosted
+5,375 / 95.49%. Application code is unchanged since the full local #235 gate:
 5,375 / 95.50%. The [retained-cohort verdict](../verification/retained-real-cohort.md)
-is delivered. The additional [supported company-key capture](../verification/metlen-buyer-day-capture.md)
+and [supported company-key capture](../verification/metlen-buyer-day-capture.md)
+are delivered. The additional [same-query U4 pilot](../verification/same-query-change-pilot.md)
 is evidence in this update, subject to this PR's review. Metric status and
 operational configuration are unchanged; no release gate is upgraded.
 
@@ -25,9 +26,9 @@ outcome, internal metric certification and analyst usefulness are different clai
 |---|---|---|---|
 | R1 Acquisition | Partial | KIMDIS bounded collector and adapter, approved 16-publication buyer/day capture including one company-key match; Diavgeia award/commitment adapters and [prior real pilots](../verification/diavgeia-r2-replay.md); GEMI profile/AFM paths and prior live proof | Reproducible current two-source cohort; retained positive Diavgeia pair is unavailable. Broader registry/company coverage and current freshness remain unmeasured |
 | R2 Evidence and lineage | Mostly | Immutable originals/versions, hash/pointer verification, archive replay, preserved 77-record pilot pack and current isolated SQL-plus-archive reproduction | Off-host restore and declared recovery objectives; lost originals for older runs cannot be inferred from their SQL hashes |
-| R3 Quality and deduplication | Partial | Five per-use acceptance consumers, injected-failure proof, citation history #235; raw reconciliation of 77 retained and 16 newly captured records, scoped fitness and cross-archive company-publication overlap checked | Positive two-source reconciliation and real missing/conflict/revision cases; do not turn foreign identifier exclusions into source-error claims |
+| R3 Quality and deduplication | Partial | Five per-use acceptance consumers, injected-failure proof, citation history #235; retained and company-key raw reconciliation; real U4 pair with 32 occurrences/16 source IDs, nine ordering-only content changes | Positive two-source reconciliation and real value/missing/conflict cases; do not turn foreign identifier exclusions into source-error claims |
 | R4 DataOps | Partial | Legacy journal/health, bounded refresh recovery, diagnostics/access controls, citation acceptance journal; real legacy U1 record/retry/inspection on an owned restored copy | Seven observed daily cycles per activated feed, freshness/late-change evidence and operational recovery observation |
-| R5 Four certified metrics | Partial | U1-U4 draft providers, reference SQL and readouts; real U1-U3 arithmetic on retained and supported company-key cohorts, U4 negative control; [catalogue](../semantics/metric-catalogue.md) | All four remain draft: human definition review, remaining case reconciliation and recorded certification. No same-query numeric-change pair is retained |
+| R5 Four certified metrics | Partial | U1-U4 draft providers, reference SQL and readouts; real U1-U3 arithmetic, U4 negative control and actual same-query 0/9/0/7 comparison reconciled; [catalogue](../semantics/metric-catalogue.md) | All four remain draft: human definition review, remaining case reconciliation and recorded certification. Content changes here are ordering diagnostics, not economic events |
 | R6 Insights | Not started | Descriptive metrics and acceptance are prerequisites, not an implemented insight layer | Versioned insight contracts over reviewed metrics and explicit insufficient-evidence outcomes |
 | R7 Serving | Partial | Bounded CLI/export for U1-U4 and exact source citations; evidence and private reproducible artifacts | Typed read-only query API and minimal local analyst view; actual task navigation |
 | R8 Operations/security | Partial | Narrow role profiles, immutable/TRUNCATE guards, migrations/upgrade checks, private originals and secret scanning | Off-host restore, operational rollout review, effective branch-protection verification and signing decision. Last recorded branch-rule check is 2026-11-14, not a current protection claim |
@@ -41,8 +42,8 @@ outcome, internal metric certification and analyst usefulness are different clai
 | U1 repeat reported participation | Retained cohort: nine selected publications/one buyer in 77, limited. New buyer/day: one reported company-key publication/one buyer in 16, ready for that use |
 | U2 reported CPV/month | Retained: 74 cells / 90 memberships / 77 publications, ready. New whole buyer/day: 32 cells / 74 memberships / 16 publications, ready |
 | U3 buyer concentration | Retained: 75 resolved/two unresolved, top share 9/75, limited. New whole buyer/day: 16 resolved/zero unresolved, 16 supplier keys, six joint records, 24 participations, top share 4/16, ready |
-| U4 observed change | Readout and acceptance exist; current real negative-control pair correctly blocks on query mismatch/incomplete capture; numeric change is unvalidated |
-| U5 evidence/export | Retained four-report parity plus all three new reports reproduced from native dump/relocated archives; independent raw checks pass; human retrieval/usefulness remains open |
+| U4 observed change | Same-query pair: ready, 0 added / 9 changed / 0 missing / 7 unchanged, independently reconciled; all nine source-content differences are array order only under diagnostic. Earlier incomparable pair remains a negative control |
+| U5 evidence/export | Retained report parity plus all four current reports/acceptance sidecars reproduced from native dump/relocated archives; independent raw checks pass; human retrieval/usefulness remains open |
 
 Overlapping CPV cells and joint participations cannot be summed as distinct
 contracts. The 77-record selection has one buyer by design and is not a national
@@ -72,10 +73,12 @@ KAD, TED and data.gov.gr are not acquired by this checkpoint.
 ## Next actions
 
 1. Review metric definitions and the actual supported company-key evidence with
-   a human. The approved managed-cloud proxy capture completed in one request;
-   the remaining slot stays unused. Automated data fitness is not certification.
-2. Recover or separately arrange an approved positive two-source pair and complete
-   same-query change pair. Do not expand source budgets or invent missing originals.
+   a human. Both approved managed-cloud proxy captures completed in one request
+   each; unused slots stay unused. Automated data fitness is not certification.
+2. Recover or separately arrange an approved positive two-source pair; four old
+   KIMDIS reference candidates are retained but their Diavgeia originals are not.
+   Broaden actual value/missing/conflict cases without inventing source changes.
+   The first real same-query comparison is complete; do not extend its budget.
 3. Complete human metric/source review and consenting analyst tasks. Prior answer
    exposure and builder familiarity must be disclosed; no speedup is measured.
 4. Observe schedules/performance and off-host recovery before release acceptance.

@@ -215,9 +215,14 @@ query is not admitted by the current saved-query contract. Its separate approved
 a company-key SQL path: one match in 16 publications, U1/U2/U3 ready for their
 declared scopes, independent raw parity and three restored reports byte-identical.
 U2/U3 cover the whole buyer/day; the company publication overlaps the earlier nine.
-An older HTTP Date leaves current freshness unestablished. Positive two-source,
-numeric-change, human review and certification gates remain open. Prioritize these
-real-data/product proofs over extending history adapters or new infrastructure.
+An older HTTP Date leaves current freshness unestablished. The separately approved
+[same-query pilot](../verification/same-query-change-pilot.md) now reconciles U4:
+ready, 0 added / 9 changed / 0 missing / 7 unchanged. All nine differences are CPV
+ordering; two also reorder suppliers. U1–U3 analytics remain equal; all four
+reports/sidecars reproduce after restore. Four older explicit Diavgeia candidates
+are retained, but matching originals are unavailable. Positive two-source, real
+value/missing/conflict cases, human review and certification remain open. Prioritize
+these product proofs over extending history adapters or new infrastructure.
 No generic history/acceptance framework or full dataset acceptance is claimed.
 V1-01's current journal admits only its original readout validator: general
 acceptance results cannot be inserted without an explicit evolution contract.

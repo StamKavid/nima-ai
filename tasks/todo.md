@@ -1,6 +1,31 @@
 # Tasks
 
-## Active — supported METLEN buyer/day capture
+## Active — approved same-query observed-change pilot
+
+- [x] Verify #237 on main `7e0586e`, identical reviewed `213e7b5` tree; all three
+  jobs passed in run 46008277708, 5,375 cases / 95.49%, artifact inspected.
+- [x] UC1: 31 retained manifest paths represent seven distinct runs/24 copies;
+  no complete supported same-query pair at metadata screening. Selected earlier
+  16-record manifest/page and trusted native dump hashes verified.
+- [x] UC2: private exact-query proposal and existing guarded runner prepared;
+  offline budget/scope/header/no-direct-fallback checks passed. Actual driver
+  refuses missing approval before client construction/network or archive execution.
+  Private packet: `/workspace/work/nima-change-pilot-20261127/APPROVAL.private.md`.
+- [x] Fresh explicit source budget approved 2026-11-27: two requests/pages maximum,
+  exact same query/managed-cloud proxy. Used one request, 16 complete publications,
+  zero quarantine; stopped. Previous allowance was not reused.
+- [x] UC3: actual U4 ready, 0 added / 9 changed / 0 missing / 7 unchanged.
+  Independent 32 content hashes and 160 later fields match; nine CPV-list order
+  differences, two also reorder suppliers. U1–U3 analytical results stay equal.
+  All four reports/sidecars repeat and restore byte-identically; SQL/archives
+  unchanged by readouts. Scratch resources removed; owned cluster stopped.
+- [ ] Delivery: document/security/audit and all three exact-head hosted gates;
+  no human metric review, certification or release is inferred.
+- Offline follow-up: four explicit citation candidates recovered from 23 verified
+  original pages of an older 1,118-record capture; corresponding Diavgeia originals
+  remain unavailable. This is input readiness, not cross-source reconciliation.
+
+## Delivered — supported METLEN buyer/day capture
 
 - [x] Verify #236 main merge `57ffdf9`, identical reviewed `3733d76` tree and
   all three exact-head jobs in run 45971023612.
@@ -15,8 +40,9 @@
   - 160 field comparisons, zero unexplained differences; three restored reports
     byte-identical. Six joint records/24 participations, top share 4/16. Company
     publication overlaps the earlier nine. Older HTTP Date: freshness unresolved.
-- [x] CB4 candidate: public/private verdict and current roadmap update; final
-  document/security and exact-head hosted results belong on the delivery PR.
+- [x] CB4 delivered in #237 at `7e0586e`, identical reviewed `213e7b5` tree;
+  document/security/audit and all three exact-head jobs passed. Hosted 5,375 /
+  95.49%, downloaded coverage/timing artifact verified. No human sign-off inferred.
 
 The unused request slot remains unused. Human review/certification remain open.
 
