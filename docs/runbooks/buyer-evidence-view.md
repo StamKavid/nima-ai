@@ -91,13 +91,19 @@ line/branch coverage. Actual mutation, installed-wheel, retained-source, full-ga
 and hosted results are recorded in the delivery PR.
 
 The explicit browser checker uses existing Playwright and sandboxed Chromium;
-it is not a skipped pytest test. With the prepared fictional fixture manifest:
+it is not a skipped pytest test. After setting `NIMA_TEST_DSN` to the disposable
+local PostgreSQL 17 `nima_test` server, generate fixtures without private data:
 
 ```sh
+uv run --frozen python -m tests.buyer_view_fixtures /PRIVATE/browser-fixtures
 unshare --user --map-current-user --net -- \
-  uv run --frozen python tests/buyer_view_browser.py \
-  /PRIVATE/browser-fixtures.private.json /PRIVATE/browser-proof
+  .venv/bin/python -m tests.buyer_view_browser \
+  /PRIVATE/browser-fixtures/browser-fixtures.private.json /PRIVATE/browser-proof
 ```
+
+The generator refuses non-local/base-database configurations, creates only its
+UUID-named scratch database and removes it and its temporary reader roles. Use
+a new private output directory; fixture generation never fetches source data.
 
 It checks keyboard/mobile use, exact downloads, large identifiers, empty/limited/
 hostile states, CSP tamper refusal and no external page requests. The managed
