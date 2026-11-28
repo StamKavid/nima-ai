@@ -7,6 +7,11 @@ concentration, not a competition or misconduct signal and not a certified metric
 metric of the [V1-05 semantic model](../specs/SPEC-semantic-model.md) and reads the same observation rows
 as the [first metric](participation.md), reusing the shared record selection and party helpers.
 
+The [official-source mapping](u3-source-mapping.md) distinguishes publisher fields
+from these analytical choices. Its [retained-data check](../verification/u3-source-semantics.md)
+reproduces the current calculation without promoting the metric or treating linked
+publications as distinct procurement procedures.
+
 ## Inputs
 
 An explicit cohort of observations (the first metric's validated rows), an inclusive UTC cutoff and one

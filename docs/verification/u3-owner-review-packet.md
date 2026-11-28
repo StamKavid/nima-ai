@@ -37,6 +37,13 @@ The browser-check response is labelled as automation and is not a human sign-off
 
 ## Human work required
 
+Engineering has checked the [official-source mapping](../semantics/u3-source-mapping.md)
+and [retained field/arithmetic results](u3-source-semantics.md). Start the review
+there: source semantics and parser compatibility are engineering verification,
+while the owner decides whether the business question and stated limits are useful.
+All sampled selected records report non-cancelled; positive cancellation and
+unknown-status behavior is covered synthetically, not by these real samples.
+
 1. Read [the definition](../semantics/buyer-concentration.md) and the
    [catalogue checklist](../semantics/metric-catalogue.md#review-checklist-for-promotion-to-reviewed).
    Confirm the question, publication grain, grouping, unknowns, overlap,

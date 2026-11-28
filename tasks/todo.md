@@ -2,6 +2,14 @@
 
 ## Active — U3 human review and first usable flow preparation
 
+- [x] Verify #243 on main `0ae4e36`, identical reviewed `90d4079` tree.
+- [x] Check official KIMDIS/CPV/KAD meanings against the current implementation;
+  record source discrepancies and separate analytical conventions in the
+  [mapping](../docs/semantics/u3-source-mapping.md).
+- [x] Verify every retained original/citation field and reproduce all three U3
+  results using fresh Python, native read-only SQL and separate raw-field counts;
+  record real case coverage and remaining unknowns in the
+  [checkpoint](../docs/verification/u3-source-semantics.md). No metric promotion.
 - [x] Verify #242 on main `0c03404`, identical reviewed `6bb7e14` tree; all three
   jobs in run 46125074963 passed, 5,471 / 95.51%, artifact inspected. Local full
   gate: 5,471 / 95.52%; 96 focused cases / 100% new-module line/branch and 24
@@ -16,7 +24,11 @@
   [user task protocol](../docs/product/buyer-evidence-task-protocol.md).
 - [x] Freeze the [first-view proposal](../docs/specs/SPEC-buyer-evidence-view.md) for owner review; implementation planning
   follows the reviewed spec. No general service or new metric is implemented.
-- [ ] Final documentation/security/audit and exact-head hosted delivery proof.
+- [x] #243 documentation/security/audit and exact-head hosted delivery proof:
+  run 46130461610, 5,471 cases / 95.51%; downloaded artifact verified.
+- [ ] Owner merge of source-semantics [checkpoint #244](https://github.com/StamKavid/nima-ai/pull/244)
+  after its actual local/security/audit and exact-head hosted results are recorded
+  in the PR; no definition or application behavior change.
 - [ ] Human definition review and independent recorded hand reconciliation;
   [packet](../docs/verification/u3-owner-review-packet.md) is prepared, unsigned.
 - [ ] Review/implement compatible historical definition and acceptance profiles
