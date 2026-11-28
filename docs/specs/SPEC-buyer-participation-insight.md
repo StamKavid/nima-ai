@@ -1,8 +1,10 @@
 # Spec: captured buyer participation insight
 
-Status: **proposed for owner review, 2026-11-27 (Europe/Athens)**. Module:
-`buyer-participation-insight`; first bounded V1-09 / R6 contract. This document
-authorizes no implementation, metric promotion, source request or release.
+Status: **I1–I3 approved by the owner on 2026-11-28**. Module:
+`buyer-participation-insight`; first bounded V1-09 / R6 contract. #240 is merged
+at `15ae224`, with the identical reviewed `55e4c32` tree. The
+[implementation plan](../../tasks/plan.md) is the next review gate. Contract
+approval does not certify a metric, activate a source or authorize a release.
 
 ## Objective and assumptions
 
@@ -10,7 +12,7 @@ Answer one question for a company/market researcher: **for this reported buyer i
 the selected KIMDIS captures, which reported supplier groups have the largest
 captured publication participation, and what limits that answer?**
 
-Assumptions proposed for approval: CLI/private export first; reuse U3 unchanged;
+Approved choices: CLI/private export first; reuse U3 unchanged;
 fixed descriptive wording; a numerical insight requires a certified metric and
 ready per-use data. Existing draft readouts remain available in their own right.
 One record is a contract publication, not a unique procurement, award, payment or
@@ -72,7 +74,7 @@ snapshot input; parent report at most 1 MiB, fresh acceptance sidecar at most
 
 ## Output contract
 
-Proposed definition ID: `captured_buyer_participation_summary.v1`; artifact
+Definition ID: `captured_buyer_participation_summary.v1`; artifact
 version: `nima-buyer-participation-insight-v1`. One canonical JSON artifact:
 
 | Field | Required meaning |
@@ -193,6 +195,6 @@ observed analyst tasks, operations and release gates remain open.
 Review decisions: **I1** approve this single U3 question and descriptive wording;
 **I2** approve state precedence and the certified-metric/compatible-profile gate;
 **I3** approve CLI-first single-artifact composition and inherited bounds.
-Recommendations are the choices written above. No further product question blocks
-spec review. Certification evidence and the future compatible policy version must
-be reviewed separately; neither is supplied by accepting this design.
+The owner approved I1–I3 as written on 2026-11-28. Certification evidence and the
+future compatible policy version must be reviewed separately; neither is supplied
+by accepting this design. The command remains unimplemented.

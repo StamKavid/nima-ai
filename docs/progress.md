@@ -2,6 +2,17 @@
 
 ## Current project and chapter position
 
+**Current planning checkpoint, 2026-11-28:** #240 is verified on main `15ae224`,
+identical reviewed `55e4c32` tree. All three exact-head jobs passed in run
+46060952509; downloaded digest/JUnit/coverage inspected: 5,375 timed cases,
+zero failures/errors/skips, 95.49% combined coverage. The owner approved I1–I3.
+The [implementation plan](../tasks/plan.md) now proposes four bounded tasks:
+composition, freshly verified export, thin CLI and independent delivery proof.
+It changes no runtime behavior, source budget, metric certification or policy.
+Current ready/draft data must still yield review-required; fictional positive
+fixtures will test composition without claiming certified production admission.
+Human plan review precedes implementation. Other release gates remain open.
+
 **Current design checkpoint, 2026-11-27:** #239 is owner-merged at `5c07c2b`,
 identical reviewed `7331852` tree. All three exact-head jobs passed in run
 46054001330; downloaded coverage/JUnit artifact verified: 5,375 timed cases,
