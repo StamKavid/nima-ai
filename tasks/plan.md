@@ -2,6 +2,13 @@
 
 ## Active: owner-selected product checkpoint — preparation and review
 
+The owner approved the official-source and retained-data verification on
+2026-11-28. #243 is verified on main `0ae4e36`, identical reviewed `90d4079`
+tree. Complete the [source mapping](../docs/semantics/u3-source-mapping.md) and
+[measured field/count checkpoint](../docs/verification/u3-source-semantics.md)
+before further definition review. This step uses retained originals only and
+changes no metric, profile, source allowance or product-view implementation.
+
 The owner approved the next sequence after #242: prepare the U3 human review,
 resolve definition/policy compatibility, deliver one buyer-to-evidence flow,
 observe a consenting user, and complete the two-source/operational proofs.
