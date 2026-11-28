@@ -32,7 +32,11 @@ def offline(monkeypatch: pytest.MonkeyPatch) -> None:
 
 @pytest.mark.parametrize("unknown", [False, True])
 def test_verified_export_retries_relocates_and_preserves_sql_and_originals(
-    unknown: bool, pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    unknown: bool,
+    pg_dsn: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     root = tmp_path / "raw"
     records = [
@@ -84,6 +88,26 @@ def test_verified_export_retries_relocates_and_preserves_sql_and_originals(
         )
         assert insight.prepare_buyer_insight(dsn, relocated, report).body == stable[0]
         assert consumers == 3 and len(calls) == 6
+        from nima.__main__ import main
+
+        monkeypatch.setenv("NIMA_DATABASE_URL", dsn)
+        assert (
+            main(
+                [
+                    "insights",
+                    "buyer-participation",
+                    "--request",
+                    str(selection),
+                    "--report",
+                    str(report),
+                    "--output-dir",
+                    str(output),
+                ]
+            )
+            == 3
+        )
+        assert json.loads(capsys.readouterr().out)["artifact_sha256"] == first.artifact_sha256
+        assert consumers == 4 and len(calls) == 8
         assert state(pg_dsn) == before and file_state(root) == raw
         assert report.read_bytes() == parent.body
         original_page = next(root.rglob("*.body"))
