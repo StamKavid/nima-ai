@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="${csp}">
+<title>Nima · Buyer evidence</title>
+<style>${style}</style>
+</head>
+<body>
+<div class="workspace">
+<aside class="sidebar">
+  <div class="brand"><span class="brand-mark">n</span><span>nima<span class="brand-sub">COMPANY INTELLIGENCE</span></span></div>
+  <p class="nav-label">RESEARCH WORKSPACE</p>
+  <div class="nav-current">◈ &nbsp; Buyer participation</div>
+  <label for="cohort-select" class="nav-label">SAVED BUYER / COHORT</label>
+  <select id="cohort-select">${options}</select>
+  <div class="sidebar-note"><strong>Private evidence export</strong><p>Saved snapshots, exact originals.<br>No source connection when opened.</p></div>
+</aside>
+<main>
+  <header class="page-header"><div><p class="eyebrow">PUBLIC PROCUREMENT / EVIDENCE</p><h1>Buyer participation</h1><p class="subtitle">Follow the numbers back to their source.</p></div><span class="badge">Offline snapshot</span></header>
+  <div class="export-notice"><strong>Verified during export</strong><span>Opening this file performs no fresh database, archive or source verification. Each cohort is an independent snapshot.</span></div>
+  ${entries}
+  <section id="original-view" class="panel original-view" hidden aria-labelledby="original-heading">
+    <div class="panel-header"><div><p class="eyebrow">ORIGINAL EVIDENCE</p><h2 id="original-heading" tabindex="-1">Archived response</h2></div><button id="close-original" type="button">Close original</button></div>
+    <p id="original-pointer" class="mono"></p><p id="original-hash" class="mono muted"></p>
+    <p class="muted">Exact response text. Numeric values are displayed as originally recorded.</p>
+    <pre id="original-text" tabindex="0" aria-label="Exact original response text"></pre>
+  </section>
+  <footer>nima · Captured publication evidence · Reported identifiers do not establish company identity.</footer>
+</main>
+</div>
+<noscript>This private view needs JavaScript for cohort selection, original text and exact-byte downloads. It makes no source or network requests.</noscript>
+<script id="view-data" type="application/json">${data}</script>
+<script id="view-script">${script}</script>
+</body>
+</html>

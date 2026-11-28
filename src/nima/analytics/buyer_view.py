@@ -2,14 +2,17 @@
 
 import hashlib
 import json
+import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from uuid import UUID
 
 from nima.analytics.buyer_request import read_buyer_request
-from nima.analytics.buyer_view_request import BuyerViewEntry, ViewError, decode_config
+from nima.analytics.buyer_view_request import BuyerViewEntry, ViewError, decode_config, read_config
 from nima.analytics.request import RequestError
 from nima.analytics.result import MAX_RESULT_BYTES
-from nima.dataops.acceptance_files import AcceptanceError, read_subject
+from nima.dataops.acceptance_files import AcceptanceError, read_subject, valid_path
+from nima.evidence import EvidenceError, artifacts
 from nima.graph.pilot_archive import PilotArchiveError, RawReference, RecoveryLimits, recover
 from nima.identity import AssessmentError
 from nima.identity.artifacts import encode
@@ -34,6 +37,12 @@ class PreparedViewEntry:
 class PreparedBuyerView:
     entries: tuple[PreparedViewEntry, ...]
     originals: tuple[tuple[str, bytes], ...] = field(repr=False)
+
+
+@dataclass(frozen=True)
+class BuyerViewExport:
+    artifact_sha256: str
+    entry_states: tuple[Status, ...]
 
 
 def prepare_buyer_evidence_view(dsn: str, entries: tuple[BuyerViewEntry, ...]) -> PreparedBuyerView:
@@ -90,16 +99,15 @@ def prepare_buyer_evidence_view(dsn: str, entries: tuple[BuyerViewEntry, ...]) -
             refs = tuple(
                 RawReference("kimdis", UUID(p["run_id"]), p["raw_sha256"]) for p in verified
             )
-            if refs:
-                used = {ref.run_id for ref in refs}
-                bindings = tuple(b for b in request.archive_bindings if b.run_id in used)
-                recovered = recover(
-                    refs, bindings, limits=RecoveryLimits(max_total_bytes=MAX_RAW_BYTES)
-                )
-                for obj in recovered.objects:
-                    originals[obj.raw_sha256] = obj.body
-                if sum(len(body) for body in originals.values()) > MAX_RAW_BYTES:
-                    raise ViewError("view_limit")
+            used = {ref.run_id for ref in refs}
+            bindings = tuple(b for b in request.archive_bindings if b.run_id in used)
+            recovered = recover(
+                refs, bindings, limits=RecoveryLimits(max_total_bytes=MAX_RAW_BYTES)
+            )
+            for obj in recovered.objects:
+                originals[obj.raw_sha256] = obj.body
+            if sum(len(body) for body in originals.values()) > MAX_RAW_BYTES:
+                raise ViewError("view_limit")
             frames.append(
                 PreparedViewEntry(entry.label, parent, fresh.body, assessment, fresh.status)
             )
@@ -122,3 +130,31 @@ def prepare_buyer_evidence_view(dsn: str, entries: tuple[BuyerViewEntry, ...]) -
         raise ViewError("view_limit") from None
     except (ValueError, TypeError, KeyError, AttributeError, IndexError, RecursionError):
         raise ViewError("view_contract") from None
+
+
+def export_buyer_evidence_view(dsn: str, config: Path, output_dir: Path) -> BuyerViewExport:
+    """Publish one immutable content-named HTML only after every entry verifies."""
+    from nima.analytics.buyer_view_html import render_view
+
+    if not valid_path(config) or not valid_path(output_dir):
+        raise ViewError("view_input")
+    prepared = prepare_buyer_evidence_view(dsn, read_config(config))
+    try:
+        body = render_view(prepared)
+    except AssessmentError:
+        raise ViewError("view_limit") from None
+    except (OSError, ValueError, KeyError, TypeError, IndexError) as error:
+        if isinstance(error, ViewError):
+            raise
+        raise ViewError("view_contract") from None
+    digest = hashlib.sha256(body).hexdigest()
+    try:
+        descriptor = artifacts.directory(output_dir, create=True, private=True)
+        try:
+            artifacts.publish(descriptor, ".gitignore", b"*\n")
+            artifacts.publish(descriptor, digest + ".html", body)
+        finally:
+            os.close(descriptor)
+    except (OSError, EvidenceError):
+        raise ViewError("view_output") from None
+    return BuyerViewExport(digest, tuple(e.status for e in prepared.entries))

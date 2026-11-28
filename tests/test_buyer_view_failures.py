@@ -26,6 +26,44 @@ def test_bad_library_inputs_have_closed_errors(dsn: Any, entries: Any) -> None:
         view.prepare_buyer_evidence_view(dsn, entries)
 
 
+def test_library_does_not_accept_string_paths_in_place_of_typed_paths() -> None:
+    from typing import cast
+
+    from nima.analytics.buyer_view_request import BuyerViewEntry
+
+    entry = BuyerViewEntry(
+        "One", cast(Any, "/private/request.json"), Path("/private/" + "a" * 64 + ".json")
+    )
+    with pytest.raises(ViewError, match="^view_input$"):
+        view.prepare_buyer_evidence_view("fixture", (entry,))
+
+
+def test_semantically_duplicate_reports_are_not_two_distinct_entries(
+    pg_dsn: str, tmp_path: Path
+) -> None:
+    entry = selection(pg_dsn, tmp_path / "one")
+    copied = tmp_path / "one/second-request.json"
+    copied.write_bytes(entry.request_path.read_bytes())
+    copied.chmod(0o600)
+    with reader(pg_dsn) as (dsn, _), pytest.raises(ViewError, match="^view_input$"):
+        view.prepare_buyer_evidence_view(
+            dsn, (entry, replace(entry, label="Other", request_path=copied))
+        )
+
+
+def test_unique_raw_bytes_are_bounded_across_entries(
+    pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    entries = (
+        selection(pg_dsn, tmp_path / "one"),
+        selection(pg_dsn, tmp_path / "two", unknown=True),
+    )
+    sizes = [p.stat().st_size for p in tmp_path.rglob("*.body")]
+    monkeypatch.setattr(view, "MAX_RAW_BYTES", max(sizes))
+    with reader(pg_dsn) as (dsn, _), pytest.raises(ViewError, match="^view_limit$"):
+        view.prepare_buyer_evidence_view(dsn, entries)
+
+
 @pytest.mark.parametrize(
     "error,reason",
     [

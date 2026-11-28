@@ -1,0 +1,20 @@
+<section id="${prefix}" data-entry data-insight-status="${status_code}"${hidden}>
+<div class="cohort-heading"><div><h2 tabindex="-1">${label}</h2>
+<p class="scope">Reported buyer ${buyer} · KIMDIS contract publications<br>Observation cutoff: ${cutoff}</p></div></div>
+<div class="trust-row"><span class="badge draft-badge">${review} descriptive readout</span>
+<span class="badge">Data fitness: ${fitness}</span><span class="badge">Source freshness: ${source_current}</span></div>
+<div class="stats">${stats}</div><div class="investigation-grid">
+<div><section class="panel"><p class="eyebrow">REPORTED IDENTIFIER GROUPS</p><h2>Supplier participation</h2>
+<p class="muted">Expand a supplier to inspect its contributing publications. Counts overlap for joint publications; fractions use the resolved denominator.</p>
+<p class="muted">This draft groups eligible reported Greek tax identifiers. Foreign or unusable identifiers remain unresolved or partially assessed.</p>
+<table><thead><tr><th>Supplier group</th><th>Count</th><th>Fraction</th><th>Cancelled / unknown</th></tr></thead><tbody>${rows}</tbody></table>
+<p class="muted">Overlapping participations: ${participations}. Unresolved publications remain visible alongside the denominator.</p>
+<div class="insight-state"><strong>Insight status: ${status}</strong><p>${statement}</p><ul class="reason-list">${reasons}</ul></div></section>
+<section class="panel"><h3>Scope and interpretation</h3><ul class="limits">${limits}</ul>
+<p class="muted">Ambiguous captured source IDs (unassigned): ${ambiguous}</p>
+<p class="muted">Partially assessed publication IDs: ${partial}</p>
+<div class="snapshot-downloads"><h3>Exact snapshot files</h3><div class="actions">${snapshots}</div></div></section></div>
+<section class="panel"><p class="eyebrow">PUBLICATION → SELECTED OBSERVATION → ORIGINAL</p><h2>Evidence trail</h2>
+<p class="muted">Provider-selected observations only. Original downloads retain their exact bytes.</p>${publications}
+<details><summary>All archived response pages</summary>${raw_links}</details></section>
+</div></section>
