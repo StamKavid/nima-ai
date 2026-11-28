@@ -4,15 +4,21 @@ import hashlib
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Literal
 
-from nima.analytics.buyer_request import BuyerRequest
+from nima.analytics.buyer_request import BuyerRequest, read_buyer_request
 from nima.analytics.metric_readout import definition_hash
-from nima.analytics.request import constant_hook, pairs_hook
+from nima.analytics.request import RequestError, constant_hook, pairs_hook
 from nima.analytics.result import MAX_RESULT_BYTES
-from nima.dataops.buyer_acceptance import PreparedBuyerAcceptance
+from nima.dataops.acceptance_files import AcceptanceError, read_subject, valid_path
+from nima.dataops.buyer_acceptance import (
+    MAX_ACCEPTANCE_BYTES,
+    PreparedBuyerAcceptance,
+    prepare_buyer_acceptance,
+)
 from nima.identity import AssessmentError
-from nima.identity.artifacts import encode
+from nima.identity.artifacts import encode, publish
 from nima.semantics.parties import buyer_key
 
 FORMAT = "nima-buyer-participation-insight-v1"
@@ -73,6 +79,9 @@ def definition() -> dict[str, object]:
 def _bound(
     request: BuyerRequest, parent: bytes, fresh: PreparedBuyerAcceptance
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    # Bind this retained report to the consumer's fresh result; admission stays upstream.
+    if len(parent) > MAX_RESULT_BYTES or len(fresh.body) > MAX_ACCEPTANCE_BYTES:
+        raise InsightError("insight_limit")
     report = json.loads(parent.decode(), object_pairs_hook=pairs_hook, parse_constant=constant_hook)
     sidecar = json.loads(
         fresh.body.decode(), object_pairs_hook=pairs_hook, parse_constant=constant_hook
@@ -158,13 +167,13 @@ def _render(
         reasons.add(f"provider_{result['status']}")
     if not result["resolved_records"]:
         reasons.add("no_resolved_denominator")
-    status: Status = (
-        "insufficient_evidence"
-        if reasons - {"metric_not_certified"}
-        else "review_required"
-        if reasons
-        else "answered"
-    )
+    status: Status
+    if reasons - {"metric_not_certified"}:
+        status = "insufficient_evidence"
+    elif reasons:
+        status = "review_required"
+    else:
+        status = "answered"
     output = {
         "version": FORMAT,
         "definition": {
@@ -277,3 +286,42 @@ def _answer(request: BuyerRequest, report: dict[str, Any]) -> dict[str, object]:
         "denominator_witnesses": witnesses,
         "evidence_refs": [f"/evidence/{j}" for j in sorted(selected)],
     }
+
+
+def prepare_buyer_insight(dsn: str, request: BuyerRequest, report: Path) -> PreparedBuyerInsight:
+    """One fresh U3 consumer; never a saved acceptance flag or additional SQL query."""
+    if (
+        not isinstance(dsn, str)
+        or not dsn.strip()
+        or not isinstance(request, BuyerRequest)
+        or not valid_path(report)
+        or report.suffix != ".json"
+    ):
+        raise InsightError("insight_input")
+    try:
+        original = read_subject(report, limit=MAX_RESULT_BYTES)
+        fresh = prepare_buyer_acceptance(dsn, request, report)
+    except AcceptanceError as error:
+        raise InsightError(str(error).replace("acceptance_", "insight_", 1)) from None
+    if not isinstance(fresh, PreparedBuyerAcceptance):
+        raise InsightError("insight_contract")
+    if hashlib.sha256(original).hexdigest() != fresh.subject_sha256:
+        raise InsightError("insight_evidence")
+    return _compose(request, original, fresh)
+
+
+def export_buyer_insight(
+    dsn: str, request_path: Path, report: Path, output_dir: Path
+) -> InsightExport:
+    if not valid_path(request_path) or not valid_path(output_dir):
+        raise InsightError("insight_input")
+    try:
+        request = read_buyer_request(request_path)
+    except RequestError as error:
+        raise InsightError(error.reason.replace("analytics_", "insight_", 1)) from None
+    prepared = prepare_buyer_insight(dsn, request, report)
+    try:
+        digest = publish(output_dir, prepared.body)
+    except (OSError, AssessmentError):
+        raise InsightError("insight_output") from None
+    return InsightExport(digest, prepared.status, prepared.subject_sha256)

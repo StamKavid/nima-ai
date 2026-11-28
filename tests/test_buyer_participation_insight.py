@@ -164,3 +164,15 @@ def test_fictional_answer_cannot_point_at_unselected_or_incomplete_witnesses(
     fitness = replace(fitness, subject_sha256=digest, body=encode(sidecar))
     with pytest.raises(insight.InsightError, match="^insight_contract$"):
         insight._compose(request, parent, fitness)
+
+
+def test_witness_mapper_excludes_unresolved_records_from_the_denominator(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    request, parent, fitness = frame(tmp_path, monkeypatch, unknown=True)
+    # Test mapping independently on valid U3 data; eligibility still refuses this cohort.
+    assert insight._compose(request, parent, fitness).status == "insufficient_evidence"
+    mapped = insight._answer(request, json.loads(parent))
+    assert mapped["denominator_record_refs"] == [f"/metric/result/records/{i}" for i in range(3)]
+    assert mapped["unresolved_share"] == {"numerator": 1, "denominator": 4}
+    assert mapped["evidence_refs"] == ["/evidence/0", "/evidence/1", "/evidence/2"]
