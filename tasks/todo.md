@@ -26,8 +26,9 @@
   follows the reviewed spec. No general service or new metric is implemented.
 - [x] #243 documentation/security/audit and exact-head hosted delivery proof:
   run 46130461610, 5,471 cases / 95.51%; downloaded artifact verified.
-- [ ] Source-semantics checkpoint final local/security/audit and exact-head
-  hosted delivery proof; no definition or application behavior change.
+- [ ] Owner merge of source-semantics [checkpoint #244](https://github.com/StamKavid/nima-ai/pull/244)
+  after its actual local/security/audit and exact-head hosted results are recorded
+  in the PR; no definition or application behavior change.
 - [ ] Human definition review and independent recorded hand reconciliation;
   [packet](../docs/verification/u3-owner-review-packet.md) is prepared, unsigned.
 - [ ] Review/implement compatible historical definition and acceptance profiles

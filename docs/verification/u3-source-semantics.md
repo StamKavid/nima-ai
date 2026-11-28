@@ -75,7 +75,8 @@ types, unknowns, money, references and original evidence. These are synthetic
 behavior tests; they do not fill the real-source coverage gaps above.
 
 Full local gates, dependency audit and hosted delivery evidence are recorded in
-the checkpoint PR once executed. No release gate changes because these checks
+[checkpoint PR #244](https://github.com/StamKavid/nima-ai/pull/244) as they finish;
+pending checks are not passes. No release gate changes because these checks
 pass. The private verifier and receipts remain outside Git; the verifier records
 the parent/page hashes, native SQL parity, field census and original-field counts.
 
