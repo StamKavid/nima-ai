@@ -246,8 +246,8 @@ DataOps result queries and real SQL tests. No single opaque trust score.
 Freeze four insight result contracts supporting U1–U4, using only reviewed metric
 definitions during design; numerical release insights require certified definitions
 under R6 and explicitly compatible acceptance profiles. The first bounded
-[U3 contract](../specs/SPEC-buyer-participation-insight.md) is proposed for owner
-review; it implements nothing and does not close the other families.
+[U3 contract](../specs/SPEC-buyer-participation-insight.md) is approved and its
+first implementation is delivered in #242; it does not close the other families.
 Include snapshot/cutoff, baseline, observed change, reason/eligibility,
 denominator, exclusions and evidence. Distinguish new observation, changed source
 content and source-declared effective event; missing in a later capture is not
@@ -257,6 +257,11 @@ and reproducible result bytes. No LLM arithmetic, fraud ranking or ML dependency
 Area: a small insights module over semantic/query interfaces, not the CLI.
 
 ## V1-10 — read-only serving
+
+The owner selected one saved buyer/cohort → participation → original-evidence
+flow after #242. First view candidate: a private offline HTML report reusing
+existing verified typed preparations, with no general query server. This remains
+a bounded R7 slice; the broader API and other views below stay open.
 
 Specify a small typed parameterized query API, CLI/export adapters, pagination,
 snapshot consistency, statement/row/output bounds and shared error vocabulary.

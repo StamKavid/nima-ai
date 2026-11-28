@@ -1,6 +1,30 @@
 # Delivery plan
 
-## Active: buyer-participation insight — approved implementation
+## Active: owner-selected product checkpoint — preparation and review
+
+The owner approved the next sequence after #242: prepare the U3 human review,
+resolve definition/policy compatibility, deliver one buyer-to-evidence flow,
+observe a consenting user, and complete the two-source/operational proofs.
+#242 is verified on main `0c03404`, identical reviewed `6bb7e14` tree; all three
+exact-head jobs in run 46125074963 passed, downloaded artifact inspected: 5,471 /
+95.51% hosted; full local 5,471 / 95.52%. Software delivery is separate from
+metric certification and release acceptance.
+
+The [U3 owner packet](../docs/verification/u3-owner-review-packet.md) is prepared
+from retained originals with blank human answers and a separate automated key.
+Its primary, eligibility and repeat-selection calculations agree independently
+with current SQL. The [task protocol](../docs/product/buyer-evidence-task-protocol.md)
+is prepared with no participant observations. The first-view specification is the
+next concrete review artifact; this is not its implementation plan.
+
+Preserve all incomplete tasks below. Human hand calculations/sign-off cannot be
+supplied by an agent or inferred from “continue.” Promotion must preserve old
+artifacts through reviewed definition/policy compatibility. Existing source
+allowances stay closed; new source attempts, schedule activation, host provisioning,
+off-host backup destination and consenting-user observation have separate actual
+inputs. No API/UI/AI/graph framework or deployment is added by this preparation.
+
+## Delivered: buyer-participation insight — #242
 
 **Plan status: BI1–BI4/checkpoints A/B approved by the owner's “Begin
 implementation” instruction, 2026-11-28.** #241 is merged at `1d8b902`, with the

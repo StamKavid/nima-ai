@@ -3,15 +3,17 @@
 Check the [release contract](../specs/SPEC-release-v1.0.md) against evidence, not
 PR counts or test coverage. No gate is Passed and the package remains `0.0.1`.
 
-**Snapshot: 2026-11-27 (Europe/Athens), main `d1188e8` after #238.** Its reviewed
-`6d98c67` tree is identical; all three PR jobs passed in run 46021474302, hosted
-5,375 / 95.49%. Application code is unchanged since the full local #235 gate:
-5,375 / 95.50%. The [retained-cohort verdict](../verification/retained-real-cohort.md),
+**Snapshot: 2026-11-28, main `0c03404` after #242.** Its reviewed `6bb7e14`
+tree is identical; all three exact-head jobs passed in run 46125074963, hosted
+5,471 / 95.51%, downloaded coverage/JUnit verified. Full local proof: 5,471 /
+95.52%; both new insight modules have 100% line/branch coverage. The
+[first U3 insight](../verification/buyer-participation-insight.md) is delivered.
+The [retained-cohort verdict](../verification/retained-real-cohort.md),
 [supported company-key capture](../verification/metlen-buyer-day-capture.md)
 and [same-query U4 pilot](../verification/same-query-change-pilot.md) are delivered.
 The additional [HTTP 503 citation-pilot verdict](../verification/citation-pilot-source-failure.md)
-is evidence in this update, subject to this PR's review. Metric status and
-operational configuration are unchanged; no release gate is upgraded.
+is delivered evidence. Metric status and operational configuration are unchanged.
+R6 moves from Not started to Partial on merged software proof; no gate is Passed.
 
 ## Status meanings
 
@@ -30,8 +32,8 @@ outcome, internal metric certification and analyst usefulness are different clai
 | R3 Quality and deduplication | Partial | Five per-use acceptance consumers, injected-failure proof, citation history #235; retained and company-key raw reconciliation; real U4 pair with 32 occurrences/16 source IDs, nine ordering-only content changes | Positive two-source reconciliation and real value/missing/conflict cases; do not turn foreign identifier exclusions into source-error claims |
 | R4 DataOps | Partial | Legacy journal/health, bounded refresh recovery, diagnostics/access controls; real legacy U1 history and actual assessed/limited citation journal after HTTP 503, with retry/inspection/restore | Seven observed daily cycles per activated feed, freshness/late-change evidence and operational recovery observation |
 | R5 Four certified metrics | Partial | U1-U4 draft providers, reference SQL and readouts; real U1-U3 arithmetic, U4 negative control and actual same-query 0/9/0/7 comparison reconciled; [catalogue](../semantics/metric-catalogue.md) | All four remain draft: human definition review, remaining case reconciliation and recorded certification. Content changes here are ordering diagnostics, not economic events |
-| R6 Insights | Not started | Descriptive metrics and acceptance are prerequisites, not an implemented insight layer | Versioned insight contracts over reviewed metrics and explicit insufficient-evidence outcomes |
-| R7 Serving | Partial | Bounded CLI/export for U1-U4 and exact source citations; evidence and private reproducible artifacts | Typed read-only query API and minimal local analyst view; actual task navigation |
+| R6 Insights | Partial | First versioned U3 insight library/CLI/export delivered in #242, fresh verification, tied/overlapping participation and explicit no-answer states; real ready/draft and limited cohorts reproduce after restore | Human certification and compatible definition/policy admission; remaining insight families and product usefulness. Certified positive composition is fixture-only |
+| R7 Serving | Partial | Bounded CLI/export for U1-U4, first U3 insight export and exact source citations; private reproducible artifacts | Typed read-only serving/view flow and actual buyer-to-original task navigation |
 | R8 Operations/security | Partial | Narrow role profiles, immutable/TRUNCATE guards, migrations/upgrade checks, private originals and secret scanning | Off-host restore, operational rollout review, effective branch-protection verification and signing decision. Last recorded branch-rule check is 2026-11-14, not a current protection claim |
 | R9 Product/performance | Started | Automated retained-source audit, nine-publication commercial archive check and supported one-publication company-key SQL readout; limitations measured and no speedup claimed | Representative two-feed audit, declared performance envelope, three consenting analysts and manual baselines; current tasks are not observed |
 | R10 Release reproducibility | Started | Wheel/sdist, isolated installed-wheel/native checks, migration and same-host restore proof, exact-head hosted CI | Versioned release manifest, clean-host end-to-end rehearsal, release upgrade/restore instructions and explicit owner release approval |
@@ -73,17 +75,20 @@ KAD, TED and data.gov.gr are not acquired by this checkpoint.
 
 ## Next actions
 
-1. Review metric definitions and the actual supported company-key evidence with
-   a human. Both approved managed-cloud proxy captures completed in one request
-   each; unused slots stay unused. Automated data fitness is not certification.
+1. Complete the [prepared U3 human review](../verification/u3-owner-review-packet.md).
+   Its primary, eligibility and repeat-capture inputs are verified; no human
+   sign-off exists. Preserve historical reports through reviewed definition/policy
+   compatibility before promotion. Automated data fitness is not certification.
 2. Recover or separately arrange an approved positive two-source pair; four old
    KIMDIS reference candidates are retained but their Diavgeia originals are not.
    The approved fresh pilot stopped on its first HTTP 503: no decision pages,
    four unresolved citations and limited inspection; positive acceptance stays open.
    Broaden actual value/missing/conflict cases without inventing source changes.
    The first real same-query comparison is complete; do not extend its budget.
-3. Complete human metric/source review and consenting analyst tasks. Prior answer
-   exposure and builder familiarity must be disclosed; no speedup is measured.
+3. Deliver one saved buyer/cohort → participation → original-evidence flow, then
+   use the [prepared task protocol](../product/buyer-evidence-task-protocol.md).
+   Human metric/source review and consenting analyst tasks remain open. Prior
+   answer exposure and builder familiarity are disclosed; no speedup is measured.
 4. Observe schedules/performance and off-host recovery before release acceptance.
    Keep other history adapters behind this real-data/product checkpoint.
 

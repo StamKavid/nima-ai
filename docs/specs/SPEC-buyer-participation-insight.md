@@ -4,11 +4,12 @@ Status: **I1–I3 approved by the owner on 2026-11-28**. Module:
 `buyer-participation-insight`; first bounded V1-09 / R6 contract. #240 is merged
 at `15ae224`, with the identical reviewed `55e4c32` tree. The
 [implementation plan](../../tasks/plan.md) was approved by the owner's instruction
-to begin implementation on 2026-11-28. BI1–BI3 are implemented; BI4 verification
-is in progress in the candidate;
+to begin implementation on 2026-11-28. BI1–BI4 are delivered in #242 at `0c03404`,
+with the identical reviewed `6bb7e14` tree;
 [verification](../verification/buyer-participation-insight.md) records actual
 proof and remaining gates. Approval does not certify a metric, activate a source
-or authorize a release. Main delivery is not inferred from candidate code.
+or authorize a release. All three exact-head jobs and downloaded reports passed;
+human metric certification remains separate.
 
 ## Objective and assumptions
 
@@ -124,7 +125,7 @@ an older artifact remains on disk.
 
 ## Commands and structure
 
-The candidate implements this command. `NIMA_DATABASE_URL` supplies the restricted
+The implementation provides this command. `NIMA_DATABASE_URL` supplies the restricted
 reader configuration through the environment, never a credential argument:
 
 ```sh
@@ -201,4 +202,5 @@ Review decisions: **I1** approve this single U3 question and descriptive wording
 **I3** approve CLI-first single-artifact composition and inherited bounds.
 The owner approved I1–I3 as written on 2026-11-28. Certification evidence and the
 future compatible policy version must be reviewed separately; neither is supplied
-by accepting this design. The implemented candidate awaits delivery review.
+by accepting this design. The implementation is owner-merged; metric promotion
+is not implied by that merge.

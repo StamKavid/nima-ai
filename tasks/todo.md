@@ -1,6 +1,32 @@
 # Tasks
 
-## Active — approved buyer-participation insight implementation
+## Active — U3 human review and first usable flow preparation
+
+- [x] Verify #242 on main `0c03404`, identical reviewed `6bb7e14` tree; all three
+  jobs in run 46125074963 passed, 5,471 / 95.51%, artifact inspected. Local full
+  gate: 5,471 / 95.52%; 96 focused cases / 100% new-module line/branch and 24
+  rejected/restored mutations. Metric statuses remain draft.
+- [x] Prepare the private source-only human worksheet, separate automated key,
+  original pages and input fingerprints for primary, eligibility and repeated-
+  capture scenarios. Actual raw-field arithmetic and current SQL agree.
+- [x] Browser-check blank fields, mobile DOM layout and local response download
+  without external routes/page requests. This is not a human review/user study;
+  original-file navigation remains a reviewer-browser check.
+- [x] Reconcile current scorecard/roadmap/delivery statuses and prepare the
+  [user task protocol](../docs/product/buyer-evidence-task-protocol.md).
+- [x] Freeze the [first-view proposal](../docs/specs/SPEC-buyer-evidence-view.md) for owner review; implementation planning
+  follows the reviewed spec. No general service or new metric is implemented.
+- [ ] Final documentation/security/audit and exact-head hosted delivery proof.
+- [ ] Human definition review and independent recorded hand reconciliation;
+  [packet](../docs/verification/u3-owner-review-packet.md) is prepared, unsigned.
+- [ ] Review/implement compatible historical definition and acceptance profiles
+  before metric promotion; do not rewrite old reports or invent a certificate.
+- [ ] Deliver the reviewed buyer-to-original view, then observe a consenting
+  target user with a manual baseline; no observation has occurred.
+- [ ] Positive two-source and operations acceptance: fresh bounded source/route
+  approval, observed cycles and owned off-host recovery destination remain needed.
+
+## Delivered — buyer-participation insight #242
 
 - [x] Verify #240 on main `15ae224`, identical reviewed `55e4c32` tree; all three
   jobs in run 46060952509 passed. Artifact digest/JUnit/coverage inspected:
@@ -74,21 +100,20 @@
 
 ### BI4 — independent integration and delivery proof (medium; depends on BI3)
 
-Observed so far: 96 focused cases / 100% new-module line/branch, 24 rejected and
+Delivery verified: 96 focused cases / 100% new-module line/branch, 24 rejected and
 restored mutations, installed CLI/library/native restore parity on both retained
-cohorts and removal of owned scratch databases/roles. Full delivery gates below
-remain open until their actual results are recorded.
+cohorts and removal of owned scratch databases/roles. All delivery gates passed and main `0c03404` has the identical reviewed tree.
 
 
 - [x] Acceptance: existing private 16-record ready evidence yields review-required
   and 77-record limited evidence yields insufficient; historical U3/readout/
   assessment bytes stay equal. Native restore/relocated originals and installed
   wheel reproduce results without source calls; clean up owned scratch resources.
-- [ ] Acceptance: hand calculations/witness inspection and meaningful gate/witness
+- [x] Acceptance: hand calculations/witness inspection and meaningful gate/witness
   mutations pass; all new module lines/branches covered, overall ≥90%, no skipped
   tests or weakened gates. Certified production admission remains explicitly
   unproven; synthetic positives are never reported as human certification.
-- [ ] Acceptance: `just check`, `just audit`, all three exact-head hosted jobs and
+- [x] Acceptance: `just check`, `just audit`, all three exact-head hosted jobs and
   downloaded coverage/JUnit inspection pass; document actual limitations, verify
   attribution, push a reviewable PR and leave merge/release to the owner.
 - Verify: full commands above; independent private output/native-restore
@@ -98,9 +123,9 @@ remain open until their actual results are recorded.
 
 ### Checkpoint B — feature handoff
 
-- [ ] BI1–BI4 proof reviewed; one complete bounded library/CLI/export path is ready
+- [x] BI1–BI4 proof reviewed; one complete bounded library/CLI/export path is ready
   for owner review. No automatic merge, metric/policy promotion or source retry.
-- [ ] Keep other insight families, certification, positive two-source and observed
+- [x] Keep other insight families, certification, positive two-source and observed
   analyst/operations/release acceptance open; do not claim R6 complete.
 
 ## Delivered — first U3 insight specification
