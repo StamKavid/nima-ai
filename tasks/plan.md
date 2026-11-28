@@ -1,6 +1,19 @@
 # Delivery plan
 
-## Active: approved two-source pilot — actual source-failure verdict
+## Active: first U3 insight specification — design only
+
+The owner approved drafting the first insight contract after #239. That PR is
+verified on main `5c07c2b`, identical reviewed `7331852` tree; all three jobs in
+run 46054001330 passed, 5,375 / 95.49%, coverage/JUnit artifact inspected.
+
+Propose one [U3 descriptive contract](../docs/specs/SPEC-buyer-participation-insight.md)
+over existing verified readout/acceptance interfaces. Preserve exact ties,
+denominators and provenance; distinguish data readiness from certification and
+the compatible policy version needed after a definition-hash change. No new
+application feature, source budget, metric promotion or release. Deliver the
+reviewable spec and stop for I1–I3; this is not its implementation plan.
+
+## Delivered: approved two-source pilot — actual source-failure verdict
 
 #238 is owner-merged at `d1188e8`, identical reviewed `6d98c67` tree. All three
 jobs passed in run 46021474302: 5,375 timed cases, zero failures/errors/skips,

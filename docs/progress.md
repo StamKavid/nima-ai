@@ -2,6 +2,22 @@
 
 ## Current project and chapter position
 
+**Current design checkpoint, 2026-11-27:** #239 is owner-merged at `5c07c2b`,
+identical reviewed `7331852` tree. All three exact-head jobs passed in run
+46054001330; downloaded coverage/JUnit artifact verified: 5,375 timed cases,
+zero failures/errors/skips, 95.49% hosted coverage. Its actual source-failure
+verdict remains limited; positive two-source reconciliation stays open.
+
+The [first U3 insight contract](specs/SPEC-buyer-participation-insight.md) is now
+proposed for owner review, with no implementation or certification. One
+descriptive captured-participation result reuses current metric/readout/fitness
+contracts, preserving ties, joint overlap and evidence. A private fictional probe
+of the existing metric confirms two tied 2/3 leaders across three records/four
+participations and an unknown-record share of 1/4. It also confirms that changing
+metric status changes the policy-pinned definition hash. Thus ready real data
+does not yet qualify for a numerical insight: human certification and compatible
+policy review are separate. No source requests, release or rubric rescore.
+
 **Update 2026-11-26 (Europe/Athens).** #225 is delivered on main `e6c869d`:
 the verified citation-acceptance consumer follows the V1-07 two-source readout and
 V1-08 pure policy. Reviewed `fd35041` is reachable with an identical tree; all
