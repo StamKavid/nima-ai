@@ -94,8 +94,11 @@ failure, 130 interruption. No force, certification override or source-fetch flag
 
 ## Structure, implementation style and browser boundary
 
-Use a small `src/nima/analytics/buyer_view.py` preparation/export module, packaged
-static HTML/JS/CSS assets and a thin addition to the existing analytics CLI.
+Use `src/nima/views/` for preparation/export, request validation, neutral immutable
+models, HTML rendering and packaged assets. Root CLI composition supplies the
+view command to analytics routing through a typed callable; analytics/dataops
+remain providers and never import their presentation consumer. This refinement
+removes the package/module cycles caught by the unchanged dependency-graph gate.
 Focused unit/native/browser tests stay under `tests/`; usage belongs in a linked
 runbook. No runtime dependency, schema migration, new service or generic UI engine.
 

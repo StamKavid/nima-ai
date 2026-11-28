@@ -9,12 +9,12 @@ from typing import Any
 import httpx
 import pytest
 
-from nima.analytics import buyer_view as view
 from nima.analytics import snapshot
 from nima.analytics.buyer_readout import prepare_buyer_result
-from nima.analytics.buyer_view_request import BuyerViewEntry, ViewError
 from nima.insights.buyer_participation import prepare_buyer_insight
 from nima.storage.connection import connect
+from nima.views import buyer_evidence as view
+from nima.views.request import BuyerViewEntry, ViewError
 from tests.buyer_acceptance_samples import request_file
 from tests.test_analytics_snapshot import reader, state
 from tests.test_buyer_readout import record, request_for
@@ -202,8 +202,8 @@ def test_view_uses_only_provider_selected_observations_with_old_and_future_captu
     from dataclasses import replace
     from datetime import UTC, datetime
 
-    from nima.analytics.buyer_view_html import render_view
     from nima.graph.pilot_archive import ArchiveBinding
+    from nima.views.html import render_view
 
     root = tmp_path / "raw"
     times = (

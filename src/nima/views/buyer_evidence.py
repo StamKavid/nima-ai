@@ -3,12 +3,10 @@
 import hashlib
 import json
 import os
-from dataclasses import dataclass, field
 from pathlib import Path
 from uuid import UUID
 
 from nima.analytics.buyer_request import read_buyer_request
-from nima.analytics.buyer_view_request import BuyerViewEntry, ViewError, decode_config, read_config
 from nima.analytics.request import RequestError
 from nima.analytics.result import MAX_RESULT_BYTES
 from nima.dataops.acceptance_files import AcceptanceError, read_subject, valid_path
@@ -16,33 +14,21 @@ from nima.evidence import EvidenceError, artifacts
 from nima.graph.pilot_archive import PilotArchiveError, RawReference, RecoveryLimits, recover
 from nima.identity import AssessmentError
 from nima.identity.artifacts import encode
-from nima.insights.buyer_participation import InsightError, Status, prepare_buyer_insight
+from nima.insights.buyer_participation import InsightError, prepare_buyer_insight
+from nima.views.models import (
+    BuyerViewExport as BuyerViewExport,
+)
+from nima.views.models import (
+    PreparedBuyerView as PreparedBuyerView,
+)
+from nima.views.models import (
+    PreparedViewEntry as PreparedViewEntry,
+)
+from nima.views.request import BuyerViewEntry, ViewError, decode_config, read_config
 
 MAX_OBSERVATIONS = 500
 MAX_PAGES = 32
 MAX_RAW_BYTES = 8 * 1024 * 1024
-MAX_HTML_BYTES = 16 * 1024 * 1024
-
-
-@dataclass(frozen=True)
-class PreparedViewEntry:
-    label: str
-    report_body: bytes = field(repr=False)
-    insight_body: bytes = field(repr=False)
-    assessment_body: bytes = field(repr=False)
-    status: Status
-
-
-@dataclass(frozen=True)
-class PreparedBuyerView:
-    entries: tuple[PreparedViewEntry, ...]
-    originals: tuple[tuple[str, bytes], ...] = field(repr=False)
-
-
-@dataclass(frozen=True)
-class BuyerViewExport:
-    artifact_sha256: str
-    entry_states: tuple[Status, ...]
 
 
 def prepare_buyer_evidence_view(dsn: str, entries: tuple[BuyerViewEntry, ...]) -> PreparedBuyerView:
@@ -134,7 +120,7 @@ def prepare_buyer_evidence_view(dsn: str, entries: tuple[BuyerViewEntry, ...]) -
 
 def export_buyer_evidence_view(dsn: str, config: Path, output_dir: Path) -> BuyerViewExport:
     """Publish one immutable content-named HTML only after every entry verifies."""
-    from nima.analytics.buyer_view_html import render_view
+    from nima.views.html import render_view
 
     if not valid_path(config) or not valid_path(output_dir):
         raise ViewError("view_input")

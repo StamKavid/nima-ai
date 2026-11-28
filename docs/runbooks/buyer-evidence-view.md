@@ -86,7 +86,7 @@ prepared content and downloads bytes; it performs no metric arithmetic or joins.
 
 Focused tests cover restricted SQL, exact bytes, entry states, bindings, retry,
 relocation, disappearing evidence, old/future observations, actual 500/501
-admission and publication failures. The three new Python modules reach 100%
+admission and publication failures. The new view Python modules reach 100%
 line/branch coverage. Actual mutation, installed-wheel, retained-source, full-gate
 and hosted results are recorded in the delivery PR.
 

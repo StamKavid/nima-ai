@@ -7,9 +7,9 @@ from typing import Any
 import pytest
 
 from nima.__main__ import main
-from nima.analytics import commands
-from nima.analytics.buyer_view import BuyerViewExport
-from nima.analytics.buyer_view_request import ViewError
+from nima.views import cli as commands
+from nima.views.buyer_evidence import BuyerViewExport
+from nima.views.request import ViewError
 
 ARGS = ["buyer-evidence-view", "--config", "/private/view.json", "--output-dir", "/private/views"]
 
@@ -71,3 +71,24 @@ def test_help_needs_no_database_and_unknown_flags_do_not_echo_private_values(
     assert main(["analytics", *ARGS, "--certify", "PRIVATE-VALUE"]) == 2
     output = capsys.readouterr()
     assert "PRIVATE-VALUE" not in output.out + output.err
+
+
+def test_unexpected_non_help_parser_exit_is_an_input_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def failed(*args: Any, **kwargs: Any) -> Any:
+        raise SystemExit(2)
+
+    monkeypatch.setattr(commands._Parser, "parse_args", failed)
+    assert commands.run([]) == 2
+
+
+def test_missing_reader_configuration_fails_before_private_io(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def forbidden(*args: object) -> Any:
+        pytest.fail("Missing reader configuration reached private input")
+
+    monkeypatch.delenv("NIMA_DATABASE_URL", raising=False)
+    monkeypatch.setattr(commands, "export_buyer_evidence_view", forbidden)
+    assert main(["analytics", *ARGS]) == 2

@@ -7,13 +7,13 @@ from typing import Any
 
 import pytest
 
-from nima.analytics import buyer_view as view
-from nima.analytics.buyer_view_request import ViewError
 from nima.analytics.request import RequestError
 from nima.dataops.acceptance_files import AcceptanceError
 from nima.graph.pilot_archive import PilotArchiveError
 from nima.identity import AssessmentError
 from nima.insights.buyer_participation import InsightError, prepare_buyer_insight
+from nima.views import buyer_evidence as view
+from nima.views.request import ViewError
 from tests.test_analytics_snapshot import reader
 from tests.test_buyer_view_native import selection
 
@@ -29,7 +29,7 @@ def test_bad_library_inputs_have_closed_errors(dsn: Any, entries: Any) -> None:
 def test_library_does_not_accept_string_paths_in_place_of_typed_paths() -> None:
     from typing import cast
 
-    from nima.analytics.buyer_view_request import BuyerViewEntry
+    from nima.views.request import BuyerViewEntry
 
     entry = BuyerViewEntry(
         "One", cast(Any, "/private/request.json"), Path("/private/" + "a" * 64 + ".json")

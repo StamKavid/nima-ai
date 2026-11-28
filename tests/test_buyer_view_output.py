@@ -6,11 +6,11 @@ from typing import Any
 
 import pytest
 
-from nima.analytics import buyer_view as view
-from nima.analytics import buyer_view_html as html
-from nima.analytics.buyer_view_request import ViewError
 from nima.evidence import artifacts
 from nima.identity import AssessmentError
+from nima.views import buyer_evidence as view
+from nima.views import html
+from nima.views.request import ViewError
 from tests.test_buyer_view_request import configuration
 
 

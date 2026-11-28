@@ -14,6 +14,10 @@ preparation → existing acceptance/readout/SQL. View rendering consumes verifie
 provider bytes; no new query, metric calculation, policy or revision selection.
 Use existing strict private request readers, archive recovery and descriptor-based
 publication. Static packaged HTML/CSS/JS provide navigation/downloads only.
+The unchanged architecture guard caught analytics/dataops/insights coupling and
+a preparation/render cycle in the initial placement. Presentation now lives in
+`nima.views` over neutral models; root CLI composition injects the command into
+analytics routing. The baseline is unchanged; no cycle is accepted or hidden.
 
 Ordered tasks (details in todo):
 

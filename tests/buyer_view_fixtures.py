@@ -13,7 +13,7 @@ from psycopg.conninfo import conninfo_to_dict, make_conninfo
 
 from nima.analytics.buyer_readout import prepare_buyer_result
 from nima.analytics.buyer_request import BuyerRequest
-from nima.analytics.buyer_view import export_buyer_evidence_view
+from nima.views.buyer_evidence import export_buyer_evidence_view
 from tests.buyer_acceptance_samples import request_file
 from tests.test_analytics_reconcile import captured
 from tests.test_analytics_snapshot import reader

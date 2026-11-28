@@ -8,9 +8,9 @@ from importlib.resources import files
 from string import Template
 from typing import Any
 
-from nima.analytics.buyer_view import MAX_HTML_BYTES, PreparedBuyerView, PreparedViewEntry
-from nima.analytics.buyer_view_request import ViewError
 from nima.identity.artifacts import encode
+from nima.views.models import MAX_HTML_BYTES, PreparedBuyerView, PreparedViewEntry
+from nima.views.request import ViewError
 
 
 def _text(value: object) -> str:
@@ -173,7 +173,7 @@ def _entry(frame: PreparedViewEntry, index: int, template: str) -> str:
 
 def render_view(prepared: PreparedBuyerView) -> bytes:
     assets = {
-        name: files("nima.analytics").joinpath("buyer_view_assets", name).read_bytes()
+        name: files("nima.views").joinpath("assets", name).read_bytes()
         for name in ("view.html", "entry.html", "view.css", "view.js")
     }
     manifest = {

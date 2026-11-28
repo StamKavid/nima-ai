@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from nima.analytics.buyer_view_request import ViewError, decode_config, read_config
+from nima.views.request import ViewError, decode_config, read_config
 
 
 def configuration(**changes: object) -> bytes:

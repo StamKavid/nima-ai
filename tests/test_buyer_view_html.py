@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from nima.analytics.buyer_view import prepare_buyer_evidence_view
-from nima.analytics.buyer_view_html import render_view
+from nima.views.buyer_evidence import prepare_buyer_evidence_view
+from nima.views.html import render_view
 from tests.test_analytics_snapshot import reader
 from tests.test_buyer_view_native import selection
 
@@ -95,8 +95,8 @@ def test_browser_assets_are_bound_by_csp_and_have_no_network_or_html_evaluation(
 def test_final_html_limit_is_enforced_after_embedding(
     pg_dsn: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    from nima.analytics import buyer_view_html as renderer
-    from nima.analytics.buyer_view_request import ViewError
+    from nima.views import html as renderer
+    from nima.views.request import ViewError
 
     entry = selection(pg_dsn, tmp_path / "one")
     with reader(pg_dsn) as (dsn, _):
@@ -110,7 +110,7 @@ def test_final_html_limit_is_enforced_after_embedding(
 def test_empty_capture_keeps_no_answer_and_its_original_page(pg_dsn: str, tmp_path: Path) -> None:
     from nima.analytics.buyer_readout import prepare_buyer_result
     from nima.analytics.buyer_request import BuyerRequest
-    from nima.analytics.buyer_view_request import BuyerViewEntry
+    from nima.views.request import BuyerViewEntry
     from tests.buyer_acceptance_samples import request_file
     from tests.test_analytics_reconcile import captured
     from tests.test_citation_acceptance import subject
@@ -135,9 +135,9 @@ def test_fictional_certified_frame_keeps_all_ties_and_selected_witnesses(
     pg_dsn: str, tmp_path: Path
 ) -> None:
     from nima.analytics.buyer_request import read_buyer_request
-    from nima.analytics.buyer_view import PreparedBuyerView, PreparedViewEntry
     from nima.dataops.buyer_acceptance import prepare_buyer_acceptance
     from nima.insights import buyer_participation
+    from nima.views.buyer_evidence import PreparedBuyerView, PreparedViewEntry
     from tests.buyer_insight_samples import certified
 
     entry = selection(pg_dsn, tmp_path / "one")
