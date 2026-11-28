@@ -4,16 +4,16 @@
 
 - [x] Record implementation authority from “go with implementation”; verify
   #244 main delivery and retain all metric/human/source/operations gates below.
-- [ ] BV1: closed config, distinct one/two entries, safe labels/absolute paths,
+- [x] BV1: closed config, distinct one/two entries, safe labels/absolute paths,
   bounded strict decode/private reader. Files: view request module and focused
   request tests. Verify red/green focused pytest, Ruff and strict types.
-- [ ] BV2: public provider reuse, exact embedded parent/assessment/raw evidence,
+- [x] BV2: public provider reuse, exact embedded parent/assessment/raw evidence,
   aggregate 500 observations / 32 pages / 8 MiB raw / 16 MiB HTML bounds and
   private atomic export. Files: view module, native and failure tests. Verify
   restricted SQL, no HTTP/writes, immutability/retry/relocation and refusal states.
-- [ ] Checkpoint A: native/focused boundary proof before CLI/browser wiring;
+- [x] Checkpoint A: native/focused boundary proof before CLI/browser wiring;
   retain missing/changed evidence and no-partial-export behavior.
-- [ ] BV3: packaged offline render/assets and thin analytics command. Files:
+- [x] BV3: packaged offline render/assets and thin analytics command. Files:
   renderer/assets, analytics commands and CLI tests. Verify exact provider-order
   counts/ties/witnesses, clear draft states and private-safe exits/help.
 - [ ] BV4: keyboard/mobile/browser and exact downloads, hostile text/CSP,

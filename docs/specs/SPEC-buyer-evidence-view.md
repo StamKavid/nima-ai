@@ -13,8 +13,8 @@ A researcher selects an operator-approved saved buyer/cohort, inspects supplier
 participation and its trust limits, then opens a contributing record's original
 evidence. First delivery is a **private offline HTML export**: no new server,
 login, source request, SQL query engine or frontend framework. The existing typed
-Python preparation/export APIs supply the data. This is a proposed product choice;
-the owner was offered a local-web-application alternative.
+Python preparation/export APIs supply the data. The owner authorized this product
+choice with “go with implementation”; no local-web-application service is included.
 
 The view can make current draft readouts inspectable while human review is
 pending. It does not certify a metric. An approved insight headline still requires
@@ -49,7 +49,7 @@ transaction or comparable time series and does not aggregate their numbers.
 
 ## Backend and artifact contract
 
-Proposed `prepare_buyer_evidence_view(dsn, entries)` and file export wrapper use
+`prepare_buyer_evidence_view(dsn, entries)` and its file export wrapper use
 the public insight preparation once per entry, retaining its existing two
 read-only connections per entry. Safely read the parent bytes and require their
 hash to equal the fresh prepared subject. Do not import private consumer helpers,
@@ -74,9 +74,9 @@ at most 8 MiB; final HTML at most 16 MiB including embedded data. Fail rather th
 truncate suppliers, ties, evidence or limits. These are export limits, not a claim
 of national coverage or measured performance.
 
-## Proposed command and configuration
+## Command and configuration
 
-This command **does not exist yet**. `NIMA_DATABASE_URL` supplies the existing
+The implemented command uses `NIMA_DATABASE_URL` for the existing
 restricted reader; no credential argument or stored browser credential:
 
 ```sh
@@ -88,7 +88,7 @@ Closed configuration: `version: nima-buyer-evidence-view-request-v1` and `entrie
 each with a short display `label`, absolute `request_path` and content-named
 `report_path`. Reject unknown/duplicate fields, duplicate entries, unsafe paths,
 unsupported versions and malformed types. Labels are untrusted display text.
-Source values/paths/credentials stay out of terminal failures. Proposed exits:
+Source values/paths/credentials stay out of terminal failures. Exits:
 0 view generated (entry states reported separately), 2 input error, 1 operational
 failure, 130 interruption. No force, certification override or source-fetch flag.
 
@@ -159,5 +159,5 @@ Owner decisions: **V1** private offline export as the first view; **V2** two sav
 entries/global limits and explicit draft/insight separation; **V3** embedded exact
 evidence with private publication, fixed network-free browser behavior and the
 verification requirements above. Recommendations are the choices written here.
-Implementation planning/code wait for this spec's review. Human U3 reconciliation
+The owner authorized V1–V3 and implementation on 2026-11-28. Human U3 reconciliation
 and definition/policy compatibility remain separate real inputs, not assumed.
