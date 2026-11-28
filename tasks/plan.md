@@ -1,5 +1,52 @@
 # Delivery plan
 
+## Active: private buyer-to-evidence view — implementation authorized
+
+The owner's “go with implementation” on 2026-11-28 authorizes the existing
+[view spec](../docs/specs/SPEC-buyer-evidence-view.md), its V1–V3 choices and this
+bounded implementation sequence. Do not stop for a second planning approval.
+#244 is verified on main `bd0e7b3`, identical reviewed `2a80741` tree. All three
+jobs in run 46161923229 passed; downloaded reports: 5,471 cases / 95.54%; local
+5,471 / 95.52%. Metric review, profile compatibility and release gates stay open.
+
+Dependency direction: analytics CLI → view preparation/export → public insight
+preparation → existing acceptance/readout/SQL. View rendering consumes verified
+provider bytes; no new query, metric calculation, policy or revision selection.
+Use existing strict private request readers, archive recovery and descriptor-based
+publication. Static packaged HTML/CSS/JS provide navigation/downloads only.
+
+Ordered tasks (details in todo):
+
+1. BV1: closed 16-KiB configuration and one/two-entry validation; failing input
+   tests first, then the small typed decoder using existing private readers.
+2. BV2: fresh verified entry preparation and embedded evidence; enforce aggregate
+   limits, exact subject/assessment/raw bytes, one public insight call per entry.
+3. Checkpoint A: focused/native verification of provider reuse, budget failures,
+   no SQL/source writes, refusal states, retry and missing evidence.
+4. BV3: packaged offline presentation and thin analytics CLI. Server-render all
+   numbers and witness navigation; JS only switches sections and downloads exact
+   bytes. Show draft, fitness and export-verification scope independently.
+5. BV4: adversarial browser/keyboard/mobile/download proof, installed-wheel and
+   retained-cohort verification, mutations, full gates/audit and exact-head CI.
+6. Checkpoint B: implementation review and actual evidence handoff. No human
+   task observation, metric certification, hosting or source activation is implied.
+
+Execute sequentially in tested commits; no delegation is required. Each task
+stays within its owning files and preserves the incomplete work below. Reuse the
+installed Chromium/Playwright verification infrastructure with sandboxing enabled;
+browser proof is a separate explicit fixture command, not a skipped pytest test.
+No dependency, CI configuration or service is added for this offline view.
+
+Risks: bind every embedded parent to the fresh subject hash; recover original
+bytes again after preparation; cap aggregate observations/pages and unique bytes;
+escape source text and bind fixed assets through CSP hashes. Never parse source
+money or identifiers as browser numbers. Export remains a historical snapshot,
+not verification on opening. A failure publishes no partial multi-entry HTML.
+
+Rollback: revert the additive view modules/assets/tests and CLI registration;
+there are no migrations or historical-artifact rewrites. Retain already exported
+private files as historical evidence, never a fresh verification cache.
+
 ## Active: owner-selected product checkpoint — preparation and review
 
 The owner approved the official-source and retained-data verification on

@@ -1,6 +1,8 @@
 # Spec: one buyer-to-original-evidence view
 
-Status: **proposed for owner review, 2026-11-28**. Module: `market-analytics`,
+Status: **approved for implementation, 2026-11-28**, by the owner's “go with
+implementation” instruction following #244. V1–V3 below are the implementation
+scope; this does not approve metric promotion or human reconciliation. Module: `market-analytics`,
 bounded V1-10/V1-11 slice of the approved capability map. Depends on delivered U3
 readout, acceptance and insight interfaces. This specifies one local research
 flow; general serving, company search, other views and R7 completion remain open.
