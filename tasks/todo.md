@@ -1,5 +1,27 @@
 # Tasks
 
+## Active — private buyer-to-original view (BV1–BV4 approved)
+
+- [x] Record implementation authority from “go with implementation”; verify
+  #244 main delivery and retain all metric/human/source/operations gates below.
+- [x] BV1: closed config, distinct one/two entries, safe labels/absolute paths,
+  bounded strict decode/private reader. Files: view request module and focused
+  request tests. Verify red/green focused pytest, Ruff and strict types.
+- [x] BV2: public provider reuse, exact embedded parent/assessment/raw evidence,
+  aggregate 500 observations / 32 pages / 8 MiB raw / 16 MiB HTML bounds and
+  private atomic export. Files: view module, native and failure tests. Verify
+  restricted SQL, no HTTP/writes, immutability/retry/relocation and refusal states.
+- [x] Checkpoint A: native/focused boundary proof before CLI/browser wiring;
+  retain missing/changed evidence and no-partial-export behavior.
+- [x] BV3: packaged offline render/assets and thin analytics command. Files:
+  renderer/assets, analytics commands and CLI tests. Verify exact provider-order
+  counts/ties/witnesses, clear draft states and private-safe exits/help.
+- [ ] BV4: keyboard/mobile/browser and exact downloads, hostile text/CSP,
+  installed-wheel/retained-cohort proof, meaningful rejected/restored mutations,
+  100% new Python line/branch, full check/audit and exact-head hosted reports.
+- [ ] Checkpoint B: record actual delivered behavior and remaining human,
+  certification, source and operations gaps; owner review/merge stays separate.
+
 ## Active — U3 human review and first usable flow preparation
 
 - [x] Verify #243 on main `0ae4e36`, identical reviewed `90d4079` tree.
@@ -26,9 +48,10 @@
   follows the reviewed spec. No general service or new metric is implemented.
 - [x] #243 documentation/security/audit and exact-head hosted delivery proof:
   run 46130461610, 5,471 cases / 95.51%; downloaded artifact verified.
-- [ ] Owner merge of source-semantics [checkpoint #244](https://github.com/StamKavid/nima-ai/pull/244)
-  after its actual local/security/audit and exact-head hosted results are recorded
-  in the PR; no definition or application behavior change.
+- [x] Source-semantics [checkpoint #244](https://github.com/StamKavid/nima-ai/pull/244)
+  verified on main `bd0e7b3`; identical reviewed tree and all three hosted jobs
+  passed. Actual local/security/audit and downloaded hosted proof are in the PR;
+  no definition or application behavior changed.
 - [ ] Human definition review and independent recorded hand reconciliation;
   [packet](../docs/verification/u3-owner-review-packet.md) is prepared, unsigned.
 - [ ] Review/implement compatible historical definition and acceptance profiles

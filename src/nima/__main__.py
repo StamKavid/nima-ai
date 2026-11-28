@@ -428,8 +428,9 @@ def main(argv: list[str] | None = None) -> int:
         return archive_run(arguments[1:])
     if arguments and arguments[0] == "analytics":
         from nima.analytics.commands import run as analytics_run
+        from nima.views.cli import run as buyer_view_run
 
-        return analytics_run(arguments[1:])
+        return analytics_run(arguments[1:], buyer_view=buyer_view_run)
     if arguments and arguments[0] == "evidence":
         from nima.evidence.cli import run as evidence_run
 

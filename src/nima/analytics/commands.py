@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, NoReturn
@@ -22,9 +23,11 @@ class _Parser(argparse.ArgumentParser):
         raise ValueError("analytics_configuration")
 
 
-def _parser() -> argparse.ArgumentParser:
+def _parser(*, buyer_view: bool = False) -> argparse.ArgumentParser:
     parser = _Parser(prog="python -m nima analytics", allow_abbrev=False)
     operations = parser.add_subparsers(dest="operation", required=True)
+    if buyer_view:
+        operations.add_parser("buyer-evidence-view", help="Private offline buyer-to-original view")
     readout = operations.add_parser(
         "supplier-buyers",
         help="Publish a private cited captured-contract count",
@@ -72,10 +75,12 @@ def _failure(reason: str) -> int:
     return 130 if reason == "analytics_interrupted" else 1
 
 
-def run(argv: list[str]) -> int:
+def run(argv: list[str], *, buyer_view: Callable[[list[str]], int] | None = None) -> int:
+    if buyer_view is not None and argv[:1] == ["buyer-evidence-view"]:
+        return buyer_view(argv[1:])
     citation = argv[:1] == ["source-citations"]
     try:
-        args = _parser().parse_args(argv)
+        args = _parser(buyer_view=buyer_view is not None).parse_args(argv)
         dsn = os.environ.get("NIMA_DATABASE_URL", "")
         if not dsn.strip():
             raise ValueError("analytics_configuration")

@@ -6,7 +6,7 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | Spec | Scope | Status |
 |---|---|---|
 | [SPEC-release-v1.0](SPEC-release-v1.0.md) | v1.0 acceptance, R1-R10 and U1-U5 | Proposed release scope |
-| [SPEC-buyer-evidence-view](SPEC-buyer-evidence-view.md) | One private buyer/cohort-to-original view (market-analytics, V1-10/11 slice) | Proposed; V1–V3 await owner review; no product view implemented |
+| [SPEC-buyer-evidence-view](SPEC-buyer-evidence-view.md) | One private buyer/cohort-to-original view (market-analytics, V1-10/11 slice) | V1–V3 approved; bounded offline implementation; human usefulness remains unobserved |
 | [SPEC-buyer-participation-insight](SPEC-buyer-participation-insight.md) | First V1-09 U3 descriptive insight; certification, fitness and evidence gates | Delivered #242; certification and broader R6 remain open |
 | [SPEC-source-ingestion](SPEC-source-ingestion.md) | KIMDIS contract ingestion | Current; full acceptance open |
 | [SPEC-source-boundaries](SPEC-source-boundaries.md) | `SourceAdapter` protocol (V1-04) | Approved; S1-S4 delivered, S5 gated |

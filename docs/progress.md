@@ -14,9 +14,12 @@ evidence flow, an observed user task, then two-source/operational proof. The
 [private U3 packet](verification/u3-owner-review-packet.md) is prepared from
 16 primary records, 77 eligibility-comparison records and 32 observations of 16
 repeated records. Independent automated raw-field arithmetic agrees; no human
-review or certification is recorded. The first-view proposal and
-[task protocol](product/buyer-evidence-task-protocol.md) are preparation, not
-implemented UI or observed user value. Profile compatibility, positive two-source
+review or certification is recorded. The approved
+[private buyer-to-original view](runbooks/buyer-evidence-view.md) is implemented
+in the current candidate with draft/fitness separation, exact embedded evidence
+and offline navigation. Its delivery checks are recorded in the PR. The
+[task protocol](product/buyer-evidence-task-protocol.md) has no observed user task.
+Profile compatibility, positive two-source
 reconciliation, source activation, seven daily cycles and off-host recovery remain
 open. No new government requests, metric promotion or release.
 

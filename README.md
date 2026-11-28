@@ -13,8 +13,8 @@ capabilities from proposed release work; the package is currently `0.0.1`.
 
 Current checkpoint: the first U3 insight is delivered; its
 [human review packet](docs/verification/u3-owner-review-packet.md) is prepared,
-and the [first buyer-to-evidence view](docs/specs/SPEC-buyer-evidence-view.md)
-is proposed. The [release scorecard](docs/roadmap/release-scorecard.md) separates
+and the [private buyer-to-evidence view](docs/runbooks/buyer-evidence-view.md)
+implements the bounded offline flow. The [release scorecard](docs/roadmap/release-scorecard.md) separates
 implemented software from data, human and operational acceptance.
 
 For offline contract-to-decision references, use the
@@ -52,6 +52,18 @@ acceptance profile. The insight preserves tied groups, exact publication shares
 and joint-record overlap; it establishes no company identity, spending or market
 share. Operational failures export no new artifact and exit 1 (input errors 2,
 interruption 130). Keep the parent report and originals with the private output.
+
+For a navigable private HTML view of up to two saved buyer/cohorts, use:
+
+```sh
+uv run --frozen python -m nima analytics buyer-evidence-view \
+  --config /PRIVATE/buyer-view.json --output-dir /PRIVATE/views
+```
+
+The [view runbook](docs/runbooks/buyer-evidence-view.md) defines its configuration,
+limits and snapshot scope. Tables remain explicitly draft, with independent data
+fitness and exact original-byte downloads. Exit 0 means the view was generated;
+it does not certify an insight or establish source freshness.
 
 The planned product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
