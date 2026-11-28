@@ -1,6 +1,6 @@
 # Tasks
 
-## Active — buyer-participation insight plan (awaiting review)
+## Active — approved buyer-participation insight implementation
 
 - [x] Verify #240 on main `15ae224`, identical reviewed `55e4c32` tree; all three
   jobs in run 46060952509 passed. Artifact digest/JUnit/coverage inspected:
@@ -9,19 +9,20 @@
   safe-file, publisher and CLI boundaries before writing this plan.
 - [x] Prepare [implementation plan](plan.md) and ordered BI1–BI4 below, preserving
   the existing evidence/certification/source/operations gaps.
-- [ ] Plan-delivery documentation/security/audit and exact-head hosted proof.
-- [ ] Owner plan review: BI1–BI4 and checkpoints A/B. No runtime implementation
-  begins before approval; current task checkboxes below are proposed work.
+- [x] Plan delivery #241 verified on main `1d8b902`, identical `7596542` tree;
+  all three jobs in run 46116369541 passed; artifact inspected, 5,375 / 95.49%.
+- [x] Owner approved BI1–BI4/checkpoints A/B with “Begin implementation” on
+  2026-11-28. No additional source, metric/policy or release authority is inferred.
 
 ### BI1 — bounded composition contract (small; no dependencies)
 
-- [ ] Acceptance: frozen results and canonical definition/artifact compose the
+- [x] Acceptance: frozen results and canonical definition/artifact compose the
   approved state precedence; ready draft refuses, limited draft retains both
   reasons, and unsupported/inconsistent bindings fail closed.
-- [ ] Acceptance: fictional admitted certified composition preserves both 2/3
+- [x] Acceptance: fictional admitted certified composition preserves both 2/3
   leaders, three resolved records/four participations, all numerator/denominator
   witnesses and cancellation/unknown context; unknown D retains 1/4 and no answer.
-- [ ] Acceptance: no public override or future-policy admission; parent references
+- [x] Acceptance: no public override or future-policy admission; parent references
   replace identifiers, inherited limits fail without truncation and no private
   helper, metric evaluation, selection or SQL implementation is copied.
 - Verify: `uv run --frozen pytest tests/test_buyer_participation_insight.py`;
@@ -32,13 +33,13 @@
 
 ### BI2 — freshly verified private export (medium; depends on BI1)
 
-- [ ] Acceptance: prepare/export uses the safe request/subject readers and exactly
+- [x] Acceptance: prepare/export uses the safe request/subject readers and exactly
   one public fresh U3 consumer; parent/sidecar hashes and retained-byte bindings
   match. No extra SQL connection/cohort evaluation, DB write or HTTP request.
-- [ ] Acceptance: real restricted-role fixtures produce review-required or
+- [x] Acceptance: real restricted-role fixtures produce review-required or
   insufficient artifacts; missing original, changed parent, unsafe path, denied
   SQL, forged status/profile and overflow fail without new output.
-- [ ] Acceptance: private atomic publication, exact retry bytes/mtime,
+- [x] Acceptance: private atomic publication, exact retry bytes/mtime,
   interruption and archive relocation follow the existing publisher guarantees;
   removing evidence after success never reuses a cached pass.
 - Verify: `uv run --frozen pytest tests/test_buyer_participation_insight.py
@@ -51,19 +52,19 @@
 
 ### Checkpoint A — library path before CLI
 
-- [ ] BI1/BI2 focused tests, types and build pass; canonical output and complete
+- [x] BI1/BI2 focused tests, types and build pass; canonical output and complete
   pointer membership inspected; no new SQL, cache, source calls or metric changes.
-- [ ] Review the working library path against I1–I3 and record any contract issue
+- [x] Review the working library path against I1–I3 and record any contract issue
   before proceeding to BI3; do not introduce an unreviewed scope change.
 
 ### BI3 — thin command-line entry (medium; depends on checkpoint A)
 
-- [ ] Acceptance: `insights buyer-participation` delegates to the exporter with
+- [x] Acceptance: `insights buyer-participation` delegates to the exporter with
   the approved flags and environment-only DSN; help works without DB/source use.
-- [ ] Acceptance: exits 0/3/2/1/130 and bounded stdout/stderr distinguish actual
+- [x] Acceptance: exits 0/3/2/1/130 and bounded stdout/stderr distinguish actual
   insight status, input/operational failures and interruption without leaking
   paths, source values, credentials or SQL. No force/draft/cache override.
-- [ ] Acceptance: installed CLI and library produce identical artifact bytes;
+- [x] Acceptance: installed CLI and library produce identical artifact bytes;
   existing command help/dispatch and all previous readouts stay unchanged.
 - Verify: `uv run --frozen pytest tests/test_buyer_participation_insight_cli.py`;
   `uv run --frozen python -m nima insights buyer-participation --help`;
@@ -73,7 +74,13 @@
 
 ### BI4 — independent integration and delivery proof (medium; depends on BI3)
 
-- [ ] Acceptance: existing private 16-record ready evidence yields review-required
+Observed so far: 96 focused cases / 100% new-module line/branch, 24 rejected and
+restored mutations, installed CLI/library/native restore parity on both retained
+cohorts and removal of owned scratch databases/roles. Full delivery gates below
+remain open until their actual results are recorded.
+
+
+- [x] Acceptance: existing private 16-record ready evidence yields review-required
   and 77-record limited evidence yields insufficient; historical U3/readout/
   assessment bytes stay equal. Native restore/relocated originals and installed
   wheel reproduce results without source calls; clean up owned scratch resources.

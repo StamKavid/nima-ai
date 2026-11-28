@@ -2,6 +2,18 @@
 
 ## Current project and chapter position
 
+**Current implementation checkpoint, 2026-11-28:** #241 is verified on main
+`1d8b902`, identical reviewed `7596542` tree; all three PR jobs passed in run
+46116369541, artifact inspected: 5,375 / 95.49%. The owner authorized BI1–BI4.
+The [buyer-participation insight candidate](verification/buyer-participation-insight.md)
+now has library/export/CLI paths, 96 focused cases at 100% new-module line/branch,
+24 rejected/restored mutations and installed-wheel/native proof on retained 16-
+and 77-record cohorts. Current real outcomes are review-required and insufficient
+respectively, both with null answers. Historical reports/sidecars and original
+archives are unchanged; retry/relocation/native restore agree. Certified positive
+composition is fixture-only. Full local/hosted delivery and review remain gates;
+no main delivery, certification, source request, R6 completion or rubric rescore.
+
 **Current planning checkpoint, 2026-11-28:** #240 is verified on main `15ae224`,
 identical reviewed `55e4c32` tree. All three exact-head jobs passed in run
 46060952509; downloaded digest/JUnit/coverage inspected: 5,375 timed cases,
