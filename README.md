@@ -26,6 +26,27 @@ adds ten counters with explicit pre-filter scope and distinct-record cancellatio
 The [U3 buyer-concentration check](docs/runbooks/buyer-acceptance.md) adds fourteen
 counters separating cohort coverage, buyer records and overlapping participation.
 
+For one captured buyer, export a private
+[participation insight](docs/specs/SPEC-buyer-participation-insight.md) from an
+existing U3 report. Set `NIMA_DATABASE_URL` to the restricted reader through the
+environment, then run:
+
+```sh
+uv run --frozen python -m nima insights buyer-participation \
+  --request /PRIVATE/buyer-request.json \
+  --report /PRIVATE/READOUT_SHA256.json \
+  --output-dir /PRIVATE/insights
+```
+
+Every export freshly verifies the report, original archives and SQL parity.
+Current metrics are draft: ready data yields `review_required`; limited or empty
+data yields `insufficient_evidence`. Both export an explicit null answer and exit
+3. An answered description needs human certification and a compatible reviewed
+acceptance profile. The insight preserves tied groups, exact publication shares
+and joint-record overlap; it establishes no company identity, spending or market
+share. Operational failures export no new artifact and exit 1 (input errors 2,
+interruption 130). Keep the parent report and originals with the private output.
+
 The planned product combines a temporal relationship graph, sector comparisons,
 explainable statistical/ML detectors, and AI-assisted research with citations.
 Current code implements bounded KIMDIS contract collection, a private raw-evidence

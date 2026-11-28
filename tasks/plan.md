@@ -1,8 +1,11 @@
 # Delivery plan
 
-## Active: buyer-participation insight — implementation plan for review
+## Active: buyer-participation insight — approved implementation
 
-**Plan status: proposed, 2026-11-28; no implementation in this increment.**
+**Plan status: BI1–BI4/checkpoints A/B approved by the owner's “Begin
+implementation” instruction, 2026-11-28.** #241 is merged at `1d8b902`, with the
+identical reviewed `7596542` tree. All three exact-head jobs in run 46116369541
+passed; artifact digest/JUnit/coverage inspected: 5,375 / 95.49%.
 The owner approved [I1–I3](../docs/specs/SPEC-buyer-participation-insight.md).
 #240 is verified on main `15ae224`, identical reviewed `55e4c32` tree; all three
 exact-head jobs passed in run 46060952509. Downloaded coverage/JUnit proof:
@@ -116,8 +119,10 @@ Rollback is removal/revert of additive insight files and the small CLI delegatio
 no database migration or stored evidence rewrite. Retain already published private
 artifacts as historical outputs; never serve them as a fresh verification result.
 
-No unresolved product question blocks plan review. **Next gate: owner approval of
-BI1–BI4 and checkpoints A/B.** This plan changes no source allowance; use existing
+BI1–BI3 and the focused/native/mutation/installed-wheel parts of BI4 are complete
+in the candidate. [Verification](../docs/verification/buyer-participation-insight.md)
+records the observed results. **Next gate: full delivery proof and owner review
+of the implementation.** This plan changes no source allowance; use existing
 private captures only. Certification, positive two-source reconciliation, analyst
 task observation, remaining history/operations and release acceptance stay open.
 
