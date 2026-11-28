@@ -1,17 +1,125 @@
 # Delivery plan
 
-## Active: first U3 insight specification — design only
+## Active: buyer-participation insight — implementation plan for review
 
-The owner approved drafting the first insight contract after #239. That PR is
-verified on main `5c07c2b`, identical reviewed `7331852` tree; all three jobs in
-run 46054001330 passed, 5,375 / 95.49%, coverage/JUnit artifact inspected.
+**Plan status: proposed, 2026-11-28; no implementation in this increment.**
+The owner approved [I1–I3](../docs/specs/SPEC-buyer-participation-insight.md).
+#240 is verified on main `15ae224`, identical reviewed `55e4c32` tree; all three
+exact-head jobs passed in run 46060952509. Downloaded coverage/JUnit proof:
+5,375 timed cases, zero failures/errors/skips, 95.49% combined coverage.
+This extends the same insight work in place; every unrelated open task below
+remains open. Task details and acceptance live in [todo](todo.md).
 
-Propose one [U3 descriptive contract](../docs/specs/SPEC-buyer-participation-insight.md)
-over existing verified readout/acceptance interfaces. Preserve exact ties,
-denominators and provenance; distinguish data readiness from certification and
-the compatible policy version needed after a definition-hash change. No new
-application feature, source budget, metric promotion or release. Deliver the
-reviewable spec and stop for I1–I3; this is not its implementation plan.
+### Outcome and dependency direction
+
+Build one private deterministic artifact answering the approved captured-buyer
+question, or returning an explicit no-answer state. Current draft metrics can
+produce only `review_required` or `insufficient_evidence`, never `answered`.
+No definition, policy, existing readout or historical artifact changes.
+
+```mermaid
+flowchart TD
+    CLI[Thin insights CLI] --> I[Buyer-participation preparation/export]
+    I --> A[Existing fresh U3 acceptance preparation]
+    A --> R[Existing U3 readout and SQL parity]
+    R --> D[Restricted PostgreSQL and original archives]
+    I --> F[Existing safe subject reader and private publisher]
+```
+
+No new database query, connection, source request, migration, framework or generic
+insight engine. The existing consumer remains the admission authority. The insight
+does not reach into its private helpers, reselect observations or re-evaluate U3.
+Dependencies and commands remain those in the approved spec and locked package.
+
+### Bounded interfaces
+
+- `src/nima/insights/buyer_participation.py`: frozen prepared/export results,
+  definition/template, strict composition, `prepare_buyer_insight(dsn, request,
+  report_path)` and `export_buyer_insight(dsn, request_path, report_path, output_dir)`.
+  Keep composition private; no caller-supplied certification/policy override.
+- Preparation decodes the private parent through public safe `read_subject`, calls
+  `prepare_buyer_acceptance` exactly once, then requires matching parent digest,
+  request/cohort bindings and canonical sidecar bytes. Read twice if necessary;
+  verify the retained bytes against the fresh result to reject intervening change.
+- Compose the three approved states with insufficient-evidence precedence, sorted
+  reasons and null answers on refusal. Use the typed fresh assessment as supplied;
+  bind the embedded sidecar's canonical hash and copy exact metric/status/profile
+  provenance. Unsupported or inconsistent profiles are operational failures.
+- For an eligible answer, map every tied supplier row and all selected numerator/
+  denominator observations into parent JSON pointers. Use parent counts/shares;
+  validate witness membership without a second metric/selection implementation.
+  Keep unknown/joint/cancellation context and inherited interpretation limits.
+- Export through existing `encode`/`publish` primitives under the inherited limits.
+  Use fixed insight error codes with explicit mappings from existing exceptions;
+  do not expose paths, SQL, source values or credentials in terminal failures.
+- `src/nima/insights/cli.py`: one argparse command; `__main__` only registers and
+  delegates it following current command-group conventions. Read the DSN from
+  `NIMA_DATABASE_URL`; stdout carries the export status/digest or fixed failure,
+  stderr carries bounded structured stage events. Exits follow the approved spec.
+
+### Ordered build and checkpoints
+
+1. **BI1 — composition contract:** hand-labelled fixtures first; implement the
+   small private composer, definition/hash and frozen results. Prove state
+   precedence, exact ties/overlap and witness pointers before adding I/O.
+2. **BI2 — verified export:** wire the public preparation/export functions to the
+   existing consumer and publisher. Deliver the library path for actual admitted
+   draft/limited data with no new verification cache, SQL or source transport.
+3. **Checkpoint A (BI1–BI2):** focused unit/native tests, strict types and build;
+   independently inspect output/witnesses and all operational-error paths before
+   adding a CLI. No placeholder success path or certification bypass.
+4. **BI3 — CLI:** add the thin command and help, exit/status tests and usage docs.
+5. **BI4 — integration and delivery proof:** restricted-role/installed-wheel,
+   mutation, retained-evidence, retry and relocated-archive checks; full gates,
+   reviewed documentation and all three exact-head hosted jobs.
+6. **Checkpoint B:** deliver the implemented contract for owner review. Other
+   insight families, policy promotion, certification and R6 remain separate.
+
+Execution is sequential. This plan requests no delegation or parallel agents.
+Within a task, write a failing focused test, implement the smallest complete case,
+run it, then expand. Do not exceed about 100 lines without a test run. Each task
+gets a tested commit; delivery bookkeeping does not replace behavior proof.
+
+### Positive-path proof without metric promotion
+
+Production always enters through the current freshly verified U3 consumer, which
+admits only its pinned draft definition. Test the future `answered` composition
+using clearly fictional, internally consistent certified/profile fixtures at the
+private composition boundary. Those fixtures establish template/witness/gate
+behavior, not real certification or supported live admission. The production
+entry point must reject a forged certified parent or unsupported profile.
+
+Do not add a profile registry, configurable certificate, injection argument,
+environment switch or future-policy hash to make a positive test pass. Actual
+certified end-to-end admission stays unproven until the separate human review and
+compatible policy evolution. Preserve this limitation in the delivery record.
+
+### Verification and risks
+
+Use existing pytest/native PostgreSQL 17 patterns and the no-HTTP fixture. Focused
+commands and likely file sets are per task in `todo.md`. Final implementation
+commands: `just check` and `just audit`, plus installed-wheel/private native proof.
+Require 100% new-module line/branch coverage, meaningful rejected/restored
+gate/witness mutations and the unchanged ≥90% project floor. Inspect downloaded
+JUnit timings/counts and coverage, not only hosted check conclusions.
+
+| Risk | Mitigation / evidence |
+|---|---|
+| Ready data misrepresented as certified | Genuine draft-ready fixture refuses; production forged-status/profile tests fail; no mutable certification flag |
+| Ties or joint participation inflate totals | Hand-computed 2/3 tie over three records/four participations; all witnesses and denominator pointers checked |
+| Wrong observation becomes a citation | Sparse/older/after-cutoff/wrong-buyer cases; pointer membership checked against selected parent records |
+| Report changes between reads or original disappears | Retained-byte/fresh-digest equality; current-original verification on every export; no new artifact on failure |
+| Extra SQL/source calls or writes creep in | Count the one consumer call and its existing two connections; forbid HTTP and compare database/archive state |
+| Positive fixture is mistaken for certification | Label fixture-only proof and document the unproven production certified path explicitly |
+
+Rollback is removal/revert of additive insight files and the small CLI delegation;
+no database migration or stored evidence rewrite. Retain already published private
+artifacts as historical outputs; never serve them as a fresh verification result.
+
+No unresolved product question blocks plan review. **Next gate: owner approval of
+BI1–BI4 and checkpoints A/B.** This plan changes no source allowance; use existing
+private captures only. Certification, positive two-source reconciliation, analyst
+task observation, remaining history/operations and release acceptance stay open.
 
 ## Delivered: approved two-source pilot — actual source-failure verdict
 

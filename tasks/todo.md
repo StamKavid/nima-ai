@@ -1,6 +1,102 @@
 # Tasks
 
-## Active — first U3 insight specification (design only)
+## Active — buyer-participation insight plan (awaiting review)
+
+- [x] Verify #240 on main `15ae224`, identical reviewed `55e4c32` tree; all three
+  jobs in run 46060952509 passed. Artifact digest/JUnit/coverage inspected:
+  5,375 timed cases, zero failures/errors/skips, 95.49% combined coverage.
+- [x] Record owner approval of I1–I3 on 2026-11-28; inspect current public consumer,
+  safe-file, publisher and CLI boundaries before writing this plan.
+- [x] Prepare [implementation plan](plan.md) and ordered BI1–BI4 below, preserving
+  the existing evidence/certification/source/operations gaps.
+- [ ] Plan-delivery documentation/security/audit and exact-head hosted proof.
+- [ ] Owner plan review: BI1–BI4 and checkpoints A/B. No runtime implementation
+  begins before approval; current task checkboxes below are proposed work.
+
+### BI1 — bounded composition contract (small; no dependencies)
+
+- [ ] Acceptance: frozen results and canonical definition/artifact compose the
+  approved state precedence; ready draft refuses, limited draft retains both
+  reasons, and unsupported/inconsistent bindings fail closed.
+- [ ] Acceptance: fictional admitted certified composition preserves both 2/3
+  leaders, three resolved records/four participations, all numerator/denominator
+  witnesses and cancellation/unknown context; unknown D retains 1/4 and no answer.
+- [ ] Acceptance: no public override or future-policy admission; parent references
+  replace identifiers, inherited limits fail without truncation and no private
+  helper, metric evaluation, selection or SQL implementation is copied.
+- Verify: `uv run --frozen pytest tests/test_buyer_participation_insight.py`;
+  `just lint`; `just typecheck`. Inspect every pointer against hand-labelled data.
+- Files: `src/nima/insights/__init__.py`,
+  `src/nima/insights/buyer_participation.py`,
+  `tests/buyer_insight_samples.py`, `tests/test_buyer_participation_insight.py`.
+
+### BI2 — freshly verified private export (medium; depends on BI1)
+
+- [ ] Acceptance: prepare/export uses the safe request/subject readers and exactly
+  one public fresh U3 consumer; parent/sidecar hashes and retained-byte bindings
+  match. No extra SQL connection/cohort evaluation, DB write or HTTP request.
+- [ ] Acceptance: real restricted-role fixtures produce review-required or
+  insufficient artifacts; missing original, changed parent, unsafe path, denied
+  SQL, forged status/profile and overflow fail without new output.
+- [ ] Acceptance: private atomic publication, exact retry bytes/mtime,
+  interruption and archive relocation follow the existing publisher guarantees;
+  removing evidence after success never reuses a cached pass.
+- Verify: `uv run --frozen pytest tests/test_buyer_participation_insight.py
+  tests/test_buyer_participation_insight_native.py
+  tests/test_buyer_participation_insight_failures.py`; `just typecheck`;
+  `just build`. Use owned PostgreSQL 17 with restricted readers and blocked HTTP.
+- Files: `src/nima/insights/buyer_participation.py`,
+  `tests/test_buyer_participation_insight_native.py`,
+  `tests/test_buyer_participation_insight_failures.py`.
+
+### Checkpoint A — library path before CLI
+
+- [ ] BI1/BI2 focused tests, types and build pass; canonical output and complete
+  pointer membership inspected; no new SQL, cache, source calls or metric changes.
+- [ ] Review the working library path against I1–I3 and record any contract issue
+  before proceeding to BI3; do not introduce an unreviewed scope change.
+
+### BI3 — thin command-line entry (medium; depends on checkpoint A)
+
+- [ ] Acceptance: `insights buyer-participation` delegates to the exporter with
+  the approved flags and environment-only DSN; help works without DB/source use.
+- [ ] Acceptance: exits 0/3/2/1/130 and bounded stdout/stderr distinguish actual
+  insight status, input/operational failures and interruption without leaking
+  paths, source values, credentials or SQL. No force/draft/cache override.
+- [ ] Acceptance: installed CLI and library produce identical artifact bytes;
+  existing command help/dispatch and all previous readouts stay unchanged.
+- Verify: `uv run --frozen pytest tests/test_buyer_participation_insight_cli.py`;
+  `uv run --frozen python -m nima insights buyer-participation --help`;
+  `just lint`; `just typecheck`; installed-wheel CLI smoke check.
+- Files: `src/nima/insights/cli.py`, `src/nima/__main__.py`,
+  `tests/test_buyer_participation_insight_cli.py`, `README.md`.
+
+### BI4 — independent integration and delivery proof (medium; depends on BI3)
+
+- [ ] Acceptance: existing private 16-record ready evidence yields review-required
+  and 77-record limited evidence yields insufficient; historical U3/readout/
+  assessment bytes stay equal. Native restore/relocated originals and installed
+  wheel reproduce results without source calls; clean up owned scratch resources.
+- [ ] Acceptance: hand calculations/witness inspection and meaningful gate/witness
+  mutations pass; all new module lines/branches covered, overall ≥90%, no skipped
+  tests or weakened gates. Certified production admission remains explicitly
+  unproven; synthetic positives are never reported as human certification.
+- [ ] Acceptance: `just check`, `just audit`, all three exact-head hosted jobs and
+  downloaded coverage/JUnit inspection pass; document actual limitations, verify
+  attribution, push a reviewable PR and leave merge/release to the owner.
+- Verify: full commands above; independent private output/native-restore
+  comparison and exact-head artifact digest, test counts/timings and coverage.
+- Files: focused native/failure tests, `docs/verification/buyer-participation-insight.md`,
+  `docs/progress.md`, `tasks/todo.md` (implementation changes are BI1–BI3).
+
+### Checkpoint B — feature handoff
+
+- [ ] BI1–BI4 proof reviewed; one complete bounded library/CLI/export path is ready
+  for owner review. No automatic merge, metric/policy promotion or source retry.
+- [ ] Keep other insight families, certification, positive two-source and observed
+  analyst/operations/release acceptance open; do not claim R6 complete.
+
+## Delivered — first U3 insight specification
 
 - [x] Verify #239 on main `5c07c2b`, identical reviewed `7331852` tree; all three
   exact-head jobs passed in run 46054001330, 5,375 / 95.49%, artifact inspected.
@@ -8,10 +104,11 @@
   joint overlap, unknown share and status/hash compatibility using existing code.
   No database, source request, new implementation or metric promotion.
 - [x] Draft [bounded contract](../docs/specs/SPEC-buyer-participation-insight.md)
-  and link current roadmap; I1–I3 remain proposed.
-- [ ] Documentation/security/audit and exact-head hosted delivery proof.
-- [ ] Owner contract review; implementation planning starts in a later approved
-  phase. Human certification and compatible policy evolution remain separate.
+  and link current roadmap; I1–I3 were proposed in #240.
+- [x] Delivered #240 with documentation/security/audit and all three exact-head
+  jobs; coverage/JUnit digest and XMLs verified; main tree matches reviewed head.
+- [x] Owner approved I1–I3 on 2026-11-28. Human certification and compatible policy
+  evolution remain separate from design approval.
 
 ## Delivered — approved citation pilot: source-failure verdict
 

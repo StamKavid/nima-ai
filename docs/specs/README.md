@@ -6,7 +6,7 @@ on 2026-11-20; the spec itself is authoritative when they differ.
 | Spec | Scope | Status |
 |---|---|---|
 | [SPEC-release-v1.0](SPEC-release-v1.0.md) | v1.0 acceptance, R1-R10 and U1-U5 | Proposed release scope |
-| [SPEC-buyer-participation-insight](SPEC-buyer-participation-insight.md) | First V1-09 U3 descriptive insight; certification, fitness and evidence gates | Proposed 2026-11-27; I1–I3 await owner review; no implementation |
+| [SPEC-buyer-participation-insight](SPEC-buyer-participation-insight.md) | First V1-09 U3 descriptive insight; certification, fitness and evidence gates | I1–I3 approved 2026-11-28; implementation plan awaits review; no runtime implementation |
 | [SPEC-source-ingestion](SPEC-source-ingestion.md) | KIMDIS contract ingestion | Current; full acceptance open |
 | [SPEC-source-boundaries](SPEC-source-boundaries.md) | `SourceAdapter` protocol (V1-04) | Approved; S1-S4 delivered, S5 gated |
 | [SPEC-entity-resolution](SPEC-entity-resolution.md) | Evidence-backed party identity | Approved |
