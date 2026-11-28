@@ -155,3 +155,29 @@ def test_owner_role_and_forged_certification_are_rejected(pg_dsn: str, tmp_path:
             insight.prepare_buyer_insight(
                 dsn, request, subject(tmp_path / "forged", encode(forged))
             )
+
+
+@pytest.mark.parametrize("unsafe", ["symlink", "hardlink", "permissions"])
+def test_unsafe_parent_input_never_publishes(unsafe: str, pg_dsn: str, tmp_path: Path) -> None:
+    from tests.buyer_acceptance_samples import request_file
+
+    root = tmp_path / "raw"
+    request = request_for(
+        seed(pg_dsn, root, [{**record("A", "B1", ["111111111"]), "cancelled": False}]), root
+    )
+    selected = request_file(request, tmp_path / "request.json")
+    with reader(pg_dsn) as (dsn, _):
+        parent = prepare_buyer_result(dsn, request)
+        report = subject(tmp_path / "reports", parent.body)
+        if unsafe == "symlink":
+            target = report.with_suffix(".saved")
+            report.rename(target)
+            report.symlink_to(target)
+        elif unsafe == "hardlink":
+            report.with_suffix(".linked").hardlink_to(report)
+        else:
+            report.chmod(0o644)
+        output = tmp_path / "output"
+        with pytest.raises(insight.InsightError, match="^insight_(input|evidence)$"):
+            insight.export_buyer_insight(dsn, selected, report, output)
+        assert not output.exists()

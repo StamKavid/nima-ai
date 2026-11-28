@@ -9,13 +9,17 @@ import pytest
 from nima.analytics.buyer_request import BuyerRequest
 from nima.dataops import buyer_acceptance
 from nima.dataops.buyer_acceptance import PreparedBuyerAcceptance
-from nima.semantics.participation import Supplier
+from nima.semantics.participation import Observation, Supplier
 from tests.buyer_acceptance_samples import observation, producer
 from tests.test_citation_acceptance import subject
 
 
 def frame(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, unknown: bool = False
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    unknown: bool = False,
+    observations: tuple[Observation, ...] | None = None,
 ) -> tuple[BuyerRequest, bytes, PreparedBuyerAcceptance]:
     suppliers = (("111111111",), ("222222222",), ("111111111", "222222222"))
     rows = tuple(
@@ -29,6 +33,8 @@ def frame(
     )
     if unknown:
         rows += (replace(observation(4), source_id="kimdis:fictional-4", suppliers=None),)
+    if observations is not None:
+        rows = observations
     request, fresh = producer(rows)
     monkeypatch.setattr(buyer_acceptance, "prepare_buyer_result", lambda *_: fresh)
     path = subject(tmp_path / "reports", fresh.body)

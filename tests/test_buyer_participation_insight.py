@@ -20,6 +20,22 @@ def test_ready_draft_is_not_a_certified_answer(
     assert data["answer"] is None
     assert data["reason_codes"] == ["metric_not_certified"]
     assert data["data_fitness"] == json.loads(fitness.body)
+    import hashlib
+
+    from nima.identity.artifacts import encode
+
+    assert data["subject"]["data_fitness_sha256"] == hashlib.sha256(fitness.body).hexdigest()
+    assert (
+        data["definition"]["definition_sha256"]
+        == hashlib.sha256(encode(data["definition"]["metadata"])).hexdigest()
+    )
+    assert data["subject"]["readout_sha256"] == hashlib.sha256(parent).hexdigest()
+    assert data["interpretation_limits"] == list(
+        dict.fromkeys(
+            json.loads(parent)["interpretation_limits"]
+            + json.loads(fitness.body)["interpretation_limits"]
+        )
+    )
     assert b"111111111" not in result.body and b"222222222" not in result.body
 
 
@@ -176,3 +192,33 @@ def test_witness_mapper_excludes_unresolved_records_from_the_denominator(
     assert mapped["denominator_record_refs"] == [f"/metric/result/records/{i}" for i in range(3)]
     assert mapped["unresolved_share"] == {"numerator": 1, "denominator": 4}
     assert mapped["evidence_refs"] == ["/evidence/0", "/evidence/1", "/evidence/2"]
+
+
+def test_sparse_parent_evidence_excludes_old_and_after_cutoff_observations(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from dataclasses import replace
+    from datetime import UTC, datetime
+
+    from tests.buyer_acceptance_samples import observation
+    from tests.buyer_insight_samples import certified
+
+    current = observation(1)
+    old = replace(
+        observation(3), content_sha256="c" * 64, observed_at=datetime(2025, 12, 31, tzinfo=UTC)
+    )
+    after = replace(
+        observation(2), content_sha256="b" * 64, observed_at=datetime(2026, 1, 11, tzinfo=UTC)
+    )
+    request, parent, fitness = frame(tmp_path, monkeypatch, observations=(old, current, after))
+    assert fitness.assessment.status == "ready"
+    parent, fitness = certified(parent, fitness)
+    answer = json.loads(insight._compose(request, parent, fitness).body)["answer"]
+    assert answer["evidence_refs"] == ["/evidence/1"]
+    assert answer["denominator_witnesses"] == [
+        {
+            "record_ref": "/metric/result/records/0",
+            "evidence_refs": ["/evidence/1"],
+            "page_refs": ["/verified_pages/1"],
+        }
+    ]
