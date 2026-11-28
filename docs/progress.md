@@ -1,6 +1,26 @@
-# Capability progress: 2026-11-27
+# Capability progress: 2026-11-28
 
 ## Current project and chapter position
+
+**Current position:** working backend pilot, first U3 insight delivered on main
+`0c03404` after #242 (identical reviewed `6bb7e14` tree). Full local: 5,471 /
+95.52%; all three exact-head hosted jobs: 5,471 / 95.51%, downloaded reports
+verified, new modules at 100% line/branch. Four metric families remain draft;
+R6 is Partial, not Passed. Use the [release scorecard](roadmap/release-scorecard.md)
+for the single current gate summary; older percentages below are historical.
+
+**Active product checkpoint:** the owner requested U3 review, a usable buyer-to-
+evidence flow, an observed user task, then two-source/operational proof. The
+[private U3 packet](verification/u3-owner-review-packet.md) is prepared from
+16 primary records, 77 eligibility-comparison records and 32 observations of 16
+repeated records. Independent automated raw-field arithmetic agrees; no human
+review or certification is recorded. The first-view proposal and
+[task protocol](product/buyer-evidence-task-protocol.md) are preparation, not
+implemented UI or observed user value. Profile compatibility, positive two-source
+reconciliation, source activation, seven daily cycles and off-host recovery remain
+open. No new government requests, metric promotion or release.
+
+## Historical delivery checkpoints (retain their original dates and scope)
 
 **Current implementation checkpoint, 2026-11-28:** #241 is verified on main
 `1d8b902`, identical reviewed `7596542` tree; all three PR jobs passed in run

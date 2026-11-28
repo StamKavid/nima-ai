@@ -11,6 +11,12 @@ Start with the [versioned product roadmap](docs/roadmap/v1.0.md),
 [maintainers' handbook](docs/maintainers-handbook.md#4-how-change-is-delivered). They distinguish implemented
 capabilities from proposed release work; the package is currently `0.0.1`.
 
+Current checkpoint: the first U3 insight is delivered; its
+[human review packet](docs/verification/u3-owner-review-packet.md) is prepared,
+and the [first buyer-to-evidence view](docs/specs/SPEC-buyer-evidence-view.md)
+is proposed. The [release scorecard](docs/roadmap/release-scorecard.md) separates
+implemented software from data, human and operational acceptance.
+
 For offline contract-to-decision references, use the
 [verified KIMDIS–Diavgeia citation readout](docs/runbooks/source-citations.md).
 It checks stored runs against both archives and exports private evidence with

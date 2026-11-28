@@ -69,6 +69,13 @@ The record is one line per metric, added by the same change that moves the statu
 
 No review record exists yet.
 
+The [U3 owner review packet](../verification/u3-owner-review-packet.md) is prepared
+from retained real source records, with blank human answers and a separate
+automated key. It supplies no review record or certification. Generic instructions
+to continue development do not attest that a person inspected originals and
+performed the hand reconciliation. Status/hash/policy compatibility must be
+reviewed before any promotion; the historical draft artifacts stay unchanged.
+
 ## Plan for certification (real-data reconciliation)
 
 The commands to run are in the [certification runbook](../verification/readout-certification.md).

@@ -5,6 +5,13 @@ How to produce the evidence that moves a metric from `reviewed` to `certified` i
 reconciliation; nothing here is run by an agent against a live source. Keep requests, originals and
 result files outside Git (`data/` is ignored).
 
+**Current U3 starting point, 2026-11-28:** the
+[private owner review packet](u3-owner-review-packet.md) is prepared from retained
+originals: a complete primary cohort, eligibility examples and repeated-capture
+selection. Start with that packet; no fresh capture is needed for this scoped
+review. Human calculations/sign-off and compatible definition/policy admission
+remain open. The older four-record rehearsal below is historical evidence.
+
 ## What was already checked offline
 
 On 2026-11-21 all four commands ran against the only local capture whose original archive survives
